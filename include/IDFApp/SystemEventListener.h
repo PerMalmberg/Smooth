@@ -6,18 +6,26 @@
 
 #include <IDFApp/Application.h>
 
-class SystemEventListener
+namespace idfapp
 {
-    public:
-        SystemEventListener()
-        {
-            Application::instance().subscribe(this);
-        }
 
-        virtual ~SystemEventListener()
-        {
-            Application::instance().unsubscribe(this);
-        }
+    class SystemEventListener
+    {
+        public:
+            SystemEventListener(Application& app)
+                    : application(app)
+            {
+                application.subscribe(this);
+            }
 
-        virtual void system_event(Application& app, system_event_t& event) = 0;
-};
+            virtual ~SystemEventListener()
+            {
+                application.unsubscribe(this);
+            }
+
+            virtual void system_event(Application& app, system_event_t& event) = 0;
+        private:
+            Application& application;
+    };
+
+}
