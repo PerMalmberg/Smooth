@@ -1,5 +1,2 @@
-#
-# "main" pseudo-component makefile.
-#
-# (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
-
+# Add the include directory to include paths so that files can be included using <IDFApp/file.h>
+COMPONENT_ADD_INCLUDEDIRS := include

@@ -2,40 +2,49 @@
 // Created by permal on 6/24/17.
 //
 
-#include "Wifi.h"
-#include <esp_wifi.h>
+#include <IDFApp/Wifi.h>
 #include "esp_log.h"
 #include <cstring>
 #include <esp_wifi_types.h>
 
-Wifi::Wifi(const std::string &ssid, const std::string &password)
+Wifi::Wifi(Application& app, const std::string& ssid, const std::string& password)
 {
+    // Prepare to connect to the provided SSID using the provided password
     wifi_init_config_t init = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&init);
-    esp_wifi_set_mode( WIFI_MODE_STA );
+    ESP_ERROR_CHECK(esp_wifi_init(&init));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_auto_connect(true));
 
     wifi_config_t config{};
-    strncpy( (char*)config.sta.ssid, ssid.c_str(), std::min(sizeof(config.sta.ssid), ssid.length()));
-    strncpy( (char*)config.sta.password, password.c_str(), std::min(sizeof(config.sta.password), password.length()));
+    memset(&config, 0, sizeof(config));
+    strncpy((char *) config.sta.ssid, ssid.c_str(), std::min(sizeof(config.sta.ssid), ssid.length()));
+    strncpy((char *) config.sta.password, password.c_str(), std::min(sizeof(config.sta.password), password.length()));
     config.sta.bssid_set = false;
 
-    esp_wifi_set_config(WIFI_IF_STA, &config );
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &config));
 
-
-    ESP_LOGV( "Wifi", "esp_wifi_start: %d", esp_wifi_start() );
-    ESP_LOGV( "Wifi", "esp_wifi_connect: %d", esp_wifi_connect() );
+    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
-Wifi::~Wifi() {
+Wifi::~Wifi()
+{
     esp_wifi_disconnect();
     esp_wifi_stop();
 }
 
-bool Wifi::is_connected() const {
-    wifi_ap_record_t ap_info{};
-    esp_err_t res = esp_wifi_sta_get_ap_info( &ap_info );
+bool Wifi::is_connected_to_ap() const
+{
+    return connected_to_ap;
+}
 
-    bool is_connected = res == ESP_OK;
-
-    return is_connected;
+void Wifi::system_event(Application& app, system_event_t& event)
+{
+    if (event.event_id == SYSTEM_EVENT_STA_CONNECTED)
+    {
+        connected_to_ap = true;
+    } else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
+    {
+        connected_to_ap = false;
+    }
 }
