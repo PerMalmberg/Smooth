@@ -55,8 +55,6 @@ namespace idfapp
 
     esp_err_t Application::event_callback(void *ctx, system_event_t *event)
     {
-        esp_event_process_default(event);
-
         Application *app = reinterpret_cast<Application *>( ctx );
         if (app != nullptr)
         {

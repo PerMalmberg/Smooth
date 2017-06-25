@@ -3,8 +3,8 @@
 //
 
 #include <IDFApp/Wifi.h>
-#include <esp_log.h>
 #include <cstring>
+#include <esp_log.h>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
 #include <IDFApp/Application.h>
