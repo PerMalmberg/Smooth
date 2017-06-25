@@ -4,8 +4,7 @@
 
 #pragma once
 #include <vector>
-#include <esp_event.h>
-#include <esp_event_loop.h>
+#include <esp_log.h>
 
 class SystemEventListener;
 
@@ -17,6 +16,7 @@ class Application {
         void subscribe(SystemEventListener* listener);
         void unsubscribe(SystemEventListener* listener);
         void publish_system_event( system_event_t& event );
+        void set_system_log_level(esp_log_level_t level) const;
     private:
         Application();
         static esp_err_t event_callback(void *ctx, system_event_t *event);

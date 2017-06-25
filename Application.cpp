@@ -4,8 +4,9 @@
 
 #include <algorithm>
 #include <esp_event.h>
-#include <esp_log.h>
+#include <esp_event_loop.h>
 #include <nvs_flash.h>
+#include <tcpip_adapter.h>
 #include <IDFApp/Application.h>
 #include <IDFApp/SystemEventListener.h>
 
@@ -13,7 +14,6 @@ Application::Application()
         : event_listeners()
 {
     nvs_flash_init();
-    tcpip_adapter_init();
 
     ESP_ERROR_CHECK(esp_event_loop_init(nullptr, nullptr));
     esp_event_loop_set_cb(&Application::event_callback, this);
@@ -62,4 +62,14 @@ esp_err_t Application::event_callback(void *ctx, system_event_t *event)
     ESP_LOGV("Application", "Got event: %d", event->event_id);
 
     return ESP_OK;
+}
+
+void Application::set_system_log_level( esp_log_level_t level) const
+{
+    // Silence wifi logging
+    std::vector<const char*> logs{ "wifi", "tcpip_adapter" };
+    for( auto log : logs )
+    {
+        esp_log_level_set(log, level);
+    }
 }
