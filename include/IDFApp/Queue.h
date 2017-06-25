@@ -31,25 +31,25 @@ namespace idfapp
                 }
             }
 
-            bool push_back(T& item, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
+            bool push(T& item, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
             {
                 auto res = xQueueSend(handle, &item, to_ticks(wait_time));
                 return res == pdTRUE;
             }
 
-            bool push_back_from_isr(T& item)
+            bool push_from_isr(T& item)
             {
                 auto res = xQueueSendFromISR(handle, &item, nullptr);
                 return res == pdTRUE;
             }
 
-            bool pop_front(T& target, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
+            bool pop(T& target, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
             {
                 auto res = xQueueReceive(handle, &target, to_ticks(wait_time));
                 return res == pdTRUE;
             }
 
-            bool pop_front_from_isr(T& target)
+            bool pop_from_isr(T& target)
             {
                 auto res = xQueueReceiveFromISR(handle, &target, nullptr);
                 return res == pdTRUE;
