@@ -5,7 +5,7 @@
 #pragma once
 
 
-namespace idfapp
+namespace smooth
 {
     class Socket
     {

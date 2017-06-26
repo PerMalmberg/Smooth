@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <IDFApp/Application.h>
+#include <smooth/Application.h>
 
-namespace idfapp
+namespace smooth
 {
 
     class SystemEventListener

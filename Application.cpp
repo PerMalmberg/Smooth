@@ -8,10 +8,10 @@
 #include <nvs_flash.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <IDFApp/Application.h>
-#include <IDFApp/SystemEventListener.h>
+#include <smooth/Application.h>
+#include <smooth/SystemEventListener.h>
 
-namespace idfapp
+namespace smooth
 {
 
     Application::Application()

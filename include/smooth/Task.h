@@ -10,7 +10,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-namespace idfapp
+namespace smooth
 {
     // The Task class encapsulates management and execution of a task.
     class Task
@@ -29,7 +29,7 @@ namespace idfapp
             {
                 for (;;)
                 {
-                    idfapp::Task::delay(std::chrono::seconds(1));
+                    smooth::Task::delay(std::chrono::seconds(1));
                 }
             }
 

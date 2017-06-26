@@ -7,7 +7,7 @@
 #include <esp_log.h>
 #include <chrono>
 
-namespace idfapp
+namespace smooth
 {
     template<typename T, int size>
     class Queue

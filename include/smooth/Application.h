@@ -7,7 +7,7 @@
 #include <vector>
 #include <esp_log.h>
 
-namespace idfapp
+namespace smooth
 {
 
     class SystemEventListener;

@@ -2,9 +2,9 @@
 // Created by permal on 6/25/17.
 //
 
-#include "IDFApp/Task.h"
+#include "smooth/Task.h"
 
-namespace idfapp
+namespace smooth
 {
 
     Task::Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority)

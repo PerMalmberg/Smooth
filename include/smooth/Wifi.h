@@ -6,10 +6,10 @@
 
 #include <string>
 #include <esp_wifi.h>
-#include <IDFApp/SystemEventListener.h>
+#include <smooth/SystemEventListener.h>
 
 
-namespace idfapp
+namespace smooth
 {
     class Application;
 
