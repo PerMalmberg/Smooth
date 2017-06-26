@@ -9,13 +9,13 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <smooth/Application.h>
-#include <smooth/SystemEventListener.h>
+#include <smooth/ipc/Link.h>
 
 namespace smooth
 {
-
-    Application::Application()
-            : event_listeners()
+    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority)
+            : Task(name, stack_depth, priority),
+              systemQueue(name + std::string("-Queue"), 10)
     {
         nvs_flash_init();
 
@@ -25,42 +25,32 @@ namespace smooth
 
     Application::~Application()
     {
-        event_listeners.clear();
     }
 
-    void Application::subscribe(SystemEventListener *listener)
+    void Application::loop()
     {
-        event_listeners.push_back(listener);
-    }
-
-    void Application::unsubscribe(SystemEventListener *listener)
-    {
-        auto it = std::find(event_listeners.begin(), event_listeners.end(), listener);
-        if (it != event_listeners.end())
+        system_event_t event;
+        if (systemQueue.pop(event, std::chrono::seconds(1)))
         {
-            event_listeners.erase(it);
+            // Publish event to listeners
+            smooth::ipc::Link<system_event_t>::publish(event);
         }
     }
 
-    void Application::publish_system_event(system_event_t& event)
-    {
-        for (auto listener : event_listeners)
-        {
-            if (listener != nullptr)
-            {
-                listener->system_event(*this, event);
-            }
-        }
-    }
 
-    esp_err_t Application::event_callback(void *ctx, system_event_t *event)
+    esp_err_t Application::event_callback(void* ctx, system_event_t* event)
     {
-        Application *app = reinterpret_cast<Application *>( ctx );
+        Application* app = reinterpret_cast<Application*>( ctx );
         if (app != nullptr)
         {
-            app->publish_system_event(*event);
+            if (!app->systemQueue.push(*event))
+            {
+                ESP_LOGE("Application", "Failed to enqueue event with id %d.", event->event_id);
+            }
+            else {
+                ESP_LOGV("Application", "Got event with id %d.", event->event_id);
+            }
         }
-        ESP_LOGV("Application", "Got event: %d", event->event_id);
 
         return ESP_OK;
     }
@@ -68,7 +58,7 @@ namespace smooth
     void Application::set_system_log_level(esp_log_level_t level) const
     {
         // Silence wifi logging
-        std::vector<const char *> logs{"wifi", "tcpip_adapter"};
+        std::vector<const char*> logs{"wifi", "tcpip_adapter"};
         for (auto log : logs)
         {
             esp_log_level_set(log, level);

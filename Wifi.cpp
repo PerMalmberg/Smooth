@@ -7,15 +7,12 @@
 #include <esp_log.h>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
-#include <smooth/Application.h>
 
 namespace smooth
 {
 
-    Wifi::Wifi(Application& app)
-            : SystemEventListener(app),
-              application(app),
-              host_name()
+    Wifi::Wifi()
+            : host_name()
     {
         tcpip_adapter_init();
     }
@@ -66,6 +63,7 @@ namespace smooth
         return connected_to_ap;
     }
 
+    /*
     void Wifi::system_event(Application& app, system_event_t& event)
     {
         if (event.event_id == SYSTEM_EVENT_STA_START)
@@ -86,5 +84,6 @@ namespace smooth
             }
         }
     }
+     */
 
 }

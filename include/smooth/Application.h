@@ -6,29 +6,27 @@
 
 #include <vector>
 #include <esp_log.h>
+#include <smooth/ipc/Queue.h>
+#include <smooth/Task.h>
 
 namespace smooth
 {
-
-    class SystemEventListener;
-
     class Application
+            : public Task
     {
         public:
-            Application();
+            Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority);
             virtual ~Application();
 
             Application(const Application&) = delete;
 
-            void main();
+            void loop();
 
-            void subscribe(SystemEventListener *listener);
-            void unsubscribe(SystemEventListener *listener);
-            void publish_system_event(system_event_t& event);
             void set_system_log_level(esp_log_level_t level) const;
+            typedef smooth::ipc::Queue<system_event_t> AppSystemEventQueue;
+            AppSystemEventQueue systemQueue;
         private:
-            static esp_err_t event_callback(void *ctx, system_event_t *event);
-            std::vector<SystemEventListener *> event_listeners;
+            static esp_err_t event_callback(void* ctx, system_event_t* event);
     };
 
 }
