@@ -19,8 +19,8 @@ namespace idfapp
     {
         nvs_flash_init();
 
-        ESP_ERROR_CHECK(esp_event_loop_init(nullptr, nullptr));
-        esp_event_loop_set_cb(&Application::event_callback, this);
+        // Setup the system event callback so that we receive events.
+        ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));
     }
 
     Application::~Application()
