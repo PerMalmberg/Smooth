@@ -47,7 +47,7 @@ namespace smooth
 
                     for (auto subscriber : get_subscribers())
                     {
-                        subscriber->enqueue(item);
+                        subscriber->push(item);
                     }
                 }
 

@@ -36,40 +36,39 @@ namespace smooth
                     }
                 }
 
-                bool push(T& item, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
+                bool push(const T& item, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
                 {
-                    auto res = xQueueSend(handle, &item, to_ticks(wait_time));
-                    return res == pdTRUE;
+                    return xQueueSend(handle, &item, to_ticks(wait_time)) == pdTRUE;
                 }
 
-                bool push_from_isr(T& item)
+                bool push_from_isr(const T& item)
                 {
-                    auto res = xQueueSendFromISR(handle, &item, nullptr);
-                    return res == pdTRUE;
+                    return xQueueSendFromISR(handle, &item, nullptr) == pdTRUE;
                 }
 
-                bool pop(T& target, std::chrono::milliseconds wait_time )
+                bool pop(T& target)
                 {
-                    auto res = xQueueReceive(handle, &target, to_ticks(wait_time));
-                    return res == pdTRUE;
+                    return xQueueReceive(handle, &target, 0);
+                }
+
+                bool pop(T& target, std::chrono::milliseconds wait_time)
+                {
+                    return xQueueReceive(handle, &target, to_ticks(wait_time)) == pdTRUE;
                 }
 
                 bool pop_from_isr(T& target)
                 {
-                    auto res = xQueueReceiveFromISR(handle, &target, nullptr);
-                    return res == pdTRUE;
+                    return xQueueReceiveFromISR(handle, &target, nullptr) == pdTRUE;
                 }
 
                 bool empty()
                 {
-                    UBaseType_t count = uxQueueMessagesWaiting(handle);
-                    return count == 0;
+                    return uxQueueMessagesWaiting(handle) == 0;
                 }
 
                 bool empty_from_isr()
                 {
-                    UBaseType_t count = uxQueueMessagesWaitingFromISR(handle);
-                    return count == 0;
+                    return uxQueueMessagesWaitingFromISR(handle) == 0;
                 }
 
             private:

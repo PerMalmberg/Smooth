@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <forward_list>
+#include <smooth/ipc/ITaskEventQueue.h>
 
 namespace smooth
 {
@@ -33,6 +35,10 @@ namespace smooth
                 }
             }
 
+            void message_available();
+
+            void register_event_queue( ipc::ITaskEventQueue* queue );
+
         protected:
             Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority);
 
@@ -45,14 +51,8 @@ namespace smooth
             TaskHandle_t task_handle = nullptr;
             uint32_t stack_depth;
             UBaseType_t priority;
+            std::forward_list<ipc::ITaskEventQueue*> registered_queues;
 
-            void exec(void)
-            {
-                for(;;)
-                {
-                    loop();
-                    taskYIELD();
-                }
-            }
+            void exec(void);
     };
 }
