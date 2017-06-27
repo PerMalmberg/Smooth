@@ -14,16 +14,16 @@ namespace smooth
         class Link;
 
         template<typename T>
-        class SubscribingEventQueue
+        class EventQueue
         {
             public:
-                SubscribingEventQueue(const std::string& name, int size)
+                EventQueue(const std::string& name, int size)
                         : queue(std::string("SubscribingEventQueue-") + name, size)
                 {
                     link.subscribe(this);
                 }
 
-                virtual ~SubscribingEventQueue()
+                virtual ~EventQueue()
                 {
                     link.unsubscribe(this);
                 }

@@ -15,14 +15,41 @@ namespace smooth
         class Mutex
         {
             public:
-                Mutex()
+
+                // Class used to do scoped-based locking.
+                class Lock
                 {
-                }
+                    public:
+                        Lock(Mutex& m)
+                                : m(m)
+                        {
+                            m.acquire();
+                        }
+
+                        ~Lock()
+                        {
+                            m.release();
+                        }
+
+                    private:
+                        Mutex& m;
+                };
+
+
+                Mutex() = default;
 
                 Mutex(const Mutex&) = delete;
 
-                // Default to 1 tick wait_time
-                bool acquire(std::chrono::milliseconds wait_time = std::chrono::milliseconds(portTICK_PERIOD_MS))
+                // Blocks until the mutex is acquired
+                void acquire()
+                {
+#if INCLUDE_vTaskSuspend != 1
+    #error "INCLUDE_vTaskSuspend must be configured to 1 to allow blocking indefinately"
+#endif
+                    xSemaphoreTake(semaphore, portMAX_DELAY);
+                }
+
+                bool acquire(std::chrono::milliseconds wait_time)
                 {
                     return xSemaphoreTake(semaphore, wait_time.count() / portTICK_PERIOD_MS) == pdTRUE;
                 }

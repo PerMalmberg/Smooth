@@ -6,7 +6,7 @@
 
 #include <forward_list>
 #include <chrono>
-#include "SubscribingEventQueue.h"
+#include "EventQueue.h"
 #include "Mutex.h"
 
 namespace smooth
@@ -28,49 +28,42 @@ namespace smooth
                     get_subscribers().clear();
                 }
 
-                void subscribe(SubscribingEventQueue<T>* sub)
+                void subscribe(EventQueue<T>* sub)
                 {
+                    Mutex::Lock l(get_mutex());
                     get_subscribers().push_front(sub);
                 }
 
-                void unsubscribe(SubscribingEventQueue<T>* sub)
+                void unsubscribe(EventQueue<T>* sub)
                 {
+                    Mutex::Lock l(get_mutex());
                     get_subscribers().remove(sub);
                 }
 
                 static void publish(T& item)
                 {
-                   static Mutex m;
+                    // Wait for semaphore to become available
+                    Mutex::Lock l(get_mutex());
 
-                    // Try until we succeed in sending the message
-                    bool done = false;
-                    do
+                    for (auto subscriber : get_subscribers())
                     {
-                        // Wait for semaphore to become available
-                        done = m.acquire();
-                        if (done)
-                        {
-                            for (auto subscriber : get_subscribers())
-                            {
-                                subscriber->enqueue(item);
-                            }
-
-                            m.release();
-                        }
+                        subscriber->enqueue(item);
                     }
-                    while (!done);
                 }
 
-
-                static std::forward_list<SubscribingEventQueue<T>*>& get_subscribers()
+                static std::forward_list<EventQueue<T>*>& get_subscribers()
                 {
                     // Place list in method to ensure linker finds it.
-                    static std::forward_list<SubscribingEventQueue<T>*> subscribers;
+                    static std::forward_list<EventQueue<T>*> subscribers;
                     return subscribers;
                 }
 
             private:
-
+                static Mutex& get_mutex()
+                {
+                    static Mutex m;
+                    return m;
+                }
         };
     }
 }
