@@ -8,22 +8,30 @@ namespace smooth
 {
     namespace ipc
     {
-        template <typename T>
+        template<typename T>
         class IEventMessage;
 
-        template <typename T>
+        template<typename T>
         class IEventListener
         {
             public:
-                virtual void message( const IEventMessage<T>& msg) = 0;
-                virtual void message( const T& msg) = 0;
+                virtual ~IEventListener()
+                {
+                }
+
+                virtual void message(const IEventMessage<T>& msg) = 0;
+                virtual void message(const T& msg) = 0;
         };
 
-        template <typename T>
+        template<typename T>
         class IEventMessage
         {
             public:
-                virtual void execute( IEventListener<T>& listener ) const
+                virtual ~IEventMessage()
+                {
+                }
+
+                virtual void execute(IEventListener<T>& listener) const
                 {
                     listener.message(*this);
                 }

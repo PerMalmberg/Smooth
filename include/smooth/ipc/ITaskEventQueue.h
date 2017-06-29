@@ -11,7 +11,7 @@ namespace smooth
         class ITaskEventQueue
         {
             public:
-                virtual void pop_next() = 0;
+                virtual void forward_to_task() = 0;
         };
     }
 }

@@ -10,6 +10,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <forward_list>
+#include <smooth/ipc/Queue.h>
 #include <smooth/ipc/ITaskEventQueue.h>
 
 namespace smooth
@@ -35,23 +36,24 @@ namespace smooth
                 }
             }
 
-            void message_available();
-
-            void register_event_queue( ipc::ITaskEventQueue* queue );
+            void message_available(ipc::ITaskEventQueue* queue);
 
         protected:
-            Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority);
+            Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority, int max_waiting_messages, std::chrono::milliseconds tick_interval);
 
-            // The loop() method is where the task shall perform its work.
-            // As it must never return, the method is called over and over.
-            virtual void loop() = 0;
+            // The tick() method is where the task shall perform its work.
+            // It is called every 'tick_interval' when there no events available.
+            // Note that if there is a constant stream of event received via a TaskEventQueue,
+            // then the tick may be delayed (depending on the tick_interval).
+            virtual void tick() {};
 
         private:
             std::string name;
             TaskHandle_t task_handle = nullptr;
             uint32_t stack_depth;
             UBaseType_t priority;
-            std::forward_list<ipc::ITaskEventQueue*> registered_queues;
+            std::chrono::milliseconds tick_interval;
+            ipc::Queue<ipc::ITaskEventQueue*> notification;
 
             void exec(void);
     };

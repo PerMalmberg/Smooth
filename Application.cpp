@@ -11,10 +11,13 @@
 #include <smooth/Application.h>
 #include <smooth/ipc/Link.h>
 
+using namespace std::chrono;
+
 namespace smooth
 {
-    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority)
-            : Task(name, stack_depth, priority),
+    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority,
+                             int max_waiting_messages)
+            : Task(name, stack_depth, priority, max_waiting_messages, milliseconds(100)),
               systemQueue(name + std::string("-Queue"), 10)
     {
         nvs_flash_init();
@@ -47,7 +50,8 @@ namespace smooth
             {
                 ESP_LOGE("Application", "Failed to enqueue event with id %d.", event->event_id);
             }
-            else {
+            else
+            {
                 ESP_LOGV("Application", "Got event with id %d.", event->event_id);
             }
         }

@@ -7,11 +7,12 @@
 namespace smooth
 {
 
-    Task::Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority)
+    Task::Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority, int max_waiting_messages, std::chrono::milliseconds tick_interval)
             : name(task_name),
               stack_depth(stack_depth),
               priority(priority),
-              registered_queues()
+              tick_interval(tick_interval),
+              notification(std::string("Notification-") + name, max_waiting_messages)
     {
     }
 
@@ -38,24 +39,25 @@ namespace smooth
     {
         for (;;)
         {
-            loop();
-            taskYIELD();
+            ipc::ITaskEventQueue* queue;
+            if ( notification.pop( queue, tick_interval ))
+            {
+                // An event has arrived, get the queue to forward it to us.
+                queue->forward_to_task();
+            }
+            else
+            {
+                // Timeout, perform tick.
+                tick();
+            }
         }
     }
 
-    void Task::message_available()
+    void Task::message_available(ipc::ITaskEventQueue* queue)
     {
-        // QQQ Implement a common wait with timeout for all queues.
-        // On timeout, call tick(), i..e. currently loop();
-        for( auto* queue : registered_queues )
-        {
-            queue->pop_next();
-        }
+        // Enqueue the queue that has a message available
+        notification.push(queue);
     }
 
-    void Task::register_event_queue(ipc::ITaskEventQueue* queue)
-    {
-        registered_queues.push_front(queue);
-    }
 
 }

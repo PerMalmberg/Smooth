@@ -20,11 +20,10 @@ namespace smooth
                 TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                         : EventQueue<T>(std::string("TaskEventQueue") + name, size), task(task), listener(listener)
                 {
-                    task.register_event_queue(this);
                 }
 
 
-                void pop_next()
+                void forward_to_task()
                 {
                     T m;
                     if (this->pop(m))
@@ -38,7 +37,7 @@ namespace smooth
                 void push(const T& item) override
                 {
                     EventQueue<T>::push(item);
-                    task.message_available();
+                    task.message_available(this);
                 }
 
             private:
