@@ -19,22 +19,7 @@ namespace smooth
                 {
                 }
 
-                virtual void message(const IEventMessage<T>& msg) = 0;
                 virtual void message(const T& msg) = 0;
-        };
-
-        template<typename T>
-        class IEventMessage
-        {
-            public:
-                virtual ~IEventMessage()
-                {
-                }
-
-                virtual void execute(IEventListener<T>& listener) const
-                {
-                    listener.message(*this);
-                }
         };
     }
 }

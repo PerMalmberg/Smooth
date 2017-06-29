@@ -28,7 +28,7 @@ namespace smooth
                     T m;
                     if (this->pop(m))
                     {
-                        m.execute(listener);
+                        listener.message(m);
                     }
                 }
 
