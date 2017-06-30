@@ -17,8 +17,7 @@ namespace smooth
 {
     Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority,
                              int max_waiting_messages)
-            : Task(name, stack_depth, priority, max_waiting_messages, milliseconds(100)),
-              systemQueue(name + std::string("-Queue"), 10)
+            : Task(name, stack_depth, priority, max_waiting_messages, milliseconds(100))
     {
         nvs_flash_init();
 
@@ -26,35 +25,14 @@ namespace smooth
         ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));
     }
 
-    Application::~Application()
-    {
-    }
-
-    void Application::loop()
-    {
-        system_event_t event;
-        if (systemQueue.pop(event, std::chrono::seconds(1)))
-        {
-            // Publish event to listeners
-            smooth::ipc::Link<system_event_t>::publish(event);
-        }
-    }
-
-
     esp_err_t Application::event_callback(void* ctx, system_event_t* event)
     {
-        Application* app = reinterpret_cast<Application*>( ctx );
-        if (app != nullptr)
-        {
-            if (!app->systemQueue.push(*event))
-            {
-                ESP_LOGE("Application", "Failed to enqueue event with id %d.", event->event_id);
-            }
-            else
-            {
-                ESP_LOGV("Application", "Got event with id %d.", event->event_id);
-            }
-        }
+        // Publish event to listeners
+        smooth::ipc::Link<system_event_t>::publish(*event);
+
+        // Application* app = reinterpret_cast<Application*>( ctx );
+
+        ESP_LOGV("Application", "Got event with id %d.", event->event_id);
 
         return ESP_OK;
     }
