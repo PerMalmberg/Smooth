@@ -12,6 +12,7 @@
 #include <forward_list>
 #include <smooth/ipc/Queue.h>
 #include <smooth/ipc/ITaskEventQueue.h>
+#include <smooth/ipc/Mutex.h>
 
 namespace smooth
 {
@@ -21,7 +22,6 @@ namespace smooth
         public:
             virtual ~Task();
             void start();
-
             // This is static so that it can be used also in app_main().
             static void delay(std::chrono::milliseconds ms)
             {

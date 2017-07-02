@@ -8,9 +8,10 @@
 #include <sys/socket.h>
 #include <esp_event.h>
 #include <smooth/Task.h>
-#include <map>
-#include <smooth/ipc/Mutex.h>
+#include <vector>
+#include <smooth/ipc/RecursiveMutex.h>
 #include <smooth/ipc/TaskEventQueue.h>
+#include "ISocket.h"
 
 namespace smooth
 {
@@ -32,20 +33,27 @@ namespace smooth
 
                 void tick() override;
 
-                bool add_socket(int socket_id, smooth::network::Socket* socket);
+                void add_socket(ISocket* socket);
+                void socket_closed(ISocket* socket);
 
                 void message(const system_event_t& msg) override;
 
             private:
                 SocketWorker();
-                bool set_non_blocking(int socket_id);
+                int build_sets();
+                void clear_sets();
+                void set_timeout();
+                void restart_inactive_sockets();
 
-                std::map<int, Socket*> sockets;
-                smooth::ipc::Mutex fd_guard;
+                std::vector<ISocket*> active_sockets;
+                std::vector<ISocket*> inactive_sockets;
+                smooth::ipc::RecursiveMutex socket_guard;
                 smooth::ipc::TaskEventQueue<system_event_t> system_events;
 
-                fd_set set;
-                struct timeval tv;
+                fd_set read_set;
+                fd_set write_set;
+                timeval tv;
+                bool has_ip = false;
         };
     }
 }

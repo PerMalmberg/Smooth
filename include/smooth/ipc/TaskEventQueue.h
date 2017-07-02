@@ -36,6 +36,7 @@ namespace smooth
 
                 void forward_to_task()
                 {
+                    // All messages passed via a queue needs a default constructor and must be copyable.
                     T m;
                     if (Queue<T>::pop(m))
                     {
