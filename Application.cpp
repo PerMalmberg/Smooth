@@ -9,7 +9,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <smooth/Application.h>
-#include <smooth/ipc/Link.h>
+#include <smooth/ipc/Publisher.h>
 
 using namespace std::chrono;
 
@@ -28,7 +28,7 @@ namespace smooth
     esp_err_t Application::event_callback(void* ctx, system_event_t* event)
     {
         // Publish event to listeners
-        smooth::ipc::Link<system_event_t>::publish(*event);
+        smooth::ipc::Publisher<system_event_t>::publish(*event);
 
         // Application* app = reinterpret_cast<Application*>( ctx );
 

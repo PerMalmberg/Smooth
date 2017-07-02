@@ -9,9 +9,6 @@ namespace smooth
     namespace ipc
     {
         template<typename T>
-        class IEventMessage;
-
-        template<typename T>
         class IEventListener
         {
             public:

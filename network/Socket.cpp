@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <smooth/network/SocketWorker.h>
 
 namespace smooth
 {
@@ -20,11 +21,20 @@ namespace smooth
             if (res)
             {
                 socket_id = socket(ip.get_protocol_family(), SOCK_STREAM, 0);
-                ESP_LOGV("Socket", "socket_id: %d", socket_id);
 
-                int res = connect(socket_id, ip.get_socket_address(), ip.get_socket_address_length());
-                const char* error = strerror(errno);
-                ESP_LOGV("Socket", "connect: %d, errno: %s", res, error);
+                if (socket_id == -1)
+                {
+                    ESP_LOGV("Socket", "Creation failed, id: %s", strerror(errno));
+                }
+                else
+                {
+                    ESP_LOGV("Socket", "Created: id: %d", socket_id);
+                    SocketWorker::instance().add_socket( socket_id, this);
+                    int res = connect(socket_id, ip.get_socket_address(), ip.get_socket_address_length());
+
+                    const char* error = strerror(errno);
+                    ESP_LOGV("Socket", "connect: %d, errno: %s", res, error);
+                }
             }
 
             return res;

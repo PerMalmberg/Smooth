@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "EventQueue.h"
 #include <smooth/Task.h>
 #include "ITaskEventQueue.h"
+#include "IEventMessage.h"
+#include "Link.h"
 
 namespace smooth
 {
@@ -14,35 +15,48 @@ namespace smooth
     {
         template<typename T>
         class TaskEventQueue
-                : public EventQueue<T>, public ITaskEventQueue
+                : public Link<T>, public Queue<T>, public ITaskEventQueue
         {
             public:
-                TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
-                        : EventQueue<T>(std::string("TaskEventQueue") + name, size), task(task), listener(listener)
+                TaskEventQueue(const std::string& name, int size, Task& task, IEventListener <T>& listener)
+                        :
+                        Link<T>(),
+                        Queue<T>(name + std::string("-Queue"), size),
+                        task(task),
+                        listener(listener)
                 {
+                    this->subscribe(this);
                 }
 
+
+                ~TaskEventQueue()
+                {
+                    this->unsubscribe(this);
+                }
 
                 void forward_to_task()
                 {
                     T m;
-                    if (this->pop(m))
+                    if (Queue<T>::pop(m))
                     {
                         listener.message(m);
                     }
                 }
 
-
-            protected:
-                void push(const T& item) override
+                bool push(const T& item) override
                 {
-                    EventQueue<T>::push(item);
-                    task.message_available(this);
+                    bool res = Queue<T>::push(item);
+                    if (res)
+                    {
+                        task.message_available(this);
+                    }
+
+                    return res;
                 }
 
             private:
                 Task& task;
-                IEventListener<T>& listener;
+                IEventListener <T>& listener;
         };
     }
 }

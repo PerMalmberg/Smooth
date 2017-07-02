@@ -36,7 +36,12 @@ namespace smooth
                     }
                 }
 
-                bool push(const T& item, std::chrono::milliseconds wait_time = std::chrono::milliseconds(0))
+                virtual bool push(const T& item)
+                {
+                    return xQueueSend(handle, &item, 0 ) == pdTRUE;
+                }
+
+                virtual bool push(const T& item, std::chrono::milliseconds wait_time )
                 {
                     return xQueueSend(handle, &item, to_ticks(wait_time)) == pdTRUE;
                 }
@@ -77,7 +82,7 @@ namespace smooth
 
                 TickType_t to_ticks(std::chrono::milliseconds ms)
                 {
-                    return ms.count() / portTICK_PERIOD_MS;
+                    return pdMS_TO_TICKS( ms.count() );
                 }
         };
     }

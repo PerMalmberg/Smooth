@@ -6,8 +6,8 @@
 
 #include <forward_list>
 #include <chrono>
-#include "EventQueue.h"
 #include "Mutex.h"
+#include "Queue.h"
 
 namespace smooth
 {
@@ -17,45 +17,29 @@ namespace smooth
         class Link
         {
             public:
-                Link()
-                {
-                }
+                Link() = default;
 
                 Link(const Link&) = delete;
 
-                virtual ~Link()
-                {
-                    get_subscribers().clear();
-                }
+                virtual ~Link();
 
-                void subscribe(EventQueue<T>* sub)
-                {
-                    Mutex::Lock l(get_mutex());
-                    get_subscribers().push_front(sub);
-                }
+                void subscribe(Queue<T>* sub);
 
-                void unsubscribe(EventQueue<T>* sub)
+                void unsubscribe(Queue<T>* sub);
+
+                static std::forward_list<Queue<T>*>& get_subscribers();
+
+                static bool publish(T& item)
                 {
                     Mutex::Lock l(get_mutex());
-                    get_subscribers().remove(sub);
-                }
+                    bool res = false;
 
-                static void publish(T& item)
-                {
-                    // Wait for semaphore to become available
-                    Mutex::Lock l(get_mutex());
-
-                    for (auto subscriber : get_subscribers())
+                    for (Queue<T>* subscriber : get_subscribers())
                     {
-                        subscriber->push(item);
+                        res = subscriber->push(item);
                     }
-                }
 
-                static std::forward_list<EventQueue<T>*>& get_subscribers()
-                {
-                    // Place list in method to ensure linker finds it.
-                    static std::forward_list<EventQueue<T>*> subscribers;
-                    return subscribers;
+                    return res;
                 }
 
             private:
@@ -65,5 +49,34 @@ namespace smooth
                     return m;
                 }
         };
+
+
+        template<typename T>
+        Link<T>::~Link()
+        {
+            get_subscribers().clear();
+        }
+
+        template<typename T>
+        void Link<T>::subscribe(Queue<T>* sub)
+        {
+            Mutex::Lock l(get_mutex());
+            get_subscribers().push_front(sub);
+        }
+
+        template<typename T>
+        void Link<T>::unsubscribe(Queue<T>* sub)
+        {
+            Mutex::Lock l(get_mutex());
+            get_subscribers().remove(sub);
+        }
+
+        template<typename T>
+        std::forward_list<Queue<T>*>& Link<T>::get_subscribers()
+        {
+            // Place list in method to ensure linker finds it.
+            static std::forward_list<Queue<T>*> subscribers;
+            return subscribers;
+        }
     }
 }
