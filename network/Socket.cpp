@@ -26,11 +26,7 @@ namespace smooth
             bool res = ip->is_valid();
             if (res)
             {
-                res = create_socket();
-                if (res)
-                {
-                    SocketDispatcher::instance().add_socket(this);
-                }
+                SocketDispatcher::instance().add_socket(this);
             }
 
             return res;
@@ -85,7 +81,6 @@ namespace smooth
 
         void Socket::readable()
         {
-            ESP_LOGV("Socket", "Readable");
             // Detect disconnection
             char b[1];
             int res = recv(socket_id, b, 1, MSG_PEEK);

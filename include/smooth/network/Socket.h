@@ -50,7 +50,7 @@ namespace smooth
             private:
                 bool set_non_blocking();
                 bool create_socket();
-                int socket_id;
+                int socket_id = -1;
                 IDataAvailable& destination;
                 std::shared_ptr<InetAddress> ip;
                 bool started = false;

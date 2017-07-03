@@ -123,7 +123,7 @@ namespace smooth
                 {
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                     active_sockets.push_back(socket);
-                    ESP_LOGV("SocketDispatcher", "Added active: %d", socket->get_socket_id());
+                    ESP_LOGV("SocketDispatcher", "Added active: %p", socket);
                 }
                 socket->internal_start();
             }
@@ -131,13 +131,13 @@ namespace smooth
             {
                 smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                 inactive_sockets.push_back(socket);
-                ESP_LOGV("SocketDispatcher", "Added inactive: %d", socket->get_socket_id());
+                ESP_LOGV("SocketDispatcher", "Added inactive: %p", socket);
             }
         }
 
         void SocketDispatcher::socket_closed(ISocket* socket)
         {
-            ESP_LOGV("SocketDispatcher", "Socket closed: %d", socket->get_socket_id());
+            ESP_LOGV("SocketDispatcher", "Socket closed: %p", socket);
             smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
             auto it = std::find(active_sockets.begin(), active_sockets.end(), socket);
             if (it != active_sockets.end())
@@ -156,7 +156,7 @@ namespace smooth
 
                 for (auto* socket: copy)
                 {
-                    ESP_LOGV("SocketDispatcher", "Restarting %d", socket->get_socket_id());
+                    ESP_LOGV("SocketDispatcher", "Restarting %p", socket);
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                     active_sockets.push_back(socket);
                     socket->internal_start();
