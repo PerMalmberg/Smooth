@@ -77,8 +77,9 @@ namespace smooth
             else
             {
                 // When there are no active sockets, select() returns immediately so
-                // we must prevent the task from hogging the CPU.
-                delay(std::chrono::milliseconds(500));
+                // we must prevent the task from hogging the CPU, but we also want to
+                // have short response time when something happens.
+                delay(std::chrono::milliseconds(1));
             }
         }
 

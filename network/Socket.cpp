@@ -55,7 +55,7 @@ namespace smooth
             return res;
         }
 
-        void Socket::transmit(std::shared_ptr<ISendBuffer> buffer)
+        void Socket::transmit(std::shared_ptr<ITransferBuffer> buffer)
         {
             send_buffer = buffer;
         }

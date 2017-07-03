@@ -11,7 +11,7 @@ namespace smooth
 {
     namespace network
     {
-        class ISendBuffer
+        class ITransferBuffer
         {
             public:
                 virtual int size() = 0;
@@ -20,11 +20,11 @@ namespace smooth
         };
 
         template<int buff_size>
-        class SendBuffer
-                : public ISendBuffer
+        class TransferBuffer
+                : public ITransferBuffer
         {
             public:
-                SendBuffer(const char* data, int length)
+                TransferBuffer(const char* data, int length)
                 {
                     int i = 0;
                     int len = std::min(buff_size, length);
