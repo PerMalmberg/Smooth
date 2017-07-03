@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include <smooth/network/SocketWorker.h>
+#include <smooth/network/SocketDispatcher.h>
 
 namespace smooth
 {
@@ -29,7 +29,7 @@ namespace smooth
                 res = create_socket();
                 if (res)
                 {
-                    SocketWorker::instance().add_socket(this);
+                    SocketDispatcher::instance().add_socket(this);
                 }
             }
 
@@ -177,7 +177,7 @@ namespace smooth
 
                 if (started)
                 {
-                    SocketWorker::instance().add_socket(this);
+                    SocketDispatcher::instance().add_socket(this);
                 }
                 else
                 {
@@ -192,7 +192,7 @@ namespace smooth
             close(socket_id);
             started = false;
             connected = false;
-            SocketWorker::instance().socket_closed(this);
+            SocketDispatcher::instance().socket_closed(this);
             socket_id = -1;
         }
 

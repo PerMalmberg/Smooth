@@ -19,17 +19,17 @@ namespace smooth
     {
         class Socket;
 
-        class SocketWorker
+        class SocketDispatcher
                 : public smooth::Task,
                   public smooth::ipc::IEventListener<system_event_t>
         {
             public:
 
-                virtual ~SocketWorker()
+                virtual ~SocketDispatcher()
                 {
                 }
 
-                static SocketWorker& instance();
+                static SocketDispatcher& instance();
 
                 void tick() override;
 
@@ -39,7 +39,7 @@ namespace smooth
                 void message(const system_event_t& msg) override;
 
             private:
-                SocketWorker();
+                SocketDispatcher();
                 int build_sets();
                 void clear_sets();
                 void set_timeout();

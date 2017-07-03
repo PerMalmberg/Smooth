@@ -2,7 +2,7 @@
 // Created by permal on 7/1/17.
 //
 
-#include <smooth/network/SocketWorker.h>
+#include <smooth/network/SocketDispatcher.h>
 #include <fcntl.h>
 #include <algorithm>
 
@@ -10,9 +10,9 @@ namespace smooth
 {
     namespace network
     {
-        SocketWorker& SocketWorker::instance()
+        SocketDispatcher& SocketDispatcher::instance()
         {
-            static SocketWorker instance;
+            static SocketDispatcher instance;
 
             // Start task on first use
             static bool initialized = false;
@@ -25,18 +25,18 @@ namespace smooth
         }
 
 
-        SocketWorker::SocketWorker()
-                : Task("SocketWorker", 8192, 6, 1, std::chrono::milliseconds(0)),
+        SocketDispatcher::SocketDispatcher()
+                : Task("SocketDispatcher", 8192, 6, 1, std::chrono::milliseconds(0)),
                   active_sockets(),
                   inactive_sockets(),
                   socket_guard(),
-                  system_events("SocketWorker", 10, *this, *this)
+                  system_events("SocketDispatcher", 10, *this, *this)
         {
             clear_sets();
         }
 
 
-        void SocketWorker::tick()
+        void SocketDispatcher::tick()
         {
             restart_inactive_sockets();
 
@@ -51,7 +51,7 @@ namespace smooth
                 {
                     // Error
                     const char* error = strerror(errno);
-                    ESP_LOGE("SocketWorker", "Error during select: %s", error);
+                    ESP_LOGE("SocketDispatcher", "Error during select: %s", error);
                 }
                 else if (res > 0)
                 {
@@ -76,26 +76,26 @@ namespace smooth
             }
             else
             {
-                // When there are now active sockets, select() returns immediately so
-                // we must prevent the task from hoging the CPU.
+                // When there are no active sockets, select() returns immediately so
+                // we must prevent the task from hogging the CPU.
                 delay(std::chrono::seconds(1));
             }
         }
 
-        void SocketWorker::set_timeout()
+        void SocketDispatcher::set_timeout()
         {
             tv.tv_sec = 1;
             tv.tv_usec = 0;
         }
 
-        void SocketWorker::clear_sets()
+        void SocketDispatcher::clear_sets()
         {
             smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
             FD_ZERO(&read_set);
             FD_ZERO(&write_set);
         }
 
-        int SocketWorker::build_sets()
+        int SocketDispatcher::build_sets()
         {
             clear_sets();
 
@@ -116,14 +116,14 @@ namespace smooth
             return max;
         }
 
-        void SocketWorker::add_socket(ISocket* socket)
+        void SocketDispatcher::add_socket(ISocket* socket)
         {
             if (has_ip)
             {
                 {
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                     active_sockets.push_back(socket);
-                    ESP_LOGV("SocketWorker", "Added active: %d", socket->get_socket_id());
+                    ESP_LOGV("SocketDispatcher", "Added active: %d", socket->get_socket_id());
                 }
                 socket->internal_start();
             }
@@ -131,13 +131,13 @@ namespace smooth
             {
                 smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                 inactive_sockets.push_back(socket);
-                ESP_LOGV("SocketWorker", "Added inactive: %d", socket->get_socket_id());
+                ESP_LOGV("SocketDispatcher", "Added inactive: %d", socket->get_socket_id());
             }
         }
 
-        void SocketWorker::socket_closed(ISocket* socket)
+        void SocketDispatcher::socket_closed(ISocket* socket)
         {
-            ESP_LOGV("SocketWorker", "Socket closed: %d", socket->get_socket_id());
+            ESP_LOGV("SocketDispatcher", "Socket closed: %d", socket->get_socket_id());
             smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
             auto it = std::find(active_sockets.begin(), active_sockets.end(), socket);
             if (it != active_sockets.end())
@@ -146,7 +146,7 @@ namespace smooth
             }
         }
 
-        void SocketWorker::restart_inactive_sockets()
+        void SocketDispatcher::restart_inactive_sockets()
         {
             if (has_ip)
             {
@@ -156,7 +156,7 @@ namespace smooth
 
                 for (auto* socket: copy)
                 {
-                    ESP_LOGV("SocketWorker", "Restarting %d", socket->get_socket_id());
+                    ESP_LOGV("SocketDispatcher", "Restarting %d", socket->get_socket_id());
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
                     active_sockets.push_back(socket);
                     socket->internal_start();
@@ -175,7 +175,7 @@ namespace smooth
             }
         }
 
-        void SocketWorker::message(const system_event_t& msg)
+        void SocketDispatcher::message(const system_event_t& msg)
         {
             if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
                 || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
