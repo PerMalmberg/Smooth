@@ -26,6 +26,7 @@ namespace smooth
                         listener(listener)
                 {
                     this->subscribe(this);
+                    task.report_queue_size(size);
                 }
 
 
@@ -50,6 +51,10 @@ namespace smooth
                     if (res)
                     {
                         task.message_available(this);
+                    }
+                    else
+                    {
+                        ESP_LOGE("TaskEventQueue", "Could not push");
                     }
 
                     return res;

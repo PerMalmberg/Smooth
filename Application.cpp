@@ -15,9 +15,8 @@ using namespace std::chrono;
 
 namespace smooth
 {
-    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority,
-                             int max_waiting_messages)
-            : Task(name, stack_depth, priority, max_waiting_messages, milliseconds(100))
+    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority)
+            : Task(name, stack_depth, priority, milliseconds(100))
     {
         nvs_flash_init();
 

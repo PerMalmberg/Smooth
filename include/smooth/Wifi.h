@@ -6,13 +6,14 @@
 
 #include <string>
 #include <esp_wifi.h>
+#include <smooth/ipc/DirectEvent.h>
 
 
 namespace smooth
 {
     class Application;
 
-    class Wifi
+    class Wifi : public smooth::ipc::IEventListener<system_event_t>
     {
         public:
             Wifi();
@@ -26,12 +27,14 @@ namespace smooth
 
             bool is_connected_to_ap() const;
 
+            void message(const system_event_t& msg) override;
 
         private:
             void connect();
             bool auto_connect_to_ap = false;
             bool connected_to_ap = false;
             std::string host_name;
+            smooth::ipc::DirectEvent<system_event_t> direct_event;
     };
 
 }

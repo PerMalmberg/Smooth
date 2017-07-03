@@ -36,7 +36,7 @@ namespace smooth
 
                     for (Queue<T>* subscriber : get_subscribers())
                     {
-                        res = subscriber->push(item);
+                        res &= subscriber->push(item);
                     }
 
                     return res;
@@ -54,7 +54,9 @@ namespace smooth
         template<typename T>
         Link<T>::~Link()
         {
-            get_subscribers().clear();
+            // Do not clear subscribers - it breaks all subscriptions when an
+            // instance of a class inheriting from Link<> is destructed.
+            // The correct way is to unsubscribe in the subclass destructor.
         }
 
         template<typename T>

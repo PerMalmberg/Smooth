@@ -22,6 +22,7 @@ namespace smooth
         public:
             virtual ~Task();
             void start();
+
             // This is static so that it can be used also in app_main().
             static void delay(std::chrono::milliseconds ms)
             {
@@ -38,16 +39,23 @@ namespace smooth
 
             void message_available(ipc::ITaskEventQueue* queue);
 
+            void report_queue_size(int size);
+
+
         protected:
-            Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority, int max_waiting_messages, std::chrono::milliseconds tick_interval);
+            Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority,
+                 std::chrono::milliseconds tick_interval);
 
             // The tick() method is where the task shall perform its work.
             // It is called every 'tick_interval' when there no events available.
             // Note that if there is a constant stream of event received via a TaskEventQueue,
             // then the tick may be delayed (depending on the tick_interval).
-            virtual void tick() {};
+            virtual void tick()
+            {
+            };
 
         private:
+            int notification_size = 0;
             std::string name;
             TaskHandle_t task_handle = nullptr;
             uint32_t stack_depth;

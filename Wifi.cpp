@@ -12,7 +12,8 @@ namespace smooth
 {
 
     Wifi::Wifi()
-            : host_name()
+            : host_name(),
+              direct_event("Wifi", *this)
     {
         tcpip_adapter_init();
     }
@@ -63,18 +64,17 @@ namespace smooth
         return connected_to_ap;
     }
 
-    /*
-    void Wifi::system_event(Application& app, system_event_t& event)
+    void Wifi::message(const system_event_t& msg)
     {
-        if (event.event_id == SYSTEM_EVENT_STA_START)
+        if (msg.event_id == SYSTEM_EVENT_STA_START)
         {
             ESP_ERROR_CHECK(tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, host_name.c_str()));
         }
-        else if (event.event_id == SYSTEM_EVENT_STA_CONNECTED)
+        else if (msg.event_id == SYSTEM_EVENT_STA_CONNECTED)
         {
             connected_to_ap = true;
         }
-        else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
+        else if (msg.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
         {
             connected_to_ap = false;
             if (auto_connect_to_ap)
@@ -84,6 +84,5 @@ namespace smooth
             }
         }
     }
-     */
 
 }

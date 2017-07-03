@@ -170,11 +170,7 @@ namespace smooth
                     }
                 }
 
-                if (started)
-                {
-                    SocketDispatcher::instance().add_socket(this);
-                }
-                else
+                if (!started)
                 {
                     stop();
                 }

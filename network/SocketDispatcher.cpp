@@ -26,7 +26,7 @@ namespace smooth
 
 
         SocketDispatcher::SocketDispatcher()
-                : Task("SocketDispatcher", 8192, 6, 1, std::chrono::milliseconds(0)),
+                : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(0)),
                   active_sockets(),
                   inactive_sockets(),
                   socket_guard(),
@@ -78,7 +78,7 @@ namespace smooth
             {
                 // When there are no active sockets, select() returns immediately so
                 // we must prevent the task from hogging the CPU.
-                delay(std::chrono::seconds(1));
+                delay(std::chrono::milliseconds(500));
             }
         }
 
@@ -177,11 +177,11 @@ namespace smooth
 
         void SocketDispatcher::message(const system_event_t& msg)
         {
+            ESP_LOGV("SocketDispatcher", "Message: %d", msg.event_id);
             if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
                 || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
             {
                 has_ip = true;
-                restart_inactive_sockets();
             }
             else if (msg.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
             {

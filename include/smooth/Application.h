@@ -15,7 +15,7 @@ namespace smooth
             : public Task
     {
         public:
-            Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority, int max_waiting_messages);
+            Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority);
             virtual ~Application() {}
 
             Application(const Application&) = delete;

@@ -17,7 +17,8 @@ namespace smooth
         {
             public:
                 Queue(const std::string& name, int size)
-                        : name(name)
+                        : name(name),
+                          initial_size(size)
                 {
                     ESP_LOGV("Queue", "Creating queue '%s', with %d items of size %d.", name.c_str(), size, sizeof(T));
                     handle = xQueueCreate(size, sizeof(T));
@@ -36,12 +37,22 @@ namespace smooth
                     }
                 }
 
-                virtual bool push(const T& item)
+                void set_size(int size)
                 {
-                    return xQueueSend(handle, &item, 0 ) == pdTRUE;
+                    if (handle != nullptr && size > initial_size && size > 0)
+                    {
+                        ESP_LOGV("Queue", "Resizing queue '%s', from %d items to %d items of size %d.", name.c_str(), initial_size, size, sizeof(T));
+                        vQueueDelete(handle);
+                        handle = xQueueCreate(size, sizeof(T));
+                    }
                 }
 
-                virtual bool push(const T& item, std::chrono::milliseconds wait_time )
+                virtual bool push(const T& item)
+                {
+                    return xQueueSend(handle, &item, 0) == pdTRUE;
+                }
+
+                virtual bool push(const T& item, std::chrono::milliseconds wait_time)
                 {
                     return xQueueSend(handle, &item, to_ticks(wait_time)) == pdTRUE;
                 }
@@ -79,10 +90,11 @@ namespace smooth
             private:
                 QueueHandle_t handle = nullptr;
                 std::string name;
+                int initial_size;
 
                 TickType_t to_ticks(std::chrono::milliseconds ms)
                 {
-                    return pdMS_TO_TICKS( ms.count() );
+                    return pdMS_TO_TICKS(ms.count());
                 }
         };
     }
