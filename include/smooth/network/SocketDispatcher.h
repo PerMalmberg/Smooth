@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <esp_event.h>
 #include <smooth/Task.h>
+#include <map>
 #include <vector>
 #include <smooth/ipc/RecursiveMutex.h>
 #include <smooth/ipc/TaskEventQueue.h>
@@ -45,7 +46,7 @@ namespace smooth
                 void set_timeout();
                 void restart_inactive_sockets();
 
-                std::vector<ISocket*> active_sockets;
+                std::map<int, ISocket*> active_sockets;
                 std::vector<ISocket*> inactive_sockets;
                 smooth::ipc::RecursiveMutex socket_guard;
                 smooth::ipc::TaskEventQueue<system_event_t> system_events;

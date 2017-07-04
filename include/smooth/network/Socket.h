@@ -10,7 +10,6 @@
 #undef bind
 
 #include "InetAddress.h"
-#include "IDataAvailable.h"
 #include <memory>
 #include "ISocket.h"
 #include "TransferBuffer.h"
@@ -27,7 +26,7 @@ namespace smooth
             public:
                 friend class smooth::network::SocketDispatcher;
 
-                Socket(IDataAvailable& destination);
+                Socket(ITransferBuffer& tx_buffer, ITransferBuffer& rx_buffer);
 
                 virtual ~Socket()
                 {
@@ -36,7 +35,6 @@ namespace smooth
                 bool start(std::shared_ptr<InetAddress> ip);
                 void stop() override;
 
-                void transmit(std::shared_ptr<ITransferBuffer> buffer);
                 void readable() override;
 
                 void writable() override;
@@ -45,6 +43,7 @@ namespace smooth
                 void internal_start() override;
 
                 bool is_started() override;
+
                 int get_socket_id() override
                 {
                     return socket_id;
@@ -54,16 +53,16 @@ namespace smooth
 
                 bool has_data_to_transmit() override
                 {
-                    return send_buffer && send_buffer->size() > 0;
+                    return tx_buffer.size() > 0;
                 }
+
                 bool create_socket();
                 int socket_id = -1;
-                IDataAvailable& destination;
                 std::shared_ptr<InetAddress> ip;
                 bool started = false;
                 bool connected = false;
-
-                std::shared_ptr<ITransferBuffer> send_buffer = nullptr;
+                ITransferBuffer& tx_buffer;
+                ITransferBuffer& rx_buffer;
         };
     }
 }

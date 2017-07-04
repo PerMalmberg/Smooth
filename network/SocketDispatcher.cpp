@@ -55,22 +55,33 @@ namespace smooth
                 }
                 else if (res > 0)
                 {
+                    for (auto& it : active_sockets)
+                    {
+                        ESP_LOGV("SD", "ID: %d, %d", it.first, it.second->get_socket_id());
+                    }
+
+
                     for (int i = 0; i <= max_file_descriptor; ++i)
                     {
                         if (FD_ISSET(i, &read_set))
                         {
-                            auto& ptr_ref = active_sockets.at(i);
-                            ISocket* ptr = *(&ptr_ref);
-                            ptr->readable();
+                            auto it = active_sockets.find(i);
+                            if (it != active_sockets.end())
+                            {
+                                it->second->readable();
+                            }
                         }
 
+                        // At this point, it is possible that a socket that was closed has been
+                        // removed during the readable() call.
                         if (FD_ISSET(i, &write_set))
                         {
-                            auto& ptr_ref = active_sockets.at(i);
-                            ISocket* ptr = *(&ptr_ref);
-                            ptr->writable();
+                            auto it = active_sockets.find(i);
+                            if (it != active_sockets.end())
+                            {
+                                it->second->writable();
+                            }
                         }
-
                     }
                 }
             }
@@ -104,8 +115,9 @@ namespace smooth
 
             int max = -1;
 
-            for (auto* s : active_sockets)
+            for (auto& pair : active_sockets)
             {
+                auto* s = pair.second;
                 max = std::max(max, s->get_socket_id());
                 if (s->has_data_to_transmit())
                 {
@@ -123,7 +135,7 @@ namespace smooth
             {
                 {
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
-                    active_sockets.push_back(socket);
+                    active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
                     ESP_LOGV("SocketDispatcher", "Added active: %p", socket);
                 }
                 socket->internal_start();
@@ -140,11 +152,7 @@ namespace smooth
         {
             ESP_LOGV("SocketDispatcher", "Socket closed: %p", socket);
             smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
-            auto it = std::find(active_sockets.begin(), active_sockets.end(), socket);
-            if (it != active_sockets.end())
-            {
-                active_sockets.erase(it);
-            }
+            active_sockets.erase(socket->get_socket_id());
         }
 
         void SocketDispatcher::restart_inactive_sockets()
@@ -159,7 +167,7 @@ namespace smooth
                 {
                     ESP_LOGV("SocketDispatcher", "Restarting %p", socket);
                     smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
-                    active_sockets.push_back(socket);
+                    active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
                     socket->internal_start();
                 }
 
@@ -189,10 +197,10 @@ namespace smooth
                 // Close all sockets
                 has_ip = false;
                 smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
-                for (auto* socket : active_sockets)
+                for (auto& pair : active_sockets)
                 {
-                    inactive_sockets.push_back(socket);
-                    socket->stop();
+                    inactive_sockets.push_back(pair.second);
+                    pair.second->stop();
                 }
                 active_sockets.clear();
             }

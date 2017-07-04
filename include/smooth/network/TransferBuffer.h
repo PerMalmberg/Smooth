@@ -24,38 +24,35 @@ namespace smooth
                 : public ITransferBuffer
         {
             public:
-                TransferBuffer(const char* data, int length)
-                {
-                    int i = 0;
-                    int len = std::min(buff_size, length);
-                    for (; i < len; ++i)
-                    {
-                        buff[i] = data[i];
-                    }
+                TransferBuffer() = default;
 
-                    taken = buff_size - len;
-                    ESP_LOGV("SendBuffer", "taken: %d, size %d, len: %d", taken, buff_size, len)
+                void transfer(const char* data, int length)
+                {
+                    int len = std::min(buff_size, length);
+                    memcpy(buff, data, len);
+                    left_in_buffer = len;
+                    ESP_LOGV("SendBuffer", "left_in_buffer: %d, size %d, len: %d", left_in_buffer, buff_size, len)
                 }
 
                 const char* data() override
                 {
-                    return buff + taken;
+                    return buff +  buff_size - left_in_buffer;
                 }
 
                 int size() override
                 {
-                    return std::max(0, buff_size - taken);
+                    return left_in_buffer;
                 }
 
                 void take(int count) override
                 {
-                    taken += count;
+                    left_in_buffer = std::max(0, left_in_buffer - count);
                     ESP_LOGV("Sendbuffer", "Took %d, size is now: %d", count, size());
                 }
 
             private:
                 char buff[buff_size];
-                int taken = 0;
+                int left_in_buffer = 0;
         };
     }
 }

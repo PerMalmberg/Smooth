@@ -15,15 +15,15 @@ namespace smooth
 {
     namespace network
     {
-        Socket::Socket(IDataAvailable& destination)
-                : destination(destination)
+        Socket::Socket(ITransferBuffer& tx_buffer, ITransferBuffer& rx_buffer)
+                : tx_buffer(tx_buffer), rx_buffer(rx_buffer)
         {
         }
 
         bool Socket::start(std::shared_ptr<InetAddress> ip)
         {
             this->ip = ip;
-            bool res = ip->is_valid();
+            bool res = ip->is_valid() && create_socket();
             if (res)
             {
                 SocketDispatcher::instance().add_socket(this);
@@ -35,29 +35,31 @@ namespace smooth
         bool Socket::create_socket()
         {
             bool res = false;
-            socket_id = socket(ip->get_protocol_family(), SOCK_STREAM, 0);
 
-            if (socket_id == -1)
+            if (socket_id < 0)
             {
-                ESP_LOGV("Socket", "Creation failed, id: %s", strerror(errno));
-            }
-            else
-            {
-                res = set_non_blocking();
-                int no_delay = 1;
-                setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay));
-                if (res)
+                socket_id = socket(ip->get_protocol_family(), SOCK_STREAM, 0);
+
+                if (socket_id == -1)
                 {
-                    ESP_LOGV("Socket", "Created: id: %d", socket_id);
+                    ESP_LOGV("Socket", "Creation failed, id: %s", strerror(errno));
                 }
+                else
+                {
+                    res = set_non_blocking();
+                    int no_delay = 1;
+                    res &= setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay)) == 0;
+                    if (res)
+                    {
+                        ESP_LOGV("Socket", "Created: id: %d", socket_id);
+                    }
+                }
+            }
+            else {
+                res = true;
             }
 
             return res;
-        }
-
-        void Socket::transmit(std::shared_ptr<ITransferBuffer> buffer)
-        {
-            send_buffer = buffer;
         }
 
         bool Socket::set_non_blocking()
@@ -84,14 +86,19 @@ namespace smooth
             // Detect disconnection
             char b[1];
             int res = recv(socket_id, b, 1, MSG_PEEK);
-            if (res == 0 || (res == -1 && errno == EWOULDBLOCK))
+            if (res <= 0  )
             {
-                ESP_LOGV("Socket", "Disconnected: %d", socket_id);
+                if( res == -1 )
+                {
+                    const char* error = strerror(errno);
+                    ESP_LOGV("Socket", "Disconnected: %d: %s", socket_id, error);
+                }
+
                 stop();
             }
             else
             {
-
+                //rx_buffer.space_left()
             }
         }
 
@@ -117,24 +124,19 @@ namespace smooth
                     connected = true;
                 }
             }
-            else if (send_buffer)
+            else if (has_data_to_transmit())
             {
-                int res = ::send(socket_id, send_buffer->data(), send_buffer->size(), 0);
+                int res = ::send(socket_id, tx_buffer.data(), tx_buffer.size(), 0);
                 if (res == -1)
                 {
                     const char* error = strerror(errno);
                     ESP_LOGE("Socket", "Failed during send: %s", error);
                     stop();
-                    send_buffer.reset();
                 }
                 else
                 {
-                    send_buffer->take(res);
-                    if (send_buffer->size() == 0)
-                    {
-                        // All data sent
-                        send_buffer.reset();
-                    }
+                    tx_buffer.take(res);
+                    // QQQ: Notify sender that data has been sent.
                 }
             }
         }
@@ -149,11 +151,7 @@ namespace smooth
         {
             if (!is_started())
             {
-                bool could_create = true;
-                if (socket_id < 0)
-                {
-                    could_create = create_socket();
-                }
+                bool could_create = create_socket();
 
                 if (could_create)
                 {
@@ -183,7 +181,11 @@ namespace smooth
             close(socket_id);
             started = false;
             connected = false;
+            tx_buffer.take(tx_buffer.size());
+            rx_buffer.take(rx_buffer.size());
             SocketDispatcher::instance().socket_closed(this);
+
+            // Reset socket_id last as it is used as an identifier up to this point.
             socket_id = -1;
         }
 
