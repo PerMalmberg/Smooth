@@ -181,8 +181,8 @@ namespace smooth
             close(socket_id);
             started = false;
             connected = false;
-            tx_buffer.take(tx_buffer.size());
-            rx_buffer.take(rx_buffer.size());
+            tx_buffer.clear();
+            rx_buffer.clear();
             SocketDispatcher::instance().socket_closed(this);
 
             // Reset socket_id last as it is used as an identifier up to this point.

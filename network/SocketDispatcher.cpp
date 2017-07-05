@@ -55,12 +55,6 @@ namespace smooth
                 }
                 else if (res > 0)
                 {
-                    for (auto& it : active_sockets)
-                    {
-                        ESP_LOGV("SD", "ID: %d, %d", it.first, it.second->get_socket_id());
-                    }
-
-
                     for (int i = 0; i <= max_file_descriptor; ++i)
                     {
                         if (FD_ISSET(i, &read_set))

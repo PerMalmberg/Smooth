@@ -53,7 +53,9 @@ namespace smooth
 
                 bool has_data_to_transmit() override
                 {
-                    return tx_buffer.size() > 0;
+                    // Also check on connected state so that we don't try to send data
+                    // when the socket just has been closed while in SocketDispatcher::tick()
+                    return connected && tx_buffer.size() > 0;
                 }
 
                 bool create_socket();

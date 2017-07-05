@@ -17,6 +17,7 @@ namespace smooth
                 virtual int size() = 0;
                 virtual const char* data() = 0;
                 virtual void take(int count);
+                virtual void clear() = 0;
         };
 
         template<int buff_size>
@@ -48,6 +49,11 @@ namespace smooth
                 {
                     left_in_buffer = std::max(0, left_in_buffer - count);
                     ESP_LOGV("Sendbuffer", "Took %d, size is now: %d", count, size());
+                }
+
+                void clear() override
+                {
+                    left_in_buffer = 0;
                 }
 
             private:
