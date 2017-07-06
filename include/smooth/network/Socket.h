@@ -9,10 +9,14 @@
 
 #undef bind
 
+#include <array>
 #include "InetAddress.h"
 #include <memory>
 #include "ISocket.h"
-#include "TransferBuffer.h"
+#include <smooth/util/CircularBuffer.h>
+#include <smooth/ipc/TaskEventQueue.h>
+#include <smooth/network/TransmitBufferEmpty.h>
+#include <smooth/network/DataAvailable.h>
 
 namespace smooth
 {
@@ -26,7 +30,9 @@ namespace smooth
             public:
                 friend class smooth::network::SocketDispatcher;
 
-                Socket(ITransferBuffer& tx_buffer, ITransferBuffer& rx_buffer);
+                Socket(util::ICircularBuffer<char>& tx_buffer, util::ICircularBuffer<char>& rx_buffer,
+                       smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
+                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available);
 
                 virtual ~Socket()
                 {
@@ -44,6 +50,11 @@ namespace smooth
 
                 bool is_started() override;
 
+                bool is_connected() override
+                {
+                    return connected;
+                }
+
                 int get_socket_id() override
                 {
                     return socket_id;
@@ -55,16 +66,21 @@ namespace smooth
                 {
                     // Also check on connected state so that we don't try to send data
                     // when the socket just has been closed while in SocketDispatcher::tick()
-                    return connected && tx_buffer.size() > 0;
+                    return connected && tx_buffer.available_items() > 0;
                 }
 
+                void check_if_connection_is_completed() override;
+
                 bool create_socket();
+
                 int socket_id = -1;
                 std::shared_ptr<InetAddress> ip;
                 bool started = false;
                 bool connected = false;
-                ITransferBuffer& tx_buffer;
-                ITransferBuffer& rx_buffer;
+                smooth::util::ICircularBuffer<char>& tx_buffer;
+                smooth::util::ICircularBuffer<char>& rx_buffer;
+                smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty;
+                smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available;
         };
     }
 }

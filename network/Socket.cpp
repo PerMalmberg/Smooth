@@ -15,8 +15,11 @@ namespace smooth
 {
     namespace network
     {
-        Socket::Socket(ITransferBuffer& tx_buffer, ITransferBuffer& rx_buffer)
-                : tx_buffer(tx_buffer), rx_buffer(rx_buffer)
+        Socket::Socket(util::ICircularBuffer<char>& tx_buffer, util::ICircularBuffer<char>& rx_buffer,
+                       smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
+                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available)
+                :
+                tx_buffer(tx_buffer), rx_buffer(rx_buffer), tx_empty(tx_empty), data_available(data_available)
         {
         }
 
@@ -55,7 +58,8 @@ namespace smooth
                     }
                 }
             }
-            else {
+            else
+            {
                 res = true;
             }
 
@@ -69,12 +73,12 @@ namespace smooth
             auto opts = fcntl(socket_id, F_GETFL, 0);
             if (opts < 0)
             {
-                ESP_LOGE("SocketWorker", "Could not get socket flags: %s", strerror(errno));
+                ESP_LOGE("Socket", "Could not get socket flags: %s", strerror(errno));
                 res = false;
             }
             else if (fcntl(socket_id, F_SETFL, opts | O_NONBLOCK) < 0)
             {
-                ESP_LOGE("SocketWorker", "Could not set socket flags: %s", strerror(errno));
+                ESP_LOGE("Socket", "Could not set socket flags: %s", strerror(errno));
                 res = false;
             }
 
@@ -86,19 +90,54 @@ namespace smooth
             // Detect disconnection
             char b[1];
             int res = recv(socket_id, b, 1, MSG_PEEK);
-            if (res <= 0  )
+            if (res <= 0)
             {
-                if( res == -1 )
+                if (res == -1)
                 {
                     const char* error = strerror(errno);
-                    ESP_LOGV("Socket", "Disconnected: %d: %s", socket_id, error);
+                    ESP_LOGV("Socket", "Error: %d: %s", socket_id, error);
                 }
 
                 stop();
             }
             else
             {
-                //rx_buffer.space_left()
+                ESP_LOGV("readable", "readable");
+                // attempt to read available data
+                // Any room left in buffer?
+                if (rx_buffer.available_slots() > 0)
+                {
+                    char data;
+                    int read_count = 0;
+
+                    do
+                    {
+                        read_count = recv(socket_id, &data, sizeof(data), 0);
+                        ESP_LOGV("read", "%d", read_count);
+                        if (read_count > 0)
+                        {
+                            rx_buffer.put(data);
+                        }
+                    }
+                    while (rx_buffer.available_slots() > 0 && read_count > 0);
+
+                    if (read_count == -1)
+                    {
+                        if (errno != EWOULDBLOCK)
+                        {
+                            const char* error = strerror(errno);
+                            ESP_LOGV("Socket", "readable(): %d: %s", socket_id, error);
+                            stop();
+                        }
+                    }
+
+                    if( connected )
+                    {
+                        DataAvailable d(&rx_buffer);
+                        data_available.push(d);
+                    }
+                }
+
             }
         }
 
@@ -118,25 +157,32 @@ namespace smooth
                     ESP_LOGV("Socket", "getsockopt: %d", result);
                     stop();
                 }
-                else
-                {
-                    ESP_LOGV("Socket", "Now connected: %d", socket_id);
-                    connected = true;
-                }
             }
-            else if (has_data_to_transmit())
+            else
             {
-                int res = ::send(socket_id, tx_buffer.data(), tx_buffer.size(), 0);
-                if (res == -1)
+                char data;
+                if (has_data_to_transmit())
                 {
-                    const char* error = strerror(errno);
-                    ESP_LOGE("Socket", "Failed during send: %s", error);
-                    stop();
-                }
-                else
-                {
-                    tx_buffer.take(res);
-                    // QQQ: Notify sender that data has been sent.
+                    while (tx_buffer.get(data))
+                    {
+                        int res = ::send(socket_id, &data, sizeof(data), 0);
+                        if (res == -1)
+                        {
+                            if (errno != EWOULDBLOCK)
+                            {
+                                const char* error = strerror(errno);
+                                ESP_LOGE("Socket", "Failed during send: %d, %s", errno, error);
+                                stop();
+                            }
+                        }
+                    }
+
+                    if (connected)
+                    {
+                        // Notify data is sent
+                        smooth::network::TransmitBufferEmpty msg(&tx_buffer);
+                        tx_empty.push(msg);
+                    }
                 }
             }
         }
@@ -159,6 +205,7 @@ namespace smooth
                     int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
                     if (res == 0 || (res == -1 && errno == EINPROGRESS))
                     {
+                        ESP_LOGV("Socket", "started: %d", socket_id);
                         started = true;
                     }
                     else
@@ -172,6 +219,17 @@ namespace smooth
                 {
                     stop();
                 }
+            }
+        }
+
+        void Socket::check_if_connection_is_completed()
+        {
+            int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
+            if (res == -1 && errno == EISCONN)
+            {
+                connected = true;
+                ESP_LOGV("Socket", "Connected %d", socket_id);
+                // QQQ Notify receiver connection is completed
             }
         }
 
