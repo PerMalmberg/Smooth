@@ -163,7 +163,7 @@ namespace smooth
                 char data;
                 if (has_data_to_transmit())
                 {
-                    while (tx_buffer.get(data))
+                    if (tx_buffer.get(data))
                     {
                         int res = ::send(socket_id, &data, sizeof(data), 0);
                         if (res == -1)
@@ -177,7 +177,8 @@ namespace smooth
                         }
                     }
 
-                    if (connected)
+                    // Done transmitting?
+                    if (connected && !has_data_to_transmit())
                     {
                         // Notify data is sent
                         smooth::network::TransmitBufferEmpty msg(&tx_buffer);
