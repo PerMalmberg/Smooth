@@ -4,28 +4,34 @@
 
 #pragma once
 
-#include <smooth/util/CircularBuffer.h>
+#include "PacketReceiveBuffer.h"
 
 namespace smooth
 {
     namespace network
     {
+        template<typename T>
         class DataAvailable
         {
             public:
                 DataAvailable() = default;
 
-                DataAvailable(smooth::util::ICircularBuffer<char>* rx) : rx(rx)
+                DataAvailable(IPacketReceiveBuffer<T>* rx) : rx(rx)
                 {
                 }
 
-                smooth::util::ICircularBuffer<char>* get_rx() const
+                bool get(T& target) const
                 {
-                    return rx;
+                    bool res = false;
+                    if (rx)
+                    {
+                        res = rx->get(target);
+                    }
+                    return res;
                 }
 
             private:
-                smooth::util::ICircularBuffer<char>* rx;
+                IPacketReceiveBuffer<T>* rx = nullptr;
         };
     }
 }

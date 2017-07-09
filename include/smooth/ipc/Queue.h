@@ -49,7 +49,12 @@ namespace smooth
 
                 virtual bool push(const T& item)
                 {
-                    return xQueueSend(handle, &item, 0) == pdTRUE;
+                    bool res = xQueueSend(handle, &item, 0) == pdTRUE;
+                    if(!res)
+                    {
+                        ESP_LOGE("Queue", "'%s': Could not push", name.c_str());
+                    }
+                    return res;
                 }
 
                 virtual bool push(const T& item, std::chrono::milliseconds wait_time)

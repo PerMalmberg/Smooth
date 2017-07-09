@@ -52,10 +52,6 @@ namespace smooth
                     {
                         task.message_available(this);
                     }
-                    else
-                    {
-                        ESP_LOGE("TaskEventQueue", "Could not push");
-                    }
 
                     return res;
                 }

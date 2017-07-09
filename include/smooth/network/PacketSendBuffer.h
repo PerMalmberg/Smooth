@@ -5,7 +5,6 @@
 #pragma once
 
 #include <smooth/util/CircularBuffer.h>
-#include <algorithm>
 #include <smooth/ipc/Mutex.h>
 
 namespace smooth
@@ -13,10 +12,10 @@ namespace smooth
     namespace network
     {
         template<typename T>
-        class IPacketBuffer
+        class IPacketSendBuffer
         {
             public:
-                virtual ~IPacketBuffer()
+                virtual ~IPacketSendBuffer()
                 {
                 }
 
@@ -30,15 +29,15 @@ namespace smooth
                 virtual bool is_empty() = 0;
         };
 
-        // PacketBuffer is a buffer that can hold Size packets of type T, with
+        // PacketSendBuffer is a buffer that can hold Size packets of type T, with
         // byte access to each individual element which makes it easy to perform
         // send() operations directly on for each packet.
         template<typename T, int Size>
-        class PacketBuffer
-                : public IPacketBuffer<T>
+        class PacketSendBuffer
+                : public IPacketSendBuffer<T>
         {
             public:
-                PacketBuffer()
+                PacketSendBuffer()
                         : buffer(), current_item(), guard()
                 {
                 }
@@ -56,7 +55,7 @@ namespace smooth
 
                 const char* get_data_to_send() override
                 {
-                    return current_item.get_data() + current_item.get_length() - current_length;
+                    return current_item.get_data() + current_item.get_wanted_amount() - current_length;
                 }
 
                 int get_remaining_data_length(int max) override
@@ -82,7 +81,7 @@ namespace smooth
                     if (buffer.get(current_item))
                     {
                         in_progress = true;
-                        current_length = current_item.get_length();
+                        current_length = current_item.get_send_length();
                     }
                 }
 

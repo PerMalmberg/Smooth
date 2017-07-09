@@ -17,7 +17,7 @@
 #include <smooth/ipc/TaskEventQueue.h>
 #include <smooth/network/TransmitBufferEmpty.h>
 #include <smooth/network/DataAvailable.h>
-#include <smooth/network/PacketBuffer.h>
+#include <smooth/network/PacketSendBuffer.h>
 #include <smooth/network/SocketDispatcher.h>
 
 namespace smooth
@@ -32,9 +32,9 @@ namespace smooth
             public:
                 friend class smooth::network::SocketDispatcher;
 
-                Socket(IPacketBuffer<T>& tx_buffer, util::ICircularBuffer<char>& rx_buffer,
+                Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                        smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available);
+                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available);
 
                 virtual ~Socket()
                 {
@@ -79,16 +79,16 @@ namespace smooth
                 std::shared_ptr<InetAddress> ip;
                 bool started = false;
                 bool connected = false;
-                IPacketBuffer<T>& tx_buffer;
-                smooth::util::ICircularBuffer<char>& rx_buffer;
+                IPacketSendBuffer<T>& tx_buffer;
+                IPacketReceiveBuffer<T>& rx_buffer;
                 smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty;
-                smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available;
+                smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available;
         };
 
         template<typename T>
-        Socket<T>::Socket(IPacketBuffer<T>& tx_buffer, util::ICircularBuffer<char>& rx_buffer,
+        Socket<T>::Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                           smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable>& data_available)
+                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available)
                 :
                 tx_buffer(tx_buffer), rx_buffer(rx_buffer), tx_empty(tx_empty), data_available(data_available)
         {
@@ -177,24 +177,18 @@ namespace smooth
             }
             else
             {
-                ESP_LOGV("Socket", "readable");
-                // attempt to read available data
-                // Any room left in buffer?
-                if (rx_buffer.available_slots() > 0)
+                if (!rx_buffer.is_full())
                 {
-                    char data;
-                    int read_count = 0;
-
-                    do
+                    if( !rx_buffer.is_in_progress() )
                     {
-                        read_count = recv(socket_id, &data, sizeof(data), 0);
-                        ESP_LOGV("read", "%d", read_count);
-                        if (read_count > 0)
-                        {
-                            rx_buffer.put(data);
-                        }
+                        rx_buffer.prepare_new_packet();
                     }
-                    while (rx_buffer.available_slots() > 0 && read_count > 0);
+
+                    // How much data to assemble the current packet?
+                    int wanted_length = rx_buffer.amount_wanted();
+
+                    // Try to read the desired amount
+                    int read_count = recv(socket_id, rx_buffer.get_write_pos(), wanted_length, 0);
 
                     if (read_count == -1)
                     {
@@ -205,14 +199,21 @@ namespace smooth
                             stop();
                         }
                     }
-
-                    if (connected)
+                    else
                     {
-                        DataAvailable d(&rx_buffer);
-                        data_available.push(d);
+                        rx_buffer.data_received(read_count);
+                        if (rx_buffer.is_framing_error())
+                        {
+                            ESP_LOGE("Socket", "Framing error");
+                            stop();
+                        }
+                        else if (rx_buffer.is_packet_complete())
+                        {
+                            DataAvailable<T> d(&rx_buffer);
+                            data_available.push(d);
+                        }
                     }
                 }
-
             }
         }
 
