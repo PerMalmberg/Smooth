@@ -30,7 +30,7 @@ namespace smooth
                 virtual bool is_empty() = 0;
         };
 
-        // PacketBuffer is a buffer that can hold Size packets ot type T, with
+        // PacketBuffer is a buffer that can hold Size packets of type T, with
         // byte access to each individual element which makes it easy to perform
         // send() operations directly on for each packet.
         template<typename T, int Size>
@@ -39,7 +39,7 @@ namespace smooth
         {
             public:
                 PacketBuffer()
-                        : current_item()
+                        : buffer(), current_item(), guard()
                 {
                 }
 
@@ -56,7 +56,7 @@ namespace smooth
 
                 const char* get_data_to_send() override
                 {
-                    return current_item.get_data();
+                    return current_item.get_data() + current_item.get_length() - current_length;
                 }
 
                 int get_remaining_data_length(int max) override
@@ -69,7 +69,7 @@ namespace smooth
                     current_length -= length;
 
                     // Just to be safe, we check for <= 0
-                    if( current_length <= 0)
+                    if (current_length <= 0)
                     {
                         in_progress = false;
                         current_length = 0;
@@ -79,7 +79,7 @@ namespace smooth
                 void prepare_next_packet() override
                 {
                     smooth::ipc::Mutex::Lock lock(guard);
-                    if( buffer.get(current_item))
+                    if (buffer.get(current_item))
                     {
                         in_progress = true;
                         current_length = current_item.get_length();
@@ -97,16 +97,16 @@ namespace smooth
                 bool is_empty() override
                 {
                     smooth::ipc::Mutex::Lock lock(guard);
-                    return buffer.is_empty();
+                    return !in_progress && buffer.is_empty();
                 }
 
 
             private:
                 smooth::util::CircularBuffer<T, Size> buffer;
                 T current_item;
-                int current_length;
-                bool in_progress = false;
                 smooth::ipc::Mutex guard;
+                int current_length = 0;
+                bool in_progress = false;
 
 
         };

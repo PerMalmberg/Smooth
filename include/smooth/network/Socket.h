@@ -220,7 +220,7 @@ namespace smooth
         void Socket<T>::writable()
         {
             // Any data to send?
-            if(tx_buffer.is_empty())
+            if (tx_buffer.is_empty())
             {
                 // Let the application know it may send a packet.
                 smooth::network::TransmitBufferEmpty msg(this);
