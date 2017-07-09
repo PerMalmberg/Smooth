@@ -6,32 +6,20 @@
 
 #include <smooth/util/CircularBuffer.h>
 #include <smooth/ipc/Mutex.h>
+#include "IPacketSendBuffer.h"
 
 namespace smooth
 {
     namespace network
     {
-        template<typename T>
-        class IPacketSendBuffer
-        {
-            public:
-                virtual ~IPacketSendBuffer()
-                {
-                }
-
-                virtual bool is_in_progress() = 0;
-                virtual const char* get_data_to_send() = 0;
-                virtual int get_remaining_data_length(int max) = 0;
-                virtual void data_has_been_sent(int length) = 0;
-                virtual void prepare_next_packet() = 0;
-                virtual void put(const T& item) = 0;
-                virtual void clear() = 0;
-                virtual bool is_empty() = 0;
-        };
-
         // PacketSendBuffer is a buffer that can hold Size packets of type T, with
         // byte access to each individual element which makes it easy to perform
         // send() operations directly on for each packet.
+
+        // T must provide the ISendablePacket interface (either directly or via inheritance) and fulfill the following contract:
+        // * Default constructable
+        // * Must be copyable
+
         template<typename T, int Size>
         class PacketSendBuffer
                 : public IPacketSendBuffer<T>
@@ -55,7 +43,7 @@ namespace smooth
 
                 const char* get_data_to_send() override
                 {
-                    return current_item.get_data() + current_item.get_wanted_amount() - current_length;
+                    return current_item.get_data() + current_item.get_send_length() - current_length;
                 }
 
                 int get_remaining_data_length(int max) override

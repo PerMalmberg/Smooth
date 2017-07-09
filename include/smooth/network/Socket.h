@@ -202,9 +202,9 @@ namespace smooth
                     else
                     {
                         rx_buffer.data_received(read_count);
-                        if (rx_buffer.is_framing_error())
+                        if (rx_buffer.is_error())
                         {
-                            ESP_LOGE("Socket", "Framing error");
+                            ESP_LOGE("Socket", "Assembly error");
                             stop();
                         }
                         else if (rx_buffer.is_packet_complete())
