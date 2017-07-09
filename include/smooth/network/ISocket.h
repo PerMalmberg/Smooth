@@ -4,6 +4,11 @@
 
 #pragma once
 
+#undef bind
+#include <memory>
+
+#include "InetAddress.h"
+
 namespace smooth
 {
     namespace network
@@ -16,6 +21,9 @@ namespace smooth
 
             public:
                 virtual void stop() = 0;
+                virtual bool start(std::shared_ptr<InetAddress> ip) = 0;
+                virtual bool restart() = 0;
+
             private:
                 virtual bool is_connected() = 0;
                 virtual void readable() = 0;

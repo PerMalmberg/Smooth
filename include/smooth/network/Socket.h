@@ -19,6 +19,7 @@
 #include <smooth/network/DataAvailable.h>
 #include <smooth/network/PacketSendBuffer.h>
 #include <smooth/network/SocketDispatcher.h>
+#include <smooth/network/ConnectionStatus.h>
 
 namespace smooth
 {
@@ -34,13 +35,15 @@ namespace smooth
 
                 Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                        smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available);
+                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
+                       smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status);
 
                 virtual ~Socket()
                 {
                 }
 
                 bool start(std::shared_ptr<InetAddress> ip);
+                bool restart();
                 void stop() override;
 
                 void readable() override;
@@ -83,14 +86,21 @@ namespace smooth
                 IPacketReceiveBuffer<T>& rx_buffer;
                 smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty;
                 smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available;
+                smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status;
         };
 
         template<typename T>
         Socket<T>::Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                           smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available)
+                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
+                          smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status
+        )
                 :
-                tx_buffer(tx_buffer), rx_buffer(rx_buffer), tx_empty(tx_empty), data_available(data_available)
+                tx_buffer(tx_buffer),
+                rx_buffer(rx_buffer),
+                tx_empty(tx_empty),
+                data_available(data_available),
+                connection_status(connection_status)
         {
         }
 
@@ -99,6 +109,18 @@ namespace smooth
         {
             this->ip = ip;
             bool res = ip->is_valid() && create_socket();
+            if (res)
+            {
+                SocketDispatcher::instance().add_socket(this);
+            }
+
+            return res;
+        }
+
+        template<typename T>
+        bool Socket<T>::restart()
+        {
+            bool res = ip && ip->is_valid() && create_socket();
             if (res)
             {
                 SocketDispatcher::instance().add_socket(this);
@@ -179,7 +201,7 @@ namespace smooth
             {
                 if (!rx_buffer.is_full())
                 {
-                    if( !rx_buffer.is_in_progress() )
+                    if (!rx_buffer.is_in_progress())
                     {
                         rx_buffer.prepare_new_packet();
                     }
@@ -308,7 +330,7 @@ namespace smooth
             {
                 connected = true;
                 ESP_LOGV("Socket", "Connected %d", socket_id);
-                // QQQ Notify receiver connection is completed
+                connection_status.push(ConnectionStatus(this, true));
             }
         }
 
@@ -325,6 +347,8 @@ namespace smooth
 
             // Reset socket_id last as it is used as an identifier up to this point.
             socket_id = -1;
+
+            connection_status.push(ConnectionStatus(this, false));
         }
     }
 }
