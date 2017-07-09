@@ -18,7 +18,6 @@ namespace smooth
 {
     namespace network
     {
-        class Socket;
 
         class SocketDispatcher
                 : public smooth::Task,

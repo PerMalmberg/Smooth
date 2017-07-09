@@ -15,17 +15,17 @@ namespace smooth
             public:
                 TransmitBufferEmpty() = default;
 
-                TransmitBufferEmpty(smooth::util::ICircularBuffer<char>* tx) : tx(tx)
+                TransmitBufferEmpty(smooth::network::ISocket* socket) : s(socket)
                 {
                 }
 
-                smooth::util::ICircularBuffer<char>* get_tx() const
+                smooth::network::ISocket* get_socket() const
                 {
-                    return tx;
+                    return s;
                 }
 
             private:
-                smooth::util::ICircularBuffer<char>* tx;
+                smooth::network::ISocket* s;
         };
     }
 }

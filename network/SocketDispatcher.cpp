@@ -141,6 +141,7 @@ namespace smooth
 
         void SocketDispatcher::socket_closed(ISocket* socket)
         {
+            ESP_LOGV("SocketDispatcher", "Socket closed %d", socket->get_socket_id());
             smooth::ipc::RecursiveMutex::Lock lock(socket_guard);
             active_sockets.erase(socket->get_socket_id());
         }
@@ -172,10 +173,10 @@ namespace smooth
                 }
 
                 // Monitor sockets that are started, but not yet connected
-                for( auto& pair : active_sockets)
+                for (auto& pair : active_sockets)
                 {
                     auto* socket = pair.second;
-                    if( socket->is_started() && !socket->is_connected())
+                    if (socket->is_started() && !socket->is_connected())
                     {
                         socket->check_if_connection_is_completed();
                     }
