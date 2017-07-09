@@ -41,7 +41,7 @@ namespace smooth
                     return current_item.get_wanted_amount();
                 }
 
-                char* get_write_pos() override
+                uint8_t* get_write_pos() override
                 {
                     return current_item.get_write_pos();
                 }

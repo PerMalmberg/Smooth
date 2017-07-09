@@ -41,7 +41,7 @@ namespace smooth
                     return in_progress;
                 }
 
-                const char* get_data_to_send() override
+                const uint8_t* get_data_to_send() override
                 {
                     return current_item.get_data() + current_item.get_send_length() - current_length;
                 }

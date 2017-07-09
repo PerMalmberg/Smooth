@@ -25,7 +25,7 @@ namespace smooth
                 // Must return the current write position of the internal buffer.
                 // Must point to a buffer than can accept the number of bytes returned by
                 // get_wanted_amount().
-                virtual char* get_write_pos() = 0;
+                virtual uint8_t* get_write_pos() = 0;
 
                 // Must return true when the packet has received all data it needs
                 // to fully assemble.
