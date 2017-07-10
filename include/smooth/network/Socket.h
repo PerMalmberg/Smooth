@@ -258,10 +258,11 @@ namespace smooth
 
                 if (tx_buffer.is_in_progress())
                 {
-                    // Try to send as much as possible up to CONFIG_TCP_SND_BUF_DEFAULT. This should avoid ever getting
-                    // an EWOULDBLOCK or EAGAIN error since the socket is prepared to accept that amount of data.
+                    // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                    // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                    // packet.
                     int amount_sent = send(socket_id, tx_buffer.get_data_to_send(),
-                                           tx_buffer.get_remaining_data_length(CONFIG_TCP_SND_BUF_DEFAULT), 0);
+                                           tx_buffer.get_remaining_data_length(), 0);
 
                     if (amount_sent == -1)
                     {

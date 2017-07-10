@@ -46,9 +46,9 @@ namespace smooth
                     return current_item.get_data() + current_item.get_send_length() - current_length;
                 }
 
-                int get_remaining_data_length(int max) override
+                int get_remaining_data_length() override
                 {
-                    return std::min(max, current_length);
+                    return current_length;
                 }
 
                 void data_has_been_sent(int length) override

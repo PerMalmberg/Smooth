@@ -18,7 +18,7 @@ namespace smooth
 
                 virtual bool is_in_progress() = 0;
                 virtual const uint8_t* get_data_to_send() = 0;
-                virtual int get_remaining_data_length(int max) = 0;
+                virtual int get_remaining_data_length() = 0;
                 virtual void data_has_been_sent(int length) = 0;
                 virtual void prepare_next_packet() = 0;
                 virtual void put(const T& item) = 0;
