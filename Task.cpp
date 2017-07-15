@@ -47,7 +47,10 @@ namespace smooth
             if (notification.pop(queue, tick_interval))
             {
                 // An event has arrived, get the queue to forward it to us.
-                queue->forward_to_task();
+                if( queue != nullptr)
+                {
+                    queue->forward_to_task();
+                }
             }
             else
             {

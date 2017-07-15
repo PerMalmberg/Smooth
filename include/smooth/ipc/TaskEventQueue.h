@@ -21,7 +21,7 @@ namespace smooth
                 TaskEventQueue(const std::string& name, int size, Task& task, IEventListener <T>& listener)
                         :
                         Link<T>(),
-                        Queue<T>(name + std::string("-Queue"), size),
+                        Queue<T>(name + std::string("-TaskEventQueue"), size),
                         task(task),
                         listener(listener)
                 {

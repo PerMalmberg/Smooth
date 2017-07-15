@@ -10,6 +10,7 @@ namespace smooth
 {
     namespace network
     {
+        // Note: Untested.
         class IPv6
                 : public InetAddress
         {
