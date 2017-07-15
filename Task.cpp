@@ -3,6 +3,7 @@
 //
 
 #include "smooth/Task.h"
+#include <algorithm>
 
 namespace smooth
 {
@@ -13,12 +14,18 @@ namespace smooth
               stack_depth(stack_depth),
               priority(priority),
               tick_interval(tick_interval),
-              notification( std::string("Notification-") + name, 1)
+              notification(nullptr)
     {
     }
 
     Task::~Task()
     {
+        for (auto& q : queues)
+        {
+            xQueueRemoveFromSet(q.second->get_handle(), notification);
+        }
+
+        queues.clear();
         vTaskDelete(task_handle);
     }
 
@@ -27,8 +34,21 @@ namespace smooth
         // Prevent multiple starts
         if (task_handle == nullptr)
         {
-            // Resize the notification queue
-            notification.set_size(notification_size);
+            int queue_set_size = 0;
+            // Add all queues belonging to this Task.
+            for (auto& q : queues)
+            {
+                queue_set_size += q.second->get_size();
+            }
+
+            // Create the queue notification set, always 1 slots or greater to to handle
+            // tasks without any queues.
+            notification = xQueueCreateSet(std::max(1, queue_set_size));
+
+            for (auto& q : queues)
+            {
+                xQueueAddToSet(q.second->get_handle(), notification);
+            }
 
             xTaskCreate(
                     [](void* o)
@@ -43,33 +63,29 @@ namespace smooth
     {
         for (;;)
         {
-            ipc::ITaskEventQueue* queue;
-            if (notification.pop(queue, tick_interval))
-            {
-                // An event has arrived, get the queue to forward it to us.
-                if( queue != nullptr)
-                {
-                    queue->forward_to_task();
-                }
-            }
-            else
+            QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification, pdMS_TO_TICKS(tick_interval.count()));
+
+            if (queue == nullptr)
             {
                 // Timeout, perform tick.
                 tick();
             }
+            else
+            {
+                // A queue or mutex has signaled an item is available.
+                auto it = queues.find(queue);
+                if (it != queues.end())
+                {
+                    it->second->forward_to_task();
+                }
+            }
         }
     }
 
-    void Task::message_available(ipc::ITaskEventQueue* queue)
-    {
-        // Enqueue the queue that has a message available
-        notification.push(queue);
-    }
-
-    void Task::report_queue_size(int size)
+    void Task::register_queue_with_task(smooth::ipc::ITaskEventQueue* task_queue)
     {
         // The notification queue must be be able to hold the total number of possible waiting messages.
-        notification_size += size;
+        queues.insert(std::make_pair(task_queue->get_handle(), task_queue));
     }
 
 

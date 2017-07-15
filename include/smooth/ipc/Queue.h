@@ -18,7 +18,7 @@ namespace smooth
             public:
                 Queue(const std::string& name, int size)
                         : name(name),
-                          initial_size(size)
+                          queue_size(size)
                 {
                     ESP_LOGV("Queue", "Creating queue '%s', with %d items of size %d.", name.c_str(), size, sizeof(T));
                     handle = xQueueCreate(size, sizeof(T));
@@ -39,18 +39,30 @@ namespace smooth
 
                 void set_size(int size)
                 {
-                    if (handle != nullptr && size > initial_size && size > 0)
+                    if (handle != nullptr && size > queue_size && size > 0)
                     {
-                        ESP_LOGV("Queue", "Resizing queue '%s', from %d items to %d items of size %d.", name.c_str(), initial_size, size, sizeof(T));
+                        ESP_LOGV("Queue", "Resizing queue '%s', from %d items to %d items of size %d.", name.c_str(),
+                                 queue_size, size, sizeof(T));
                         vQueueDelete(handle);
                         handle = xQueueCreate(size, sizeof(T));
+                        queue_size = size;
                     }
+                }
+
+                int get_size()
+                {
+                    return queue_size;
+                }
+
+                QueueHandle_t get_handle() const
+                {
+                    return handle;
                 }
 
                 virtual bool push(const T& item)
                 {
                     bool res = xQueueSend(handle, &item, 0) == pdTRUE;
-                    if(!res)
+                    if (!res)
                     {
                         ESP_LOGE("Queue", "'%s': Could not push", name.c_str());
                     }
@@ -95,7 +107,7 @@ namespace smooth
             private:
                 QueueHandle_t handle = nullptr;
                 std::string name;
-                int initial_size;
+                int queue_size;
 
                 TickType_t to_ticks(std::chrono::milliseconds ms)
                 {

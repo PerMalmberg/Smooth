@@ -250,9 +250,7 @@ namespace smooth
         void Socket<T>::read_data(uint8_t* target, int max_length)
         {
             // Try to read the desired amount
-            ESP_LOGV("Socket", "Reading...")
             int read_count = recv(socket_id, target, max_length, 0);
-            ESP_LOGV("SSLSocket", "Read...read_count: %d", read_count)
 
             if (read_count == -1)
             {

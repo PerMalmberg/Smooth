@@ -26,7 +26,7 @@ namespace smooth
                         listener(listener)
                 {
                     this->subscribe(this);
-                    task.report_queue_size(size);
+                    task.register_queue_with_task(this);
                 }
 
 
@@ -47,13 +47,17 @@ namespace smooth
 
                 bool push(const T& item) override
                 {
-                    bool res = Queue<T>::push(item);
-                    if (res)
-                    {
-                        task.message_available(this);
-                    }
+                    return Queue<T>::push(item);
+                }
 
-                    return res;
+                int get_size() override
+                {
+                    return Queue<T>::get_size();
+                }
+
+                QueueHandle_t get_handle() override
+                {
+                    return Queue<T>::get_handle();
                 }
 
             private:

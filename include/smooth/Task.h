@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <forward_list>
+#include <map>
 #include <smooth/ipc/Queue.h>
 #include <smooth/ipc/ITaskEventQueue.h>
 #include <smooth/ipc/Mutex.h>
@@ -37,9 +37,7 @@ namespace smooth
                 }
             }
 
-            void message_available(ipc::ITaskEventQueue* queue);
-
-            void report_queue_size(int size);
+            void register_queue_with_task( smooth::ipc::ITaskEventQueue* task_queue);
 
 
         protected:
@@ -55,13 +53,13 @@ namespace smooth
             };
 
         private:
-            int notification_size = 0;
             std::string name;
             TaskHandle_t task_handle = nullptr;
             uint32_t stack_depth;
             UBaseType_t priority;
             std::chrono::milliseconds tick_interval;
-            ipc::Queue<ipc::ITaskEventQueue*> notification;
+            QueueSetHandle_t notification;
+            std::map<QueueSetMemberHandle_t, smooth::ipc::ITaskEventQueue*> queues{};
 
             void exec(void);
     };

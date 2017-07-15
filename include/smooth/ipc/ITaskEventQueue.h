@@ -12,6 +12,8 @@ namespace smooth
         {
             public:
                 virtual void forward_to_task() = 0;
+                virtual int get_size() = 0;
+                virtual QueueHandle_t get_handle() = 0;
         };
     }
 }
