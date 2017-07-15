@@ -6,7 +6,7 @@
 
 #include "Queue.h"
 #include "Link.h"
-#include <smooth/ipc/IEventMessage.h>
+#include <smooth/ipc/IEventListener.h>
 
 namespace smooth
 {

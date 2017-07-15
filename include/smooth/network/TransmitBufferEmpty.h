@@ -5,6 +5,7 @@
 #pragma once
 
 #include <smooth/util/CircularBuffer.h>
+#include <smooth/network/ISocket.h>
 
 namespace smooth
 {
