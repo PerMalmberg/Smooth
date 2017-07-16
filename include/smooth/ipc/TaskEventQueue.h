@@ -15,53 +15,54 @@ namespace smooth
     {
         template<typename T>
         class TaskEventQueue
-                : public Link<T>, public Queue<T>, public ITaskEventQueue
+                : public Link<T>, public ITaskEventQueue
         {
             public:
                 TaskEventQueue(const std::string& name, int size, Task& task, IEventListener <T>& listener)
                         :
                         Link<T>(),
-                        Queue<T>(name + std::string("-TaskEventQueue"), size),
                         task(task),
+                        queue(name + std::string("-TaskEventQueue"), size),
                         listener(listener)
                 {
-                    this->subscribe(this);
+                    this->subscribe(&queue);
                     task.register_queue_with_task(this);
                 }
 
 
                 ~TaskEventQueue()
                 {
-                    this->unsubscribe(this);
+                    this->unsubscribe(&queue);
                 }
 
                 void forward_to_task()
                 {
                     // All messages passed via a queue needs a default constructor and must be copyable.
                     T m;
-                    if (Queue<T>::pop(m))
+                    if (queue.pop(m))
                     {
                         listener.message(m);
                     }
                 }
 
-                bool push(const T& item) override
+                bool push(const T& item)
                 {
-                    return Queue<T>::push(item);
+                    return queue.push(item);
                 }
 
-                int get_size() override
+                int get_size()
                 {
-                    return Queue<T>::get_size();
+                    return queue.get_size();
                 }
 
-                QueueHandle_t get_handle() override
+                QueueHandle_t get_handle()
                 {
-                    return Queue<T>::get_handle();
+                    return queue.get_handle();
                 }
 
             private:
                 Task& task;
+                Queue<T> queue;
                 IEventListener <T>& listener;
         };
     }

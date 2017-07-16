@@ -52,6 +52,9 @@ namespace smooth
             {
             };
 
+            // Called once when task is started.
+            virtual void init() {}
+
         private:
             std::string name;
             TaskHandle_t task_handle = nullptr;

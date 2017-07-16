@@ -13,8 +13,9 @@ An application built with Smooth is entirely event driven and thread-safe. Smoot
 - Tasks
 - Queues
 - Mutex / RecursiveMutex
-- Event-driven TCP Sockets
-- System events.
+- (Software) Timer Events
+- Event-driven TCP Sockets (including SSL/TLS)
+- System events
 
 ## Installation
 

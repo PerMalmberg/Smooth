@@ -5,6 +5,7 @@
 
 #include <freertos/queue.h>
 #include <esp_log.h>
+#include <esp_attr.h>
 #include <chrono>
 #include <string>
 
@@ -59,22 +60,22 @@ namespace smooth
                     return handle;
                 }
 
-                virtual bool push(const T& item)
+                bool IRAM_ATTR push(const T& item)
                 {
                     bool res = xQueueSend(handle, &item, 0) == pdTRUE;
                     if (!res)
                     {
-                        ESP_LOGE("Queue", "'%s': Could not push", name.c_str());
+                        ESP_LOGE("Queue", "Could not push");
                     }
                     return res;
                 }
 
-                virtual bool push(const T& item, std::chrono::milliseconds wait_time)
+                bool IRAM_ATTR push(const T& item, std::chrono::milliseconds wait_time)
                 {
                     return xQueueSend(handle, &item, to_ticks(wait_time)) == pdTRUE;
                 }
 
-                bool push_from_isr(const T& item)
+                bool IRAM_ATTR push_from_isr(const T& item)
                 {
                     return xQueueSendFromISR(handle, &item, nullptr) == pdTRUE;
                 }

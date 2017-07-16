@@ -61,6 +61,8 @@ namespace smooth
 
     void Task::exec(void)
     {
+        init();
+
         for (;;)
         {
             QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification, pdMS_TO_TICKS(tick_interval.count()));

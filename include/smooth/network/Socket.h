@@ -149,7 +149,7 @@ namespace smooth
 
                 if (socket_id == -1)
                 {
-                    ESP_LOGV("Socket", "Creation failed, id: %s", strerror(errno));
+                    ESP_LOGE("Socket", "Creation failed:: %s", strerror(errno));
                 }
                 else
                 {
