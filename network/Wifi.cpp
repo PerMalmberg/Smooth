@@ -13,8 +13,7 @@ namespace smooth
     namespace network
     {
         Wifi::Wifi()
-                : host_name(),
-                  direct_event("Wifi", *this)
+                : host_name()
         {
             tcpip_adapter_init();
         }

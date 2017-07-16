@@ -6,8 +6,7 @@
 
 #include <string>
 #include <esp_wifi.h>
-#include <smooth/ipc/DirectEvent.h>
-
+#include <smooth/ipc/IEventListener.h>
 
 namespace smooth
 {
@@ -35,7 +34,6 @@ namespace smooth
                 bool auto_connect_to_ap = false;
                 bool connected_to_ap = false;
                 std::string host_name;
-                smooth::ipc::DirectEvent<system_event_t> direct_event;
         };
     }
 }
