@@ -11,12 +11,12 @@ namespace smooth
 {
     namespace network
     {
-        class TransmitBufferEmpty
+        class TransmitBufferEmptyEvent
         {
             public:
-                TransmitBufferEmpty() = default;
+                TransmitBufferEmptyEvent() = default;
 
-                TransmitBufferEmpty(smooth::network::ISocket* socket) : s(socket)
+                TransmitBufferEmptyEvent(smooth::network::ISocket* socket) : s(socket)
                 {
                 }
 

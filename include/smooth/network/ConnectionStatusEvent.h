@@ -10,12 +10,12 @@ namespace smooth
 {
     namespace network
     {
-        class ConnectionStatus
+        class ConnectionStatusEvent
         {
             public:
-                ConnectionStatus() = default;
+                ConnectionStatusEvent() = default;
 
-                ConnectionStatus(smooth::network::ISocket* sock, bool is_connected)
+                ConnectionStatusEvent(smooth::network::ISocket* sock, bool is_connected)
                         : sock(sock),
                           connected(is_connected)
                 {

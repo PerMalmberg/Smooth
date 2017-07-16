@@ -16,11 +16,11 @@
 #include <openssl/ssl.h>
 #include <smooth/util/CircularBuffer.h>
 #include <smooth/ipc/TaskEventQueue.h>
-#include <smooth/network/TransmitBufferEmpty.h>
-#include <smooth/network/DataAvailable.h>
+#include <smooth/network/TransmitBufferEmptyEvent.h>
+#include <smooth/network/DataAvailableEvent.h>
 #include <smooth/network/PacketSendBuffer.h>
 #include <smooth/network/SocketDispatcher.h>
-#include <smooth/network/ConnectionStatus.h>
+#include <smooth/network/ConnectionStatusEvent.h>
 
 namespace smooth
 {
@@ -35,9 +35,9 @@ namespace smooth
                 friend class smooth::network::SocketDispatcher;
 
                 Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
-                       smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
-                       smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status);
+                       smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmptyEvent>& tx_empty,
+                       smooth::ipc::TaskEventQueue<smooth::network::DataAvailableEvent<T>>& data_available,
+                       smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatusEvent>& connection_status);
 
                 virtual ~Socket()
                 {
@@ -69,8 +69,8 @@ namespace smooth
 
                 IPacketSendBuffer<T>& tx_buffer;
                 IPacketReceiveBuffer<T>& rx_buffer;
-                smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available;
-                smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty;
+                smooth::ipc::TaskEventQueue<smooth::network::DataAvailableEvent<T>>& data_available;
+                smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmptyEvent>& tx_empty;
 
             private:
 
@@ -95,14 +95,14 @@ namespace smooth
                 std::shared_ptr<InetAddress> ip;
                 bool started = false;
                 bool connected = false;
-                smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status;
+                smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatusEvent>& connection_status;
         };
 
         template<typename T>
         Socket<T>::Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
-                          smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
-                          smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status
+                          smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmptyEvent>& tx_empty,
+                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailableEvent<T>>& data_available,
+                          smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatusEvent>& connection_status
         )
                 :
                 tx_buffer(tx_buffer),
@@ -226,7 +226,7 @@ namespace smooth
             if (tx_buffer.is_empty())
             {
                 // Let the application know it may send a packet.
-                smooth::network::TransmitBufferEmpty msg(this);
+                smooth::network::TransmitBufferEmptyEvent msg(this);
                 tx_empty.push(msg);
             }
             else
@@ -271,7 +271,7 @@ namespace smooth
                 }
                 else if (rx_buffer.is_packet_complete())
                 {
-                    DataAvailable<T> d(&rx_buffer);
+                    DataAvailableEvent<T> d(&rx_buffer);
                     data_available.push(d);
                     rx_buffer.prepare_new_packet();
                 }
@@ -298,7 +298,7 @@ namespace smooth
                 if (!tx_buffer.is_in_progress())
                 {
                     // Let the application know it may now send another packet.
-                    smooth::network::TransmitBufferEmpty msg(this);
+                    smooth::network::TransmitBufferEmptyEvent msg(this);
                     tx_empty.push(msg);
                 }
             }
@@ -351,7 +351,7 @@ namespace smooth
                 {
                     connected = true;
                     ESP_LOGV("Socket", "Connected %d", socket_id);
-                    connection_status.push(ConnectionStatus(this, true));
+                    connection_status.push(ConnectionStatusEvent(this, true));
                 }
                 else
                 {
@@ -374,7 +374,7 @@ namespace smooth
             // Reset socket_id last as it is used as an identifier up to this point.
             socket_id = -1;
 
-            connection_status.push(ConnectionStatus(this, false));
+            connection_status.push(ConnectionStatusEvent(this, false));
         }
     }
 }

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Socket.h"
-#include "openssl/ssl.h"
+#include <openssl/ssl.h>
 
 namespace smooth
 {
@@ -17,9 +17,9 @@ namespace smooth
         {
             public:
                 SSLSocket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
-                          smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
-                          smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status);
+                          smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmptyEvent>& tx_empty,
+                          smooth::ipc::TaskEventQueue<smooth::network::DataAvailableEvent<T>>& data_available,
+                          smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatusEvent>& connection_status);
 
                 ~SSLSocket();
             protected:
@@ -35,9 +35,9 @@ namespace smooth
 
         template<typename T>
         SSLSocket<T>::SSLSocket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
-                                smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmpty>& tx_empty,
-                                smooth::ipc::TaskEventQueue<smooth::network::DataAvailable<T>>& data_available,
-                                smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatus>& connection_status
+                                smooth::ipc::TaskEventQueue<smooth::network::TransmitBufferEmptyEvent>& tx_empty,
+                                smooth::ipc::TaskEventQueue<smooth::network::DataAvailableEvent<T>>& data_available,
+                                smooth::ipc::TaskEventQueue<smooth::network::ConnectionStatusEvent>& connection_status
         )
                 : Socket<T>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status),
                   ctx(nullptr), ssl(nullptr)
@@ -56,7 +56,6 @@ namespace smooth
             {
                 SSL_CTX_free(ctx);
             }
-
         }
 
         template<typename T>
@@ -127,7 +126,7 @@ namespace smooth
                     }
                     else if (this->rx_buffer.is_packet_complete())
                     {
-                        DataAvailable<T> d(&this->rx_buffer);
+                        DataAvailableEvent<T> d(&this->rx_buffer);
                         this->data_available.push(d);
                         this->rx_buffer.prepare_new_packet();
                     }
@@ -179,7 +178,7 @@ namespace smooth
                 if (!this->tx_buffer.is_in_progress())
                 {
                     // Let the application know it may now send another packet.
-                    smooth::network::TransmitBufferEmpty msg(this);
+                    smooth::network::TransmitBufferEmptyEvent msg(this);
                     this->tx_empty.push(msg);
                 }
             }

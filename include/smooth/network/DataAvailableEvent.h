@@ -11,12 +11,12 @@ namespace smooth
     namespace network
     {
         template<typename T>
-        class DataAvailable
+        class DataAvailableEvent
         {
             public:
-                DataAvailable() = default;
+                DataAvailableEvent() = default;
 
-                DataAvailable(IPacketReceiveBuffer<T>* rx) : rx(rx)
+                DataAvailableEvent(IPacketReceiveBuffer<T>* rx) : rx(rx)
                 {
                 }
 
