@@ -13,7 +13,6 @@ namespace smooth
     namespace network
     {
         Wifi::Wifi()
-                : host_name()
         {
             tcpip_adapter_init();
         }
@@ -24,10 +23,24 @@ namespace smooth
             esp_wifi_stop();
         }
 
-        void Wifi::connect_to_ap(const std::string& local_host_name,
-                                 const std::string& ssid,
-                                 const std::string& password,
-                                 bool enable_auto_connect)
+        void Wifi::set_host_name(const std::string& name)
+        {
+            host_name = name;
+        }
+
+        void Wifi::set_ap_credentials(const std::string& ssid, const std::string& password)
+        {
+            this->ssid = ssid;
+            this->password = password;
+        }
+
+        void Wifi::set_auto_connect(bool auto_connect)
+        {
+            auto_connect_to_ap = auto_connect;
+        }
+
+
+        void Wifi::connect_to_ap()
         {
             // Prepare to connect to the provided SSID and password
             wifi_init_config_t init = WIFI_INIT_CONFIG_DEFAULT();
@@ -46,9 +59,6 @@ namespace smooth
             // Store Wifi settings in RAM - it is the applications responsibility to store settings.
             esp_wifi_set_storage(WIFI_STORAGE_RAM);
             esp_wifi_set_config(WIFI_IF_STA, &config);
-
-            auto_connect_to_ap = enable_auto_connect;
-            host_name = local_host_name;
 
             connect();
         }

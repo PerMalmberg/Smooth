@@ -18,6 +18,19 @@ namespace smooth
     {
     }
 
+    Task::Task(TaskHandle_t task_to_attach_to, UBaseType_t priority, std::chrono::milliseconds tick_interval)
+            :
+            name("MainTask"),
+            task_handle(task_to_attach_to),
+            stack_depth(0),
+            priority(priority),
+            tick_interval(tick_interval),
+            notification(nullptr)
+    {
+        vTaskPrioritySet(task_handle, priority);
+        is_attached = true;
+    }
+
     Task::~Task()
     {
         for (auto& q : queues)
@@ -32,41 +45,34 @@ namespace smooth
     void Task::start()
     {
         // Prevent multiple starts
-        if (task_handle == nullptr)
+        if (!started)
         {
-            int queue_set_size = 0;
-            // Add all queues belonging to this Task.
-            for (auto& q : queues)
+            started = true;
+
+            prepare_queues();
+
+            if (is_attached)
             {
-                queue_set_size += q.second->get_size();
+                // Attaching to another task, just run execute.
+                exec();
             }
-
-            // Create the queue notification set, always 1 slots or greater to to handle
-            // tasks without any queues.
-            notification = xQueueCreateSet(std::max(1, queue_set_size));
-
-            for (auto& q : queues)
+            else
             {
-                xQueueAddToSet(q.second->get_handle(), notification);
+                xTaskCreate(
+                        [](void* o)
+                        {
+                            static_cast<Task*>(o)->exec();
+                        },
+                        name.c_str(), stack_depth, this, priority, &task_handle);
             }
-
-            xTaskCreate(
-                    [](void* o)
-                    {
-                        static_cast<Task*>(o)->exec();
-                    },
-                    name.c_str(), stack_depth, this, priority, &task_handle);
         }
     }
 
-
-    uint32_t qqq = 0;
-
-    void Task::exec(void)
+    void Task::exec()
     {
         init();
 
-        ESP_LOGV("Task", "Starting task '%s'", name.c_str());
+        ESP_LOGV("Task", "Starting task '%s'", pcTaskGetTaskName(task_handle));
 
         for (;;)
         {
@@ -86,6 +92,25 @@ namespace smooth
                     it->second->forward_to_task();
                 }
             }
+        }
+    }
+
+    void Task::prepare_queues()
+    {
+        int queue_set_size = 0;
+        // Add all queues belonging to this Task.
+        for (auto& q : queues)
+        {
+            queue_set_size += q.second->get_size();
+        }
+
+        // Create the queue notification set, always 1 slots or greater to to handle
+        // tasks without any queues.
+        notification = xQueueCreateSet(std::max(1, queue_set_size));
+
+        for (auto& q : queues)
+        {
+            xQueueAddToSet(q.second->get_handle(), notification);
         }
     }
 

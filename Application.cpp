@@ -10,13 +10,15 @@
 #include <freertos/task.h>
 #include <smooth/Application.h>
 #include <smooth/ipc/Publisher.h>
+#include <smooth/network/SocketDispatcher.h>
 
 using namespace std::chrono;
 
 namespace smooth
 {
-    Application::Application(const std::string& name, uint32_t stack_depth, UBaseType_t priority)
-            : Task(name, stack_depth, priority, milliseconds(100))
+    Application::Application(UBaseType_t priority, std::chrono::milliseconds tick_interval)
+            : Task(xTaskGetCurrentTaskHandle(), priority, tick_interval),
+              system_event("system_event", 10, *this, *this)
     {
         nvs_flash_init();
 
@@ -41,6 +43,24 @@ namespace smooth
         {
             esp_log_level_set(log, level);
         }
+    }
+
+    void Application::init()
+    {
+        // Start socket dispatcher first of all so that it is
+        // ready to receive network status events.
+        network::SocketDispatcher::instance();
+
+        if (wifi.is_configured())
+        {
+            wifi.connect_to_ap();
+        }
+
+    }
+
+    void Application::message(const system_event_t& msg)
+    {
+        wifi.message(msg);
     }
 
 }

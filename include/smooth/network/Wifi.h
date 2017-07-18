@@ -8,6 +8,8 @@
 #include <esp_wifi.h>
 #include <smooth/ipc/IEventListener.h>
 
+#undef connect
+
 namespace smooth
 {
     namespace network
@@ -20,12 +22,19 @@ namespace smooth
                 Wifi(const Wifi&) = delete;
                 virtual ~Wifi();
 
-                void connect_to_ap(const std::string& local_host_name,
-                                   const std::string& ssid,
-                                   const std::string& password,
-                                   bool enable_auto_connect);
+                void set_host_name(const std::string& name);
+                void set_ap_credentials(const std::string& ssid, const std::string& password);
+                void set_auto_connect(bool auto_connect);
+
+
+                void connect_to_ap();
 
                 bool is_connected_to_ap() const;
+
+                bool is_configured() const
+                {
+                    return host_name.length() > 0 && ssid.length() > 0 && password.length() > 0;
+                }
 
                 void message(const system_event_t& msg) override;
 
@@ -33,7 +42,9 @@ namespace smooth
                 void connect();
                 bool auto_connect_to_ap = false;
                 bool connected_to_ap = false;
-                std::string host_name;
+                std::string host_name = "Smooth-Wifi";
+                std::string ssid;
+                std::string password;
         };
     }
 }

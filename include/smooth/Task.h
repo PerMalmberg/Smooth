@@ -37,10 +37,13 @@ namespace smooth
                 }
             }
 
-            void register_queue_with_task( smooth::ipc::ITaskEventQueue* task_queue);
-
+            void register_queue_with_task(smooth::ipc::ITaskEventQueue* task_queue);
 
         protected:
+
+            // Use this constructor to attach to an existing task, i.e. the main task.
+            Task(TaskHandle_t task_to_attach_to, UBaseType_t priority, std::chrono::milliseconds tick_interval);
+
             Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority,
                  std::chrono::milliseconds tick_interval);
 
@@ -53,7 +56,9 @@ namespace smooth
             };
 
             // Called once when task is started.
-            virtual void init() {}
+            virtual void init()
+            {
+            }
 
         private:
             std::string name;
@@ -63,7 +68,10 @@ namespace smooth
             std::chrono::milliseconds tick_interval;
             QueueSetHandle_t notification;
             std::map<QueueSetMemberHandle_t, smooth::ipc::ITaskEventQueue*> queues{};
+            bool is_attached = false;
+            bool started = false;
 
-            void exec(void);
+            void exec();
+            void prepare_queues();
     };
 }
