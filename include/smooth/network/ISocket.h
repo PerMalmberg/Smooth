@@ -24,6 +24,7 @@ namespace smooth
                 virtual bool start(std::shared_ptr<InetAddress> ip) = 0;
                 virtual bool restart() = 0;
                 virtual int get_socket_id() = 0;
+                virtual bool is_active() = 0;
 
             private:
                 virtual bool is_connected() = 0;

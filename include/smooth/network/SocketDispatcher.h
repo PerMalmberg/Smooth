@@ -37,6 +37,8 @@ namespace smooth
                 void socket_closed(ISocket* socket);
 
                 void message(const system_event_t& msg) override;
+            protected:
+
 
             private:
                 SocketDispatcher();

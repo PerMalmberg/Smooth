@@ -5,6 +5,7 @@
 #include <smooth/network/SocketDispatcher.h>
 #include <fcntl.h>
 #include <algorithm>
+#include "esp_log.h"
 
 namespace smooth
 {
@@ -26,7 +27,7 @@ namespace smooth
 
 
         SocketDispatcher::SocketDispatcher()
-                : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(0)),
+                : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(100)),
                   active_sockets(),
                   inactive_sockets(),
                   socket_guard(),
@@ -34,7 +35,6 @@ namespace smooth
         {
             clear_sets();
         }
-
 
         void SocketDispatcher::tick()
         {
@@ -77,13 +77,6 @@ namespace smooth
                         }
                     }
                 }
-            }
-            else
-            {
-                // When there are no active sockets, select() returns immediately so
-                // we must prevent the task from hogging the CPU, but we also want to
-                // have short response time when something happens.
-                delay(std::chrono::milliseconds(1));
             }
         }
 

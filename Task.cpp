@@ -59,9 +59,14 @@ namespace smooth
         }
     }
 
+
+    uint32_t qqq = 0;
+
     void Task::exec(void)
     {
         init();
+
+        ESP_LOGV("Task", "Starting task '%s'", name.c_str());
 
         for (;;)
         {

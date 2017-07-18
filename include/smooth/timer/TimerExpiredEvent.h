@@ -20,7 +20,7 @@ namespace smooth
                 {
                 }
 
-                smooth::timer::ITimer* get_timer()
+                const smooth::timer::ITimer* get_timer() const
                 {
                     return timer;
                 }

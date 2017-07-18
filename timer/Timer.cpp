@@ -14,8 +14,6 @@ namespace smooth
                      bool auto_reload, std::chrono::milliseconds interval)
                 : name(name), id(id), auto_reload(auto_reload), interval(interval), event_queue(event_queue)
         {
-            ESP_LOGD("timer-ctor", "%p", this);
-
             handle = xTimerCreate(name.c_str(),
                                   pdMS_TO_TICKS(interval.count()),
                                   auto_reload ? 1 : 0,

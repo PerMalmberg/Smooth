@@ -28,9 +28,6 @@ namespace smooth
     {
         // Publish event to listeners
         smooth::ipc::Publisher<system_event_t>::publish(*event);
-
-        // Application* app = reinterpret_cast<Application*>( ctx );
-
         ESP_LOGV("Application", "Got event with id %d.", event->event_id);
 
         return ESP_OK;

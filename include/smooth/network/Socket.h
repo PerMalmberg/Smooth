@@ -46,6 +46,7 @@ namespace smooth
                 bool start(std::shared_ptr<InetAddress> ip);
                 bool restart();
                 void stop() override;
+                bool is_active() override;
 
                 void readable() override;
 
@@ -358,6 +359,12 @@ namespace smooth
                     stop();
                 }
             }
+        }
+
+        template<typename T>
+        bool Socket<T>::is_active()
+        {
+            return started;
         }
 
         template<typename T>

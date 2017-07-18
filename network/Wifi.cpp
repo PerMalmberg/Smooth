@@ -31,10 +31,10 @@ namespace smooth
         {
             // Prepare to connect to the provided SSID and password
             wifi_init_config_t init = WIFI_INIT_CONFIG_DEFAULT();
-            ESP_ERROR_CHECK(esp_wifi_init(&init));
-            ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+            esp_wifi_init(&init);
+            esp_wifi_set_mode(WIFI_MODE_STA);
 
-            //QQQ What effect does this setting actually have? ESP_ERROR_CHECK(esp_wifi_set_auto_connect(true));
+            //QQQ What effect does this setting actually have? esp_wifi_set_auto_connect(true);
 
             wifi_config_t config;
             memset(&config, 0, sizeof(config));
@@ -45,7 +45,7 @@ namespace smooth
 
             // Store Wifi settings in RAM - it is the applications responsibility to store settings.
             esp_wifi_set_storage(WIFI_STORAGE_RAM);
-            ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &config));
+            esp_wifi_set_config(WIFI_IF_STA, &config);
 
             auto_connect_to_ap = enable_auto_connect;
             host_name = local_host_name;
@@ -55,8 +55,8 @@ namespace smooth
 
         void Wifi::connect()
         {
-            ESP_ERROR_CHECK(esp_wifi_start());
-            ESP_ERROR_CHECK(esp_wifi_connect());
+            esp_wifi_start();
+            esp_wifi_connect();
         }
 
         bool Wifi::is_connected_to_ap() const
@@ -68,7 +68,7 @@ namespace smooth
         {
             if (msg.event_id == SYSTEM_EVENT_STA_START)
             {
-                ESP_ERROR_CHECK(tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, host_name.c_str()));
+                tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, host_name.c_str());
             }
             else if (msg.event_id == SYSTEM_EVENT_STA_CONNECTED)
             {
