@@ -3,5 +3,6 @@ COMPONENT_ADD_INCLUDEDIRS := include
 
 COMPONENT_SRCDIRS := \
     . \
-	network \
-	timer
+	core \
+	core/network \
+	core/timer

@@ -41,6 +41,6 @@ extern "C" void app_main()
 
     ESP_LOGV("Main", "Free heap: %u", esp_get_free_heap_size());
 
-    smooth::Task::never_return();
+    smooth::core::Task::never_return();
 }
 ```
