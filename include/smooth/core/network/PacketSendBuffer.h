@@ -16,7 +16,7 @@ namespace smooth
         {
             // PacketSendBuffer is a buffer that can hold Size packets of type T, with
             // byte access to each individual element which makes it easy to perform
-            // send() operations directly on for each packet.
+            // send() operations directly on each packet.
 
             // T must provide the ISendablePacket interface (either directly or via inheritance) and fulfill the following contract:
             // * Default constructable

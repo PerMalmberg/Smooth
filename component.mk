@@ -5,4 +5,7 @@ COMPONENT_SRCDIRS := \
     . \
 	core \
 	core/network \
-	core/timer
+	core/timer \
+	application \
+	application/network \
+	application/network/mqtt
