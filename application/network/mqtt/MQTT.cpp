@@ -85,6 +85,7 @@ namespace smooth
                 void MQTT::message(const core::network::DataAvailableEvent<mqtt::MQTTPacket>& msg)
                 {
                     MQTTPacket p;
+                    msg.get(p);
                     ESP_LOGD("MQTT", "DataAvailableEvent");
                     p.dump();
                 }

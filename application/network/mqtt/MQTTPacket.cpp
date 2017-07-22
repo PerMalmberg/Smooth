@@ -35,11 +35,6 @@ namespace smooth
                 {
                     bytes_received += length;
 
-                    for( auto b : packet)
-                    {
-                        ESP_LOGD("D", "%x", b);
-                    }
-
                     if (state == START)
                     {
                         // First byte of the packet
