@@ -134,6 +134,8 @@ namespace smooth
             template<typename T>
             bool Socket<T>::restart()
             {
+                stop();
+
                 bool res = ip && ip->is_valid() && create_socket();
                 if (res)
                 {
