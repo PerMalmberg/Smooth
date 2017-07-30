@@ -50,7 +50,7 @@ namespace smooth
                     void expired();
                     TimerHandle_t handle;
                     ipc::TaskEventQueue<TimerExpiredEvent>& event_queue;
-                    int data = 0xA5A5;
+                    bool active = false;
             };
         }
     }

@@ -31,6 +31,8 @@ namespace smooth
 
             void Timer::start(std::chrono::milliseconds interval)
             {
+                active = true;
+
                 // Ensure at least one tick interval
                 auto tick_count = std::max( pdMS_TO_TICKS(interval.count()), 1u );
 
@@ -48,12 +50,14 @@ namespace smooth
 
             void IRAM_ATTR Timer::start_from_isr()
             {
+                active = true;
                 BaseType_t higher_priority_task_woken = pdFALSE;
                 xTimerStartFromISR(handle, &higher_priority_task_woken);
             }
 
             void Timer::stop()
             {
+                active = false;
                 xTimerStop(handle, 0);
             }
 
@@ -65,6 +69,7 @@ namespace smooth
 
             void Timer::reset()
             {
+                active = true;
                 xTimerReset(handle, 0);
             }
 
@@ -99,7 +104,10 @@ namespace smooth
 
                                           if (timer != nullptr)
                                           {
-                                              timer->expired();
+                                              if( timer->active )
+                                              {
+                                                  timer->expired();
+                                              }
                                           }
                                       });
 
