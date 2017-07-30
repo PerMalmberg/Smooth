@@ -21,6 +21,7 @@ namespace smooth
                     }
 
                     virtual void start() = 0;
+                    virtual void start(std::chrono::milliseconds interval) = 0;
                     virtual IRAM_ATTR void start_from_isr() = 0;
                     virtual void stop() = 0;
                     virtual IRAM_ATTR void stop_from_isr() = 0;

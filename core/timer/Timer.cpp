@@ -16,33 +16,34 @@ namespace smooth
                          bool auto_reload, std::chrono::milliseconds interval)
                     : name(name), id(id), auto_reload(auto_reload), interval(interval), event_queue(event_queue)
             {
-                handle = xTimerCreate(name.c_str(),
-                                      pdMS_TO_TICKS(interval.count()),
-                                      auto_reload ? 1 : 0,
-                                      this, // Use ourselves as the timer id.
-                                      [](void* o)
-                                      {
-                                          // A bit ugly, but required - convert the timer's ID into a
-                                          // pointer to the Timer instance.
-                                          auto timer_id = pvTimerGetTimerID(o);
-                                          Timer * timer = static_cast<Timer*>(timer_id);
+                create();
+            }
 
-                                          if (timer != nullptr)
-                                          {
-                                              timer->expired();
-                                          }
-                                      });
-
-                if (handle == nullptr)
-                {
-                    ESP_LOGD("Timer", "Could not create timer, aborting.");
-                    abort();
-                }
+            Timer::~Timer()
+            {
+                destroy();
             }
 
             void Timer::start()
             {
-                xTimerStart(handle, 0);
+                start(interval);
+            }
+
+            void Timer::start(std::chrono::milliseconds interval)
+            {
+                // Ensure at least one tick interval
+                auto tick_count = std::max( pdMS_TO_TICKS(interval.count()), 1u );
+
+                if (interval != this->interval)
+                {
+                    this->interval = interval;
+                    // Changing the period also starts the timer.
+                    xTimerChangePeriod(handle, tick_count, 1);
+                }
+                else if (!xTimerIsTimerActive(handle))
+                {
+                    reset();
+                }
             }
 
             void IRAM_ATTR Timer::start_from_isr()
@@ -81,6 +82,38 @@ namespace smooth
             const std::string& Timer::get_name()
             {
                 return name;
+            }
+
+            void Timer::create()
+            {
+                handle = xTimerCreate(name.c_str(),
+                                      pdMS_TO_TICKS(interval.count()),
+                                      auto_reload ? 1 : 0,
+                                      this, // Use ourselves as the timer id.
+                                      [](void* o)
+                                      {
+                                          // A bit ugly, but required - convert the timer's ID into a
+                                          // pointer to the Timer instance.
+                                          auto timer_id = pvTimerGetTimerID(o);
+                                          Timer* timer = static_cast<Timer*>(timer_id);
+
+                                          if (timer != nullptr)
+                                          {
+                                              timer->expired();
+                                          }
+                                      });
+
+                if (handle == nullptr)
+                {
+                    ESP_LOGE("Timer", "Could not create timer '%s', aborting.", name.c_str());
+                    abort();
+                }
+            }
+
+            void Timer::destroy()
+            {
+                stop();
+                xTimerDelete(handle, 0);
             }
 
             void Timer::expired()

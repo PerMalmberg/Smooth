@@ -26,7 +26,10 @@ namespace smooth
                     Timer(const std::string& name, int id, ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
                           bool auto_reload, std::chrono::milliseconds interval);
 
+                    virtual ~Timer();
+
                     void start() override;
+                    void start(std::chrono::milliseconds interval) override;
                     void IRAM_ATTR start_from_isr() override;
                     void stop() override;
                     void IRAM_ATTR stop_from_isr() override;
@@ -42,6 +45,8 @@ namespace smooth
                     std::chrono::milliseconds interval;
 
                 private:
+                    void create();
+                    void destroy();
                     void expired();
                     TimerHandle_t handle;
                     ipc::TaskEventQueue<TimerExpiredEvent>& event_queue;
