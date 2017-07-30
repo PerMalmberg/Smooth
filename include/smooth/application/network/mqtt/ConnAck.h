@@ -20,7 +20,7 @@ namespace smooth
                     public:
                         ConnAck() = default;
 
-                        Connect(const std::vector<uint8_t> data) : MQTTPacket(data)
+                        ConnAck(const std::vector<uint8_t> data) : MQTTPacket(data)
                         {
                         }
                 };

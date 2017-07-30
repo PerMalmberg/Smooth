@@ -8,4 +8,5 @@ COMPONENT_SRCDIRS := \
 	core/timer \
 	application \
 	application/network \
-	application/network/mqtt
+	application/network/mqtt \
+	application/network/mqtt/state

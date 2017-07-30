@@ -22,6 +22,8 @@
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/application/network/mqtt/MQTTPacket.h>
 #include <smooth/core/timer/Timer.h>
+#include <smooth/core/fsm/StaticFSM.h>
+#include <smooth/application/network/mqtt/state/MQTTBaseState.h>
 
 namespace smooth
 {
@@ -42,11 +44,12 @@ namespace smooth
                           public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                 {
                     public:
-                        MQTT(const std::string& mqtt_client_id, uint32_t stack_depth, UBaseType_t priority,
-                             std::chrono::milliseconds tick_interval);
+                        MQTT(const std::string& mqtt_client_id, uint32_t stack_depth, UBaseType_t priority);
 
                         void connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect, bool use_ssl);
                         void disconnect();
+
+                        void init() override;
 
                         void subscribe(const std::string& topic);
                         void unsubscribe(const std::string& topic);
@@ -72,7 +75,6 @@ namespace smooth
                         core::ipc::TaskEventQueue<core::network::DataAvailableEvent<mqtt::MQTTPacket>> data_available;
                         core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
-
                         std::unordered_map<std::string, std::unique_ptr<uint8_t>> subscriptions;
                         std::deque<std::string> to_unsubscribe;
                         std::unordered_map<std::string, std::pair<std::unique_ptr<uint8_t[]>, uint16_t>> to_publish;
@@ -81,6 +83,7 @@ namespace smooth
                         std::unique_ptr<smooth::core::network::ISocket> mqtt_socket;
                         core::timer::Timer receive_timer;
                         core::timer::Timer reconnect_timer;
+                        smooth::application::network::mqtt::state::MqttFSM fsm;
                         bool auto_reconnect = false;
                 };
             }
