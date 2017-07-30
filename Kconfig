@@ -1,0 +1,13 @@
+menu "Smooth"
+
+config SMOOTH_MAX_MQTT_MESSAGE_SIZE
+    int "Maximum size of incoming messages"
+    range 128 4096
+    default 512
+    help
+        MQTT allows messages sizes up to 268435455 bytes in its remaning lengths field which is obviously
+	too much data to hold in memory on an embedded device. Any incoming message with a remaining length
+	larger than the set value will be 'swallowed' by the Smooth MQTT protocol implementation and never
+	seen by the application.
+
+endmenu

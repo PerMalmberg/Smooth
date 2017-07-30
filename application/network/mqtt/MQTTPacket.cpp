@@ -6,6 +6,7 @@
 #include <sstream>
 #include <smooth/application/network/mqtt/MQTTPacket.h>
 #include "esp_log.h"
+#include "sdkconfig.h"
 
 using namespace std;
 
@@ -29,7 +30,9 @@ namespace smooth
 
                 int MQTTPacket::get_wanted_amount()
                 {
-                    return wanted_amount;
+                    // If we're just reading data to get rid of a too large packet
+                    // then we read only one byte at a time.
+                    return state == TOO_BIG ? 1 : wanted_amount;
                 }
 
                 void MQTTPacket::data_received(int length)
@@ -52,15 +55,25 @@ namespace smooth
                         }
                         else
                         {
+                            received_header_length = bytes_received;
+
                             // We can now calculate the length of the remaining data
                             wanted_amount = calculate_remaining_length();
-                            if (wanted_amount > 0)
+
+                            if (wanted_amount > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
+                            {
+                                state = TOO_BIG;
+                                too_big = true;
+                                // Make this packet unwanted by the application by setting the type to Reserved.
+                                packet[0] = PacketType::Reserved;
+                            }
+                            else if (wanted_amount > 0)
                             {
                                 state = DATA;
                             }
                         }
                     }
-                    else if (state == DATA)
+                    else if (state == DATA || state == TOO_BIG)
                     {
                         wanted_amount -= length;
                     }
@@ -122,7 +135,7 @@ namespace smooth
 
                 void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
                 {
-                    // Maximum length is 65535 since that is what what can be represented as a 16-bit number.
+                    // Maximum length is 65535 since that is what can be represented as a 16-bit number.
                     uint16_t length = static_cast<uint16_t>( str.length());
                     target.push_back(length >> 8);
                     target.push_back(length & 0xFF);
@@ -153,16 +166,31 @@ namespace smooth
                     ESP_LOGD("mqtt_packet", "%s", ss.str().c_str());
                 }
 
-
                 uint8_t* MQTTPacket::get_write_pos()
                 {
-                    // Make sure there is room to write
-                    while (packet.size() < bytes_received + get_wanted_amount())
+                    uint8_t* pos;
+
+                    auto required_size =
+                            state == TOO_BIG ? received_header_length + 1 : bytes_received + get_wanted_amount();
+
+                    // Make sure there is room to do direct memory writes by expanding the vector.
+                    while (packet.size() < required_size)
                     {
                         packet.push_back(0);
                     }
 
-                    return &packet[bytes_received];
+                    if (state == TOO_BIG)
+                    {
+                        // Always write to the byte after the header
+                        pos = &packet[received_header_length];
+                    }
+                    else
+                    {
+                        // Append to the already received data.
+                        pos = &packet[bytes_received];
+                    }
+
+                    return pos;
                 }
 
 
@@ -186,6 +214,11 @@ namespace smooth
                 const uint8_t* MQTTPacket::get_data()
                 {
                     return &packet[0];
+                }
+
+                bool MQTTPacket::is_too_big() const
+                {
+                    return too_big;
                 }
 
             }

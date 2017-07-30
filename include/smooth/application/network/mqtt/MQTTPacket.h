@@ -58,6 +58,8 @@ namespace smooth
                         // Must return a pointer to the data to be sent.
                         const uint8_t* get_data() override;
 
+                        bool is_too_big() const;
+
                         void dump() const;
 
                     protected:
@@ -77,14 +79,17 @@ namespace smooth
                         {
                             START = 1,
                             REMAINING_LENGTH,
-                            DATA
+                            DATA,
+                            TOO_BIG
                         };
                         static const int REMAINING_LENGTH_OFFSET = 1;
                         ReadingHeaderSection state = ReadingHeaderSection::START;
                         int bytes_received = 0;
                         int current_length = 0;
                         int wanted_amount = 1;
+                        int received_header_length = 0;
                         bool error = false;
+                        bool too_big = false;
                 };
             }
         }
