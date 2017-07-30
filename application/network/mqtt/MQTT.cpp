@@ -8,6 +8,7 @@
 
 
 using namespace smooth::core::ipc;
+using namespace std::chrono;
 
 namespace smooth
 {
@@ -25,11 +26,15 @@ namespace smooth
                           tx_empty("TX_empty", 5, *this, *this),
                           data_available("data_available", 5, *this, *this),
                           connection_status("connection_status", 5, *this, *this),
+                          timer_events("timer_events", 5, *this, *this),
                           subscriptions(),
                           to_unsubscribe(),
                           to_publish(),
                           guard(),
-                          mqtt_socket(nullptr)
+                          client_id(mqtt_client_id),
+                          mqtt_socket(nullptr),
+                          receive_timer("receive_timer", 1, timer_events, false, std::chrono::seconds(10)),
+                          reconnect_timer("reconnect_timer", 2, timer_events, false, std::chrono::seconds(5))
                 {
                 }
 
@@ -37,9 +42,12 @@ namespace smooth
                 {
                 }
 
-                void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool use_ssl)
+                void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
+                                      bool use_ssl)
                 {
                     Mutex::Lock lock(guard);
+
+                    this->auto_reconnect = auto_reconnect;
 
                     if (!mqtt_socket)
                     {
@@ -56,14 +64,27 @@ namespace smooth
                         {
                             mqtt_socket.reset(
                                     new core::network::Socket<mqtt::MQTTPacket>(tx_buffer,
-                                                                                   rx_buffer,
-                                                                                   tx_empty,
-                                                                                   data_available,
-                                                                                   connection_status));
+                                                                                rx_buffer,
+                                                                                tx_empty,
+                                                                                data_available,
+                                                                                connection_status));
                         }
 
                         mqtt_socket->start(address);
                     }
+                }
+
+                void MQTT::disconnect()
+                {
+                    auto_reconnect = false;
+                    mqtt_socket->stop();
+                    mqtt_socket.reset();
+                }
+
+                void MQTT::send_packet(MQTTPacket& packet, milliseconds timeout)
+                {
+                    receive_timer.start(timeout);
+                    tx_buffer.put(packet);
                 }
 
                 void MQTT::message(const core::network::TransmitBufferEmptyEvent& msg)
@@ -74,22 +95,37 @@ namespace smooth
                 void MQTT::message(const core::network::ConnectionStatusEvent& msg)
                 {
                     ESP_LOGD("MQTT", "ConnectionStatusEvent: %d", msg.is_connected());
-                    if( msg.is_connected())
+                    if (msg.is_connected())
                     {
-                        Connect con("HAP-ESP32");
-                        con.dump();
-                        tx_buffer.put(con);
+                        Connect con(client_id.substr(0, 23));
+                        send_packet(con, milliseconds(500));
+                    }
+                    else if (auto_reconnect)
+                    {
+                        reconnect_timer.start();
                     }
                 }
 
                 void MQTT::message(const core::network::DataAvailableEvent<mqtt::MQTTPacket>& msg)
                 {
+                    receive_timer.stop();
                     MQTTPacket p;
                     msg.get(p);
                     ESP_LOGD("MQTT", "DataAvailableEvent");
-                    p.dump();
                 }
 
+                void MQTT::message(const core::timer::TimerExpiredEvent& msg)
+                {
+                    if (msg.get_timer() == &receive_timer)
+                    {
+                        // Timeout while receiving data, shutdown socket.
+                        mqtt_socket->stop();
+                    }
+                    else if( msg.get_timer() == &reconnect_timer)
+                    {
+                        mqtt_socket->restart();
+                    }
+                }
 
                 void MQTT::subscribe(const std::string& topic)
                 {

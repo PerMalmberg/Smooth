@@ -358,7 +358,6 @@ namespace smooth
                     if (prepare_connected_socket())
                     {
                         connected = true;
-                        ESP_LOGV("Socket", "Connected %d", socket_id);
                         connection_status.push(ConnectionStatusEvent(this, true));
                     }
                     else
@@ -377,6 +376,7 @@ namespace smooth
             template<typename T>
             void Socket<T>::stop()
             {
+                ESP_LOGV("Socket", "Stopping socket");
                 shutdown(socket_id, SHUT_RDWR);
                 close(socket_id);
                 started = false;

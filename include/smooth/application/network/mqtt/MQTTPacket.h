@@ -25,7 +25,9 @@ namespace smooth
                           public smooth::core::network::ISendablePacket
                 {
                     public:
-                        MQTTPacket();
+                        MQTTPacket() = default;
+
+                        MQTTPacket(const std::vector<uint8_t> data);
 
                         // Must return the number of bytes the packet wants to fill
                         // its internal buffer, e.g. header, checksum etc. Returned

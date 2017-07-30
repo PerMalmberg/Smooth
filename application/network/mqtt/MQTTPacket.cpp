@@ -17,8 +17,9 @@ namespace smooth
         {
             namespace mqtt
             {
-                MQTTPacket::MQTTPacket()
+                MQTTPacket::MQTTPacket(const std::vector<uint8_t> data)
                 {
+                    std::copy(data.begin(), data.end(), std::back_inserter(packet));
                 }
 
                 PacketType MQTTPacket::mqtt_get_type() const

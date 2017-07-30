@@ -21,6 +21,7 @@
 #include <smooth/core/network/PacketReceiveBuffer.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/application/network/mqtt/MQTTPacket.h>
+#include <smooth/core/timer/Timer.h>
 
 namespace smooth
 {
@@ -37,13 +38,15 @@ namespace smooth
                         : public smooth::core::Task,
                           public core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
                           public core::ipc::IEventListener<core::network::DataAvailableEvent<mqtt::MQTTPacket>>,
-                          public core::ipc::IEventListener<core::network::ConnectionStatusEvent>
+                          public core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
+                          public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                 {
                     public:
                         MQTT(const std::string& mqtt_client_id, uint32_t stack_depth, UBaseType_t priority,
                              std::chrono::milliseconds tick_interval);
 
-                        void connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool use_ssl);
+                        void connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect, bool use_ssl);
+                        void disconnect();
 
                         void subscribe(const std::string& topic);
                         void unsubscribe(const std::string& topic);
@@ -54,22 +57,31 @@ namespace smooth
                         void message(const core::network::ConnectionStatusEvent& msg);
                         void message(const mqtt::MQTTPacket& msg);
                         void message(const core::network::DataAvailableEvent<mqtt::MQTTPacket>& msg);
+                        void message(const core::timer::TimerExpiredEvent& msg);
 
                     protected:
                         void tick() override;
 
                     private:
+
+                        void send_packet( MQTTPacket& packet, std::chrono::milliseconds timeout);
+
                         core::network::PacketSendBuffer<mqtt::MQTTPacket, 5> tx_buffer;
                         core::network::PacketReceiveBuffer<mqtt::MQTTPacket, 5> rx_buffer;
                         core::ipc::TaskEventQueue<core::network::TransmitBufferEmptyEvent> tx_empty;
                         core::ipc::TaskEventQueue<core::network::DataAvailableEvent<mqtt::MQTTPacket>> data_available;
                         core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
+                        core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
 
                         std::unordered_map<std::string, std::unique_ptr<uint8_t>> subscriptions;
                         std::deque<std::string> to_unsubscribe;
                         std::unordered_map<std::string, std::pair<std::unique_ptr<uint8_t[]>, uint16_t>> to_publish;
                         smooth::core::ipc::Mutex guard;
+                        std::string client_id;
                         std::unique_ptr<smooth::core::network::ISocket> mqtt_socket;
+                        core::timer::Timer receive_timer;
+                        core::timer::Timer reconnect_timer;
+                        bool auto_reconnect = false;
                 };
             }
         }
