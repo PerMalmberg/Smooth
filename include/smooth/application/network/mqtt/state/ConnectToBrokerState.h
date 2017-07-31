@@ -16,15 +16,18 @@ namespace smooth
             {
                 namespace state
                 {
-                    class SubscribeState
+                    class ConnectToBrokerState
                             : public ConnectedState
                     {
                         public:
-                            SubscribeState(MqttFSM<MQTTBaseState>& fsm)
-                                    : ConnectedState(fsm, "SubscribeState")
+                            ConnectToBrokerState(MqttFSM<MQTTBaseState>& fsm)
+                                    : ConnectedState(fsm, "Connecting")
                             {
                             }
 
+                            void enter_state() override;
+
+                            void receive(packet::ConnAck& conn_ack) override;
 
                     };
                 }

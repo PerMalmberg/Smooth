@@ -4,7 +4,7 @@
 
 #include <smooth/application/network/mqtt/state/IdleState.h>
 #include <smooth/application/network/mqtt/state/MqttFsmConstants.h>
-#include <smooth/application/network/mqtt/state/ConnectingState.h>
+#include <smooth/application/network/mqtt/state/ConnectToBrokerState.h>
 #include <smooth/application/network/mqtt/state/MqttFSM.h>
 
 namespace smooth
@@ -21,7 +21,7 @@ namespace smooth
                     {
                         if (msg.is_connected())
                         {
-                            fsm.set_state(new(fsm) ConnectingState(fsm));
+                            fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
                         }
                     }
                 }

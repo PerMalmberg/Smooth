@@ -112,6 +112,8 @@ namespace smooth
 
                 void MQTT::message(const core::network::DataAvailableEvent<packet::MQTTPacket>& msg)
                 {
+                    receive_timer.stop();
+
                     packet::MQTTPacket p;
                     if (msg.get(p))
                     {

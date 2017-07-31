@@ -68,7 +68,10 @@ namespace smooth
                             res = std::unique_ptr<MQTTPacket>(new PingResp(packet));
                         }
 
-                        ESP_LOGD("PacketDecoder", "%s", res ? "1" : "0");
+                        if( res )
+                        {
+                            res->dump();
+                        }
 
                         return res;
                     }

@@ -153,7 +153,7 @@ namespace smooth
                     {
                         std::stringstream ss;
 
-                        ss << "Length: " << packet.size() << " - ";
+                        ss << "Type: " << get_mqtt_type() << " Length: " << packet.size() << " - ";
 
                         for (auto b : packet)
                         {

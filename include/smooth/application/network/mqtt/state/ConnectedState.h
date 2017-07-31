@@ -17,21 +17,16 @@ namespace smooth
             {
                 namespace state
                 {
-                    class ConnectingState
+                    class ConnectedState
                             : public MQTTBaseState
                     {
                         public:
-                            ConnectingState(MqttFSM<MQTTBaseState>& fsm)
-                                    : MQTTBaseState(fsm, "Connecting")
+                            ConnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name)
+                                    : MQTTBaseState(fsm, name)
                             {
                             }
 
-                            void enter_state() override;
-
                             void message( const core::timer::TimerExpiredEvent& msg) override;
-
-                            void receive(packet::ConnAck& conn_ack) override;
-
                     };
                 }
             }
