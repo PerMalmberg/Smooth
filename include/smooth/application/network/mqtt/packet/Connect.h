@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 
 namespace smooth
@@ -21,7 +22,7 @@ namespace smooth
                     {
                         public:
                             Connect() = default;
-                            Connect(const std::string& client_id);
+                            Connect(const std::string& client_id, std::chrono::seconds keep_alive);
                         private:
                             std::vector<uint8_t> variable_header{};
                     };

@@ -19,7 +19,10 @@ namespace smooth
         {
             namespace mqtt
             {
-                MQTT::MQTT(const std::string& mqtt_client_id, uint32_t stack_depth, UBaseType_t priority)
+                MQTT::MQTT(const std::string& mqtt_client_id,
+                           std::chrono::seconds keep_alive,
+                           uint32_t stack_depth,
+                           UBaseType_t priority)
                         : Task(mqtt_client_id, stack_depth, priority, std::chrono::milliseconds(100)),
                           tx_buffer(),
                           rx_buffer(),
@@ -29,11 +32,14 @@ namespace smooth
                           timer_events("timer_events", 5, *this, *this),
                           guard(),
                           client_id(mqtt_client_id),
+                          keep_alive(keep_alive),
                           mqtt_socket(nullptr),
                           receive_timer("receive_timer", MQTT_FSM_RECEIVE_TIMER_ID, timer_events, false,
                                         std::chrono::seconds(10)),
                           reconnect_timer("reconnect_timer", MQTT_FSM_RECONNECT_TIMER_ID, timer_events, false,
                                           std::chrono::seconds(5)),
+                          keep_alive_timer("keep_alive_timer", MQTT_FSM_KEEP_ALIVE_TIMER_ID, timer_events, true,
+                                           std::chrono::seconds(1)),
                           fsm(*this)
                 {
                 }
@@ -98,6 +104,23 @@ namespace smooth
                 const std::string& MQTT::get_client_id() const
                 {
                     return client_id;
+                }
+
+                const std::chrono::seconds MQTT::get_keep_alive() const
+                {
+                    return keep_alive;
+                }
+
+                void MQTT::set_keep_alive_timer(std::chrono::seconds interval)
+                {
+                    if (interval.count() == 0)
+                    {
+                        keep_alive_timer.stop();
+                    }
+                    else
+                    {
+                        keep_alive_timer.start(interval);
+                    }
                 }
 
                 void MQTT::message(const core::network::TransmitBufferEmptyEvent& msg)

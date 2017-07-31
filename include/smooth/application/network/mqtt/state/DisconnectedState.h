@@ -1,10 +1,10 @@
 //
-// Created by permal on 7/31/17.
+// Created by permal on 7/30/17.
 //
 
 #pragma once
 
-#include "DisconnectedState.h"
+#include "MQTTBaseState.h"
 #include "esp_log.h"
 
 namespace smooth
@@ -17,16 +17,16 @@ namespace smooth
             {
                 namespace state
                 {
-                    class IdleState
-                            : public DisconnectedState
+                    class DisconnectedState
+                            : public MQTTBaseState
                     {
                         public:
-                            IdleState(MqttFSM<MQTTBaseState>& fsm)
-                                    : DisconnectedState(fsm, "IdleState")
+                            DisconnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name)
+                                    : MQTTBaseState(fsm, name)
                             {
                             }
 
-                            void message( const core::network::ConnectionStatusEvent& msg) override;
+                            void enter_state() override;
                     };
                 }
             }

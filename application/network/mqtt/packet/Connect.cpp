@@ -2,6 +2,7 @@
 // Created by permal on 7/22/17.
 //
 
+#include <limits>
 #include <smooth/application/network/mqtt/packet/Connect.h>
 #include "esp_log.h"
 
@@ -18,7 +19,7 @@ namespace smooth
                 namespace packet
                 {
                     // Minimum connect packet
-                    Connect::Connect(const std::string& client_id)
+                    Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive)
                             : MQTTPacket()
                     {
                         set_header(PacketType::CONNECT, 0);
@@ -41,9 +42,13 @@ namespace smooth
                         connect_flags.set(6, false); // Password
                         connect_flags.set(7, false); // User name
 
-                        // Keep Alive
-                        variable_header.push_back(0); // MSB
-                        variable_header.push_back(0); // LSB
+                        // Keep Alive - limit range to 0 ~ std::numeric_limits<uint16_t>::max()
+                        auto keep_alive_interval = std::max(static_cast<uint16_t>(0),
+                                                            std::min(std::numeric_limits<uint16_t>::max(),
+                                                                     static_cast<uint16_t>( keep_alive.count())));
+
+                        variable_header.push_back(keep_alive_interval >> 8); // MSB
+                        variable_header.push_back(keep_alive_interval & 0xFF); // LSB
 
                         // Payload, in order if used
                         // Client Identifier

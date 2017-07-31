@@ -29,14 +29,6 @@ namespace smooth
 
                     }
 
-                    void MQTTBaseState::message(const core::network::ConnectionStatusEvent& msg)
-                    {
-                        if (!msg.is_connected())
-                        {
-                            fsm.set_state(new IdleState(fsm));
-                        }
-                    }
-
                     void MQTTBaseState::receive(packet::MQTTPacket& raw_packet) 
                     {
 

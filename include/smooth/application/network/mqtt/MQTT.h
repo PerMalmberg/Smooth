@@ -45,7 +45,7 @@ namespace smooth
                           public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                 {
                     public:
-                        MQTT(const std::string& mqtt_client_id, uint32_t stack_depth, UBaseType_t priority);
+                        MQTT(const std::string& mqtt_client_id, std::chrono::seconds keep_alive, uint32_t stack_depth, UBaseType_t priority);
 
                         void
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
@@ -61,6 +61,8 @@ namespace smooth
                         void message(const core::timer::TimerExpiredEvent& msg);
 
                         const std::string& get_client_id() const override;
+                        const std::chrono::seconds get_keep_alive() const override;
+                        void set_keep_alive_timer(std::chrono::seconds interval) override;
 
                     protected:
                         void tick() override;
@@ -77,9 +79,11 @@ namespace smooth
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         smooth::core::ipc::Mutex guard;
                         std::string client_id;
+                        std::chrono::seconds keep_alive;
                         std::unique_ptr<smooth::core::network::ISocket> mqtt_socket;
                         core::timer::Timer receive_timer;
                         core::timer::Timer reconnect_timer;
+                        core::timer::Timer keep_alive_timer;
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
                 };
