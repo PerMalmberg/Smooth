@@ -62,6 +62,9 @@ namespace smooth
 
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;
+                        void start_reconnect() override;
+                        void reconnect() override;
+                        bool get_auto_reconnect() const override;
                         void set_keep_alive_timer(std::chrono::seconds interval) override;
 
                     protected:

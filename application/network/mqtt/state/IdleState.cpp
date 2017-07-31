@@ -23,6 +23,10 @@ namespace smooth
                         {
                             fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
                         }
+                        else
+                        {
+                            DisconnectedState::message(msg);
+                        }
                     }
                 }
             }

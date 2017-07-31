@@ -21,12 +21,17 @@ namespace smooth
                             : public MQTTBaseState
                     {
                         public:
-                            DisconnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name)
-                                    : MQTTBaseState(fsm, name)
+                            DisconnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name, bool auto_reconnect)
+                                    : MQTTBaseState(fsm, name), auto_reconnect(auto_reconnect)
                             {
                             }
 
                             void enter_state() override;
+
+                            void message(const core::timer::TimerExpiredEvent& msg) override;
+                            void message(const core::network::ConnectionStatusEvent& msg) override;
+                        private:
+                            bool auto_reconnect = false;
                     };
                 }
             }

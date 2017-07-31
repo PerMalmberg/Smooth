@@ -116,18 +116,25 @@ namespace smooth
 
                     void MQTTPacket::encode_remaining_length(int length)
                     {
-                        for (int i = 0; i < 4 && length > 0; ++i)
+                        if (length > 0)
                         {
-                            packet.push_back(length % 0x80);
-                            length /= 0x80;
-
-                            if (length > 0)
+                            for (int i = 0; i < 4 && length > 0; ++i)
                             {
-                                packet[packet.size() - 1] |= 0x80;
-                            }
+                                packet.push_back(length % 0x80);
+                                length /= 0x80;
 
-                            ESP_LOGD("encode", "%x", packet[packet.size() - 1]);
+                                if (length > 0)
+                                {
+                                    packet[packet.size() - 1] |= 0x80;
+                                }
+                            }
                         }
+                        else
+                        {
+                            packet.push_back(0);
+                        }
+
+                        ESP_LOGD("encode", "%x", packet[packet.size() - 1]);
                     }
 
                     void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
@@ -223,7 +230,7 @@ namespace smooth
                         return too_big;
                     }
 
-                    void MQTTPacket::visit( IPacketReceiver& receiver )
+                    void MQTTPacket::visit(IPacketReceiver& receiver)
                     {
                         receiver.receive(*this);
                     }

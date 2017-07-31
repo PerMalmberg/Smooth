@@ -111,6 +111,21 @@ namespace smooth
                     return keep_alive;
                 }
 
+                void MQTT::start_reconnect()
+                {
+                    reconnect_timer.start();
+                }
+
+                void MQTT::reconnect()
+                {
+                    mqtt_socket->restart();
+                }
+
+                bool MQTT::get_auto_reconnect() const
+                {
+                    return auto_reconnect;
+                }
+
                 void MQTT::set_keep_alive_timer(std::chrono::seconds interval)
                 {
                     if (interval.count() == 0)
@@ -119,7 +134,12 @@ namespace smooth
                     }
                     else
                     {
-                        keep_alive_timer.start(interval);
+                        std::chrono::milliseconds ms = interval;
+                        // Times 0.75 as integer math.
+                        ms *= 3;
+                        ms /= 4;
+                        ESP_LOGV("MQTT", "ms: %d", static_cast<int>(ms.count()));
+                        keep_alive_timer.start(ms);
                     }
                 }
 
