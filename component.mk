@@ -9,4 +9,5 @@ COMPONENT_SRCDIRS := \
 	application \
 	application/network \
 	application/network/mqtt \
-	application/network/mqtt/state
+	application/network/mqtt/state \
+	application/network/mqtt/packet

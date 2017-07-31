@@ -1,5 +1,5 @@
 //
-// Created by permal on 7/30/17.
+// Created by permal on 7/31/17.
 //
 
 #pragma once
@@ -17,21 +17,16 @@ namespace smooth
             {
                 namespace state
                 {
-                    class ConnectingState
+                    class IdleState
                             : public MQTTBaseState
                     {
                         public:
-                            ConnectingState(MqttFSM<MQTTBaseState>& fsm)
-                                    : MQTTBaseState(fsm, "Connecting")
+                            IdleState(MqttFSM<MQTTBaseState>& fsm)
+                                    : MQTTBaseState(fsm, "IdleState")
                             {
                             }
 
-                            void EnterState() override;
-
-                            void message( const core::timer::TimerExpiredEvent& msg) override;
-
-                            void receive(packet::ConnAck& conn_ack) override;
-
+                            void message( const core::network::ConnectionStatusEvent& msg) override;
                     };
                 }
             }

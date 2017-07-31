@@ -29,7 +29,20 @@ namespace smooth
 
                     void set_state(BaseState* state);
 
-                    void* reclaim_state(int size);
+                    void* select_memory_area(int size);
+
+                    virtual void entering_state(BaseState* state)
+                    {
+                    }
+
+                    virtual void leaving_state(BaseState* state)
+                    {
+                    }
+
+                    BaseState* get_state() const
+                    {
+                        return current_state;
+                    }
 
                 private:
                     uint8_t state[2][StateSize];
@@ -48,7 +61,7 @@ namespace smooth
             }
 
             template<typename BaseState, int StateSize>
-            void* StaticFSM<BaseState, StateSize>::reclaim_state(int size)
+            void* StaticFSM<BaseState, StateSize>::select_memory_area(int size)
             {
                 int max = static_cast<int>( sizeof(state[0]));
                 if (size > max)
@@ -57,9 +70,10 @@ namespace smooth
                              "Attempted to activate state that is larger (%d) than the designated buffer (%d)",
                              size,
                              max);
+                    abort();
                 }
 
-                // Get the memory not currently used
+                // Get the memory not used by the active state.
                 void* reclaimed =
                         current_state == reinterpret_cast<BaseState*>(&state[0][0]) ? &state[1][0] : &state[0][0];
 
@@ -71,11 +85,13 @@ namespace smooth
             {
                 if (current_state != nullptr)
                 {
+                    leaving_state(current_state);
                     current_state->LeaveState();
                     current_state->~BaseState();
                 }
 
                 current_state = state;
+                entering_state(current_state);
                 current_state->EnterState();
             }
         }
@@ -85,12 +101,13 @@ namespace smooth
 template<typename BaseState, int StateSize>
 void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
-    return fsm.reclaim_state(size);
+    // Return the memory are to use for placement new.
+    return fsm.select_memory_area(size);
 }
 
 
 template<typename BaseState, int StateSize>
 void operator delete(void*, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
-    fsm.reclaim_state(0);
+    fsm.select_memory_area(0);
 }

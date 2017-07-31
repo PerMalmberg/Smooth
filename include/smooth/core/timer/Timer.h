@@ -35,7 +35,7 @@ namespace smooth
                     void IRAM_ATTR stop_from_isr() override;
                     void reset() override;
                     void IRAM_ATTR reset_from_isr() override;
-                    int get_id() override;
+                    int get_id() const override;
                     const std::string& get_name() override;
 
                 protected:

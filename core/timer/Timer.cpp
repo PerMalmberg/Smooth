@@ -79,7 +79,7 @@ namespace smooth
                 xTimerResetFromISR(handle, &higher_priority_task_woken);
             }
 
-            int Timer::get_id()
+            int Timer::get_id() const
             {
                 return id;
             }
