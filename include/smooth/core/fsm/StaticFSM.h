@@ -16,7 +16,7 @@ namespace smooth
             // StaticFSM is a memory-static implementation of a Finite State Machine.
             // It consumes StateSize * 2 bytes of memory at all times.
 
-            // All states used with this FSM must support EnterState and LeaveState methods.
+            // All states used with this FSM must support enter_state and leave_state methods.
             // These are called after in such a way that they do not overlap the way constructors
             // and destructors do when switching between states.
 
@@ -86,13 +86,13 @@ namespace smooth
                 if (current_state != nullptr)
                 {
                     leaving_state(current_state);
-                    current_state->LeaveState();
+                    current_state->leave_state();
                     current_state->~BaseState();
                 }
 
                 current_state = state;
                 entering_state(current_state);
-                current_state->EnterState();
+                current_state->enter_state();
             }
         }
     }

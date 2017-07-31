@@ -36,11 +36,11 @@ namespace smooth
 
                             virtual ~MQTTBaseState();
 
-                            virtual void EnterState()
+                            virtual void enter_state()
                             {
                             }
 
-                            virtual void LeaveState()
+                            virtual void leave_state()
                             {
                             }
 

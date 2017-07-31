@@ -18,7 +18,7 @@ namespace smooth
                 namespace state
                 {
 
-                    void ConnectingState::EnterState()
+                    void ConnectingState::enter_state()
                     {
                         packet::Connect con(fsm.get_mqtt().get_client_id()) ;
                         fsm.get_mqtt().send_packet(con, std::chrono::seconds(2));

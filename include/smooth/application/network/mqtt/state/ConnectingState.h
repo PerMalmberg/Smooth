@@ -26,7 +26,7 @@ namespace smooth
                             {
                             }
 
-                            void EnterState() override;
+                            void enter_state() override;
 
                             void message( const core::timer::TimerExpiredEvent& msg) override;
 
