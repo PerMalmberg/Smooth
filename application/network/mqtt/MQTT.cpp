@@ -135,9 +135,7 @@ namespace smooth
                     else
                     {
                         std::chrono::milliseconds ms = interval;
-                        // Times 0.75 as integer math.
-                        ms *= 3;
-                        ms /= 4;
+                        ms /= 2;
                         ESP_LOGV("MQTT", "ms: %d", static_cast<int>(ms.count()));
                         keep_alive_timer.start(ms);
                     }
