@@ -84,6 +84,8 @@ namespace smooth
 
                             void receive(packet::PingResp& ping_resp) override;
 
+                            virtual void disconnect_event() {}
+
                         protected:
                             MqttFSM <MQTTBaseState>& fsm;
                             char state_name[20];

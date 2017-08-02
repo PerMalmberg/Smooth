@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "esp_log.h"
 
+#include <driver/gpio.h>//qqq
+
 namespace smooth
 {
     namespace core
@@ -38,9 +40,17 @@ namespace smooth
                 clear_sets();
             }
 
+            bool toggle = false; //qqq
+
             void SocketDispatcher::tick()
             {
+                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
                 restart_inactive_sockets();
+
+                /*qqq*/
+                toggle = !toggle;
+                gpio_set_level(GPIO_NUM_26, toggle);
+                /*qqq*/
 
                 int max_file_descriptor = build_sets();
 
@@ -194,7 +204,7 @@ namespace smooth
                     for (auto& pair : active_sockets)
                     {
                         inactive_sockets.push_back(pair.second);
-                        pair.second->stop();
+                        pair.second->stop(true);
                     }
                     active_sockets.clear();
                 }

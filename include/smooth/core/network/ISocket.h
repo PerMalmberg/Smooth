@@ -22,7 +22,7 @@ namespace smooth
                     friend class smooth::core::network::SocketDispatcher;
 
                 public:
-                    virtual void stop() = 0;
+                    virtual void stop(bool publish_event) = 0;
                     virtual bool start(std::shared_ptr<InetAddress> ip) = 0;
                     virtual bool restart() = 0;
                     virtual int get_socket_id() = 0;

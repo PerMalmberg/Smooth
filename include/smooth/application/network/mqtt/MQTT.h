@@ -51,6 +51,7 @@ namespace smooth
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
                                    bool use_ssl);
                         void disconnect();
+                        void shutdown_connection() override;
 
                         void init() override;
 

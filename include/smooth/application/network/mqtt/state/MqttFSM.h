@@ -48,6 +48,8 @@ namespace smooth
 
                             void packet_received(const packet::MQTTPacket& msg);
 
+                            void disconnect_event();
+
                             mqtt::IMqtt& get_mqtt() const
                             {
                                 return mqtt;
@@ -117,6 +119,15 @@ namespace smooth
                         if (this->get_state() != nullptr)
                         {
                             this->get_state()->message(msg);
+                        }
+                    }
+
+                    template<typename BaseState>
+                    void MqttFSM<BaseState>::disconnect_event()
+                    {
+                        if (this->get_state() != nullptr)
+                        {
+                            this->get_state()->disconnect_event();
                         }
                     }
                 }

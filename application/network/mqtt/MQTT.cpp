@@ -33,7 +33,7 @@ namespace smooth
                           guard(),
                           client_id(mqtt_client_id),
                           keep_alive(keep_alive),
-                          mqtt_socket(nullptr),
+                          mqtt_socket(),
                           receive_timer("receive_timer", MQTT_FSM_RECEIVE_TIMER_ID, timer_events, false,
                                         std::chrono::seconds(10)),
                           reconnect_timer("reconnect_timer", MQTT_FSM_RECONNECT_TIMER_ID, timer_events, false,
@@ -62,37 +62,49 @@ namespace smooth
 
                     this->auto_reconnect = auto_reconnect;
 
-                    if (!mqtt_socket)
+                    if( mqtt_socket)
                     {
-                        if (use_ssl)
-                        {
-                            mqtt_socket.reset(
-                                    new core::network::SSLSocket<packet::MQTTPacket>(tx_buffer,
-                                                                                     rx_buffer,
-                                                                                     tx_empty,
-                                                                                     data_available,
-                                                                                     connection_status));
-                        }
-                        else
-                        {
-                            mqtt_socket.reset(
-                                    new core::network::Socket<packet::MQTTPacket>(tx_buffer,
-                                                                                  rx_buffer,
-                                                                                  tx_empty,
-                                                                                  data_available,
-                                                                                  connection_status));
-                        }
-
-                        mqtt_socket->start(address);
+                        mqtt_socket->stop(false);
                     }
+
+                    if (use_ssl)
+                    {
+                        mqtt_socket.reset(
+                                new core::network::SSLSocket<packet::MQTTPacket>(tx_buffer,
+                                                                                 rx_buffer,
+                                                                                 tx_empty,
+                                                                                 data_available,
+                                                                                 connection_status));
+                    }
+                    else
+                    {
+                        mqtt_socket.reset(
+                                new core::network::Socket<packet::MQTTPacket>(tx_buffer,
+                                                                              rx_buffer,
+                                                                              tx_empty,
+                                                                              data_available,
+                                                                              connection_status));
+                    }
+
+                    mqtt_socket->start(address);
                 }
 
                 void MQTT::disconnect()
                 {
+                    fsm.disconnect_event();
+                }
+
+                void MQTT::shutdown_connection()
+                {
                     auto_reconnect = false;
-                    mqtt_socket->stop();
-                    mqtt_socket.reset();
-                    fsm.set_state(new(fsm) state::IdleState(fsm));
+                    if (mqtt_socket)
+                    {
+                        mqtt_socket->stop(true);
+                    }
+
+                    receive_timer.stop();
+                    keep_alive_timer.stop();
+                    reconnect_timer.stop();
                 }
 
                 void MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
@@ -118,7 +130,10 @@ namespace smooth
 
                 void MQTT::reconnect()
                 {
-                    mqtt_socket->restart();
+                    if (mqtt_socket)
+                    {
+                        mqtt_socket->restart();
+                    }
                 }
 
                 bool MQTT::get_auto_reconnect() const

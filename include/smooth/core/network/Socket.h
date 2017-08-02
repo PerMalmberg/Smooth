@@ -36,18 +36,19 @@ namespace smooth
                 public:
                     friend class smooth::core::network::SocketDispatcher;
 
-                    Socket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
+                    Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status);
 
                     virtual ~Socket()
                     {
+                        stop(false);
                     }
 
                     bool start(std::shared_ptr<InetAddress> ip);
                     bool restart();
-                    void stop() override;
+                    void stop(bool publish_event = true) override;
                     bool is_active() override;
 
                     void readable() override;
@@ -70,8 +71,8 @@ namespace smooth
                     virtual void read_data(uint8_t* target, int max_length);
                     virtual void write_data(const uint8_t* src, int length);
 
-                    IPacketSendBuffer <T>& tx_buffer;
-                    IPacketReceiveBuffer <T>& rx_buffer;
+                    IPacketSendBuffer<T>& tx_buffer;
+                    IPacketReceiveBuffer<T>& rx_buffer;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty;
 
@@ -104,7 +105,7 @@ namespace smooth
             };
 
             template<typename T>
-            Socket<T>::Socket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
+            Socket<T>::Socket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status
@@ -278,7 +279,7 @@ namespace smooth
                     }
                     else if (rx_buffer.is_packet_complete())
                     {
-                        DataAvailableEvent <T> d(&rx_buffer);
+                        DataAvailableEvent<T> d(&rx_buffer);
                         data_available.push(d);
                         rx_buffer.prepare_new_packet();
                     }
@@ -374,21 +375,25 @@ namespace smooth
             }
 
             template<typename T>
-            void Socket<T>::stop()
+            void Socket<T>::stop(bool publish_event )
             {
                 ESP_LOGV("Socket", "Stopping socket");
+                SocketDispatcher::instance().socket_closed(this);
                 shutdown(socket_id, SHUT_RDWR);
                 close(socket_id);
                 started = false;
                 connected = false;
                 tx_buffer.clear();
                 rx_buffer.clear();
-                SocketDispatcher::instance().socket_closed(this);
 
                 // Reset socket_id last as it is used as an identifier up to this point.
                 socket_id = -1;
 
-                connection_status.push(ConnectionStatusEvent(this, false));
+                // When destroying a socket, this must not be done as it'll point to an invalid instance
+                if (publish_event)
+                {
+                    connection_status.push(ConnectionStatusEvent(this, false));
+                }
             }
         }
     }
