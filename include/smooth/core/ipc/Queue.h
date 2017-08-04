@@ -8,6 +8,8 @@
 #include <esp_attr.h>
 #include <chrono>
 #include <string>
+#include <vector>
+#include <smooth/core/ipc/Mutex.h>
 
 namespace smooth
 {
@@ -21,41 +23,51 @@ namespace smooth
                 public:
                     Queue(const std::string& name, int size)
                             : name(name),
-                              queue_size(size)
+                              queue_size(size),
+                              items(),
+                              guard()
                     {
                         ESP_LOGV("Queue", "Creating queue '%s', with %d items of size %d.", name.c_str(), size,
                                  sizeof(T));
-                        handle = xQueueCreate(size, sizeof(T));
+
+                        handle = xQueueCreate(size, sizeof(uint8_t));
                         if (handle == nullptr)
                         {
                             ESP_LOGE("Queue", "Failed to create Queue '%s'", name.c_str());
                             abort();
                         }
+
+                        items.reserve(size);
                     }
 
                     virtual ~Queue()
                     {
+                        smooth::core::ipc::Mutex::Lock lock(guard);
                         if (handle != nullptr)
                         {
                             vQueueDelete(handle);
                         }
+                        items.clear();
                     }
 
                     void set_size(int size)
                     {
+                        smooth::core::ipc::Mutex::Lock lock(guard);
                         if (handle != nullptr && size > queue_size && size > 0)
                         {
                             ESP_LOGV("Queue", "Resizing queue '%s', from %d items to %d items of size %d.",
                                      name.c_str(),
                                      queue_size, size, sizeof(T));
                             vQueueDelete(handle);
-                            handle = xQueueCreate(size, sizeof(T));
+                            handle = xQueueCreate(size, sizeof(uint8_t));
                             queue_size = size;
+                            items.reserve(size);
                         }
                     }
 
                     int get_size()
                     {
+                        smooth::core::ipc::Mutex::Lock lock(guard);
                         return queue_size;
                     }
 
@@ -64,55 +76,59 @@ namespace smooth
                         return handle;
                     }
 
-                    bool IRAM_ATTR push(const T& item)
+                    bool push(const T& item)
                     {
-                        bool res = xQueueSend(handle, &item, 0) == pdTRUE;
-                        if (!res)
+                        return push(item, std::chrono::milliseconds(0));
+                    }
+
+                    bool push(const T& item, std::chrono::milliseconds wait_time)
+                    {
+                        smooth::core::ipc::Mutex::Lock lock(guard);
+
+                        uint8_t dummy = 0;
+                        bool res = xQueueSend(handle, &dummy, to_ticks(wait_time)) == pdTRUE;
+
+                        if (res)
                         {
-                            ESP_LOGE("Queue", "Could not push");
+                            items.push_back(item);
                         }
+
                         return res;
-                    }
-
-                    bool IRAM_ATTR push(const T& item, std::chrono::milliseconds wait_time)
-                    {
-                        return xQueueSend(handle, &item, to_ticks(wait_time)) == pdTRUE;
-                    }
-
-                    bool IRAM_ATTR push_from_isr(const T& item)
-                    {
-                        return xQueueSendFromISR(handle, &item, nullptr) == pdTRUE;
                     }
 
                     bool pop(T& target)
                     {
-                        return xQueueReceive(handle, &target, 0);
+                        return pop(target, std::chrono::milliseconds(0));
                     }
 
                     bool pop(T& target, std::chrono::milliseconds wait_time)
                     {
-                        return xQueueReceive(handle, &target, to_ticks(wait_time)) == pdTRUE;
-                    }
+                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        uint8_t dummy = 0;
+                        bool res = xQueueReceive(handle, &dummy, 0) == pdTRUE;
+                        if( res )
+                        {
+                            ESP_LOGD("Queue", "1 %d", items.size());
+                            target = items.front();
+                            items.erase(items.begin());
+                            ESP_LOGD("Queue", "2 %d", items.size());
+                        }
 
-                    bool pop_from_isr(T& target)
-                    {
-                        return xQueueReceiveFromISR(handle, &target, nullptr) == pdTRUE;
+                        return res;
                     }
 
                     bool empty()
                     {
+                        smooth::core::ipc::Mutex::Lock lock(guard);
                         return uxQueueMessagesWaiting(handle) == 0;
-                    }
-
-                    bool empty_from_isr()
-                    {
-                        return uxQueueMessagesWaitingFromISR(handle) == 0;
                     }
 
                 private:
                     QueueHandle_t handle = nullptr;
                     std::string name;
                     int queue_size;
+                    std::vector<T> items;
+                    smooth::core::ipc::Mutex guard;
 
                     TickType_t to_ticks(std::chrono::milliseconds ms)
                     {
