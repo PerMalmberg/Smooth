@@ -108,10 +108,8 @@ namespace smooth
                         bool res = xQueueReceive(handle, &dummy, 0) == pdTRUE;
                         if( res )
                         {
-                            ESP_LOGD("Queue", "1 %d", items.size());
                             target = items.front();
                             items.erase(items.begin());
-                            ESP_LOGD("Queue", "2 %d", items.size());
                         }
 
                         return res;
