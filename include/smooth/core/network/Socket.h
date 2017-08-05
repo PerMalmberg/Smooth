@@ -44,8 +44,6 @@ namespace smooth
 
                     virtual ~Socket()
                     {
-                        ESP_LOGD("Socket", "~~~~~ %p Task: %p %s", this, xTaskGetCurrentTaskHandle(),
-                                 pcTaskGetTaskName(xTaskGetCurrentTaskHandle()));
                     }
 
                     bool start(std::shared_ptr<InetAddress> ip);
@@ -425,7 +423,7 @@ namespace smooth
             {
                 if( started )
                 {
-                    ESP_LOGV("Socket", "Stopping socket");
+                    ESP_LOGV("Socket", "Stopping socket %d, %p", get_socket_id(), this);
                     started = false;
                     connected = false;
                     SocketDispatcher::instance().initiate_shutdown(shared_from_this());
@@ -437,7 +435,6 @@ namespace smooth
             template<typename T>
             void Socket<T>::publish_connected_status(std::shared_ptr<ISocket>& socket)
             {
-                ESP_LOGD("publish_connected_status", "Use count %ld", socket.use_count());
                 ConnectionStatusEvent ev(socket, is_connected());
                 connection_status.push(ev);
             }
