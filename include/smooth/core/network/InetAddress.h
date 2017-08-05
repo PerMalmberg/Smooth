@@ -17,7 +17,10 @@ namespace smooth
             class InetAddress
             {
                 public:
-                    InetAddress() = default;
+                    InetAddress(const std::string& address_as_string, int port)
+                            : address_as_string(address_as_string), port(port)
+                    {
+                    }
 
                     virtual int get_address_family() const = 0;
 
@@ -29,6 +32,16 @@ namespace smooth
                     virtual sockaddr* get_socket_address() = 0;
                     virtual socklen_t get_socket_address_length() const = 0;
 
+                    const std::string& get_address_as_string() const
+                    {
+                        return address_as_string;
+                    }
+
+                    int get_port() const
+                    {
+                        return port;
+                    }
+
                     bool is_valid() const
                     {
                         return valid;
@@ -36,6 +49,8 @@ namespace smooth
 
                 protected:
                     bool valid = false;
+                    std::string address_as_string;
+                    int port;
             };
         }
     }

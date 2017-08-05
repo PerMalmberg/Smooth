@@ -14,7 +14,7 @@ namespace smooth
         namespace network
         {
 
-            IPv4::IPv4(const std::string& address, uint16_t port) : InetAddress()
+            IPv4::IPv4(const std::string& address, uint16_t port) : InetAddress(address, port)
             {
                 memset(&sock_address, 0, sizeof(sock_address));
                 sock_address.sin_family = AF_INET;
