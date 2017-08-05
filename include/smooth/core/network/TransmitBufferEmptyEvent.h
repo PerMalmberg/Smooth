@@ -18,17 +18,17 @@ namespace smooth
                 public:
                     TransmitBufferEmptyEvent() = default;
 
-                    TransmitBufferEmptyEvent(smooth::core::network::ISocket* socket) : s(socket)
+                    TransmitBufferEmptyEvent(std::shared_ptr<smooth::core::network::ISocket> socket) : s(socket)
                     {
                     }
 
-                    smooth::core::network::ISocket* get_socket() const
+                    std::shared_ptr<smooth::core::network::ISocket> get_socket() const
                     {
                         return s;
                     }
 
                 private:
-                    smooth::core::network::ISocket* s;
+                    std::shared_ptr<smooth::core::network::ISocket> s;
             };
         }
     }

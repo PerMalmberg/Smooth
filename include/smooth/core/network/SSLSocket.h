@@ -18,13 +18,20 @@ namespace smooth
                     : public Socket<T>
             {
                 public:
-                    SSLSocket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
+                    static std::shared_ptr<ISocket>
+                    create(IPacketSendBuffer<T>& tx_buffer,
+                           IPacketReceiveBuffer<T>& rx_buffer,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status);
+
+                    ~SSLSocket();
+                    SSLSocket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status);
-
-                    ~SSLSocket();
                 protected:
+
                     bool create_socket() override;
                     bool prepare_connected_socket() override;
 
@@ -36,7 +43,40 @@ namespace smooth
             };
 
             template<typename T>
-            SSLSocket<T>::SSLSocket(IPacketSendBuffer <T>& tx_buffer, IPacketReceiveBuffer <T>& rx_buffer,
+            std::shared_ptr<ISocket> SSLSocket<T>::create(IPacketSendBuffer<T>& tx_buffer,
+                                                          IPacketReceiveBuffer<T>& rx_buffer,
+                                                          smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                                          smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                                                          smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
+            {
+
+                // This class is solely used to enabled access to the protected Socket<T> constructor from std::make_shared<>
+                class MakeSharedActivator
+                        : public SSLSocket<T>
+                {
+                    public:
+                        MakeSharedActivator(IPacketSendBuffer<T>& tx_buffer,
+                                            IPacketReceiveBuffer<T>& rx_buffer,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
+                                : SSLSocket<T>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status)
+                        {
+                        }
+
+                };
+
+                std::shared_ptr<ISocket> s = std::make_shared<MakeSharedActivator>(tx_buffer,
+                                                                                   rx_buffer,
+                                                                                   tx_empty,
+                                                                                   data_available,
+                                                                                   connection_status);
+                SocketDispatcher::instance().socket_created(s);
+                return s;
+            }
+
+            template<typename T>
+            SSLSocket<T>::SSLSocket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
                                     smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                                     smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
                                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status
@@ -128,7 +168,7 @@ namespace smooth
                         }
                         else if (this->rx_buffer.is_packet_complete())
                         {
-                            DataAvailableEvent <T> d(&this->rx_buffer);
+                            DataAvailableEvent<T> d(&this->rx_buffer);
                             this->data_available.push(d);
                             this->rx_buffer.prepare_new_packet();
                         }
@@ -180,7 +220,7 @@ namespace smooth
                     if (!this->tx_buffer.is_in_progress())
                     {
                         // Let the application know it may now send another packet.
-                        smooth::core::network::TransmitBufferEmptyEvent msg(this);
+                        smooth::core::network::TransmitBufferEmptyEvent msg(this->shared_from_this());
                         this->tx_empty.push(msg);
                     }
                 }

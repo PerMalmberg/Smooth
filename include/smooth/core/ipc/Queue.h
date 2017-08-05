@@ -65,7 +65,7 @@ namespace smooth
                         }
                     }
 
-                    int get_size()
+                    int size()
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
                         return queue_size;
@@ -117,8 +117,13 @@ namespace smooth
 
                     bool empty()
                     {
+                        return count() == 0;
+                    }
+
+                    int count()
+                    {
                         smooth::core::ipc::Mutex::Lock lock(guard);
-                        return uxQueueMessagesWaiting(handle) == 0;
+                        return uxQueueMessagesWaiting(handle);
                     }
 
                 private:

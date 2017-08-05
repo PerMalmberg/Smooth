@@ -7,8 +7,6 @@
 #include <algorithm>
 #include "esp_log.h"
 
-#include <driver/gpio.h>//qqq
-
 namespace smooth
 {
     namespace core
@@ -34,23 +32,19 @@ namespace smooth
                     : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(100)),
                       active_sockets(),
                       inactive_sockets(),
+                      all_sockets(),
+                      sockets_to_close(),
                       socket_guard(),
                       system_events("SocketDispatcher", 10, *this, *this)
             {
                 clear_sets();
             }
 
-            bool toggle = false; //qqq
-
             void SocketDispatcher::tick()
             {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                complete_socket_shutdown();
                 restart_inactive_sockets();
-
-                /*qqq*/
-                toggle = !toggle;
-                gpio_set_level(GPIO_NUM_26, toggle);
-                /*qqq*/
 
                 int max_file_descriptor = build_sets();
 
@@ -77,8 +71,6 @@ namespace smooth
                                 }
                             }
 
-                            // At this point, it is possible that a socket that was closed has been
-                            // removed during the readable() call.
                             if (FD_ISSET(i, &write_set))
                             {
                                 auto it = active_sockets.find(i);
@@ -115,7 +107,8 @@ namespace smooth
 
                 for (auto& pair : active_sockets)
                 {
-                    auto* s = pair.second;
+                    auto& s = pair.second;
+
                     max = std::max(max, s->get_socket_id());
                     if (s->has_data_to_transmit())
                     {
@@ -127,28 +120,79 @@ namespace smooth
                 return max;
             }
 
-            void SocketDispatcher::add_socket(ISocket* socket)
+            void SocketDispatcher::start_socket(std::shared_ptr<ISocket> socket)
             {
+                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+
                 if (has_ip)
                 {
-                    {
-                        smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                        active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
-                    }
+                    active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
                     socket->internal_start();
                 }
                 else
                 {
-                    smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
                     inactive_sockets.push_back(socket);
                 }
             }
 
-            void SocketDispatcher::socket_closed(ISocket* socket)
+            void SocketDispatcher::socket_created(std::shared_ptr<ISocket> socket)
             {
-                ESP_LOGV("SocketDispatcher", "Socket closed %d", socket->get_socket_id());
+                all_sockets.push_back(socket);
+            }
+
+            void SocketDispatcher::initiate_shutdown(std::shared_ptr<ISocket> socket)
+            {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                active_sockets.erase(socket->get_socket_id());
+                ESP_LOGV("SocketDispatcher", "Initiating shutdown of socket id %d, %p", socket->get_socket_id(), socket.get());
+                sockets_to_close.push_back(socket);
+            }
+
+            void SocketDispatcher::complete_socket_shutdown()
+            {
+                for (auto& socket : sockets_to_close)
+                {
+                    ESP_LOGV("SocketDispatcher", "Closing socket id %d, %p", socket->get_socket_id(), socket.get());
+                    shutdown(socket->get_socket_id(), SHUT_RDWR);
+                    close(socket->get_socket_id());
+                    socket->clear_socket_id();
+                    socket->publish_connected_status(socket);
+
+                    remove_socket_from_active_sockets(socket);
+                    remove_socket_from_collection(all_sockets, socket);
+                    remove_socket_from_collection(inactive_sockets, socket);
+                }
+
+                sockets_to_close.clear();
+            }
+
+            void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
+                                                                 std::shared_ptr<ISocket> socket)
+            {
+                const std::function<bool(const std::shared_ptr<ISocket>)> predicate = [socket](
+                        const std::shared_ptr<ISocket> o)
+                {
+                    return (o.get()) == (socket.get());
+                };
+
+                auto found = std::find_if(col.begin(), col.end(), predicate);
+                if (found != col.end())
+                {
+                    col.erase(found);
+                }
+            }
+
+            void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
+            {
+                auto found = std::find_if(active_sockets.begin(), active_sockets.end(),
+                                          [socket](std::pair<int, std::shared_ptr<ISocket>> o)
+                                          {
+                                              return o.second.get() == socket.get();
+                                          });
+
+                if( found != active_sockets.end())
+                {
+                    active_sockets.erase(found);
+                }
             }
 
             void SocketDispatcher::restart_inactive_sockets()
@@ -156,34 +200,26 @@ namespace smooth
                 if (has_ip)
                 {
                     smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                    // Make a copy of the inactive set - it might be modified
-                    // during the call to socket->internal_start().
-                    std::vector<ISocket*> copy = inactive_sockets;
 
-                    for (auto* socket: copy)
+                    // Start and move sockets from inactive to active list
+                    for (auto it = inactive_sockets.begin(); it != inactive_sockets.end();)
                     {
+                        auto socket = *it;
                         socket->internal_start();
                         active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
-                    }
-
-                    // Remove all sockets that are now on the active list (some might have been
-                    // removed during call to internal_start())
-                    for (auto* socket : copy)
-                    {
-                        auto it = std::find(inactive_sockets.begin(), inactive_sockets.end(), socket);
-                        if (it != inactive_sockets.end())
-                        {
-                            inactive_sockets.erase(it);
-                        }
+                        it = inactive_sockets.erase(it);
                     }
 
                     // Monitor sockets that are started, but not yet connected
                     for (auto& pair : active_sockets)
                     {
-                        auto* socket = pair.second;
+                        auto socket = pair.second;
                         if (socket->is_started() && !socket->is_connected())
                         {
-                            socket->check_if_connection_is_completed();
+                            if (socket->check_if_connection_is_completed())
+                            {
+                                socket->publish_connected_status(socket);
+                            }
                         }
                     }
                 }
@@ -191,6 +227,7 @@ namespace smooth
 
             void SocketDispatcher::message(const system_event_t& msg)
             {
+                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
                 if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
                     || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
                 {
@@ -200,11 +237,9 @@ namespace smooth
                 {
                     // Close all sockets
                     has_ip = false;
-                    smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
                     for (auto& pair : active_sockets)
                     {
-                        inactive_sockets.push_back(pair.second);
-                        pair.second->stop(true);
+                        sockets_to_close.push_back(pair.second);
                     }
                     active_sockets.clear();
                 }

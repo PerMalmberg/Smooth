@@ -5,6 +5,7 @@
 #pragma once
 
 #include <smooth/core/network/ISocket.h>
+#include "esp_log.h"
 
 namespace smooth
 {
@@ -16,8 +17,9 @@ namespace smooth
             {
                 public:
                     ConnectionStatusEvent() = default;
+                    ConnectionStatusEvent(const ConnectionStatusEvent&) = default;
 
-                    ConnectionStatusEvent(smooth::core::network::ISocket* sock, bool is_connected)
+                    ConnectionStatusEvent(std::shared_ptr<smooth::core::network::ISocket> sock, bool is_connected)
                             : sock(sock),
                               connected(is_connected)
                     {
@@ -28,13 +30,13 @@ namespace smooth
                         return connected;
                     }
 
-                    smooth::core::network::ISocket* get_socket()
+                    const std::shared_ptr<ISocket>& get_socket() const
                     {
                         return sock;
                     }
 
                 private:
-                    smooth::core::network::ISocket* sock;
+                    std::shared_ptr<smooth::core::network::ISocket> sock;
                     bool connected;
             };
         }

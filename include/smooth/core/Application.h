@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <chrono>
+#include <unordered_map>
 #include <esp_log.h>
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/Task.h>
@@ -44,6 +45,8 @@ namespace smooth
                 static esp_err_t event_callback(void* ctx, system_event_t* event);
                 ipc::TaskEventQueue <system_event_t> system_event;
                 network::Wifi wifi;
+
+                static const std::unordered_map<int, const char*> id_to_system_event;
         };
     }
 }

@@ -20,7 +20,7 @@ namespace smooth
                     : public Link<T>, public ITaskEventQueue
             {
                 public:
-                    TaskEventQueue(const std::string& name, int size, Task& task, IEventListener <T>& listener)
+                    TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                             :
                             Link<T>(),
                             task(task),
@@ -39,7 +39,8 @@ namespace smooth
 
                     void forward_to_task()
                     {
-                        // All messages passed via a queue needs a default constructor and must be copyable.
+                        // All messages passed via a queue needs a default constructor
+                        // and must be copyable and have the assignment operator.
                         T m;
                         if (queue.pop(m))
                         {
@@ -52,9 +53,14 @@ namespace smooth
                         return queue.push(item);
                     }
 
-                    int get_size()
+                    int size()
                     {
-                        return queue.get_size();
+                        return queue.size();
+                    }
+
+                    int count()
+                    {
+                        return queue.count();
                     }
 
                     QueueHandle_t get_handle()
@@ -64,8 +70,8 @@ namespace smooth
 
                 private:
                     Task& task;
-                    Queue <T> queue;
-                    IEventListener <T>& listener;
+                    Queue<T> queue;
+                    IEventListener<T>& listener;
             };
         }
     }

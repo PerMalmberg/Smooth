@@ -35,13 +35,15 @@ namespace smooth
 
                     void tick() override;
 
-                    void add_socket(ISocket* socket);
-                    void socket_closed(ISocket* socket);
+                    void start_socket(std::shared_ptr<ISocket> socket);
+                    void initiate_shutdown(std::shared_ptr<ISocket> socket);
 
                     void message(const system_event_t& msg) override;
+
+                    void socket_created( std::shared_ptr<ISocket> socket);
+
+
                 protected:
-
-
                 private:
                     SocketDispatcher();
                     int build_sets();
@@ -49,8 +51,15 @@ namespace smooth
                     void set_timeout();
                     void restart_inactive_sockets();
 
-                    std::map<int, ISocket*> active_sockets;
-                    std::vector<ISocket*> inactive_sockets;
+                    void complete_socket_shutdown();
+
+                    void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col, std::shared_ptr<ISocket> socket);
+                    void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
+
+                    std::map<int, std::shared_ptr<ISocket>> active_sockets;
+                    std::vector<std::shared_ptr<ISocket>> inactive_sockets;
+                    std::vector<std::shared_ptr<ISocket>> all_sockets;
+                    std::vector<std::shared_ptr<ISocket>> sockets_to_close;
                     smooth::core::ipc::RecursiveMutex socket_guard;
                     smooth::core::ipc::TaskEventQueue<system_event_t> system_events;
 

@@ -71,9 +71,9 @@ namespace smooth
 
         void Task::exec()
         {
-            init();
+            ESP_LOGV("Task", "Starting task '%s', %p", pcTaskGetTaskName(task_handle), task_handle);
 
-            ESP_LOGV("Task", "Starting task '%s'", pcTaskGetTaskName(task_handle));
+            init();
 
             for (;;)
             {
@@ -102,7 +102,7 @@ namespace smooth
             // Add all queues belonging to this Task.
             for (auto& q : queues)
             {
-                queue_set_size += q.second->get_size();
+                queue_set_size += q.second->size();
             }
 
             // Create the queue notification set, always 1 slots or greater to to handle
