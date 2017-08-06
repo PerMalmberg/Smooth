@@ -143,20 +143,26 @@ namespace smooth
             void SocketDispatcher::initiate_shutdown(std::shared_ptr<ISocket> socket)
             {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                ESP_LOGV("SocketDispatcher", "Initiating shutdown of socket id %d, %p", socket->get_socket_id(), socket.get());
-                sockets_to_close.push_back(socket);
+
+                // We can get this event SYSTEM_EVENT_STA_DISCONNECTED times so make sure not to put the sockets
+                // in the list more than once. We're also calling Socket::stop() which in turn calls us so this
+                // check has to be here.
+                if (std::find(sockets_to_close.begin(), sockets_to_close.end(), socket) == sockets_to_close.end())
+                {
+                    ESP_LOGV("SocketDispatcher", "Initiating shutdown of socket %p", socket.get());
+                    sockets_to_close.push_back(socket);
+                    socket->stop();
+                    socket->publish_connected_status(socket);
+                }
+
+
             }
 
             void SocketDispatcher::complete_socket_shutdown()
             {
                 for (auto& socket : sockets_to_close)
                 {
-                    ESP_LOGV("SocketDispatcher", "Closing socket id %d, %p", socket->get_socket_id(), socket.get());
-                    shutdown(socket->get_socket_id(), SHUT_RDWR);
-                    close(socket->get_socket_id());
-                    socket->clear_socket_id();
-                    socket->publish_connected_status(socket);
-
+                    ESP_LOGV("SocketDispatcher", "Completing shutdown of socket %p", socket.get());
                     remove_socket_from_active_sockets(socket);
                     remove_socket_from_collection(all_sockets, socket);
                     remove_socket_from_collection(inactive_sockets, socket);
@@ -189,7 +195,7 @@ namespace smooth
                                               return o.second.get() == socket.get();
                                           });
 
-                if( found != active_sockets.end())
+                if (found != active_sockets.end())
                 {
                     active_sockets.erase(found);
                 }
@@ -237,11 +243,10 @@ namespace smooth
                 {
                     // Close all sockets
                     has_ip = false;
-                    for (auto& pair : active_sockets)
+                    for (auto& socket : all_sockets)
                     {
-                        sockets_to_close.push_back(pair.second);
+                        initiate_shutdown(socket);
                     }
-                    active_sockets.clear();
                 }
             }
         }
