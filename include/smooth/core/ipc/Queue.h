@@ -50,21 +50,6 @@ namespace smooth
                         items.clear();
                     }
 
-                    void set_size(int size)
-                    {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
-                        if (handle != nullptr && size > queue_size && size > 0)
-                        {
-                            ESP_LOGV("Queue", "Resizing queue '%s', from %d items to %d items of size %d.",
-                                     name.c_str(),
-                                     queue_size, size, sizeof(T));
-                            vQueueDelete(handle);
-                            handle = xQueueCreate(size, sizeof(uint8_t));
-                            queue_size = size;
-                            items.reserve(size);
-                        }
-                    }
-
                     int size()
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
