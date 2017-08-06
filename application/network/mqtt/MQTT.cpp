@@ -160,8 +160,6 @@ namespace smooth
                     }
                     else if (msg.get_type() == event::BaseEvent::CONNECT)
                     {
-                        ESP_LOGD("MQTT", "BaseEvent::CONNECT");
-
                         if (mqtt_socket)
                         {
                             mqtt_socket->stop();
