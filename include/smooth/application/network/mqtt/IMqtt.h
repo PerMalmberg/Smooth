@@ -24,8 +24,7 @@ namespace smooth
                         virtual const std::chrono::seconds get_keep_alive() const = 0;
                         virtual void start_reconnect() = 0;
                         virtual void reconnect() = 0;
-                        virtual void shutdown_connection() = 0;
-                        virtual bool get_auto_reconnect() const = 0;
+                        virtual bool is_auto_reconnect() const = 0;
                         virtual void set_keep_alive_timer(std::chrono::seconds interval) = 0;
                         virtual void send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) = 0;
                 };

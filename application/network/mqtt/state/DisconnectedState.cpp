@@ -3,6 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/state/DisconnectedState.h>
+#include <smooth/application/network/mqtt/state/ConnectToBrokerState.h>
 
 namespace smooth
 {
@@ -17,13 +18,9 @@ namespace smooth
                     void DisconnectedState::enter_state()
                     {
                         fsm.get_mqtt().set_keep_alive_timer(std::chrono::seconds(0));
-                        if (auto_reconnect)
+                        if (fsm.get_mqtt().is_auto_reconnect())
                         {
                             fsm.get_mqtt().start_reconnect();
-                        }
-                        else
-                        {
-                            fsm.get_mqtt().shutdown_connection();
                         }
                     }
 
@@ -37,9 +34,13 @@ namespace smooth
 
                     void DisconnectedState::message(const core::network::ConnectionStatusEvent& msg)
                     {
-                        if (auto_reconnect && !msg.is_connected())
+                        if (fsm.get_mqtt().is_auto_reconnect() && !msg.is_connected())
                         {
                             fsm.get_mqtt().start_reconnect();
+                        }
+                        else if( msg.is_connected())
+                        {
+                            fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
                         }
                     }
 

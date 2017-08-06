@@ -21,7 +21,7 @@ namespace smooth
                     {
                         public:
                             ConnectToBrokerState(MqttFSM<MQTTBaseState>& fsm)
-                                    : ConnectedState(fsm, "Connecting")
+                                    : ConnectedState(fsm, "ConnectToBroker")
                             {
                             }
 

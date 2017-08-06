@@ -36,7 +36,7 @@ namespace smooth
                     {
                         if (!msg.is_connected())
                         {
-                            fsm.set_state(new(fsm) IdleState(fsm, fsm.get_mqtt().get_auto_reconnect()));
+                            fsm.set_state(new(fsm) IdleState(fsm));
                         }
                     }
 

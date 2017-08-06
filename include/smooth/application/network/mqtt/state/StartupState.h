@@ -1,11 +1,10 @@
 //
-// Created by permal on 7/31/17.
+// Created by permal on 8/6/17.
 //
 
 #pragma once
 
 #include "DisconnectedState.h"
-#include "esp_log.h"
 
 namespace smooth
 {
@@ -17,13 +16,18 @@ namespace smooth
             {
                 namespace state
                 {
-                    class IdleState
+                    class StartupState
                             : public DisconnectedState
                     {
                         public:
-                            IdleState(MqttFSM<MQTTBaseState>& fsm)
-                                    : DisconnectedState(fsm, "IdleState")
+                            StartupState(MqttFSM<MQTTBaseState>& fsm)
+                                    : DisconnectedState(fsm, "StartupState")
                             {
+                            }
+
+                            void enter_state() override
+                            {
+                                // Prevent automatic connection by overriding entry method
                             }
                     };
                 }

@@ -9,6 +9,7 @@
 #include <memory>
 #include <deque>
 #include <unordered_map>
+#include "esp_event.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/ipc/Mutex.h>
 #include <smooth/core/network/IPv4.h>
@@ -25,6 +26,7 @@
 #include <smooth/application/network/mqtt/state/MqttFSM.h>
 #include <smooth/application/network/mqtt/state/MQTTBaseState.h>
 #include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/event/BaseEvent.h>
 
 namespace smooth
 {
@@ -42,16 +44,18 @@ namespace smooth
                           public core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
                           public core::ipc::IEventListener<core::network::DataAvailableEvent<packet::MQTTPacket>>,
                           public core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
-                          public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
+                          public core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
+                          public core::ipc::IEventListener<event::BaseEvent>,
+                          public core::ipc::IEventListener<system_event_t>
                 {
                     public:
-                        MQTT(const std::string& mqtt_client_id, std::chrono::seconds keep_alive, uint32_t stack_depth, UBaseType_t priority);
+                        MQTT(const std::string& mqtt_client_id, std::chrono::seconds keep_alive, uint32_t stack_depth,
+                             UBaseType_t priority);
 
                         void
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
                                    bool use_ssl);
                         void disconnect();
-                        void shutdown_connection() override;
 
                         void init() override;
 
@@ -61,12 +65,20 @@ namespace smooth
                         void message(const core::network::DataAvailableEvent<packet::MQTTPacket>& msg);
                         void message(const core::timer::TimerExpiredEvent& msg);
 
+                        void message(const event::BaseEvent& msg);
+
+                        void message(const system_event_t& msg);
+
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;
                         void start_reconnect() override;
                         void reconnect() override;
-                        bool get_auto_reconnect() const override;
                         void set_keep_alive_timer(std::chrono::seconds interval) override;
+
+                        bool is_auto_reconnect() const override
+                        {
+                            return auto_reconnect;
+                        }
 
                     protected:
                         void tick() override;
@@ -81,15 +93,19 @@ namespace smooth
                         core::ipc::TaskEventQueue<core::network::DataAvailableEvent<packet::MQTTPacket>> data_available;
                         core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
+                        core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
+                        core::ipc::TaskEventQueue<system_event_t> system_event;
                         smooth::core::ipc::Mutex guard;
                         std::string client_id;
                         std::chrono::seconds keep_alive;
-                        std::unique_ptr<smooth::core::network::ISocket> mqtt_socket;
+                        std::shared_ptr<smooth::core::network::ISocket> mqtt_socket;
                         core::timer::Timer receive_timer;
                         core::timer::Timer reconnect_timer;
                         core::timer::Timer keep_alive_timer;
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
+                        std::shared_ptr<smooth::core::network::InetAddress> address;
+                        bool use_ssl = false;
                 };
             }
         }

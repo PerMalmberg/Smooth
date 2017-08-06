@@ -4,8 +4,11 @@
 
 #include <smooth/application/network/mqtt/MQTT.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
-#include <smooth/application/network/mqtt/state/IdleState.h>
+#include <smooth/application/network/mqtt/state/StartupState.h>
+#include <smooth/application/network/mqtt/event/ConnectEvent.h>
+#include <smooth/application/network/mqtt/event/DisconnectEvent.h>
 #include "esp_log.h"
+#include <driver/gpio.h>
 
 
 using namespace smooth::core::ipc;
@@ -30,6 +33,8 @@ namespace smooth
                           data_available("data_available", 5, *this, *this),
                           connection_status("connection_status", 5, *this, *this),
                           timer_events("timer_events", 5, *this, *this),
+                          control_event("control_event", 5, *this, *this),
+                          system_event("system_event", 5, *this, *this),
                           guard(),
                           client_id(mqtt_client_id),
                           keep_alive(keep_alive),
@@ -40,7 +45,8 @@ namespace smooth
                                           std::chrono::seconds(5)),
                           keep_alive_timer("keep_alive_timer", MQTT_FSM_KEEP_ALIVE_TIMER_ID, timer_events, true,
                                            std::chrono::seconds(1)),
-                          fsm(*this)
+                          fsm(*this),
+                          address()
                 {
                 }
 
@@ -52,59 +58,27 @@ namespace smooth
 
                 void MQTT::init()
                 {
-                    fsm.set_state(new(fsm) state::IdleState(fsm));
+                    /*qqq*/
+                    gpio_pad_select_gpio(GPIO_NUM_27);
+                    gpio_set_direction(GPIO_NUM_27, GPIO_MODE_OUTPUT);
+                    gpio_set_level(GPIO_NUM_27, 0);
+
+                    fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
                 void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
                                       bool use_ssl)
                 {
                     Mutex::Lock lock(guard);
-
+                    this->address = address;
                     this->auto_reconnect = auto_reconnect;
-
-                    if( mqtt_socket)
-                    {
-                        mqtt_socket->stop(false);
-                    }
-
-                    if (use_ssl)
-                    {
-                        mqtt_socket.reset(
-                                new core::network::SSLSocket<packet::MQTTPacket>(tx_buffer,
-                                                                                 rx_buffer,
-                                                                                 tx_empty,
-                                                                                 data_available,
-                                                                                 connection_status));
-                    }
-                    else
-                    {
-                        mqtt_socket.reset(
-                                new core::network::Socket<packet::MQTTPacket>(tx_buffer,
-                                                                              rx_buffer,
-                                                                              tx_empty,
-                                                                              data_available,
-                                                                              connection_status));
-                    }
-
-                    mqtt_socket->start(address);
+                    this->use_ssl = use_ssl;
+                    control_event.push(event::ConnectEvent());
                 }
 
                 void MQTT::disconnect()
                 {
-                    fsm.disconnect_event();
-                }
-
-                void MQTT::shutdown_connection()
-                {
-                    auto_reconnect = false;
-                    if (mqtt_socket)
-                    {
-                        mqtt_socket->stop(true);
-                    }
-
-                    receive_timer.stop();
-                    keep_alive_timer.stop();
-                    reconnect_timer.stop();
+                    control_event.push(event::DisconnectEvent());
                 }
 
                 void MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
@@ -130,15 +104,8 @@ namespace smooth
 
                 void MQTT::reconnect()
                 {
-                    if (mqtt_socket)
-                    {
-                        mqtt_socket->restart();
-                    }
-                }
-
-                bool MQTT::get_auto_reconnect() const
-                {
-                    return auto_reconnect;
+                    control_event.push(event::DisconnectEvent());
+                    control_event.push(event::ConnectEvent());
                 }
 
                 void MQTT::set_keep_alive_timer(std::chrono::seconds interval)
@@ -162,6 +129,7 @@ namespace smooth
 
                 void MQTT::message(const core::network::ConnectionStatusEvent& msg)
                 {
+                    /*qqq*/gpio_set_level(GPIO_NUM_27, msg.is_connected() ? 1 : 0);
                     fsm.message(msg);
                 }
 
@@ -179,6 +147,54 @@ namespace smooth
                 void MQTT::message(const core::timer::TimerExpiredEvent& msg)
                 {
                     fsm.message(msg);
+                }
+
+                void MQTT::message(const event::BaseEvent& msg)
+                {
+                    if (msg.get_type() == event::BaseEvent::DISCONNECT)
+                    {
+                        receive_timer.stop();
+                        keep_alive_timer.stop();
+                        reconnect_timer.stop();
+                        fsm.disconnect_event();
+                    }
+                    else if (msg.get_type() == event::BaseEvent::CONNECT)
+                    {
+                        ESP_LOGD("MQTT", "BaseEvent::CONNECT");
+
+                        if (mqtt_socket)
+                        {
+                            mqtt_socket->stop();
+                        }
+
+                        if (use_ssl)
+                        {
+                            mqtt_socket = core::network::SSLSocket<packet::MQTTPacket>::create(tx_buffer,
+                                                                                               rx_buffer,
+                                                                                               tx_empty,
+                                                                                               data_available,
+                                                                                               connection_status);
+                        }
+                        else
+                        {
+                            mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
+                                                                                            rx_buffer,
+                                                                                            tx_empty,
+                                                                                            data_available,
+                                                                                            connection_status);
+                        }
+
+                        mqtt_socket->start(address);
+                    }
+                }
+
+                void MQTT::message(const system_event_t& msg)
+                {
+                    if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
+                        || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                    {
+                        reconnect();
+                    }
                 }
             }
         }
