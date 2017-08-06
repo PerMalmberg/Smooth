@@ -26,7 +26,6 @@ namespace smooth
                     virtual void stop() = 0;
                     virtual bool restart() = 0;
                     virtual int get_socket_id() = 0;
-                    virtual void clear_socket_id() = 0;
                     virtual bool is_active() = 0;
                 private:
 

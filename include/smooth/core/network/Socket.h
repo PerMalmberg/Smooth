@@ -44,6 +44,7 @@ namespace smooth
 
                     virtual ~Socket()
                     {
+                        log("Destructing");
                     }
 
                     bool start(std::shared_ptr<InetAddress> ip);
@@ -85,11 +86,6 @@ namespace smooth
 
                     void internal_start() override;
 
-                    void clear_socket_id() override
-                    {
-                        socket_id = -1;
-                    }
-
                     bool is_started() override;
 
                     bool is_connected() override
@@ -105,6 +101,9 @@ namespace smooth
                         // when the socket just has been closed while in SocketDispatcher::tick()
                         return connected && !tx_buffer.is_empty();
                     }
+
+                    void log(const char* message);
+                    void loge(const char* message);
 
                     void publish_connected_status(std::shared_ptr<ISocket>& socket) override;
                     bool check_if_connection_is_completed() override;
@@ -140,11 +139,11 @@ namespace smooth
 
                 };
 
-                std::shared_ptr<ISocket> s =  std::make_shared<MakeSharedActivator>(tx_buffer,
-                                                               rx_buffer,
-                                                               tx_empty,
-                                                               data_available,
-                                                               connection_status);
+                std::shared_ptr<ISocket> s = std::make_shared<MakeSharedActivator>(tx_buffer,
+                                                                                   rx_buffer,
+                                                                                   tx_empty,
+                                                                                   data_available,
+                                                                                   connection_status);
 
                 SocketDispatcher::instance().socket_created(s);
                 return s;
@@ -169,7 +168,7 @@ namespace smooth
             bool Socket<T>::start(std::shared_ptr<InetAddress> ip)
             {
                 bool res = false;
-                if( !started )
+                if (!started)
                 {
                     this->ip = ip;
                     res = ip->is_valid() && create_socket();
@@ -200,7 +199,7 @@ namespace smooth
 
                     if (socket_id == -1)
                     {
-                        ESP_LOGE("Socket", "Creation failed:: %s", strerror(errno));
+                        loge("Failed to create socket");
                     }
                     else
                     {
@@ -209,7 +208,7 @@ namespace smooth
                         res &= setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay)) == 0;
                         if (res)
                         {
-                            ESP_LOGV("Socket", "create_socket: id: %d, %p", socket_id, this);
+                            log("Created socket");
                         }
                     }
                 }
@@ -229,12 +228,12 @@ namespace smooth
                 auto opts = fcntl(socket_id, F_GETFL, 0);
                 if (opts < 0)
                 {
-                    ESP_LOGE("Socket", "Could not get socket flags: %s", strerror(errno));
+                    loge("Could not get socket flags");
                     res = false;
                 }
                 else if (fcntl(socket_id, F_SETFL, opts | O_NONBLOCK) < 0)
                 {
-                    ESP_LOGE("Socket", "Could not set socket flags: %s", strerror(errno));
+                    loge("Could not set socket flags");
                     res = false;
                 }
 
@@ -251,8 +250,7 @@ namespace smooth
                 {
                     if (res == -1)
                     {
-                        const char* error = strerror(errno);
-                        ESP_LOGV("Socket", "readable: error: %d: '%s'", socket_id, error);
+                        loge("Disconnection detected");
                     }
 
                     stop();
@@ -307,8 +305,7 @@ namespace smooth
                 {
                     if (errno != EWOULDBLOCK)
                     {
-                        const char* error = strerror(errno);
-                        ESP_LOGV("Socket", "error: readable(): %d: %s", socket_id, error);
+                        loge("Error during receive");
                         stop();
                     }
                 }
@@ -317,7 +314,7 @@ namespace smooth
                     rx_buffer.data_received(read_count);
                     if (rx_buffer.is_error())
                     {
-                        ESP_LOGE("Socket", "Assembly error");
+                        log("Assembly error");
                         stop();
                     }
                     else if (rx_buffer.is_packet_complete())
@@ -338,8 +335,7 @@ namespace smooth
 
                 if (amount_sent == -1)
                 {
-                    const char* error = strerror(errno);
-                    ESP_LOGE("Socket", "Failed during send: %d, %s", errno, error);
+                    loge("Failure during send");
                     stop();
                 }
                 else
@@ -373,16 +369,15 @@ namespace smooth
                     if (could_create)
                     {
                         // The socket is non-blocking so we expect return value of either 0, or -1 with errno == EINPROGRESS
+                        log("Connecting");
                         int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
                         if (res == 0 || (res == -1 && errno == EINPROGRESS))
                         {
-                            ESP_LOGV("Socket", "started: %d", socket_id);
                             started = true;
                         }
                         else
                         {
-                            const char* error = strerror(errno);
-                            ESP_LOGV("Socket", "connect: %d, errno: %s", res, error);
+                            loge("Error during connect");
                         }
                     }
 
@@ -421,22 +416,46 @@ namespace smooth
             template<typename T>
             void Socket<T>::stop()
             {
-                if( started )
+                if (started && socket_id >= 0)
                 {
-                    ESP_LOGV("Socket", "Stopping socket %d, %p", get_socket_id(), this);
+                    log("Stopping");
+                    shutdown(socket_id, SHUT_RDWR);
+                    close(socket_id);
+                    socket_id = -1;
                     started = false;
                     connected = false;
-                    SocketDispatcher::instance().initiate_shutdown(shared_from_this());
                     tx_buffer.clear();
                     rx_buffer.clear();
+                    SocketDispatcher::instance().initiate_shutdown(shared_from_this());
                 }
             }
 
             template<typename T>
             void Socket<T>::publish_connected_status(std::shared_ptr<ISocket>& socket)
             {
+                if (is_connected())
+                {
+                    log("Connected");
+                }
+                else
+                {
+                    log("Disconnected");
+                }
+
                 ConnectionStatusEvent ev(socket, is_connected());
                 connection_status.push(ev);
+            }
+
+            template<typename T>
+            void Socket<T>::log(const char* message)
+            {
+                ESP_LOGV("Socket", "[%s, %d, %p]: %s", ip->get_address_as_string().c_str(), ip->get_port(), this, message);
+            }
+
+            template<typename T>
+            void Socket<T>::loge(const char* message)
+            {
+                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_address_as_string().c_str(), ip->get_port(), this, message, strerror(errno));
             }
         }
     }
