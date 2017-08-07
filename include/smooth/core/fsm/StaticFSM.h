@@ -13,13 +13,18 @@ namespace smooth
     {
         namespace fsm
         {
-            // StaticFSM is a memory-static implementation of a Finite State Machine.
-            // It consumes StateSize * 2 bytes of memory at all times.
-
-            // All states used with this FSM must support enter_state and leave_state methods.
-            // These are called after in such a way that they do not overlap the way constructors
-            // and destructors do when switching between states.
-
+            /// StaticFSM is a memory-static implementation of a Finite State Machine.
+            /// It consumes StateSize * 2 bytes of memory at all times.
+            /// All states used with this FSM must support enter_state and leave_state methods.
+            /// These are called after in such a way that they do not overlap the way constructors
+            /// and destructors do when switching between states.
+            ///
+            /// You need to subclass from this to provide the BaseState and StateSize template arguments.
+            ///
+            /// \tparam BaseState The base state of all states used by the instance of the FSM
+            /// \tparam StateSize The maximum size, in bytes, of the largest state used by the FSM.
+            /// i.e. sizeof(LargestState). The reason that this has to be specified is that states are
+            /// created using placement new in a pre-allocated memory area.
             template<typename BaseState, int StateSize>
             class StaticFSM
             {
@@ -27,23 +32,34 @@ namespace smooth
                     StaticFSM() = default;
                     virtual ~StaticFSM();
 
+                    /// Sets the new state.
+                    /// Inside the states, you use the following syntax to change to a new state.
+                    /// fsm.set_state( new(fsm) NameOfNewState(fsm) )
+                    /// Note: After setting the new state, only variables on the stack are alive, any class members
+                    /// will have been destructed.
+                    /// \param state
                     void set_state(BaseState* state);
-
                     void* select_memory_area(int size);
+                protected:
 
+                    /// Called as a notification to the subclassing FSM before a new state is entered.
+                    /// \param state The new state
                     virtual void entering_state(BaseState* state)
                     {
                     }
 
+                    /// Called as a notification to the subclassing FSM before the current state is left.
+                    /// \param state The current state
                     virtual void leaving_state(BaseState* state)
                     {
                     }
 
+                    /// Gets the current state
+                    /// \return The current state
                     BaseState* get_state() const
                     {
                         return current_state;
                     }
-
                 private:
                     uint8_t state[2][StateSize];
                     BaseState* current_state = nullptr;
