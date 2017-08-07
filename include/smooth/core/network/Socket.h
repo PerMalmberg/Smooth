@@ -210,6 +210,10 @@ namespace smooth
                         {
                             log("Created socket");
                         }
+                        else
+                        {
+                            loge("Failed to set socket options");
+                        }
                     }
                 }
                 else
@@ -233,7 +237,7 @@ namespace smooth
                 }
                 else if (fcntl(socket_id, F_SETFL, opts | O_NONBLOCK) < 0)
                 {
-                    loge("Could not set socket flags");
+                    loge("Could not set non blocking flag");
                     res = false;
                 }
 
