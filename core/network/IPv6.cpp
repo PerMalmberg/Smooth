@@ -12,12 +12,12 @@ namespace smooth
         namespace network
         {
 
-            IPv6::IPv6(const std::string& address, uint16_t port) : InetAddress(address, port)
+            IPv6::IPv6(const std::string& ip_number_as_string, uint16_t port) : InetAddress(ip_number_as_string, port)
             {
                 memset(&sock_address, 0, sizeof(sock_address));
                 sock_address.sin6_family = AF_INET6;
                 sock_address.sin6_port = htons(port);
-                valid = inet_pton(AF_INET, address.c_str(), &sock_address.sin6_addr) == 1;
+                valid = inet_pton(AF_INET, ip_number_as_string.c_str(), &sock_address.sin6_addr) == 1;
             }
 
             sockaddr* IPv6::get_socket_address()

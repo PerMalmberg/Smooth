@@ -13,6 +13,7 @@ namespace smooth
     {
         namespace network
         {
+            /// Event sent when a socket is connected or disconnected.
             class ConnectionStatusEvent
             {
                 public:

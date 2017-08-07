@@ -14,12 +14,12 @@ namespace smooth
         namespace network
         {
 
-            IPv4::IPv4(const std::string& address, uint16_t port) : InetAddress(address, port)
+            IPv4::IPv4(const std::string& ip_number_as_string, uint16_t port) : InetAddress(ip_number_as_string, port)
             {
                 memset(&sock_address, 0, sizeof(sock_address));
                 sock_address.sin_family = AF_INET;
                 sock_address.sin_port = htons(port);
-                valid = inet_pton(AF_INET, address.c_str(), &sock_address.sin_addr) == 1;
+                valid = inet_pton(AF_INET, ip_number_as_string .c_str(), &sock_address.sin_addr) == 1;
             }
 
             sockaddr* IPv4::get_socket_address()

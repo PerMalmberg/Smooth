@@ -12,10 +12,14 @@ namespace smooth
     {
         namespace ipc
         {
+            /// Publisher for messages of type T
+            /// \tparam T The type to publish.
             template<typename T>
             class Publisher
             {
                 public:
+                    /// Publishes a copy of the provided item to all subscribers that are registered for it
+                    /// in a thread-safe manner.
                     static void publish(T& item);
             };
 

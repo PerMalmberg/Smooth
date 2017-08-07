@@ -461,13 +461,13 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::log(const char* message)
             {
-                ESP_LOGV("Socket", "[%s, %d, %p]: %s", ip->get_address_as_string().c_str(), ip->get_port(), this, message);
+                ESP_LOGV("Socket", "[%s, %d, %p]: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this, message);
             }
 
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_address_as_string().c_str(), ip->get_port(), this, message, strerror(errno));
+                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this, message, strerror(errno));
             }
         }
     }

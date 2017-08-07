@@ -12,17 +12,22 @@ namespace smooth
     {
         namespace network
         {
-            template<typename T>
+            /// Event sent when data is available to the application
+            /// \tparam PacketType The type of packet that is available.
+            template<typename PacketType>
             class DataAvailableEvent
             {
                 public:
                     DataAvailableEvent() = default;
 
-                    DataAvailableEvent(IPacketReceiveBuffer <T>* rx) : rx(rx)
+                    DataAvailableEvent(IPacketReceiveBuffer <PacketType>* rx) : rx(rx)
                     {
                     }
 
-                    bool get(T& target) const
+                    /// Gets the available data
+                    /// \param target The instance that will be assigned the data.
+                    /// \return True if the data could be retrieved, otherwise false.
+                    bool get(PacketType& target) const
                     {
                         bool res = false;
                         if (rx)
@@ -33,7 +38,7 @@ namespace smooth
                     }
 
                 private:
-                    IPacketReceiveBuffer <T>* rx = nullptr;
+                    IPacketReceiveBuffer <PacketType>* rx = nullptr;
             };
         }
     }

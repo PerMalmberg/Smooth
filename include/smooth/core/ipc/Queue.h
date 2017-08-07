@@ -74,7 +74,7 @@ namespace smooth
                     /// Gets the underlying FreeRTOS handle for the FreeRTOS queue.
                     /// Unless you are implementing a specialization of the Queue, you
                     /// shouldn't need to call this method.
-                    /// \return The queue handle-
+                    /// \return The queue handle
                     QueueHandle_t get_handle() const
                     {
                         return handle;
