@@ -90,7 +90,7 @@ namespace smooth
                     auto it = queues.find(queue);
                     if (it != queues.end())
                     {
-                        it->second->forward_to_task();
+                        it->second->forward_to_event_queue();
                     }
                 }
             }

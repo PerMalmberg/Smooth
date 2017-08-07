@@ -37,7 +37,7 @@ namespace smooth
                         this->unsubscribe(&queue);
                     }
 
-                    void forward_to_task()
+                    void forward_to_event_queue()
                     {
                         // All messages passed via a queue needs a default constructor
                         // and must be copyable and have the assignment operator.
