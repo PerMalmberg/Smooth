@@ -12,6 +12,7 @@
 #include <smooth/core/Task.h>
 #include <smooth/core/network/Wifi.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
+#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 
 namespace smooth
 {
@@ -43,7 +44,7 @@ namespace smooth
 
             private:
                 static esp_err_t event_callback(void* ctx, system_event_t* event);
-                ipc::TaskEventQueue <system_event_t> system_event;
+                ipc::SubscribingTaskEventQueue<system_event_t> system_event;
                 network::Wifi wifi;
 
                 static const std::unordered_map<int, const char*> id_to_system_event;

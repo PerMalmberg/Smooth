@@ -16,25 +16,16 @@ namespace smooth
         namespace ipc
         {
             template<typename T>
-            class TaskEventQueue
-                    : public Link<T>, public ITaskEventQueue
+            class TaskEventQueue : public ITaskEventQueue
             {
                 public:
                     TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                             :
-                            Link<T>(),
-                            task(task),
                             queue(name + std::string("-TaskEventQueue"), size),
+                            task(task),
                             listener(listener)
                     {
-                        this->subscribe(&queue);
                         task.register_queue_with_task(this);
-                    }
-
-
-                    ~TaskEventQueue()
-                    {
-                        this->unsubscribe(&queue);
                     }
 
                     void forward_to_event_queue()
@@ -68,9 +59,10 @@ namespace smooth
                         return queue.get_handle();
                     }
 
+                protected:
+                    Queue<T> queue;
                 private:
                     Task& task;
-                    Queue<T> queue;
                     IEventListener<T>& listener;
             };
         }

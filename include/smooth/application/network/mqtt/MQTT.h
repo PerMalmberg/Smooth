@@ -21,6 +21,7 @@
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/PacketReceiveBuffer.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
+#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/core/timer/Timer.h>
 #include <smooth/application/network/mqtt/state/MqttFSM.h>
@@ -94,7 +95,7 @@ namespace smooth
                         core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
-                        core::ipc::TaskEventQueue<system_event_t> system_event;
+                        core::ipc::SubscribingTaskEventQueue<system_event_t> system_event;
                         smooth::core::ipc::Mutex guard;
                         std::string client_id;
                         std::chrono::seconds keep_alive;
