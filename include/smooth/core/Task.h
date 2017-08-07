@@ -18,25 +18,22 @@ namespace smooth
 {
     namespace core
     {
-        // The Task class encapsulates management and execution of a task.
+        /// The Task class encapsulates management and execution of a task.
+        /// The intent is to provide the scaffolding needed by nearly every task in an
+        /// embedded system; an initialization method, a periodically called tick(),
+        /// the ability to receive events in a thread-safe manner.
         class Task
         {
             public:
                 virtual ~Task();
+
+                /// Starts the task.
                 void start();
 
                 // This is static so that it can be used also in app_main().
                 static void delay(std::chrono::milliseconds ms)
                 {
                     vTaskDelay(ms.count() / portTICK_PERIOD_MS);
-                }
-
-                static void never_return()
-                {
-                    for (;;)
-                    {
-                        smooth::core::Task::delay(std::chrono::seconds(1));
-                    }
                 }
 
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
@@ -49,15 +46,15 @@ namespace smooth
                 Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority,
                      std::chrono::milliseconds tick_interval);
 
-                // The tick() method is where the task shall perform its work.
-                // It is called every 'tick_interval' when there no events available.
-                // Note that if there is a constant stream of event received via a TaskEventQueue,
-                // then the tick may be delayed (depending on the tick_interval).
+                /// The tick() method is where the task shall perform its work.
+                /// It is called every 'tick_interval' when there no events available.
+                /// Note that if there is a constant stream of event received via a TaskEventQueue,
+                /// the tick may be delayed (depending on the tick_interval).
                 virtual void tick()
                 {
                 };
 
-                // Called once when task is started.
+                /// Called once when task is started.
                 virtual void init()
                 {
                 }

@@ -14,17 +14,17 @@ namespace smooth
     {
         namespace network
         {
-            // PacketSendBuffer is a buffer that can hold Size packets of type T, with
-            // byte access to each individual element which makes it easy to perform
-            // send() operations directly on each packet.
-
-            // T must provide the ISendablePacket interface (either directly or via inheritance) and fulfill the following contract:
-            // * Default constructable
-            // * Must be copyable
-
-            template<typename T, int Size>
+            /// PacketSendBuffer is a buffer that can hold Size packets of type T, with
+            /// byte access to each individual element which makes it easy to perform
+            /// send() operations directly on each packet.
+            /// T must provide the IPacketDisassembly interface (either directly or via inheritance) and fulfill the following contract:
+            /// * Default constructable
+            /// * Must be copyable
+            /// \tparam Packet The packet type
+            /// \tparam Size Number of items to hold in the buffer
+            template<typename Packet, int Size>
             class PacketSendBuffer
-                    : public IPacketSendBuffer<T>
+                    : public IPacketSendBuffer<Packet>
             {
                 public:
                     PacketSendBuffer()
@@ -32,7 +32,7 @@ namespace smooth
                     {
                     }
 
-                    void put(const T& item)
+                    void put(const Packet& item)
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
                         buffer.put(item);
@@ -91,8 +91,8 @@ namespace smooth
 
 
                 private:
-                    smooth::core::util::CircularBuffer<T, Size> buffer;
-                    T current_item;
+                    smooth::core::util::CircularBuffer<Packet, Size> buffer;
+                    Packet current_item;
                     smooth::core::ipc::Mutex guard;
                     int current_length = 0;
                     bool in_progress = false;

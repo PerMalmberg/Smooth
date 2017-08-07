@@ -6,8 +6,8 @@
 
 #include <vector>
 #include <bitset>
-#include <smooth/core/network/IReceivablePacket.h>
-#include <smooth/core/network/ISendablePacket.h>
+#include <smooth/core/network/IPacketAssembly.h>
+#include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
 #include "IPacketReceiver.h"
 
@@ -24,8 +24,8 @@ namespace smooth
                     typedef std::bitset<8> ByteSet;
 
                     class MQTTPacket
-                            : public smooth::core::network::IReceivablePacket,
-                              public smooth::core::network::ISendablePacket
+                            : public smooth::core::network::IPacketAssembly,
+                              public smooth::core::network::IPacketDisassembly
                     {
                         public:
                             MQTTPacket() = default;

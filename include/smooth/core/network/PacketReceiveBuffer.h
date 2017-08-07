@@ -14,17 +14,17 @@ namespace smooth
     {
         namespace network
         {
-            // PacketReceiveBuffer is a buffer that can hold Size items of type T
-            // and helps with assembling of data packets.
-
-            // T must provide the IReceivablePacket interface (either directly or via inheritance)
-            // and fulfill the following contract:
-            // * Default constructable
-            // * Must be copyable
-
-            template<typename T, int Size>
+            /// PacketReceiveBuffer is a buffer that can hold Size items of type Packet
+            /// and helps with assembling of data packets.
+            /// Packet must provide the IPacketAssembly interface (either directly or via inheritance)
+            /// and fulfill the following contract:
+            /// * Default constructable
+            /// * Must be copyable
+            /// \tparam Packet The type of packet to assemble
+            /// \tparam Size  The Number of items to hold in the buffer.
+            template<typename Packet, int Size>
             class PacketReceiveBuffer
-                    : public IPacketReceiveBuffer<T>
+                    : public IPacketReceiveBuffer<Packet>
             {
                 public:
                     PacketReceiveBuffer()
@@ -63,7 +63,7 @@ namespace smooth
                         return current_item.is_complete();
                     }
 
-                    bool get(T& target) override
+                    bool get(Packet& target) override
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
                         return buffer.get(target);
@@ -84,8 +84,8 @@ namespace smooth
                     void prepare_new_packet() override
                     {
                         // Use placement new to prepare a new instance, but first destroy the current one.
-                        current_item.~T();
-                        new(&current_item) T();
+                        current_item.~Packet();
+                        new(&current_item) Packet();
                         in_progress = true;
                     }
 
@@ -97,8 +97,8 @@ namespace smooth
                 private:
                     smooth::core::ipc::Mutex guard;
                     bool in_progress = false;
-                    T current_item;
-                    smooth::core::util::CircularBuffer<T, Size> buffer;
+                    Packet current_item;
+                    smooth::core::util::CircularBuffer<Packet, Size> buffer;
             };
         }
     }

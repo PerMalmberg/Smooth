@@ -10,6 +10,7 @@ namespace smooth
     {
         namespace util
         {
+            /// Interface for a circular buffer.
             template<typename T>
             class ICircularBuffer
             {
@@ -18,16 +19,32 @@ namespace smooth
                     {
                     }
 
+                    /// Puts data onto the buffer
                     virtual void put(const T& data) = 0;
+                    /// Gets data from the buffer
+                    /// \param t The item to put on the buffer
+                    /// \return true on success, false on failure.
                     virtual bool get(T& t) = 0;
+                    /// Returns a value indicating if the buffer is empty.
+                    /// \return true or false
                     virtual bool is_empty() = 0;
+                    /// Returns a value indicating if the buffer is full.
+                    /// \return true or false
                     virtual bool is_full() = 0;
+                    /// Returns a value indicating number of available items.
+                    /// \return Number of items in the buffer.
                     virtual int available_items() = 0;
+                    /// Returns a value indicating number of available empty slots.
+                    /// \return Number of items that can be put into the buffer.
                     virtual int available_slots() = 0;
+                    /// Clears the buffer
                     virtual void clear() = 0;
 
             };
 
+            /// A circular buffer. Not thread-safe.
+            /// \tparam T The type of item to hold
+            /// \tparam Size Number of items to hold.
             template<typename T, int Size>
             class CircularBuffer
                     : public ICircularBuffer<T>

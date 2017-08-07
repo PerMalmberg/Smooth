@@ -29,6 +29,7 @@ namespace smooth
         namespace network
         {
 
+            /// Socket is used to perform TCP/IP communication.
             /// \tparam Packet The type of the packet used for communication on this socket
             template<typename Packet>
             class Socket
@@ -37,7 +38,6 @@ namespace smooth
                 public:
                     friend class smooth::core::network::SocketDispatcher;
 
-                    ///////////////////////////////////////////////////////////////////////////////
                     /// Creates a socket for network communication, with the specified packet type.
                     /// \param tx_buffer The transmit buffer where outgoing packets are put by the application.
                     /// \param rx_buffer The receive buffer used when receiving data
@@ -64,8 +64,6 @@ namespace smooth
                     void stop() override;
                     bool restart() override;
 
-                    ///
-                    /// \return
                     bool is_active() override;
 
                     void readable() override;

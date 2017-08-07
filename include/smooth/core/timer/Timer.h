@@ -19,10 +19,19 @@ namespace smooth
     {
         namespace timer
         {
+            /// A timer uses the capabilities of the FreeRTOS timers, but ensures that a context switch is made to
+            /// the correct task before any processing takes place. This is done by sending an event on the provided
+            /// event queue.
             class Timer
                     : public ITimer
             {
                 public:
+                    /// Constructor
+                    /// \param name The name of the timer, mainly used for debugging and logging.
+                    /// \param id The ID of the timer. Solely for use by the application programmer.
+                    /// \param event_queue The vent queue to send events on.
+                    /// \param auto_reload If true, the timer will restart itself when it expires.
+                    /// \param interval The interval between the start time and when the timer expiers.
                     Timer(const std::string& name, int id, ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
                           bool auto_reload, std::chrono::milliseconds interval);
 

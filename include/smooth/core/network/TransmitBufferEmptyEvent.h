@@ -13,6 +13,7 @@ namespace smooth
     {
         namespace network
         {
+            /// En event sent to the application when all outgoing packets have been sent.
             class TransmitBufferEmptyEvent
             {
                 public:

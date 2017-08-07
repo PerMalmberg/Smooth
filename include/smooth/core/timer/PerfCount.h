@@ -14,9 +14,11 @@ namespace smooth
     {
         namespace timer
         {
+            /// Performance timer. Used to measure the time between to points in time.
             class PerfCount
             {
                 public:
+                    /// Starts and the performance timer.
                     void start()
                     {
                         active = true;
@@ -24,6 +26,7 @@ namespace smooth
                         end_time = start_time;
                     }
 
+                    /// Stops the performance timer
                     void stop()
                     {
                         gettimeofday(&end_time, nullptr);
@@ -31,17 +34,19 @@ namespace smooth
                         timersub(end_time, start_time, elapsed);
                     }
 
+                    /// Semantically the same as start(), but provided for syntactical reasons.
                     void reset()
                     {
                         // Simply restart the timer.
                         start();
                     }
 
+                    /// Gets the amount of time passed since start.
+                    /// \return The amount of time.
                     std::chrono::microseconds get_running_time();
 
-                    void timersub(const timeval& a, const timeval& b, timeval& result);
-
                 private:
+                    void timersub(const timeval& a, const timeval& b, timeval& result);
                     bool active = false;
                     timeval start_time;
                     // Keep end_time as a member to get slightly more accurate values

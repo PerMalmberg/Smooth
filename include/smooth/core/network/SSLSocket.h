@@ -13,22 +13,35 @@ namespace smooth
     {
         namespace network
         {
-            template<typename T>
+            /// An specialization of a Socket with SSL-capabilities.
+            /// \tparam Packet The type of packet
+            template<typename Packet>
             class SSLSocket
-                    : public Socket<T>
+                    : public Socket<Packet>
             {
                 public:
+                    /// Creates an SSL socket for network communication, with the specified packet type.
+                    /// \param tx_buffer The transmit buffer where outgoing packets are put by the application.
+                    /// \param rx_buffer The receive buffer used when receiving data
+                    /// \param tx_empty The response queue onto which events are put when all outgoing packets are sent.
+                    /// These events are forwarded to the application via the response method.
+                    /// \param data_available The response queue onto which events are put when data is available. These
+                    /// These events are forwarded to the application via the response method.
+                    /// \param connection_status The response queue into which events are put when a change in the connection
+                    /// state is detected. These events are forwarded to the application via the response method.
+                    /// \return a std::shared_ptr pointing to an instance of a ISocket object, or nullptr if no socket could be
+                    /// created.
                     static std::shared_ptr<ISocket>
-                    create(IPacketSendBuffer<T>& tx_buffer,
-                           IPacketReceiveBuffer<T>& rx_buffer,
+                    create(IPacketSendBuffer<Packet>& tx_buffer,
+                           IPacketReceiveBuffer<Packet>& rx_buffer,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status);
 
                     ~SSLSocket();
-                    SSLSocket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
+                    SSLSocket(IPacketSendBuffer<Packet>& tx_buffer, IPacketReceiveBuffer<Packet>& rx_buffer,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                              smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                              smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                               smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status);
                 protected:
 
@@ -42,25 +55,25 @@ namespace smooth
                     SSL* ssl;
             };
 
-            template<typename T>
-            std::shared_ptr<ISocket> SSLSocket<T>::create(IPacketSendBuffer<T>& tx_buffer,
-                                                          IPacketReceiveBuffer<T>& rx_buffer,
+            template<typename Packet>
+            std::shared_ptr<ISocket> SSLSocket<Packet>::create(IPacketSendBuffer<Packet>& tx_buffer,
+                                                          IPacketReceiveBuffer<Packet>& rx_buffer,
                                                           smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                                          smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                                                          smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                                                           smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
             {
 
-                // This class is solely used to enabled access to the protected Socket<T> constructor from std::make_shared<>
+                // This class is solely used to enabled access to the protected Socket<Packet> constructor from std::make_shared<>
                 class MakeSharedActivator
-                        : public SSLSocket<T>
+                        : public SSLSocket<Packet>
                 {
                     public:
-                        MakeSharedActivator(IPacketSendBuffer<T>& tx_buffer,
-                                            IPacketReceiveBuffer<T>& rx_buffer,
+                        MakeSharedActivator(IPacketSendBuffer<Packet>& tx_buffer,
+                                            IPacketReceiveBuffer<Packet>& rx_buffer,
                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
-                                : SSLSocket<T>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status)
+                                : SSLSocket<Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status)
                         {
                         }
 
@@ -75,19 +88,19 @@ namespace smooth
                 return s;
             }
 
-            template<typename T>
-            SSLSocket<T>::SSLSocket(IPacketSendBuffer<T>& tx_buffer, IPacketReceiveBuffer<T>& rx_buffer,
+            template<typename Packet>
+            SSLSocket<Packet>::SSLSocket(IPacketSendBuffer<Packet>& tx_buffer, IPacketReceiveBuffer<Packet>& rx_buffer,
                                     smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                    smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<T>>& data_available,
+                                    smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status
             )
-                    : Socket<T>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status),
+                    : Socket<Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status),
                       ctx(nullptr), ssl(nullptr)
             {
             }
 
-            template<typename T>
-            SSLSocket<T>::~SSLSocket()
+            template<typename Packet>
+            SSLSocket<Packet>::~SSLSocket()
             {
                 if (ssl)
                 {
@@ -100,15 +113,15 @@ namespace smooth
                 }
             }
 
-            template<typename T>
-            bool SSLSocket<T>::create_socket()
+            template<typename Packet>
+            bool SSLSocket<Packet>::create_socket()
             {
                 if (ctx != nullptr)
                 {
                     SSL_CTX_free(ctx);
                 }
 
-                bool res = Socket<T>::create_socket();
+                bool res = Socket<Packet>::create_socket();
 
                 if (res)
                 {
@@ -118,8 +131,8 @@ namespace smooth
                 return ctx != nullptr;
             }
 
-            template<typename T>
-            bool SSLSocket<T>::prepare_connected_socket()
+            template<typename Packet>
+            bool SSLSocket<Packet>::prepare_connected_socket()
             {
                 int res = -1;
 
@@ -148,8 +161,8 @@ namespace smooth
                 return ssl != nullptr && res == 1;
             }
 
-            template<typename T>
-            void SSLSocket<T>::read_data(uint8_t* target, int max_length)
+            template<typename Packet>
+            void SSLSocket<Packet>::read_data(uint8_t* target, int max_length)
             {
 
                 bool read_blocked = false;
@@ -168,7 +181,7 @@ namespace smooth
                         }
                         else if (this->rx_buffer.is_packet_complete())
                         {
-                            DataAvailableEvent<T> d(&this->rx_buffer);
+                            DataAvailableEvent<Packet> d(&this->rx_buffer);
                             this->data_available.push(d);
                             this->rx_buffer.prepare_new_packet();
                         }
@@ -207,8 +220,8 @@ namespace smooth
                 while (SSL_pending(ssl) && !read_blocked);
             }
 
-            template<typename T>
-            void SSLSocket<T>::write_data(const uint8_t* src, int length)
+            template<typename Packet>
+            void SSLSocket<Packet>::write_data(const uint8_t* src, int length)
             {
                 int amount_sent = SSL_write(ssl, src, length);
 

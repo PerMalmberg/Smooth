@@ -17,6 +17,7 @@ namespace smooth
         {
             class SocketDispatcher;
 
+            /// Interface for sockets
             class ISocket
             {
                     friend class smooth::core::network::SocketDispatcher;

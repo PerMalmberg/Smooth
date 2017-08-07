@@ -12,6 +12,7 @@ namespace smooth
     {
         namespace timer
         {
+            /// Event sent when a timer expires
             class TimerExpiredEvent
             {
                 public:
@@ -22,6 +23,8 @@ namespace smooth
                     {
                     }
 
+                    /// Gets the timer that has expired
+                    /// \return The timer that expired.
                     const smooth::core::timer::ITimer* get_timer() const
                     {
                         return timer;

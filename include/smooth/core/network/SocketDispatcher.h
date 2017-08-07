@@ -21,7 +21,9 @@ namespace smooth
     {
         namespace network
         {
-
+            /// The SocketDispatcher handles all tasks related to sockets and is responsible for
+            /// creating and sending the necessary events to the application. As an application developer
+            /// you should never have to care about this class.
             class SocketDispatcher
                     : public smooth::core::Task,
                       public smooth::core::ipc::IEventListener<system_event_t>
