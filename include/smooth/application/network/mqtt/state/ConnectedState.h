@@ -26,8 +26,8 @@ namespace smooth
                             {
                             }
 
-                            void message( const core::timer::TimerExpiredEvent& msg) override;
-                            void message(const core::network::ConnectionStatusEvent& msg) override;
+                            void event( const core::timer::TimerExpiredEvent& event) override;
+                            void event(const core::network::ConnectionStatusEvent& event) override;
 
                             void disconnect_event() override;
                     };

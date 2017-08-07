@@ -122,43 +122,43 @@ namespace smooth
                     }
                 }
 
-                void MQTT::message(const core::network::TransmitBufferEmptyEvent& msg)
+                void MQTT::event(const core::network::TransmitBufferEmptyEvent& event)
                 {
-                    fsm.message(msg);
+                    fsm.event(event);
                 }
 
-                void MQTT::message(const core::network::ConnectionStatusEvent& msg)
+                void MQTT::event(const core::network::ConnectionStatusEvent& event)
                 {
-                    /*qqq*/gpio_set_level(GPIO_NUM_27, msg.is_connected() ? 1 : 0);
-                    fsm.message(msg);
+                    /*qqq*/gpio_set_level(GPIO_NUM_27, event.is_connected() ? 1 : 0);
+                    fsm.event(event);
                 }
 
-                void MQTT::message(const core::network::DataAvailableEvent<packet::MQTTPacket>& msg)
+                void MQTT::event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event)
                 {
                     receive_timer.stop();
 
                     packet::MQTTPacket p;
-                    if (msg.get(p))
+                    if (event.get(p))
                     {
                         fsm.packet_received(p);
                     }
                 }
 
-                void MQTT::message(const core::timer::TimerExpiredEvent& msg)
+                void MQTT::event(const core::timer::TimerExpiredEvent& event)
                 {
-                    fsm.message(msg);
+                    fsm.event(event);
                 }
 
-                void MQTT::message(const event::BaseEvent& msg)
+                void MQTT::event(const event::BaseEvent& event)
                 {
-                    if (msg.get_type() == event::BaseEvent::DISCONNECT)
+                    if (event.get_type() == event::BaseEvent::DISCONNECT)
                     {
                         receive_timer.stop();
                         keep_alive_timer.stop();
                         reconnect_timer.stop();
                         fsm.disconnect_event();
                     }
-                    else if (msg.get_type() == event::BaseEvent::CONNECT)
+                    else if (event.get_type() == event::BaseEvent::CONNECT)
                     {
                         if (mqtt_socket)
                         {
@@ -186,10 +186,10 @@ namespace smooth
                     }
                 }
 
-                void MQTT::message(const system_event_t& msg)
+                void MQTT::event(const system_event_t& event)
                 {
-                    if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
-                        || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                    if (event.event_id == SYSTEM_EVENT_STA_GOT_IP
+                        || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
                     {
                         reconnect();
                     }

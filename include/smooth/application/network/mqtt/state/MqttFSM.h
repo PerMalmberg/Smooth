@@ -42,11 +42,11 @@ namespace smooth
                             virtual void leaving_state(BaseState* state) override;
 
                             void tick();
-                            void message(const core::network::TransmitBufferEmptyEvent& msg) override;
-                            void message(const core::network::ConnectionStatusEvent& msg) override;
-                            void message(const core::timer::TimerExpiredEvent& msg) override;
+                            void event(const core::network::TransmitBufferEmptyEvent& event) override;
+                            void event(const core::network::ConnectionStatusEvent& event) override;
+                            void event(const core::timer::TimerExpiredEvent& event) override;
 
-                            void packet_received(const packet::MQTTPacket& msg);
+                            void packet_received(const packet::MQTTPacket& event);
 
                             void disconnect_event();
 
@@ -82,11 +82,11 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::message(const core::network::TransmitBufferEmptyEvent& msg)
+                    void MqttFSM<BaseState>::event(const core::network::TransmitBufferEmptyEvent& event)
                     {
                         if (this->get_state() != nullptr)
                         {
-                            this->get_state()->message(msg);
+                            this->get_state()->event(event);
                         }
                     }
 
@@ -105,20 +105,20 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::message(const core::network::ConnectionStatusEvent& msg)
+                    void MqttFSM<BaseState>::event(const core::network::ConnectionStatusEvent& event)
                     {
                         if (this->get_state() != nullptr)
                         {
-                            this->get_state()->message(msg);
+                            this->get_state()->event(event);
                         }
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::message(const core::timer::TimerExpiredEvent& msg)
+                    void MqttFSM<BaseState>::event(const core::timer::TimerExpiredEvent& event)
                     {
                         if (this->get_state() != nullptr)
                         {
-                            this->get_state()->message(msg);
+                            this->get_state()->event(event);
                         }
                     }
 

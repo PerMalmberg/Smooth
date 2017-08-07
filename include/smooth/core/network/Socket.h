@@ -293,8 +293,8 @@ namespace smooth
                 if (tx_buffer.is_empty())
                 {
                     // Let the application know it may send a packet.
-                    smooth::core::network::TransmitBufferEmptyEvent msg(shared_from_this());
-                    tx_empty.push(msg);
+                    smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                    tx_empty.push(event);
                 }
                 else
                 {
@@ -364,8 +364,8 @@ namespace smooth
                     if (!tx_buffer.is_in_progress())
                     {
                         // Let the application know it may now send another packet.
-                        smooth::core::network::TransmitBufferEmptyEvent msg(shared_from_this());
-                        tx_empty.push(msg);
+                        smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                        tx_empty.push(event);
                     }
                 }
             }

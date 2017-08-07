@@ -38,7 +38,7 @@ namespace smooth
                     void start_socket(std::shared_ptr<ISocket> socket);
                     void initiate_shutdown(std::shared_ptr<ISocket> socket);
 
-                    void message(const system_event_t& msg) override;
+                    void event(const system_event_t& event) override;
 
                     void socket_created( std::shared_ptr<ISocket> socket);
 

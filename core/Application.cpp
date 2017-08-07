@@ -96,9 +96,9 @@ namespace smooth
             }
         }
 
-        void Application::message(const system_event_t& msg)
+        void Application::event(const system_event_t& event)
         {
-            wifi.message(msg);
+            wifi.event(event);
         }
     }
 }

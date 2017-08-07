@@ -44,7 +44,7 @@ namespace smooth
                         T m;
                         if (queue.pop(m))
                         {
-                            listener.message(m);
+                            listener.event(m);
                         }
                     }
 

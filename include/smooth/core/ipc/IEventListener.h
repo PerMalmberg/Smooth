@@ -10,7 +10,9 @@ namespace smooth
     {
         namespace ipc
         {
-            template<typename T>
+            /// Inherit from this class to allow events to be sent to your subclass.
+            /// \tparam T
+            template<typename EventType>
             class IEventListener
             {
                 public:
@@ -18,7 +20,7 @@ namespace smooth
                     {
                     }
 
-                    virtual void message(const T& msg) = 0;
+                    virtual void event(const EventType& event) = 0;
             };
         }
     }

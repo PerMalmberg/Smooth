@@ -59,15 +59,15 @@ namespace smooth
 
                         void init() override;
 
-                        void message(const core::network::TransmitBufferEmptyEvent& msg);
-                        void message(const core::network::ConnectionStatusEvent& msg);
-                        void message(const packet::MQTTPacket& msg);
-                        void message(const core::network::DataAvailableEvent<packet::MQTTPacket>& msg);
-                        void message(const core::timer::TimerExpiredEvent& msg);
+                        void event(const core::network::TransmitBufferEmptyEvent& event);
+                        void event(const core::network::ConnectionStatusEvent& event);
+                        void event(const packet::MQTTPacket& event);
+                        void event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event);
+                        void event(const core::timer::TimerExpiredEvent& event);
 
-                        void message(const event::BaseEvent& msg);
+                        void event(const event::BaseEvent& event);
 
-                        void message(const system_event_t& msg);
+                        void event(const system_event_t& event);
 
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;

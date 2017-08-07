@@ -38,7 +38,7 @@ namespace smooth
                         return host_name.length() > 0 && ssid.length() > 0 && password.length() > 0;
                     }
 
-                    void message(const system_event_t& msg) override;
+                    void event(const system_event_t& event) override;
 
                 private:
                     void connect();

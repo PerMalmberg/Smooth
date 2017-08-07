@@ -22,15 +22,15 @@ namespace smooth
                         fsm.get_mqtt().send_packet(disconnect, std::chrono::seconds(5));
                     }
 
-                    void DisconnectState::message(const core::network::TransmitBufferEmptyEvent& msg)
+                    void DisconnectState::event(const core::network::TransmitBufferEmptyEvent& event)
                     {
                         // Disconnect sent, we're done
                         fsm.set_state(new(fsm) IdleState(fsm));
                     }
 
-                    void DisconnectState::message(const core::timer::TimerExpiredEvent& msg)
+                    void DisconnectState::event(const core::timer::TimerExpiredEvent& event)
                     {
-                        if( msg.get_timer()->get_id() == MQTT_FSM_RECEIVE_TIMER_ID)
+                        if( event.get_timer()->get_id() == MQTT_FSM_RECEIVE_TIMER_ID)
                         {
                             fsm.set_state(new(fsm) IdleState(fsm));
                         }

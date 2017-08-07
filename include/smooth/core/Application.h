@@ -34,7 +34,7 @@ namespace smooth
 
                 void set_system_log_level(esp_log_level_t level) const;
 
-                void message(const system_event_t& msg) override;
+                void event(const system_event_t& event) override;
 
                 network::Wifi& get_wifi()
                 {

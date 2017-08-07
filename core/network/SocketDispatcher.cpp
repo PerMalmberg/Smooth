@@ -231,15 +231,15 @@ namespace smooth
                 }
             }
 
-            void SocketDispatcher::message(const system_event_t& msg)
+            void SocketDispatcher::event(const system_event_t& event)
             {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                if (msg.event_id == SYSTEM_EVENT_STA_GOT_IP
-                    || msg.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                if (event.event_id == SYSTEM_EVENT_STA_GOT_IP
+                    || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
                 {
                     has_ip = true;
                 }
-                else if (msg.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
+                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
                 {
                     // Close all sockets
                     has_ip = false;

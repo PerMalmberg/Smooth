@@ -24,21 +24,21 @@ namespace smooth
                         }
                     }
 
-                    void DisconnectedState::message(const core::timer::TimerExpiredEvent& msg)
+                    void DisconnectedState::event(const core::timer::TimerExpiredEvent& event)
                     {
-                        if (msg.get_timer()->get_id() == MQTT_FSM_RECONNECT_TIMER_ID)
+                        if (event.get_timer()->get_id() == MQTT_FSM_RECONNECT_TIMER_ID)
                         {
                             fsm.get_mqtt().reconnect();
                         }
                     }
 
-                    void DisconnectedState::message(const core::network::ConnectionStatusEvent& msg)
+                    void DisconnectedState::event(const core::network::ConnectionStatusEvent& event)
                     {
-                        if (fsm.get_mqtt().is_auto_reconnect() && !msg.is_connected())
+                        if (fsm.get_mqtt().is_auto_reconnect() && !event.is_connected())
                         {
                             fsm.get_mqtt().start_reconnect();
                         }
-                        else if( msg.is_connected())
+                        else if( event.is_connected())
                         {
                             fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
                         }
