@@ -15,6 +15,10 @@ namespace smooth
     {
         namespace ipc
         {
+            /// The Link class is used to bind subscribers of a certain message type together in a thread-safe manner
+            /// so that any Task can call core::ipc::Publisher<T>::publish(T&) to distribute a copy of an event
+            /// to each subscriber.
+            /// \tparam T The type of event to distribute.
             template<typename T>
             class Link
             {
@@ -25,12 +29,17 @@ namespace smooth
 
                     virtual ~Link();
 
-                    void subscribe(Queue<T>* sub);
+                    /// Subscribe to messages
+                    /// \param queue The queue which shall receive the messages.
+                    void subscribe(Queue<T>* queue);
 
-                    void unsubscribe(Queue<T>* sub);
+                    /// Unsubscribes to messages
+                    /// \param queue
+                    void unsubscribe(Queue<T>* queue);
 
-                    static std::forward_list<Queue<T>*>& get_subscribers();
-
+                    /// Publishes a copy of the the provided item to each subscriber.
+                    /// \param item The item to publish
+                    /// \return true of all subscribers could receive the item, false if one or more queues were full.
                     static bool publish(T& item)
                     {
                         Mutex::Lock l(get_mutex());
@@ -45,6 +54,8 @@ namespace smooth
                     }
 
                 private:
+
+                    static std::forward_list<Queue<T>*>& get_subscribers();
                     static Mutex& get_mutex()
                     {
                         static Mutex m;
@@ -62,23 +73,24 @@ namespace smooth
             }
 
             template<typename T>
-            void Link<T>::subscribe(Queue<T>* sub)
+            void Link<T>::subscribe(Queue<T>* queue)
             {
                 Mutex::Lock l(get_mutex());
-                get_subscribers().push_front(sub);
+                get_subscribers().push_front(queue);
             }
 
             template<typename T>
-            void Link<T>::unsubscribe(Queue<T>* sub)
+            void Link<T>::unsubscribe(Queue<T>* queue)
             {
                 Mutex::Lock l(get_mutex());
-                get_subscribers().remove(sub);
+                get_subscribers().remove(queue);
             }
 
             template<typename T>
             std::forward_list<Queue<T>*>& Link<T>::get_subscribers()
             {
-                // Place list in method to ensure linker finds it.
+                // Place list in method to ensure linker finds it, it also guarantees
+                // no race condition exists while constructing the forward_list.
                 static std::forward_list<Queue<T>*> subscribers;
                 return subscribers;
             }
