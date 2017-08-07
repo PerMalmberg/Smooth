@@ -220,7 +220,7 @@ namespace smooth
                     for (auto& pair : active_sockets)
                     {
                         auto socket = pair.second;
-                        if (socket->is_started() && !socket->is_connected())
+                        if (socket->is_active() && !socket->is_connected())
                         {
                             if (socket->check_if_connection_is_completed())
                             {
