@@ -183,7 +183,7 @@ namespace smooth
                 if (!started)
                 {
                     this->ip = ip;
-                    res = ip->is_valid() && create_socket();
+                    res = ip->is_valid();
                     if (res)
                     {
                         SocketDispatcher::instance().start_socket(shared_from_this());
@@ -262,13 +262,9 @@ namespace smooth
                 // Detect disconnection
                 char b[1];
                 int res = recv(socket_id, b, 1, MSG_PEEK);
-                if (res <= 0)
+                if (res < 0)
                 {
-                    if (res == -1)
-                    {
-                        loge("Disconnection detected");
-                    }
-
+                    loge("Disconnection detected");
                     stop();
                 }
                 else
