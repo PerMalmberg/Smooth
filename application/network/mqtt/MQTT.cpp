@@ -66,13 +66,11 @@ namespace smooth
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
-                void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
-                                      bool use_ssl)
+                void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
                 {
                     Mutex::Lock lock(guard);
                     this->address = address;
                     this->auto_reconnect = auto_reconnect;
-                    this->use_ssl = use_ssl;
                     control_event.push(event::ConnectEvent());
                 }
 
@@ -165,22 +163,12 @@ namespace smooth
                             mqtt_socket->stop();
                         }
 
-                        if (use_ssl)
-                        {
-                            mqtt_socket = core::network::SSLSocket<packet::MQTTPacket>::create(tx_buffer,
-                                                                                               rx_buffer,
-                                                                                               tx_empty,
-                                                                                               data_available,
-                                                                                               connection_status);
-                        }
-                        else
-                        {
-                            mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
-                                                                                            rx_buffer,
-                                                                                            tx_empty,
-                                                                                            data_available,
-                                                                                            connection_status);
-                        }
+
+                        mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
+                                                                                        rx_buffer,
+                                                                                        tx_empty,
+                                                                                        data_available,
+                                                                                        connection_status);
 
                         mqtt_socket->start(address);
                     }

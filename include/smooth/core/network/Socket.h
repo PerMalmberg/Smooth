@@ -78,11 +78,6 @@ namespace smooth
 
                     virtual bool create_socket();
 
-                    virtual bool prepare_connected_socket()
-                    {
-                        return true;
-                    }
-
                     virtual void read_data(uint8_t* target, int max_length);
 
                     virtual void write_data(const uint8_t* src, int length);
@@ -283,16 +278,9 @@ namespace smooth
                 if (!connected && socket_id >= 0)
                 {
                     // Just connected
-                    if (prepare_connected_socket())
-                    {
-                        connected = true;
-                        auto self = shared_from_this();
-                        publish_connected_status(self);
-                    }
-                    else
-                    {
-                        stop();
-                    }
+                    connected = true;
+                    auto self = shared_from_this();
+                    publish_connected_status(self);
                 }
 
                 if (connected)

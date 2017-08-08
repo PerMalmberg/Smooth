@@ -17,7 +17,6 @@
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
 #include <smooth/core/network/Socket.h>
-#include <smooth/core/network/SSLSocket.h>
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/PacketReceiveBuffer.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
@@ -54,8 +53,7 @@ namespace smooth
                              UBaseType_t priority);
 
                         void
-                        connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect,
-                                   bool use_ssl);
+                        connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect);
                         void disconnect();
 
                         void init() override;
@@ -106,7 +104,6 @@ namespace smooth
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
                         std::shared_ptr<smooth::core::network::InetAddress> address;
-                        bool use_ssl = false;
                 };
             }
         }
