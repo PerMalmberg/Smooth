@@ -84,7 +84,6 @@ namespace smooth
                                                                                    tx_empty,
                                                                                    data_available,
                                                                                    connection_status);
-                SocketDispatcher::instance().socket_created(s);
                 return s;
             }
 

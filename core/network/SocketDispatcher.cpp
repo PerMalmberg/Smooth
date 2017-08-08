@@ -32,8 +32,6 @@ namespace smooth
                     : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(100)),
                       active_sockets(),
                       inactive_sockets(),
-                      all_sockets(),
-                      sockets_to_close(),
                       socket_guard(),
                       system_events("SocketDispatcher", 10, *this, *this)
             {
@@ -43,11 +41,9 @@ namespace smooth
             void SocketDispatcher::tick()
             {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                complete_socket_shutdown();
                 restart_inactive_sockets();
 
                 int max_file_descriptor = build_sets();
-
                 if (max_file_descriptor >= 0)
                 {
                     set_timeout();
@@ -92,7 +88,6 @@ namespace smooth
 
             void SocketDispatcher::clear_sets()
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
                 FD_ZERO(&read_set);
                 FD_ZERO(&write_set);
             }
@@ -101,8 +96,6 @@ namespace smooth
             {
                 clear_sets();
 
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-
                 int max = -1;
 
                 for (auto& pair : active_sockets)
@@ -110,11 +103,14 @@ namespace smooth
                     auto& s = pair.second;
 
                     max = std::max(max, s->get_socket_id());
-                    if (s->has_data_to_transmit())
+                    if (s->is_active())
                     {
-                        FD_SET(s->get_socket_id(), &write_set);
+                        if (s->has_data_to_transmit() || !s->is_connected())
+                        {
+                            FD_SET(s->get_socket_id(), &write_set);
+                        }
+                        FD_SET(s->get_socket_id(), &read_set);
                     }
-                    FD_SET(s->get_socket_id(), &read_set);
                 }
 
                 return max;
@@ -126,8 +122,10 @@ namespace smooth
 
                 if (has_ip)
                 {
-                    active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
-                    socket->internal_start();
+                    if (socket->internal_start())
+                    {
+                        active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
+                    }
                 }
                 else
                 {
@@ -135,42 +133,20 @@ namespace smooth
                 }
             }
 
-            void SocketDispatcher::socket_created(std::shared_ptr<ISocket> socket)
-            {
-                all_sockets.push_back(socket);
-            }
-
-            void SocketDispatcher::initiate_shutdown(std::shared_ptr<ISocket> socket)
+            void SocketDispatcher::shutdown_socket(std::shared_ptr<ISocket> socket)
             {
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
 
-                // We can get this event SYSTEM_EVENT_STA_DISCONNECTED times so make sure not to put the sockets
-                // in the list more than once. We're also calling Socket::stop() which in turn calls us so this
-                // check has to be here.
-                if (std::find(sockets_to_close.begin(), sockets_to_close.end(), socket) == sockets_to_close.end())
-                {
-                    ESP_LOGV("SocketDispatcher", "Initiating shutdown of socket %p", socket.get());
-                    sockets_to_close.push_back(socket);
-                    socket->stop();
-                    socket->publish_connected_status(socket);
-                }
+                ESP_LOGV("SocketDispatcher", "Shutting down socket %p", socket.get());
+                socket->stop();
+                remove_socket_from_active_sockets(socket);
+                remove_socket_from_collection(inactive_sockets, socket);
+                socket->publish_connected_status(socket);
 
-
+                shutdown(socket->get_socket_id(), SHUT_RDWR);
+                close(socket->get_socket_id());
             }
-
-            void SocketDispatcher::complete_socket_shutdown()
-            {
-                for (auto& socket : sockets_to_close)
-                {
-                    ESP_LOGV("SocketDispatcher", "Completing shutdown of socket %p", socket.get());
-                    remove_socket_from_active_sockets(socket);
-                    remove_socket_from_collection(all_sockets, socket);
-                    remove_socket_from_collection(inactive_sockets, socket);
-                }
-
-                sockets_to_close.clear();
-            }
-
+            
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
                                                                  std::shared_ptr<ISocket> socket)
             {
@@ -208,26 +184,19 @@ namespace smooth
                     smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
 
                     // Start and move sockets from inactive to active list
-                    for (auto it = inactive_sockets.begin(); it != inactive_sockets.end();)
+                    for (auto& socket : inactive_sockets)
                     {
-                        auto socket = *it;
-                        socket->internal_start();
-                        active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
-                        it = inactive_sockets.erase(it);
-                    }
-
-                    // Monitor sockets that are started, but not yet connected
-                    for (auto& pair : active_sockets)
-                    {
-                        auto socket = pair.second;
-                        if (socket->is_active() && !socket->is_connected())
+                        if (socket->internal_start())
                         {
-                            if (socket->check_if_connection_is_completed())
-                            {
-                                socket->publish_connected_status(socket);
-                            }
+                            active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
+                        }
+                        else
+                        {
+                            socket->stop();
                         }
                     }
+
+                    inactive_sockets.clear();
                 }
             }
 
@@ -243,9 +212,12 @@ namespace smooth
                 {
                     // Close all sockets
                     has_ip = false;
-                    for (auto& socket : all_sockets)
+
+                    // shutdown_socket modifies active_sockets to we must work against a copy.
+                    auto copy = active_sockets;
+                    for (auto& socket : copy)
                     {
-                        initiate_shutdown(socket);
+                        shutdown_socket(socket.second);
                     }
                 }
             }

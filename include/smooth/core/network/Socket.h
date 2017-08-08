@@ -98,7 +98,7 @@ namespace smooth
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty;
                 private:
 
-                    void internal_start() override;
+                    bool internal_start() override;
 
                     bool is_connected() override
                     {
@@ -118,7 +118,6 @@ namespace smooth
                     void loge(const char* message);
 
                     void publish_connected_status(std::shared_ptr<ISocket>& socket) override;
-                    bool check_if_connection_is_completed() override;
                     int socket_id = -1;
                     std::shared_ptr<InetAddress> ip;
                     bool started = false;
@@ -129,10 +128,10 @@ namespace smooth
 
             template<typename Packet>
             std::shared_ptr<ISocket> Socket<Packet>::create(IPacketSendBuffer<Packet>& tx_buffer,
-                                                       IPacketReceiveBuffer<Packet>& rx_buffer,
-                                                       smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                                       smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
-                                                       smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
+                                                            IPacketReceiveBuffer<Packet>& rx_buffer,
+                                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
+                                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status)
             {
 
                 // This class is solely used to enabled access to the protected Socket<Packet> constructor from std::make_shared<>
@@ -156,16 +155,14 @@ namespace smooth
                                                                                    tx_empty,
                                                                                    data_available,
                                                                                    connection_status);
-
-                SocketDispatcher::instance().socket_created(s);
                 return s;
             }
 
             template<typename Packet>
             Socket<Packet>::Socket(IPacketSendBuffer<Packet>& tx_buffer, IPacketReceiveBuffer<Packet>& rx_buffer,
-                              smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                              smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
-                              smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status
             )
                     :
                     tx_buffer(tx_buffer),
@@ -283,26 +280,44 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::writable()
             {
-                // Any data to send?
-                if (tx_buffer.is_empty())
+                if (!connected && socket_id >= 0)
                 {
-                    // Let the application know it may send a packet.
-                    smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
-                    tx_empty.push(event);
-                }
-                else
-                {
-                    if (!tx_buffer.is_in_progress())
+                    // Just connected
+                    if (prepare_connected_socket())
                     {
-                        tx_buffer.prepare_next_packet();
+                        connected = true;
+                        auto self = shared_from_this();
+                        publish_connected_status(self);
                     }
-
-                    if (tx_buffer.is_in_progress())
+                    else
                     {
-                        // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
-                        // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
-                        // packet.
-                        write_data(tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length());
+                        stop();
+                    }
+                }
+
+                if (connected)
+                {
+                    // Any data to send?
+                    if (tx_buffer.is_empty())
+                    {
+                        // Let the application know it may send a packet.
+                        smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                        tx_empty.push(event);
+                    }
+                    else
+                    {
+                        if (!tx_buffer.is_in_progress())
+                        {
+                            tx_buffer.prepare_next_packet();
+                        }
+
+                        if (tx_buffer.is_in_progress())
+                        {
+                            // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                            // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                            // packet.
+                            write_data(tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length());
+                        }
                     }
                 }
             }
@@ -366,7 +381,7 @@ namespace smooth
 
 
             template<typename Packet>
-            void Socket<Packet>::internal_start()
+            bool Socket<Packet>::internal_start()
             {
                 if (!is_active())
                 {
@@ -392,25 +407,8 @@ namespace smooth
                         stop();
                     }
                 }
-            }
 
-            template<typename Packet>
-            bool Socket<Packet>::check_if_connection_is_completed()
-            {
-                int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
-                if (res == -1 && errno == EISCONN)
-                {
-                    if (prepare_connected_socket())
-                    {
-                        connected = true;
-                    }
-                    else
-                    {
-                        stop();
-                    }
-                }
-
-                return connected;
+                return started;
             }
 
             template<typename Packet>
@@ -425,14 +423,12 @@ namespace smooth
                 if (started && socket_id >= 0)
                 {
                     log("Stopping");
-                    shutdown(socket_id, SHUT_RDWR);
-                    close(socket_id);
-                    socket_id = -1;
                     started = false;
                     connected = false;
                     tx_buffer.clear();
                     rx_buffer.clear();
-                    SocketDispatcher::instance().initiate_shutdown(shared_from_this());
+                    SocketDispatcher::instance().shutdown_socket(shared_from_this());
+                    socket_id = -1;
                 }
             }
 
@@ -461,7 +457,8 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this, message, strerror(errno));
+                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this,
+                         message, strerror(errno));
             }
         }
     }

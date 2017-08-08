@@ -44,8 +44,7 @@ namespace smooth
                     virtual void readable() = 0;
                     virtual void writable() = 0;
                     virtual bool has_data_to_transmit() = 0;
-                    virtual void internal_start() = 0;
-                    virtual bool check_if_connection_is_completed() = 0;
+                    virtual bool internal_start() = 0;
                     virtual void publish_connected_status(std::shared_ptr<ISocket>& socket) = 0;
             };
         }

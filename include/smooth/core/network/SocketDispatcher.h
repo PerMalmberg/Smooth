@@ -39,7 +39,7 @@ namespace smooth
                     void tick() override;
 
                     void start_socket(std::shared_ptr<ISocket> socket);
-                    void initiate_shutdown(std::shared_ptr<ISocket> socket);
+                    void shutdown_socket(std::shared_ptr<ISocket> socket);
 
                     void event(const system_event_t& event) override;
 
