@@ -4,7 +4,9 @@
 
 #include <smooth/application/network/mqtt/state/ConnectToBrokerState.h>
 #include <smooth/application/network/mqtt/state/SubscribeState.h>
+#include <smooth/application/network/mqtt/state/IdleState.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
+#include <smooth/application/network/mqtt/packet/ConnAck.h>
 
 namespace smooth
 {
@@ -25,7 +27,14 @@ namespace smooth
 
                     void ConnectToBrokerState::receive(packet::ConnAck& conn_ack)
                     {
-                        fsm.set_state(new(fsm) SubscribeState(fsm));
+                        if (conn_ack.was_connection_accepted())
+                        {
+                            fsm.set_state(new(fsm) SubscribeState(fsm));
+                        }
+                        else
+                        {
+                            fsm.set_state(new(fsm) IdleState(fsm));
+                        }
                     }
                 }
             }
