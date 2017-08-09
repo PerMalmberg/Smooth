@@ -79,10 +79,11 @@ namespace smooth
                             void append_string(const std::string& str, std::vector<uint8_t>& target);
 
                             std::vector<uint8_t> packet{};
+                            static const int VARIABLE_HEADER_OFFSET = 2;
+
                         private:
 
                             int calculate_remaining_length();
-
                             enum ReadingHeaderSection
                             {
                                 START = 1,
