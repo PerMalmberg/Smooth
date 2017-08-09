@@ -8,7 +8,6 @@
 #include <smooth/application/network/mqtt/event/ConnectEvent.h>
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
 #include "esp_log.h"
-#include <driver/gpio.h>
 
 
 using namespace smooth::core::ipc;
@@ -58,11 +57,6 @@ namespace smooth
 
                 void MQTT::init()
                 {
-                    /*qqq*/
-                    gpio_pad_select_gpio(GPIO_NUM_27);
-                    gpio_set_direction(GPIO_NUM_27, GPIO_MODE_OUTPUT);
-                    gpio_set_level(GPIO_NUM_27, 0);
-
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
@@ -127,7 +121,6 @@ namespace smooth
 
                 void MQTT::event(const core::network::ConnectionStatusEvent& event)
                 {
-                    /*qqq*/gpio_set_level(GPIO_NUM_27, event.is_connected() ? 1 : 0);
                     fsm.event(event);
                 }
 
