@@ -141,12 +141,22 @@ namespace smooth
                 socket->stop();
                 remove_socket_from_active_sockets(socket);
                 remove_socket_from_collection(inactive_sockets, socket);
-                socket->publish_connected_status(socket);
 
-                shutdown(socket->get_socket_id(), SHUT_RDWR);
-                close(socket->get_socket_id());
+                int res = shutdown(socket->get_socket_id(), SHUT_RDWR);
+                if (res < 0)
+                {
+                    ESP_LOGE("SD", "Shutdown error: %s", strerror(errno));
+                }
+
+                res = close(socket->get_socket_id());
+                if (res < 0)
+                {
+                    ESP_LOGE("SD", "Close error: %s", strerror(errno));
+                }
+
+                socket->publish_connected_status(socket);
             }
-            
+
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
                                                                  std::shared_ptr<ISocket> socket)
             {

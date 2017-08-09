@@ -251,24 +251,13 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::readable()
             {
-                // Detect disconnection
-                char b[1];
-                int res = recv(socket_id, b, 1, MSG_PEEK);
-                if (res < 0)
+                if (!rx_buffer.is_full())
                 {
-                    loge("Disconnection detected");
-                    stop();
-                }
-                else
-                {
-                    if (!rx_buffer.is_full())
-                    {
-                        // How much data to assemble the current packet?
-                        int wanted_length = rx_buffer.amount_wanted();
+                    // How much data to assemble the current packet?
+                    int wanted_length = rx_buffer.amount_wanted();
 
-                        // Try to read the desired amount
-                        read_data(rx_buffer.get_write_pos(), wanted_length);
-                    }
+                    // Try to read the desired amount
+                    read_data(rx_buffer.get_write_pos(), wanted_length);
                 }
             }
 
@@ -316,7 +305,13 @@ namespace smooth
                 // Try to read the desired amount
                 int read_count = recv(socket_id, target, max_length, 0);
 
-                if (read_count == -1)
+                if (read_count == 0)
+                {
+                    // Disconnected
+                    loge("Disconnection detected");
+                    stop();
+                }
+                else if (read_count == -1)
                 {
                     if (errno != EWOULDBLOCK)
                     {
@@ -408,7 +403,7 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::stop()
             {
-                if (started && socket_id >= 0)
+                if (started)
                 {
                     log("Stopping");
                     started = false;
@@ -416,7 +411,6 @@ namespace smooth
                     tx_buffer.clear();
                     rx_buffer.clear();
                     SocketDispatcher::instance().shutdown_socket(shared_from_this());
-                    socket_id = -1;
                 }
             }
 
@@ -439,13 +433,15 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::log(const char* message)
             {
-                ESP_LOGV("Socket", "[%s, %d, %p]: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this, message);
+                ESP_LOGV("Socket", "[%s, %d, %d, %p]: %s", ip->get_ip_as_string().c_str(), ip->get_port(), socket_id,
+                         this, message);
             }
 
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket", "[%s, %d, %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), this,
+                ESP_LOGE("Socket", "[%s, %d, %d %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), socket_id,
+                         this,
                          message, strerror(errno));
             }
         }
