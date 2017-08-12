@@ -26,6 +26,17 @@ namespace smooth
                             {
                             }
 
+                            PubRel(uint16_t packet_id)
+                            {
+                                // Set fixed header
+                                set_header(PUBREL, 0x2);
+
+                                std::vector<uint8_t> variable_header;
+                                append_msb_lsb(packet_id, packet);
+                                calculate_remaining_length_and_variable_header_offset();
+
+                            }
+
                             void visit( IPacketReceiver& receiver ) override;
 
                             bool has_packet_identifier() const override

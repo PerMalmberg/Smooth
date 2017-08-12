@@ -3,6 +3,9 @@
 //
 
 #include <smooth/application/network/mqtt/ToBePublished.h>
+#include <smooth/application/network/mqtt/packet/PubRel.h>
+#include <smooth/application/network/mqtt/packet/PubComp.h>
+#include "esp_log.h"
 
 namespace smooth
 {
@@ -16,20 +19,6 @@ namespace smooth
                                             bool retain)
                 {
                     packet::Publish p(topic, data, length, qos, retain);
-
-                    int publish_steps = 0;
-
-                    if (qos == QoS::AT_LEAST_ONCE)
-                    {
-                        publish_steps = 1; // Wait for PubAck before considering the message published.
-                    }
-                    else if (qos == QoS::EXACTLY_ONCE)
-                    {
-                        publish_steps = 2; // Wait for PubRec, send PubRel, wait for PubRel
-                    }
-
-
-                    std::pair<packet::Publish, int> pair(p, publish_steps);
                     in_progress.push_back(InFlight(p));
                 }
 
@@ -47,16 +36,18 @@ namespace smooth
                             mqtt.send_packet(packet, std::chrono::seconds(2));
                             in_progress.erase(in_progress.begin());
                         }
-                        else if (flight.get_step() == 0)
+                        else if (flight.get_waiting_for() == PacketType::Reserved)
                         {
-                            // Packet with QoS > AT_MOST_ONCE not yet sent first in queue
+                            // Packet with QoS > AT_MOST_ONCE and not yet sent first in queue.
+                            // We will only ever have a single active in-flight message
 
                             if (packet.get_qos() == QoS::AT_LEAST_ONCE)
                             {
                                 // Send packet, wait for PubAck
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
-                                    flight.increase_step();
+                                    packet.inc_send_retry_count();
+                                    flight.set_wait_packet(PUBACK);
                                 }
                             }
                             else if (packet.get_qos() == QoS::EXACTLY_ONCE)
@@ -64,12 +55,67 @@ namespace smooth
                                 // Send packet, wait for PubRec
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
-                                    flight.increase_step();
+                                    packet.inc_send_retry_count();
+                                    flight.set_wait_packet(PUBREC);
                                 }
                             }
+
+                            // At this point, the message we're currently trying to send
+                            // will be left first in the vector.
+                        }
+                        else
+                        {
+                            // Still waiting for a reply...
+                            // Resend message based on timeout, set packet id and DUP flag
+                            // based on original outgoing message.
                         }
                     }
                 }
+
+                void ToBePublished::receive(packet::PubAck& pub_ack, IMqtt& mqtt)
+                {
+                    auto first = in_progress.begin();
+                    if (first != in_progress.end())
+                    {
+                        auto& in_flight = *first;
+                        if (in_flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
+                        {
+                            in_progress.erase(in_progress.begin());
+                        }
+                    }
+                }
+
+                void ToBePublished::receive(packet::PubRec& pub_rec, IMqtt& mqtt)
+                {
+                    auto first = in_progress.begin();
+                    if (first != in_progress.end())
+                    {
+                        auto& in_flight = *first;
+                        if (in_flight.get_waiting_for() == PUBREC
+                            && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
+                        {
+                            // Wait for PubComp and send PubRel
+                            first->set_wait_packet(PUBCOMP);
+                            packet::PubRel pub_rel( in_flight.get_packet().get_packet_identifier());
+                            mqtt.send_packet(pub_rel, std::chrono::seconds(2));
+                        }
+                    }
+                }
+
+                void ToBePublished::receive(packet::PubComp& pub_rec, IMqtt& mqtt)
+                {
+                    auto first = in_progress.begin();
+                    if (first != in_progress.end())
+                    {
+                        auto& in_flight = *first;
+                        if (in_flight.get_waiting_for() == PUBCOMP
+                            && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
+                        {
+                            in_progress.erase(in_progress.begin());
+                        }
+                    }
+                }
+
             }
         }
     }

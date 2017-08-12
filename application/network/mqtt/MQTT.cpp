@@ -81,6 +81,7 @@ namespace smooth
                 void MQTT::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                    bool retain)
                 {
+                    Mutex::Lock lock(guard);
                     to_be_published.publish(topic, data, length, qos, retain);
                 }
 

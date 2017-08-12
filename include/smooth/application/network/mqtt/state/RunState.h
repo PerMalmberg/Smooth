@@ -26,6 +26,14 @@ namespace smooth
                             }
 
                             void tick() override;
+
+                            void receive(packet::PubAck& pub_ack) override;
+
+                            void receive(packet::PubRec& pub_rec) override;
+
+                            void receive(packet::PubRel& pub_rel) override;
+
+                            void receive(packet::PubComp& pub_comp) override;
                     };
                 }
             }

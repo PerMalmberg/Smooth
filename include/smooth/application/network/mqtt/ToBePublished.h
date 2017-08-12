@@ -27,6 +27,12 @@ namespace smooth
 
                         void publish_next(IMqtt& mqtt);
 
+                        void receive(packet::PubAck& pub_ack, IMqtt& mqtt);
+
+                        void receive(packet::PubRec& pub_rec, IMqtt& mqtt);
+
+                        void receive(packet::PubComp& pub_rel, IMqtt& mqtt);
+
                     private:
 
                         class InFlight
@@ -42,19 +48,19 @@ namespace smooth
                                     return p;
                                 }
 
-                                int get_step()
+                                PacketType get_waiting_for()
                                 {
-                                    return publish_steps;
+                                    return waiting_for_packet;
                                 }
 
-                                void increase_step()
+                                void set_wait_packet(PacketType type)
                                 {
-                                    ++publish_steps;
+                                    waiting_for_packet = type;
                                 }
 
                             private:
                                 packet::Publish p{};
-                                int publish_steps;
+                                PacketType waiting_for_packet = PacketType::Reserved;
                         };
 
                         std::vector<InFlight> in_progress{};
