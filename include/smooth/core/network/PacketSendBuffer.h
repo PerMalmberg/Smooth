@@ -32,10 +32,15 @@ namespace smooth
                     {
                     }
 
-                    void put(const Packet& item)
+                    bool put(const Packet& item)
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
-                        buffer.put(item);
+                        bool res = !buffer.is_full();
+                        if (res)
+                        {
+                            buffer.put(item);
+                        }
+                        return res;
                     }
 
                     bool is_in_progress() override

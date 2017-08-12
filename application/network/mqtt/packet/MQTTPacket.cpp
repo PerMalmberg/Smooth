@@ -55,7 +55,7 @@ namespace smooth
                                 received_header_length = bytes_received;
 
                                 // We can now calculate the length of the remaining data
-                                wanted_amount = calculate_remaining_length();
+                                wanted_amount = calculate_remaining_length_and_variable_header_offset();
 
                                 if (wanted_amount > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
@@ -80,35 +80,45 @@ namespace smooth
                         }
                     }
 
-                    int MQTTPacket::calculate_remaining_length()
+                    int MQTTPacket::calculate_remaining_length_and_variable_header_offset()
                     {
                         int res = 0;
 
                         bool done = false;
                         int multiplier = 1;
 
+                        // If present, variable header offset always is at position 2 or later, i.e. the third byte.
+                        calculated_variable_header_offset = 2;
+
                         // The number of length bytes can be up to four
                         for (int i = 0; i < 4 && !done && !error; ++i)
                         {
-                            uint8_t curr = packet[REMAINING_LENGTH_OFFSET + i];
+                            int ix = REMAINING_LENGTH_OFFSET + i;
+                            if (ix >= packet.size())
+                            {
+                                // Outside of vector
+                                error = true;
+                            }
+                            else
+                            {
+                                ++calculated_variable_header_offset;
 
-                            res += (curr & 0x7F) * multiplier;
-                            multiplier *= 128;
-                            ByteSet b(curr);
-                            done = !b.test(7);
+                                uint8_t curr = packet[REMAINING_LENGTH_OFFSET + i];
 
-                            // If we've calculated four items and still not marked as done the
-                            // remaining length is malformed.
-                            error = !done && i == 3;
+                                res += (curr & 0x7F) * multiplier;
+                                multiplier *= 128;
+                                ByteSet b(curr);
+                                done = !b.test(7);
+
+                                // If we've calculated four items and still not marked as done the
+                                // remaining length is malformed.
+                                error = !done && i == 3;
+                            }
                         }
 
                         if (error)
                         {
                             ESP_LOGE("mqtt", "Invalid remaining length");
-                        }
-                        else
-                        {
-                            ESP_LOGD("mqtt", "calculated length: %d", res);
                         }
 
                         return res;
@@ -141,8 +151,7 @@ namespace smooth
                     {
                         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
                         uint16_t length = static_cast<uint16_t>( str.length());
-                        target.push_back(length >> 8);
-                        target.push_back(length & 0xFF);
+                        append_msb_lsb(length, target);
 
                         for (uint16_t i = 0; i < length; ++i)
                         {
@@ -150,10 +159,41 @@ namespace smooth
                         }
                     }
 
-                    void MQTTPacket::set_header(PacketType type, int flags)
+                    void MQTTPacket::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
+                    {
+                        target.push_back(value >> 8);
+                        target.push_back(value & 0xFF);
+                    }
+
+                    void MQTTPacket::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)
+                    {
+                        for (int i = 0; i < length; ++i)
+                        {
+                            target.push_back(data[i]);
+                        }
+                    }
+
+                    void MQTTPacket::apply_variable_header(const std::vector<uint8_t>& variable)
+                    {
+                        encode_remaining_length(variable.size());
+                        std::copy(variable.begin(), variable.end(), std::back_inserter(packet));
+                    }
+
+                    void MQTTPacket::set_header(PacketType type, uint8_t flags)
                     {
                         uint8_t value = (type << 4) | (flags & 0x0F);
                         packet.push_back(value);
+                    }
+
+                    std::string MQTTPacket::get_string(int offset) const
+                    {
+                        uint16_t length = (packet[offset] << 8) | packet[offset+1];
+                        std::stringstream ss;
+                        for (int i = 0; i < length; ++i)
+                        {
+                            ss << packet[offset + 2 + i];
+                        }
+                        return ss.str();
                     }
 
                     void MQTTPacket::dump() const

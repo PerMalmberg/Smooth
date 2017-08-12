@@ -80,6 +80,10 @@ namespace smooth
 
                             void receive(packet::SubAck& sub_ack) override;
 
+                            void receive(packet::Subscribe& sub) override;
+
+                            void receive(packet::Unsubscribe& unsub) override;
+
                             void receive(packet::UnsubAck& unsub_ack) override;
 
                             void receive(packet::PingResp& ping_resp) override;

@@ -3,7 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/state/ConnectToBrokerState.h>
-#include <smooth/application/network/mqtt/state/SubscribeState.h>
+#include <smooth/application/network/mqtt/state/RunState.h>
 #include <smooth/application/network/mqtt/state/IdleState.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
 #include <smooth/application/network/mqtt/packet/ConnAck.h>
@@ -29,7 +29,7 @@ namespace smooth
                     {
                         if (conn_ack.was_connection_accepted())
                         {
-                            fsm.set_state(new(fsm) SubscribeState(fsm));
+                            fsm.set_state(new(fsm) RunState(fsm));
                         }
                         else
                         {

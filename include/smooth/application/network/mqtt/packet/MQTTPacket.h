@@ -9,6 +9,7 @@
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
+#include <smooth/application/network/mqtt/packet/PacketIdentifierFactory.h>
 #include "IPacketReceiver.h"
 
 namespace smooth
@@ -29,10 +30,15 @@ namespace smooth
                     {
                         public:
                             MQTTPacket() = default;
+                            MQTTPacket& operator=(const MQTTPacket&) = default;
 
-                            MQTTPacket(const MQTTPacket& other) = default;
+                            MQTTPacket(const MQTTPacket& other)
+                            {
+                                *this = other;
+                                calculate_remaining_length_and_variable_header_offset();
+                            }
 
-                            // Must return the number of bytes the packet wants to fill
+                              // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned
                             // value will differ depending on how much data already has been provided.
                             int get_wanted_amount() override;
@@ -69,21 +75,45 @@ namespace smooth
 
                             PacketType get_mqtt_type() const;
 
-                            virtual void visit( IPacketReceiver& receiver );
+                            virtual void visit(IPacketReceiver& receiver);
+
+                            virtual bool has_packet_identifier() const
+                            {
+                                return false;
+                            }
+
+                            virtual uint16_t get_packet_identifier()
+                            {
+                                return 0;
+                            }
+
+                            int get_send_retry_count() const
+                            {
+                                return send_retry_count;
+                            }
+
+                            void inc_send_retry_count()
+                            {
+                                ++send_retry_count;
+                            };
 
                         protected:
-                            void set_header(PacketType type, int flags);
+                            void set_header(PacketType type, uint8_t flags);
 
                             void encode_remaining_length(int length);
 
                             void append_string(const std::string& str, std::vector<uint8_t>& target);
+                            void append_msb_lsb(uint16_t value, std::vector<uint8_t>& target);
+                            void append_data(const uint8_t* data, int length, std::vector<uint8_t>& target);
+                            void apply_variable_header(const std::vector<uint8_t>& variable);
 
                             std::vector<uint8_t> packet{};
-                            static const int VARIABLE_HEADER_OFFSET = 2;
+                            int VARIABLE_HEADER_OFFSET = 2;
+                            int calculated_variable_header_offset = 0;
+                            int calculate_remaining_length_and_variable_header_offset();
+                            std::string get_string(int offset) const;
 
                         private:
-
-                            int calculate_remaining_length();
                             enum ReadingHeaderSection
                             {
                                 START = 1,
@@ -99,6 +129,7 @@ namespace smooth
                             int received_header_length = 0;
                             bool error = false;
                             bool too_big = false;
+                            int send_retry_count = 0;
                     };
                 }
             }

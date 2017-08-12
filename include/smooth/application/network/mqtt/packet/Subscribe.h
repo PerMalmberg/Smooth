@@ -16,17 +16,17 @@ namespace smooth
             {
                 namespace packet
                 {
-                    class PubRec
+                    class Subscribe
                             : public MQTTPacket
                     {
                         public:
-                            PubRec() = default;
+                            Subscribe() = default;
 
-                            PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
+                            Subscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
-                            void visit( IPacketReceiver& receiver ) override;
+                            void visit(IPacketReceiver& receiver) override;
 
                             bool has_packet_identifier() const override
                             {

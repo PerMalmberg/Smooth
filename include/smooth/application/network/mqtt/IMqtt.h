@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <chrono>
+
 namespace smooth
 {
     namespace application
@@ -12,6 +14,8 @@ namespace smooth
         {
             namespace mqtt
             {
+               class ToBePublished;
+
 
                 class IMqtt
                 {
@@ -26,7 +30,8 @@ namespace smooth
                         virtual void reconnect() = 0;
                         virtual bool is_auto_reconnect() const = 0;
                         virtual void set_keep_alive_timer(std::chrono::seconds interval) = 0;
-                        virtual void send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) = 0;
+                        virtual bool send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) = 0;
+                        virtual ToBePublished& get_to_be_published() = 0;
                 };
 
             }

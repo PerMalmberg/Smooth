@@ -24,6 +24,8 @@ namespace smooth
                     {
                         set_header(PacketType::CONNECT, 0);
 
+                        std::vector<uint8_t> variable_header{};
+
                         // Set variable header - Protocol Name
                         append_string("MQTT", variable_header);
 
@@ -59,8 +61,8 @@ namespace smooth
                         // User Name
                         // Password
 
-                        encode_remaining_length(variable_header.size());
-                        std::copy(variable_header.begin(), variable_header.end(), std::back_inserter(packet));
+                        apply_variable_header(variable_header);
+
                     }
                 }
             }

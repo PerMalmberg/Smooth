@@ -1,11 +1,11 @@
 //
-// Created by permal on 7/22/17.
+// Created by permal on 8/10/17.
 //
 
 #pragma once
 
-#include <chrono>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+
+#include <stdint.h>
 
 namespace smooth
 {
@@ -17,13 +17,15 @@ namespace smooth
             {
                 namespace packet
                 {
-                    class Connect
-                            : public MQTTPacket
+                    class PacketIdentifierFactory
                     {
                         public:
-                            Connect() = default;
-                            Connect(const std::string& client_id, std::chrono::seconds keep_alive);
+                            static uint16_t get_id()
+                            {
+                                return ++id;
+                            }
                         private:
+                            static uint16_t id;
                     };
                 }
             }

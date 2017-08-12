@@ -4,6 +4,7 @@
 
 #include <smooth/application/network/mqtt/MQTT.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
+#include <smooth/application/network/mqtt/packet/Publish.h>
 #include <smooth/application/network/mqtt/state/StartupState.h>
 #include <smooth/application/network/mqtt/event/ConnectEvent.h>
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
@@ -68,15 +69,34 @@ namespace smooth
                     control_event.push(event::ConnectEvent());
                 }
 
+                void MQTT::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
+                {
+                    to_be_published.publish(topic,
+                                            reinterpret_cast<const uint8_t*>( msg.c_str()),
+                                            msg.size(),
+                                            qos,
+                                            retain);
+                }
+
+                void MQTT::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
+                                   bool retain)
+                {
+                    to_be_published.publish(topic, data, length, qos, retain);
+                }
+
                 void MQTT::disconnect()
                 {
                     control_event.push(event::DisconnectEvent());
                 }
 
-                void MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
+                bool MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
                 {
-                    receive_timer.start(timeout);
-                    tx_buffer.put(packet);
+                    bool res = tx_buffer.put(packet);
+                    if (res)
+                    {
+                        receive_timer.start(timeout);
+                    }
+                    return res;
                 }
 
                 const std::string& MQTT::get_client_id() const

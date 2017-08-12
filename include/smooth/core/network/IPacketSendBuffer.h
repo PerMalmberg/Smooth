@@ -35,7 +35,8 @@ namespace smooth
                     /// Perpares the next packet to be sent.
                     virtual void prepare_next_packet() = 0;
                     /// Puts an item into the buffer to be sent.
-                    virtual void put(const PacketType& item) = 0;
+                    /// \return true if the item could be queued, otherwise false.
+                    virtual bool put(const PacketType& item) = 0;
                     /// Clears the buffer.
                     virtual void clear() = 0;
                     /// Returns an item indicating if the buffer is empty.

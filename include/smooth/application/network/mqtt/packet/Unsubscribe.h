@@ -2,8 +2,6 @@
 // Created by permal on 7/22/17.
 //
 
-#pragma once
-
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 
 namespace smooth
@@ -16,17 +14,17 @@ namespace smooth
             {
                 namespace packet
                 {
-                    class PubRec
+                    class Unsubscribe
                             : public MQTTPacket
                     {
                         public:
-                            PubRec() = default;
+                            Unsubscribe() = default;
 
-                            PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
+                            Unsubscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
-                            void visit( IPacketReceiver& receiver ) override;
+                            void visit(IPacketReceiver& receiver) override;
 
                             bool has_packet_identifier() const override
                             {

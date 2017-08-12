@@ -16,16 +16,16 @@ namespace smooth
             {
                 namespace state
                 {
-                    class SubscribeState
+                    class RunState
                             : public ConnectedState
                     {
                         public:
-                            SubscribeState(MqttFSM<MQTTBaseState>& fsm)
-                                    : ConnectedState(fsm, "SubscribeState")
+                            RunState(MqttFSM<MQTTBaseState>& fsm)
+                                    : ConnectedState(fsm, "RunState")
                             {
                             }
 
-
+                            void tick() override;
                     };
                 }
             }

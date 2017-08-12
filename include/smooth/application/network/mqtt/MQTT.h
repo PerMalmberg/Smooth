@@ -27,6 +27,7 @@
 #include <smooth/application/network/mqtt/state/MQTTBaseState.h>
 #include <smooth/application/network/mqtt/IMqtt.h>
 #include <smooth/application/network/mqtt/event/BaseEvent.h>
+#include <smooth/application/network/mqtt/ToBePublished.h>
 
 namespace smooth
 {
@@ -55,6 +56,8 @@ namespace smooth
                         void
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect);
                         void disconnect();
+                        void publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain);
+                        void publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
                         void init() override;
 
@@ -79,12 +82,17 @@ namespace smooth
                             return auto_reconnect;
                         }
 
+                        ToBePublished& get_to_be_published()
+                        {
+                            return to_be_published;
+                        }
+
                     protected:
                         void tick() override;
 
                     private:
 
-                        void send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) override;
+                        bool send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) override;
 
                         core::network::PacketSendBuffer<packet::MQTTPacket, 5> tx_buffer;
                         core::network::PacketReceiveBuffer<packet::MQTTPacket, 5> rx_buffer;
@@ -104,6 +112,8 @@ namespace smooth
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
                         std::shared_ptr<smooth::core::network::InetAddress> address;
+                        ToBePublished to_be_published{};
+
                 };
             }
         }

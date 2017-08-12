@@ -22,6 +22,8 @@ namespace smooth
                     class PubRel;
                     class PubComp;
                     class SubAck;
+                    class Subscribe;
+                    class Unsubscribe;
                     class UnsubAck;
                     class PingResp;
 
@@ -35,7 +37,9 @@ namespace smooth
                             virtual void receive(packet::PubRec& pub_rec) = 0;
                             virtual void receive(packet::PubRel& pub_rel) = 0;
                             virtual void receive(packet::PubComp& pub_comp) = 0;
+                            virtual void receive(packet::Subscribe& sub) = 0;
                             virtual void receive(packet::SubAck& sub_ack) = 0;
+                            virtual void receive(packet::Unsubscribe& sub_ack) = 0;
                             virtual void receive(packet::UnsubAck& unsub_ack) = 0;
                             virtual void receive(packet::PingResp& ping_resp) = 0;
                     };
