@@ -36,13 +36,13 @@ namespace smooth
 
                             bool is_session_present()
                             {
-                                core::util::ByteSet b(packet[VARIABLE_HEADER_OFFSET]);
+                                core::util::ByteSet b(*variable_header_start);
                                 return b.test(0);
                             }
 
                             ReturnCode get_return_code()
                             {
-                                return static_cast<ReturnCode>(packet[VARIABLE_HEADER_OFFSET+1]);
+                                return static_cast<ReturnCode>(*(variable_header_start+1));
                             }
 
                             bool was_connection_accepted()
@@ -51,6 +51,11 @@ namespace smooth
                             }
 
                             void visit( IPacketReceiver& receiver ) override;
+                        protected:
+                            virtual int get_variable_header_length() const
+                            {
+                                return 2;
+                            }
                     };
                 }
             }
