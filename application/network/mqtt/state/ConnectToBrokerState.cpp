@@ -29,7 +29,7 @@ namespace smooth
                     {
                         if (conn_ack.was_connection_accepted())
                         {
-                            fsm.set_state(new(fsm) RunState(fsm));
+                            fsm.set_state(new(fsm) RunState(fsm, conn_ack.is_session_present()));
                         }
                         else
                         {

@@ -29,6 +29,8 @@ namespace smooth
 
                         void publish_next(IMqtt& mqtt);
 
+                        void resend_outstanding_control_packet(IMqtt& mqtt);
+
                         void receive(packet::PubAck& pub_ack, IMqtt& mqtt);
 
                         void receive(packet::PubRec& pub_rec, IMqtt& mqtt);
@@ -63,6 +65,11 @@ namespace smooth
                                 void start_timer()
                                 {
                                     timer.start();
+                                }
+
+                                void stop_timer()
+                                {
+                                    timer.stop();
                                 }
 
                                 std::chrono::milliseconds get_elapsed_time()

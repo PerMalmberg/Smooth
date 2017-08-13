@@ -189,6 +189,13 @@ namespace smooth
                         packet.push_back(value);
                     }
 
+                    void MQTTPacket::set_dup_flag()
+                    {
+                        core::util::ByteSet b(packet[0]);
+                        b.set(3, true);
+                        packet[0] = b;
+                    }
+
                     std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
                         uint16_t length = (*offset) << 8;

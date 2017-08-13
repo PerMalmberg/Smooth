@@ -26,7 +26,7 @@ namespace smooth
                            std::chrono::seconds keep_alive,
                            uint32_t stack_depth,
                            UBaseType_t priority)
-                        : Task(mqtt_client_id, stack_depth, priority, std::chrono::milliseconds(100)),
+                        : Task(mqtt_client_id, stack_depth, priority, std::chrono::milliseconds(50)),
                           tx_buffer(),
                           rx_buffer(),
                           tx_empty("TX_empty", 5, *this, *this),
@@ -166,6 +166,8 @@ namespace smooth
                         keep_alive_timer.stop();
                         reconnect_timer.stop();
                         fsm.disconnect_event();
+                        tx_buffer.clear();
+                        rx_buffer.clear();
                     }
                     else if (event.get_type() == event::BaseEvent::CONNECT)
                     {
@@ -174,13 +176,11 @@ namespace smooth
                             mqtt_socket->stop();
                         }
 
-
                         mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
                                                                                         rx_buffer,
                                                                                         tx_empty,
                                                                                         data_available,
                                                                                         connection_status);
-
                         mqtt_socket->start(address);
                     }
                 }

@@ -26,6 +26,35 @@ namespace smooth
                     in_progress.push_back(InFlight(p));
                 }
 
+                void ToBePublished::resend_outstanding_control_packet(IMqtt& mqtt)
+                {
+                    // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
+                    // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
+                    // Packet Identifiers [MQTT-4.4.0-1]. This is the only circumstance where a Client or Server is
+                    // REQUIRED to redeliver messages.
+
+                    if (in_progress.size() > 0)
+                    {
+                        auto& flight = in_progress.front();
+                        auto& packet = flight.get_packet();
+
+                        if (flight.get_waiting_for() == PacketType::PUBACK)
+                        {
+                            // Set dup flag and let normal procedure send the packet.
+                            packet.set_dup_flag();
+                            flight.set_wait_packet(PacketType::Reserved);
+                        }
+                        else if (flight.get_waiting_for() == PacketType::PUBCOMP)
+                        {
+                            packet::PubRel pub_rel(flight.get_packet().get_packet_identifier());
+
+                            // As this is running directly after a reconnect, and the TX buffer is cleared
+                            // on disconnect, it is guaranteed that this message will fit on the buffer.
+                            mqtt.send_packet(pub_rel);
+                        }
+
+                    }
+                }
 
                 void ToBePublished::publish_next(IMqtt& mqtt)
                 {
@@ -73,11 +102,12 @@ namespace smooth
                         else
                         {
                             // Still waiting for a reply...
-                            // Resend message based on timeout, set packet id and DUP flag
-                            // based on original outgoing message.
                             if (flight.get_elapsed_time() > seconds(15))
                             {
-
+                                // Waited too long, force a reconnect.
+                                ESP_LOGE("MQTT", "Too long since a reply was received, forcing reconnect.");
+                                flight.stop_timer();
+                                mqtt.reconnect();
                             }
                         }
                     }
@@ -88,10 +118,10 @@ namespace smooth
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
-                        auto& in_flight = *first;
-                        if (in_flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
+                        auto& flight = *first;
+                        if (flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
                         {
-                            ESP_LOGV(tag, "QoS %d publish completed", in_flight.get_packet().get_qos());
+                            ESP_LOGV(tag, "QoS %d publish completed", flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }
@@ -102,16 +132,22 @@ namespace smooth
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
-                        auto& in_flight = *first;
-                        if (in_flight.get_waiting_for() == PUBREC
-                            && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
+                        auto& flight = *first;
+                        if (flight.get_waiting_for() == PUBREC
+                            && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
-                            packet::PubRel pub_rel(in_flight.get_packet().get_packet_identifier());
+                            flight.start_timer();
+
+                            packet::PubRel pub_rel(flight.get_packet().get_packet_identifier());
 
                             if (mqtt.send_packet(pub_rel))
                             {
                                 // Wait for PubComp and send PubRel
                                 first->set_wait_packet(PUBCOMP);
+                            }
+                            else
+                            {
+                                // Couldn't send, this will result in a timeout and reconnect with subsequent resend.
                             }
                         }
                     }
@@ -122,12 +158,12 @@ namespace smooth
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
-                        auto& in_flight = *first;
+                        auto& flight = *first;
 
-                        if (in_flight.get_waiting_for() == PUBCOMP
-                            && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
+                        if (flight.get_waiting_for() == PUBCOMP
+                            && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
-                            ESP_LOGV(tag, "QoS %d publish completed", in_flight.get_packet().get_qos());
+                            ESP_LOGV(tag, "QoS %d publish completed", flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }

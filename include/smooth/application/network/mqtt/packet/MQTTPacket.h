@@ -83,6 +83,8 @@ namespace smooth
                                 return 0;
                             }
 
+                            void set_dup_flag();
+
                             bool validate_packet() const;
 
                         protected:
@@ -124,7 +126,6 @@ namespace smooth
                             void apply_variable_header(const std::vector<uint8_t>& variable);
 
                             std::vector<uint8_t> packet{};
-                            int VARIABLE_HEADER_OFFSET = 2;
                             mutable std::vector<uint8_t>::const_iterator variable_header_start;
                             int calculate_remaining_length_and_variable_header_offset() const;
                             std::string get_string(std::vector<uint8_t>::const_iterator offset) const;
