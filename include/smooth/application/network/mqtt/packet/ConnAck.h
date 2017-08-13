@@ -36,7 +36,7 @@ namespace smooth
 
                             bool is_session_present()
                             {
-                                ByteSet b(packet[VARIABLE_HEADER_OFFSET]);
+                                core::util::ByteSet b(packet[VARIABLE_HEADER_OFFSET]);
                                 return b.test(0);
                             }
 

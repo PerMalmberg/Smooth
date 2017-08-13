@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 namespace smooth
 {
     namespace application
@@ -31,6 +33,18 @@ namespace smooth
                     DISCONNECT = 14,
                     Reserved_2 = 15
                 };
+
+                class PacketTypeHash
+                {
+                    public:
+                        template<typename T>
+                        std::size_t operator()(T t) const
+                        {
+                            return static_cast<std::size_t>(t);
+                        }
+                };
+
+                extern const std::unordered_map<PacketType, const char*, PacketTypeHash> packet_type_as_string;
 
                 enum QoS
                 {

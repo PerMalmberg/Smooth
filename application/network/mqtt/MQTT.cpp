@@ -71,11 +71,11 @@ namespace smooth
 
                 void MQTT::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
                 {
-                    to_be_published.publish(topic,
-                                            reinterpret_cast<const uint8_t*>( msg.c_str()),
-                                            msg.size(),
-                                            qos,
-                                            retain);
+                    publish(topic,
+                            reinterpret_cast<const uint8_t*>( msg.c_str()),
+                            msg.size(),
+                            qos,
+                            retain);
                 }
 
                 void MQTT::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
@@ -92,10 +92,16 @@ namespace smooth
 
                 bool MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
                 {
-                    bool res = tx_buffer.put(packet);
-                    if (res)
+                    packet.dump("Outgoing");
+
+                    bool res = false;
+                    if (packet.validate_packet())
                     {
-                        receive_timer.start(timeout);
+                        res = tx_buffer.put(packet);
+                        if (res)
+                        {
+                            receive_timer.start(timeout);
+                        }
                     }
                     return res;
                 }

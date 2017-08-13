@@ -46,6 +46,7 @@ namespace smooth
                                 // Send packet, wait for PubAck
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
+                                    ESP_LOGV("ToBePublished", "Send, wait for puback");
                                     packet.inc_send_retry_count();
                                     flight.set_wait_packet(PUBACK);
                                 }
@@ -55,6 +56,7 @@ namespace smooth
                                 // Send packet, wait for PubRec
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
+                                    ESP_LOGV("ToBePublished", "Send, wait for PubRec");
                                     packet.inc_send_retry_count();
                                     flight.set_wait_packet(PUBREC);
                                 }
@@ -80,6 +82,7 @@ namespace smooth
                         auto& in_flight = *first;
                         if (in_flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
                         {
+                            ESP_LOGV("ToBePublished", "ConAck");
                             in_progress.erase(in_progress.begin());
                         }
                     }
@@ -94,10 +97,13 @@ namespace smooth
                         if (in_flight.get_waiting_for() == PUBREC
                             && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
-                            // Wait for PubComp and send PubRel
-                            first->set_wait_packet(PUBCOMP);
-                            packet::PubRel pub_rel( in_flight.get_packet().get_packet_identifier());
-                            mqtt.send_packet(pub_rel, std::chrono::seconds(2));
+                            packet::PubRel pub_rel(in_flight.get_packet().get_packet_identifier());
+
+                            if (mqtt.send_packet(pub_rel, std::chrono::seconds(2)))
+                            {
+                                // Wait for PubComp and send PubRel
+                                first->set_wait_packet(PUBCOMP);
+                            }
                         }
                     }
                 }
@@ -108,6 +114,7 @@ namespace smooth
                     if (first != in_progress.end())
                     {
                         auto& in_flight = *first;
+
                         if (in_flight.get_waiting_for() == PUBCOMP
                             && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {

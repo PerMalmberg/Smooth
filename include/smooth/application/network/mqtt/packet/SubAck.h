@@ -27,8 +27,13 @@ namespace smooth
                             }
 
                             void visit(IPacketReceiver& receiver) override;
-
+                        protected:
                             bool has_packet_identifier() const override
+                            {
+                                return true;
+                            }
+
+                            bool has_payload() const override
                             {
                                 return true;
                             }

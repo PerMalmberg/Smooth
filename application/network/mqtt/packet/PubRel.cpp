@@ -18,6 +18,12 @@ namespace smooth
                     {
                         receiver.receive(*this);
                     }
+
+                    uint16_t PubRel::get_packet_identifier() const
+                    {
+                        calculate_remaining_length_and_variable_header_offset();
+                        return read_packet_identifier(variable_header_start);
+                    }
                 }
             }
         }

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <vector>
-#include <bitset>
+#include <smooth/core/util/ByteSet.h>
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
@@ -22,8 +22,6 @@ namespace smooth
             {
                 namespace packet
                 {
-                    typedef std::bitset<8> ByteSet;
-
                     class MQTTPacket
                             : public smooth::core::network::IPacketAssembly,
                               public smooth::core::network::IPacketDisassembly
@@ -38,7 +36,7 @@ namespace smooth
                                 calculate_remaining_length_and_variable_header_offset();
                             }
 
-                              // Must return the number of bytes the packet wants to fill
+                            // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned
                             // value will differ depending on how much data already has been provided.
                             int get_wanted_amount() override;
@@ -71,21 +69,14 @@ namespace smooth
 
                             bool is_too_big() const;
 
-                            void dump() const;
+                            void dump(const char* header) const;
 
                             PacketType get_mqtt_type() const;
+                            const char* get_mqtt_type_as_string() const;
 
                             virtual void visit(IPacketReceiver& receiver);
 
-                            virtual bool has_packet_identifier() const
-                            {
-                                return false;
-                            }
-
-                            virtual uint16_t get_packet_identifier()
-                            {
-                                return 0;
-                            }
+                            QoS get_qos() const;
 
                             int get_send_retry_count() const
                             {
@@ -97,7 +88,42 @@ namespace smooth
                                 ++send_retry_count;
                             };
 
+                            virtual uint16_t get_packet_identifier() const
+                            {
+                                return 0;
+                            }
+
+                            bool validate_packet() const;
+
                         protected:
+                            virtual bool has_packet_identifier() const
+                            {
+                                return false;
+                            }
+
+                            virtual bool has_payload() const
+                            {
+                                return false;
+                            }
+
+                            virtual int get_variable_header_length() const
+                            {
+                                return 0;
+                            }
+
+                            int get_payload_length() const;
+
+                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const
+                            {
+                                return packet.cend();
+                            }
+
+                            uint16_t read_packet_identifier(std::vector<uint8_t>::const_iterator pos) const
+                            {
+                                return *pos << 8 | *(pos + 1);
+                            }
+
+                            void set_header(PacketType type, QoS qos, bool dup, bool retain);
                             void set_header(PacketType type, uint8_t flags);
 
                             void encode_remaining_length(int length);
@@ -109,9 +135,9 @@ namespace smooth
 
                             std::vector<uint8_t> packet{};
                             int VARIABLE_HEADER_OFFSET = 2;
-                            int calculated_variable_header_offset = 0;
-                            int calculate_remaining_length_and_variable_header_offset();
-                            std::string get_string(int offset) const;
+                            mutable std::vector<uint8_t>::const_iterator variable_header_start;
+                            int calculate_remaining_length_and_variable_header_offset() const;
+                            std::string get_string(std::vector<uint8_t>::const_iterator offset) const;
 
                         private:
                             enum ReadingHeaderSection
@@ -127,7 +153,7 @@ namespace smooth
                             int current_length = 0;
                             int wanted_amount = 1;
                             int received_header_length = 0;
-                            bool error = false;
+                            mutable bool error = false;
                             bool too_big = false;
                             int send_retry_count = 0;
                     };

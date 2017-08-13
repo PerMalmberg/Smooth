@@ -34,7 +34,7 @@ namespace smooth
 
                         // Connect Flags
                         variable_header.push_back(0);
-                        ByteSet connect_flags(variable_header[variable_header.size() - 1]);
+                        core::util::ByteSet connect_flags(0);
                         connect_flags.set(0, false); // Reserved
                         connect_flags.set(1, true);  // Clean session
                         connect_flags.set(2, false); // Will flag
@@ -43,6 +43,7 @@ namespace smooth
                         connect_flags.set(5, false); // Will retain
                         connect_flags.set(6, false); // Password
                         connect_flags.set(7, false); // User name
+                        variable_header[variable_header.size() - 1] = connect_flags;
 
                         // Keep Alive - limit range to 0 ~ std::numeric_limits<uint16_t>::max()
                         auto keep_alive_interval = std::max(static_cast<uint16_t>(0),

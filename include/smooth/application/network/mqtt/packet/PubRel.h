@@ -32,16 +32,25 @@ namespace smooth
                                 set_header(PUBREL, 0x2);
 
                                 std::vector<uint8_t> variable_header;
-                                append_msb_lsb(packet_id, packet);
-                                calculate_remaining_length_and_variable_header_offset();
+                                append_msb_lsb(packet_id, variable_header);
 
+                                apply_variable_header(variable_header);
                             }
 
                             void visit( IPacketReceiver& receiver ) override;
+                        protected:
+
+                            uint16_t get_packet_identifier() const;
 
                             bool has_packet_identifier() const override
                             {
                                 return true;
+                            }
+
+                            int get_variable_header_length() const override
+                            {
+                                // Only packet identifier in this variable header
+                                return 2;
                             }
                     };
                 }

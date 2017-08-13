@@ -14,10 +14,17 @@ namespace smooth
             {
                 namespace packet
                 {
-                    void PubRec::visit( IPacketReceiver& receiver )
+                    void PubRec::visit(IPacketReceiver& receiver)
                     {
                         receiver.receive(*this);
                     }
+
+                    uint16_t PubRec::get_packet_identifier() const
+                    {
+                        calculate_remaining_length_and_variable_header_offset();
+                        return read_packet_identifier(variable_header_start);
+                    }
+
                 }
             }
         }

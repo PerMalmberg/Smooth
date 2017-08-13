@@ -12,6 +12,7 @@
 #include <smooth/application/network/mqtt/packet/SubAck.h>
 #include <smooth/application/network/mqtt/packet/UnsubAck.h>
 #include <smooth/application/network/mqtt/packet/PingResp.h>
+#include <smooth/core/util/make_unique.h>
 
 #include <string>
 #include "esp_log.h"
@@ -30,47 +31,52 @@ namespace smooth
                     std::unique_ptr<MQTTPacket> PacketDecoder::decode_packet(const MQTTPacket& packet)
                     {
                         std::unique_ptr<MQTTPacket> res;
+                        using namespace core::util;
 
                         if (packet.get_mqtt_type() == CONNACK)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new ConnAck(packet));
+                            res = make_unique<ConnAck>(packet);
                         }
                         else if (packet.get_mqtt_type() == PUBLISH)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new Publish(packet));
+                            res = make_unique<Publish>(packet);
                         }
                         else if (packet.get_mqtt_type() == PUBACK)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new PubAck(packet));
+                            res = make_unique<PubAck>(packet);
                         }
                         else if (packet.get_mqtt_type() == PUBREC)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new PubRec(packet));
+                            res = make_unique<PubRec>(packet);
                         }
                         else if (packet.get_mqtt_type() == PUBREL)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new PubRel(packet));
+                            res = make_unique<PubRel>(packet);
                         }
                         else if (packet.get_mqtt_type() == PUBCOMP)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new PubComp(packet));
+                            res = make_unique<PubComp>(packet);
                         }
                         else if (packet.get_mqtt_type() == SUBACK)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new SubAck(packet));
+                            res = make_unique<SubAck>(packet);
                         }
                         else if (packet.get_mqtt_type() == UNSUBACK)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new UnsubAck(packet));
+                            res = make_unique<UnsubAck>(packet);
                         }
                         else if (packet.get_mqtt_type() == PINGRESP)
                         {
-                            res = std::unique_ptr<MQTTPacket>(new PingResp(packet));
+                            res = make_unique<PingResp>(packet);
                         }
 
-                        if( res )
+                        if (res)
                         {
-                            res->dump();
+                            res->dump("Incoming");
+                            if (!res->validate_packet())
+                            {
+                                res.reset();
+                            }
                         }
 
                         return res;

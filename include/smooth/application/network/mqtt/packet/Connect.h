@@ -23,6 +23,13 @@ namespace smooth
                         public:
                             Connect() = default;
                             Connect(const std::string& client_id, std::chrono::seconds keep_alive);
+
+                        protected:
+                            bool has_payload() const override
+                            {
+                                return true;
+                            }
+
                         private:
                     };
                 }
