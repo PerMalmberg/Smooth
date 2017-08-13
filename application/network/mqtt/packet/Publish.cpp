@@ -20,15 +20,14 @@ namespace smooth
                         flags.set(0, retain);
                         flags.set(1, qos & 0x1);
                         flags.set(2, qos & 0x2);
-                        flags.set(3, get_send_retry_count() > 0);
                         set_header(PacketType::PUBLISH, flags);
 
                         std::vector<uint8_t> variable_header{};
                         // Topic
                         append_string(topic, variable_header);
 
-                        // Packet identifier
-                        if (has_packet_identifier())
+                        // Packet identifier (can't use has_packet_identifier() since we're not fully constructed yet
+                        if (qos > AT_MOST_ONCE)
                         {
                             append_msb_lsb(PacketIdentifierFactory::get_id(), variable_header);
                         }
@@ -43,6 +42,15 @@ namespace smooth
                     {
                         calculate_remaining_length_and_variable_header_offset();
                         return get_string(variable_header_start);
+                    }
+
+                    int Publish::get_variable_header_length() const
+                    {
+                        return get_topic().length()
+                               // Add two for length bytes for string
+                               + 2
+                               // Add two more for optional packet identifier
+                               + (has_packet_identifier() ? 2 : 0);
                     }
 
                     void Publish::visit(IPacketReceiver& receiver)

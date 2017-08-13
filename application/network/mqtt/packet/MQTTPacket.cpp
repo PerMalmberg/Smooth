@@ -95,8 +95,7 @@ namespace smooth
 
                         auto curr = packet.cbegin() + 1;
 
-                        int i = 0;
-                        for (; curr != packet.cend() && !done && !error; curr++, ++i)
+                        for (int i = 0; curr != packet.cend() && !done && !error; ++curr, ++i)
                         {
                             res += (*curr & 0x7F) * multiplier;
                             multiplier *= 128;
@@ -108,9 +107,8 @@ namespace smooth
                             error = !done && i == 3;
                         }
 
-                        // If present, variable header offset always is located after the remaining bytes
+                        // If present, variable header start always is located after the remaining bytes
                         variable_header_start = curr;
-
 
                         if (error)
                         {
@@ -193,24 +191,26 @@ namespace smooth
 
                     std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
-                        uint16_t length = (*offset << 8);
+                        uint16_t length = (*offset) << 8;
                         offset++;
                         length |= *offset;
+                        offset++;
 
                         std::stringstream ss;
-                        for (; offset != packet.cend() && length > 0; offset++, --length)
+                        for (int i = 0; offset != packet.cend() && i < length; offset++, i++)
                         {
                             ss << *offset;
                         }
+
                         return ss.str();
                     }
 
                     QoS MQTTPacket::get_qos() const
                     {
                         // QoS is always located in the first byte but not all packets
-                        // actually use them as QoS (e.g. PubRel etc)
+                        // actually use the bits as QoS (e.g. PubRel)
                         smooth::core::util::ByteSet b(packet[0]);
-                        uint8_t value = b.test(1) | (b.test(2) << 1);
+                        uint8_t value = (b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1);
                         return static_cast<QoS>( value );
                     }
 
@@ -230,8 +230,8 @@ namespace smooth
                         std::stringstream ss;
                         calculate_remaining_length_and_variable_header_offset();
 
-                        ss << get_mqtt_type_as_string()
-                           << " Raw(" << packet.size() << ") "
+                        ss << "[" << get_mqtt_type_as_string() << "] "
+                           << "Raw(" << packet.size() << ") "
                            << "Fix(" << std::distance(packet.cbegin(), variable_header_start) << ") "
                            << "Var(" << get_variable_header_length() << ") "
                            << "Pay(" << get_payload_length() << ") ";
@@ -254,7 +254,7 @@ namespace smooth
 
                             for (auto b = get_payload_cbegin(); b != packet.cend(); b++)
                             {
-                                if (isalnum(*b))
+                                if (isascii(*b))
                                 {
                                     ss << static_cast<char>(*b);
                                 }
@@ -275,12 +275,14 @@ namespace smooth
                         int left_over = packet.size()
                                         // Fixed header
                                         - std::distance(packet.cbegin(), variable_header_start)
+                                        // Variable header
                                         - get_variable_header_length()
+                                        // Payload
                                         - get_payload_length();
 
                         bool res = left_over == 0;
 
-                        if( !res )
+                        if (!res)
                         {
                             ESP_LOGE("MQTTPacket", "Invalid packet, lengths do not add up: %d", left_over);
                         }

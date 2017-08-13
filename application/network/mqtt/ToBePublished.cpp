@@ -15,6 +15,8 @@ namespace smooth
         {
             namespace mqtt
             {
+                static const char* tag = "MQTT-Publish";
+
                 void ToBePublished::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                             bool retain)
                 {
@@ -33,8 +35,11 @@ namespace smooth
                         if (packet.get_qos() == QoS::AT_MOST_ONCE)
                         {
                             // Fire and forget
-                            mqtt.send_packet(packet, std::chrono::seconds(2));
-                            in_progress.erase(in_progress.begin());
+                            if(mqtt.send_packet(packet, std::chrono::seconds(2)))
+                            {
+                                ESP_LOGV(tag, "QoS %d publish completed", packet.get_qos());
+                                in_progress.erase(in_progress.begin());
+                            }
                         }
                         else if (flight.get_waiting_for() == PacketType::Reserved)
                         {
@@ -46,7 +51,6 @@ namespace smooth
                                 // Send packet, wait for PubAck
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
-                                    ESP_LOGV("ToBePublished", "Send, wait for puback");
                                     packet.inc_send_retry_count();
                                     flight.set_wait_packet(PUBACK);
                                 }
@@ -56,7 +60,6 @@ namespace smooth
                                 // Send packet, wait for PubRec
                                 if (mqtt.send_packet(packet, std::chrono::seconds(2)))
                                 {
-                                    ESP_LOGV("ToBePublished", "Send, wait for PubRec");
                                     packet.inc_send_retry_count();
                                     flight.set_wait_packet(PUBREC);
                                 }
@@ -82,7 +85,7 @@ namespace smooth
                         auto& in_flight = *first;
                         if (in_flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
                         {
-                            ESP_LOGV("ToBePublished", "ConAck");
+                            ESP_LOGV(tag, "QoS %d publish completed", in_flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }
@@ -118,6 +121,7 @@ namespace smooth
                         if (in_flight.get_waiting_for() == PUBCOMP
                             && in_flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
+                            ESP_LOGV(tag, "QoS %d publish completed", in_flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }

@@ -34,7 +34,7 @@ namespace smooth
                             uint16_t get_packet_identifier() const override
                             {
                                 uint16_t id = 0;
-                                if( has_packet_identifier())
+                                if (has_packet_identifier())
                                 {
                                     calculate_remaining_length_and_variable_header_offset();
                                     auto pos = variable_header_start + get_variable_header_length() - 2;
@@ -58,19 +58,12 @@ namespace smooth
 
                             virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const override
                             {
-                                return variable_header_start +get_variable_header_length();
+                                return variable_header_start + get_variable_header_length();
                             }
 
                             std::string get_topic() const;
 
-                            int get_variable_header_length() const override
-                            {
-                                return get_topic().length()
-                                       // Add two for length bytes for string
-                                       + 2
-                                       // Add two more for packet identifier
-                                       + 2;
-                            }
+                            int get_variable_header_length() const override;
                     };
                 }
             }
