@@ -7,6 +7,8 @@
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include "esp_log.h"
 
+using namespace std::chrono;
+
 namespace smooth
 {
     namespace application
@@ -35,7 +37,7 @@ namespace smooth
                         if (packet.get_qos() == QoS::AT_MOST_ONCE)
                         {
                             // Fire and forget
-                            if(mqtt.send_packet(packet, std::chrono::seconds(2)))
+                            if (mqtt.send_packet(packet))
                             {
                                 ESP_LOGV(tag, "QoS %d publish completed", packet.get_qos());
                                 in_progress.erase(in_progress.begin());
@@ -49,18 +51,18 @@ namespace smooth
                             if (packet.get_qos() == QoS::AT_LEAST_ONCE)
                             {
                                 // Send packet, wait for PubAck
-                                if (mqtt.send_packet(packet, std::chrono::seconds(2)))
+                                if (mqtt.send_packet(packet))
                                 {
-                                    packet.inc_send_retry_count();
+                                    flight.start_timer();
                                     flight.set_wait_packet(PUBACK);
                                 }
                             }
                             else if (packet.get_qos() == QoS::EXACTLY_ONCE)
                             {
                                 // Send packet, wait for PubRec
-                                if (mqtt.send_packet(packet, std::chrono::seconds(2)))
+                                if (mqtt.send_packet(packet))
                                 {
-                                    packet.inc_send_retry_count();
+                                    flight.start_timer();
                                     flight.set_wait_packet(PUBREC);
                                 }
                             }
@@ -73,6 +75,10 @@ namespace smooth
                             // Still waiting for a reply...
                             // Resend message based on timeout, set packet id and DUP flag
                             // based on original outgoing message.
+                            if (flight.get_elapsed_time() > seconds(15))
+                            {
+
+                            }
                         }
                     }
                 }
@@ -102,7 +108,7 @@ namespace smooth
                         {
                             packet::PubRel pub_rel(in_flight.get_packet().get_packet_identifier());
 
-                            if (mqtt.send_packet(pub_rel, std::chrono::seconds(2)))
+                            if (mqtt.send_packet(pub_rel))
                             {
                                 // Wait for PubComp and send PubRel
                                 first->set_wait_packet(PUBCOMP);

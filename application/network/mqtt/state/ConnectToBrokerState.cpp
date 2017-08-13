@@ -21,7 +21,7 @@ namespace smooth
                     void ConnectToBrokerState::enter_state()
                     {
                         packet::Connect con(fsm.get_mqtt().get_client_id(), fsm.get_mqtt().get_keep_alive());
-                        fsm.get_mqtt().send_packet(con, std::chrono::seconds(2));
+                        fsm.get_mqtt().send_packet(con);
                         fsm.get_mqtt().set_keep_alive_timer(fsm.get_mqtt().get_keep_alive());
                     }
 

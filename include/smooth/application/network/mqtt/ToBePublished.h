@@ -5,6 +5,8 @@
 #pragma once
 
 #include <vector>
+#include <chrono>
+#include <smooth/core/timer/PerfCount.h>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -58,9 +60,20 @@ namespace smooth
                                     waiting_for_packet = type;
                                 }
 
+                                void start_timer()
+                                {
+                                    timer.start();
+                                }
+
+                                std::chrono::milliseconds get_elapsed_time()
+                                {
+                                    return std::chrono::duration_cast<std::chrono::seconds>(timer.get_running_time());
+                                }
+
                             private:
                                 packet::Publish p{};
                                 PacketType waiting_for_packet = PacketType::Reserved;
+                                core::timer::PerfCount timer{};
                         };
 
                         std::vector<InFlight> in_progress{};

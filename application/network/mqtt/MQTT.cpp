@@ -39,8 +39,6 @@ namespace smooth
                           client_id(mqtt_client_id),
                           keep_alive(keep_alive),
                           mqtt_socket(),
-                          receive_timer("receive_timer", MQTT_FSM_RECEIVE_TIMER_ID, timer_events, false,
-                                        std::chrono::seconds(10)),
                           reconnect_timer("reconnect_timer", MQTT_FSM_RECONNECT_TIMER_ID, timer_events, false,
                                           std::chrono::seconds(5)),
                           keep_alive_timer("keep_alive_timer", MQTT_FSM_KEEP_ALIVE_TIMER_ID, timer_events, true,
@@ -90,7 +88,7 @@ namespace smooth
                     control_event.push(event::DisconnectEvent());
                 }
 
-                bool MQTT::send_packet(packet::MQTTPacket& packet, milliseconds timeout)
+                bool MQTT::send_packet(packet::MQTTPacket& packet)
                 {
                     packet.dump("Outgoing");
 
@@ -98,10 +96,6 @@ namespace smooth
                     if (packet.validate_packet())
                     {
                         res = tx_buffer.put(packet);
-                        if (res)
-                        {
-                            receive_timer.start(timeout);
-                        }
                     }
                     return res;
                 }
@@ -153,8 +147,6 @@ namespace smooth
 
                 void MQTT::event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event)
                 {
-                    receive_timer.stop();
-
                     packet::MQTTPacket p;
                     if (event.get(p))
                     {
@@ -171,7 +163,6 @@ namespace smooth
                 {
                     if (event.get_type() == event::BaseEvent::DISCONNECT)
                     {
-                        receive_timer.stop();
                         keep_alive_timer.stop();
                         reconnect_timer.stop();
                         fsm.disconnect_event();

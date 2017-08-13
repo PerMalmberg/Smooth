@@ -21,14 +21,10 @@ namespace smooth
                     {
                         auto timer_id = event.get_timer()->get_id();
 
-                        if (timer_id == MQTT_FSM_RECEIVE_TIMER_ID)
-                        {
-                            fsm.set_state(new(fsm) IdleState(fsm));
-                        }
-                        else if (timer_id == MQTT_FSM_KEEP_ALIVE_TIMER_ID)
+                        if (timer_id == MQTT_FSM_KEEP_ALIVE_TIMER_ID)
                         {
                             packet::PingReq ping;
-                            fsm.get_mqtt().send_packet(ping, std::chrono::seconds(1));
+                            fsm.get_mqtt().send_packet(ping);
                         }
                     }
 

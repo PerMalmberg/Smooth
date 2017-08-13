@@ -92,7 +92,7 @@ namespace smooth
 
                     private:
 
-                        bool send_packet(packet::MQTTPacket& packet, std::chrono::milliseconds timeout) override;
+                        bool send_packet(packet::MQTTPacket& packet) override;
 
                         core::network::PacketSendBuffer<packet::MQTTPacket, 5> tx_buffer;
                         core::network::PacketReceiveBuffer<packet::MQTTPacket, 5> rx_buffer;
@@ -106,7 +106,6 @@ namespace smooth
                         std::string client_id;
                         std::chrono::seconds keep_alive;
                         std::shared_ptr<smooth::core::network::ISocket> mqtt_socket;
-                        core::timer::Timer receive_timer;
                         core::timer::Timer reconnect_timer;
                         core::timer::Timer keep_alive_timer;
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;

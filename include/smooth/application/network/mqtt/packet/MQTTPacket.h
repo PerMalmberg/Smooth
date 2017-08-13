@@ -78,16 +78,6 @@ namespace smooth
 
                             QoS get_qos() const;
 
-                            int get_send_retry_count() const
-                            {
-                                return send_retry_count;
-                            }
-
-                            void inc_send_retry_count()
-                            {
-                                ++send_retry_count;
-                            };
-
                             virtual uint16_t get_packet_identifier() const
                             {
                                 return 0;
@@ -155,7 +145,6 @@ namespace smooth
                             int received_header_length = 0;
                             mutable bool error = false;
                             bool too_big = false;
-                            int send_retry_count = 0;
                     };
                 }
             }
