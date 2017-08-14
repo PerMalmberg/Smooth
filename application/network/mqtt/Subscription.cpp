@@ -4,6 +4,7 @@
 
 #include <smooth/application/network/mqtt/Subscription.h>
 #include <algorithm>
+#include "esp_log.h"
 
 using namespace std::chrono;
 
