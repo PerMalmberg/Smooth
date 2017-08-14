@@ -62,7 +62,7 @@ namespace smooth
                         // User Name
                         // Password
 
-                        apply_variable_header(variable_header);
+                        apply_constructed_data(variable_header);
 
                     }
                 }

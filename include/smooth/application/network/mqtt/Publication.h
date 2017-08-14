@@ -12,6 +12,7 @@
 #include <smooth/application/network/mqtt/packet/Publish.h>
 #include <smooth/application/network/mqtt/packet/PubRec.h>
 #include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/InFlight.h>
 
 namespace smooth
 {
@@ -38,52 +39,7 @@ namespace smooth
                         void receive(packet::PubComp& pub_rel, IMqtt& mqtt);
 
                     private:
-
-                        class InFlight
-                        {
-                            public:
-                                InFlight(packet::Publish& p)
-                                        : p(p)
-                                {
-                                }
-
-                                packet::Publish& get_packet()
-                                {
-                                    return p;
-                                }
-
-                                PacketType get_waiting_for()
-                                {
-                                    return waiting_for_packet;
-                                }
-
-                                void set_wait_packet(PacketType type)
-                                {
-                                    waiting_for_packet = type;
-                                }
-
-                                void start_timer()
-                                {
-                                    timer.start();
-                                }
-
-                                void stop_timer()
-                                {
-                                    timer.stop();
-                                }
-
-                                std::chrono::milliseconds get_elapsed_time()
-                                {
-                                    return std::chrono::duration_cast<std::chrono::seconds>(timer.get_running_time());
-                                }
-
-                            private:
-                                packet::Publish p{};
-                                PacketType waiting_for_packet = PacketType::Reserved;
-                                core::timer::PerfCount timer{};
-                        };
-
-                        std::vector<InFlight> in_progress{};
+                        std::vector<InFlight<packet::Publish>> in_progress{};
                 };
             }
         }

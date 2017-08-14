@@ -53,7 +53,6 @@ namespace smooth
                     fsm.tick();
                 }
 
-
                 void MQTT::init()
                 {
                     fsm.set_state(new(fsm) state::StartupState(fsm));
@@ -70,7 +69,7 @@ namespace smooth
                 void MQTT::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
                 {
                     publish(topic,
-                            reinterpret_cast<const uint8_t*>( msg.c_str()),
+                            reinterpret_cast<const uint8_t*>(msg.c_str()),
                             msg.size(),
                             qos,
                             retain);

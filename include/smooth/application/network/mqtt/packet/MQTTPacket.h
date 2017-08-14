@@ -123,7 +123,7 @@ namespace smooth
                             void append_string(const std::string& str, std::vector<uint8_t>& target);
                             void append_msb_lsb(uint16_t value, std::vector<uint8_t>& target);
                             void append_data(const uint8_t* data, int length, std::vector<uint8_t>& target);
-                            void apply_variable_header(const std::vector<uint8_t>& variable);
+                            void apply_constructed_data(const std::vector<uint8_t>& variable);
 
                             std::vector<uint8_t> packet{};
                             mutable std::vector<uint8_t>::const_iterator variable_header_start;

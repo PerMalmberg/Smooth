@@ -72,8 +72,11 @@ namespace smooth
 
                         if (res)
                         {
-                            res->dump("Incoming");
-                            if (!res->validate_packet())
+                            if (res->validate_packet())
+                            {
+                                res->dump("Incoming");
+                            }
+                            else
                             {
                                 res.reset();
                             }

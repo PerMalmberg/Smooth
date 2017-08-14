@@ -23,7 +23,7 @@ namespace smooth
                                             bool retain)
                 {
                     packet::Publish p(topic, data, length, qos, retain);
-                    in_progress.push_back(InFlight(p));
+                    in_progress.push_back(InFlight<packet::Publish>(p));
                 }
 
                 void Publication::resend_outstanding_control_packet(IMqtt& mqtt)
@@ -105,7 +105,7 @@ namespace smooth
                             if (flight.get_elapsed_time() > seconds(15))
                             {
                                 // Waited too long, force a reconnect.
-                                ESP_LOGE("MQTT", "Too long since a reply was received, forcing reconnect.");
+                                ESP_LOGE("MQTT", "Too long since a reply was received to a published message, forcing reconnect.");
                                 flight.stop_timer();
                                 mqtt.reconnect();
                             }

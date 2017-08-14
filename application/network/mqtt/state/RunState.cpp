@@ -18,18 +18,23 @@ namespace smooth
                 {
                     void RunState::tick()
                     {
-                        auto& to_publish = fsm.get_mqtt().get_publication();
+                        auto& publication = fsm.get_mqtt().get_publication();
 
                         if (session_exists_on_server)
                         {
                             // Only do this once
                             session_exists_on_server = false;
-                            to_publish.resend_outstanding_control_packet(fsm.get_mqtt());
+                            publication.resend_outstanding_control_packet(fsm.get_mqtt());
                         }
                         else
                         {
-                            to_publish.publish_next(fsm.get_mqtt());
+                            publication.publish_next(fsm.get_mqtt());
                         }
+
+                        auto& subscription = fsm.get_mqtt().get_subscription();
+
+                        subscription.subscribe_next(fsm.get_mqtt());
+
                     }
 
                     void RunState::receive(packet::PubAck& pub_ack)

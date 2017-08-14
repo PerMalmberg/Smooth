@@ -4,6 +4,7 @@
 
 #include <smooth/application/network/mqtt/state/DisconnectedState.h>
 #include <smooth/application/network/mqtt/state/ConnectToBrokerState.h>
+#include <smooth/application/network/mqtt/Subscription.h>
 
 namespace smooth
 {
@@ -17,6 +18,8 @@ namespace smooth
                 {
                     void DisconnectedState::enter_state()
                     {
+                        fsm.get_mqtt().get_subscription().handle_disconnect();
+
                         fsm.get_mqtt().set_keep_alive_timer(std::chrono::seconds(0));
                         if (fsm.get_mqtt().is_auto_reconnect())
                         {

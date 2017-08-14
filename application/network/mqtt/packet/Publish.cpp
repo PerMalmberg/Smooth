@@ -35,7 +35,7 @@ namespace smooth
                         // Payload
                         append_data(data, length, variable_header);
 
-                        apply_variable_header(variable_header);
+                        apply_constructed_data(variable_header);
                     }
 
                     std::string Publish::get_topic() const

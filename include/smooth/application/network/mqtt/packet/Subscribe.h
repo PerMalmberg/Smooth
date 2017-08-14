@@ -5,6 +5,7 @@
 #pragma once
 
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/PacketIdentifierFactory.h>
 
 namespace smooth
 {
@@ -26,8 +27,30 @@ namespace smooth
                             {
                             }
 
+                            Subscribe(const std::string& topic, QoS qos)
+                            {
+                                set_header(SUBSCRIBE, 0x2);
+                                std::vector<uint8_t> data;
+                                append_msb_lsb(PacketIdentifierFactory::get_id(), data);
+                                append_string(topic, data);
+                                data.push_back(qos);
+                                apply_constructed_data(data);
+                            }
+
+                            virtual uint16_t get_packet_identifier() const
+                            {
+                                return read_packet_identifier(variable_header_start);
+                            }
+
+                            void get_topics(std::vector<std::pair<std::string, QoS>>& topics) const;
+
                             void visit(IPacketReceiver& receiver) override;
                         protected:
+                            virtual int get_variable_header_length() const
+                            {
+                                return 2;
+                            }
+
                             bool has_packet_identifier() const override
                             {
                                 return true;

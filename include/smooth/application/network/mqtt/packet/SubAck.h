@@ -27,7 +27,19 @@ namespace smooth
                             }
 
                             void visit(IPacketReceiver& receiver) override;
+
+                            virtual uint16_t get_packet_identifier() const
+                            {
+                                return read_packet_identifier(variable_header_start);
+                            }
+
                         protected:
+
+                            virtual int get_variable_header_length() const
+                            {
+                                return 2;
+                            }
+
                             bool has_packet_identifier() const override
                             {
                                 return true;

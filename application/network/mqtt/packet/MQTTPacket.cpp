@@ -165,7 +165,7 @@ namespace smooth
                         }
                     }
 
-                    void MQTTPacket::apply_variable_header(const std::vector<uint8_t>& variable)
+                    void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
                     {
                         encode_remaining_length(variable.size());
                         std::copy(variable.begin(), variable.end(), std::back_inserter(packet));

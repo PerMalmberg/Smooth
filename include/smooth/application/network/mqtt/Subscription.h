@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <vector>
 #include <unordered_map>
-#include <smooth/application/network/mqtt/SubscriptionInfo.h>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -16,6 +16,7 @@
 #include <smooth/application/network/mqtt/packet/UnsubAck.h>
 #include <smooth/application/network/mqtt/packet/Unsubscribe.h>
 #include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/InFlight.h>
 
 namespace smooth
 {
@@ -34,8 +35,14 @@ namespace smooth
                         void receive(packet::SubAck& sub_ack, IMqtt& mqtt);
                         void receive(packet::UnsubAck& unsub_ack, IMqtt& mqtt);
                         void receive(packet::PubRel& pub_rel, IMqtt& mqtt);
+
+                        void subscribe_next(IMqtt& mqtt);
+                        void handle_disconnect();
                     private:
-                        std::unordered_map<std::string, SubscriptionInfo> sub{};
+                        std::vector<InFlight<packet::Publish>> receiving{};
+
+                        std::vector<InFlight<packet::Subscribe>> subscribing{};
+                        std::unordered_map<std::string, QoS> active_subscription{};
                 };
             }
         }
