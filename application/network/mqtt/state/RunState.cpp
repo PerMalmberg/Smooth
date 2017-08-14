@@ -3,7 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/state/RunState.h>
-#include <smooth/application/network/mqtt/ToBePublished.h>
+#include <smooth/application/network/mqtt/Publication.h>
 
 namespace smooth
 {

@@ -80,7 +80,7 @@ namespace smooth
                                    bool retain)
                 {
                     Mutex::Lock lock(guard);
-                    to_be_published.publish(topic, data, length, qos, retain);
+                    publication.publish(topic, data, length, qos, retain);
                 }
 
                 void MQTT::disconnect()

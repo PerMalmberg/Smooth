@@ -2,7 +2,7 @@
 // Created by permal on 8/12/17.
 //
 
-#include <smooth/application/network/mqtt/ToBePublished.h>
+#include <smooth/application/network/mqtt/Publication.h>
 #include <smooth/application/network/mqtt/packet/PubRel.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include "esp_log.h"
@@ -19,14 +19,14 @@ namespace smooth
             {
                 static const char* tag = "MQTT-Publish";
 
-                void ToBePublished::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
+                void Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                             bool retain)
                 {
                     packet::Publish p(topic, data, length, qos, retain);
                     in_progress.push_back(InFlight(p));
                 }
 
-                void ToBePublished::resend_outstanding_control_packet(IMqtt& mqtt)
+                void Publication::resend_outstanding_control_packet(IMqtt& mqtt)
                 {
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
                     // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
@@ -56,7 +56,7 @@ namespace smooth
                     }
                 }
 
-                void ToBePublished::publish_next(IMqtt& mqtt)
+                void Publication::publish_next(IMqtt& mqtt)
                 {
                     if (in_progress.size() > 0)
                     {
@@ -113,7 +113,7 @@ namespace smooth
                     }
                 }
 
-                void ToBePublished::receive(packet::PubAck& pub_ack, IMqtt& mqtt)
+                void Publication::receive(packet::PubAck& pub_ack, IMqtt& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
@@ -127,7 +127,7 @@ namespace smooth
                     }
                 }
 
-                void ToBePublished::receive(packet::PubRec& pub_rec, IMqtt& mqtt)
+                void Publication::receive(packet::PubRec& pub_rec, IMqtt& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
@@ -153,7 +153,7 @@ namespace smooth
                     }
                 }
 
-                void ToBePublished::receive(packet::PubComp& pub_rec, IMqtt& mqtt)
+                void Publication::receive(packet::PubComp& pub_rec, IMqtt& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())

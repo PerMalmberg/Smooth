@@ -27,7 +27,7 @@
 #include <smooth/application/network/mqtt/state/MQTTBaseState.h>
 #include <smooth/application/network/mqtt/IMqtt.h>
 #include <smooth/application/network/mqtt/event/BaseEvent.h>
-#include <smooth/application/network/mqtt/ToBePublished.h>
+#include <smooth/application/network/mqtt/Publication.h>
 
 namespace smooth
 {
@@ -82,9 +82,9 @@ namespace smooth
                             return auto_reconnect;
                         }
 
-                        ToBePublished& get_to_be_published()
+                        Publication& get_to_be_published()
                         {
-                            return to_be_published;
+                            return publication;
                         }
 
                     protected:
@@ -111,7 +111,7 @@ namespace smooth
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
                         std::shared_ptr<smooth::core::network::InetAddress> address;
-                        ToBePublished to_be_published{};
+                        Publication publication{};
 
                 };
             }

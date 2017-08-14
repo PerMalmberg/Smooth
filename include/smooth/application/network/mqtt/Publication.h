@@ -21,7 +21,7 @@ namespace smooth
         {
             namespace mqtt
             {
-                class ToBePublished
+                class Publication
                 {
                     public:
                         void
