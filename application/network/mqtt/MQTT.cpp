@@ -83,6 +83,12 @@ namespace smooth
                     publication.publish(topic, data, length, qos, retain);
                 }
 
+                void MQTT::subscribe(const std::string topic)
+                {
+                    Mutex::Lock lock(guard);
+                    subscription.subscribe(topic, QoS::AT_MOST_ONCE);
+                }
+
                 void MQTT::disconnect()
                 {
                     control_event.push(event::DisconnectEvent());

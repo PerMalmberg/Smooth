@@ -58,7 +58,8 @@ namespace smooth
                             }
 
                             void event(const core::network::ConnectionStatusEvent& event) override
-                            {}
+                            {
+                            }
 
                             void event(const core::timer::TimerExpiredEvent& event) override
                             {
@@ -88,7 +89,9 @@ namespace smooth
 
                             void receive(packet::PingResp& ping_resp) override;
 
-                            virtual void disconnect_event() {}
+                            virtual void disconnect_event()
+                            {
+                            }
 
                         protected:
                             MqttFSM <MQTTBaseState>& fsm;

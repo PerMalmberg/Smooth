@@ -28,6 +28,7 @@
 #include <smooth/application/network/mqtt/IMqtt.h>
 #include <smooth/application/network/mqtt/event/BaseEvent.h>
 #include <smooth/application/network/mqtt/Publication.h>
+#include <smooth/application/network/mqtt/Subscription.h>
 
 namespace smooth
 {
@@ -59,6 +60,8 @@ namespace smooth
                         void publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain);
                         void publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
+                        void subscribe(const std::string topic);
+
                         void init() override;
 
                         void event(const core::network::TransmitBufferEmptyEvent& event);
@@ -82,9 +85,14 @@ namespace smooth
                             return auto_reconnect;
                         }
 
-                        Publication& get_to_be_published()
+                        Publication& get_publication()
                         {
                             return publication;
+                        }
+
+                        Subscription& get_subscription()
+                        {
+                            return subscription;
                         }
 
                     protected:
@@ -112,6 +120,7 @@ namespace smooth
                         bool auto_reconnect = false;
                         std::shared_ptr<smooth::core::network::InetAddress> address;
                         Publication publication{};
+                        Subscription subscription{};
 
                 };
             }

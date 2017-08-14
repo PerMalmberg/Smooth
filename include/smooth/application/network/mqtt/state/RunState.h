@@ -28,13 +28,17 @@ namespace smooth
 
                             void tick() override;
 
+                            // For publishing
                             void receive(packet::PubAck& pub_ack) override;
-
                             void receive(packet::PubRec& pub_rec) override;
+                            void receive(packet::PubComp& pub_comp) override;
 
+                            // For subscribing
+                            void receive(packet::Publish& publish) override;
+                            void receive(packet::SubAck& sub_ack) override;
+                            void receive(packet::UnsubAck& unsub_ack) override;
                             void receive(packet::PubRel& pub_rel) override;
 
-                            void receive(packet::PubComp& pub_comp) override;
                         private:
                             bool session_exists_on_server;
                     };

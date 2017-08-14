@@ -14,8 +14,9 @@ namespace smooth
         {
             namespace mqtt
             {
-               class Publication;
+                class Publication;
 
+                class Subscription;
 
                 class IMqtt
                 {
@@ -31,7 +32,8 @@ namespace smooth
                         virtual bool is_auto_reconnect() const = 0;
                         virtual void set_keep_alive_timer(std::chrono::seconds interval) = 0;
                         virtual bool send_packet(packet::MQTTPacket& packet) = 0;
-                        virtual Publication& get_to_be_published() = 0;
+                        virtual Publication& get_publication() = 0;
+                        virtual Subscription& get_subscription() = 0;
                 };
 
             }
