@@ -26,6 +26,17 @@ namespace smooth
                     in_progress.push_back(InFlight<packet::Publish>(p));
                 }
 
+                void Publication::handle_disconnect()
+                {
+                    // When a disconnection happens, any outgoing messages currently being timed must be reset
+                    // so that they don't cause a timeout before a resend of the package happens.
+                    if (in_progress.size() > 0)
+                    {
+                        auto& flight = in_progress.front();
+                        flight.zero_timer();
+                    }
+                }
+
                 void Publication::resend_outstanding_control_packet(IMqtt& mqtt)
                 {
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
@@ -49,7 +60,7 @@ namespace smooth
                             packet::PubRel pub_rel(flight.get_packet().get_packet_identifier());
 
                             // As this is running directly after a reconnect, and the TX buffer is cleared
-                            // on disconnect, it is guaranteed that this message will fit on the buffer.
+                            // on disconnect, it is guaranteed that this message will fit in the buffer.
                             mqtt.send_packet(pub_rel);
                         }
 
@@ -105,7 +116,7 @@ namespace smooth
                             if (flight.get_elapsed_time() > seconds(15))
                             {
                                 // Waited too long, force a reconnect.
-                                ESP_LOGE("MQTT", "Too long since a reply was received to a published message, forcing reconnect.");
+                                ESP_LOGE("MQTT", "Too long since a reply was received to a publish message, forcing reconnect.");
                                 flight.stop_timer();
                                 mqtt.reconnect();
                             }

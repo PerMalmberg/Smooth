@@ -30,6 +30,8 @@ namespace smooth
 
                         void publish_next(IMqtt& mqtt);
 
+                        void handle_disconnect();
+
                         void resend_outstanding_control_packet(IMqtt& mqtt);
 
                         void receive(packet::PubAck& pub_ack, IMqtt& mqtt);

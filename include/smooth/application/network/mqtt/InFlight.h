@@ -55,6 +55,12 @@ namespace smooth
                             timer.stop();
                         }
 
+                        void zero_timer()
+                        {
+                            timer.stop();
+                            timer.zero();
+                        }
+
                         std::chrono::milliseconds get_elapsed_time()
                         {
                             return std::chrono::duration_cast<std::chrono::seconds>(timer.get_running_time());

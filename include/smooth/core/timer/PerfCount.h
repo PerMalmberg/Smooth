@@ -22,8 +22,7 @@ namespace smooth
                     void start()
                     {
                         active = true;
-                        gettimeofday(&start_time, nullptr);
-                        end_time = start_time;
+                        zero();
                     }
 
                     /// Stops the performance timer
@@ -39,6 +38,12 @@ namespace smooth
                     {
                         // Simply restart the timer.
                         start();
+                    }
+
+                    void zero()
+                    {
+                        gettimeofday(&start_time, nullptr);
+                        end_time = start_time;
                     }
 
                     /// Gets the amount of time passed since start.
