@@ -20,7 +20,7 @@ namespace smooth
                 static const char* tag = "MQTT-Publish";
 
                 void Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
-                                            bool retain)
+                                          bool retain)
                 {
                     packet::Publish p(topic, data, length, qos, retain);
                     in_progress.push_back(InFlight<packet::Publish>(p));
@@ -53,17 +53,30 @@ namespace smooth
                         {
                             // Set dup flag and let normal procedure send the packet.
                             packet.set_dup_flag();
+                            flight.zero_timer();
+                            flight.set_wait_packet(PacketType::Reserved);
+                        }
+                        else if(flight.get_waiting_for() == PacketType::PUBREC)
+                        {
+                            // Let normal procedure send the packet
+                            flight.zero_timer();
                             flight.set_wait_packet(PacketType::Reserved);
                         }
                         else if (flight.get_waiting_for() == PacketType::PUBCOMP)
                         {
-                            packet::PubRel pub_rel(flight.get_packet().get_packet_identifier());
+                            packet::PubRel pub_rel(packet.get_packet_identifier());
 
                             // As this is running directly after a reconnect, and the TX buffer is cleared
                             // on disconnect, it is guaranteed that this message will fit in the buffer.
                             mqtt.send_packet(pub_rel);
                         }
-
+                        else
+                        {
+                            // Haven't gotten far enough to wait for PUBACK or PUBCOMP, reset.
+                            packet.set_dup_flag();
+                            flight.start_timer();
+                            flight.set_wait_packet(PacketType::Reserved);
+                        }
                     }
                 }
 
@@ -82,6 +95,10 @@ namespace smooth
                                 ESP_LOGV(tag, "QoS %d publish completed", packet.get_qos());
                                 in_progress.erase(in_progress.begin());
                             }
+                            else
+                            {
+                                ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                            }
                         }
                         else if (flight.get_waiting_for() == PacketType::Reserved)
                         {
@@ -96,6 +113,10 @@ namespace smooth
                                     flight.start_timer();
                                     flight.set_wait_packet(PUBACK);
                                 }
+                                else
+                                {
+                                    ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                }
                             }
                             else if (packet.get_qos() == QoS::EXACTLY_ONCE)
                             {
@@ -104,6 +125,10 @@ namespace smooth
                                 {
                                     flight.start_timer();
                                     flight.set_wait_packet(PUBREC);
+                                }
+                                else
+                                {
+                                    ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
                                 }
                             }
 
@@ -116,9 +141,15 @@ namespace smooth
                             if (flight.get_elapsed_time() > seconds(15))
                             {
                                 // Waited too long, force a reconnect.
-                                ESP_LOGE("MQTT", "Too long since a reply was received to a publish message, forcing reconnect.");
+                                ESP_LOGE("MQTT",
+                                         "Too long since a reply was received to a publish message, forcing reconnect.");
                                 flight.stop_timer();
                                 mqtt.reconnect();
+                            }
+                            else
+                            {
+                                ESP_LOGV(tag, "Waiting to send: %s, QoS %d, waiting for: %d, timer: %lld",
+                                         packet.get_mqtt_type_as_string(), packet.get_qos(), flight.get_waiting_for(), flight.get_elapsed_time().count());
                             }
                         }
                     }

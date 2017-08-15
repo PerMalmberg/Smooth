@@ -20,10 +20,10 @@ namespace smooth
                     {
                         auto& publication = fsm.get_mqtt().get_publication();
 
-                        if (session_exists_on_server)
+                        if (!reconnect_handled)
                         {
                             // Only do this once
-                            session_exists_on_server = false;
+                            reconnect_handled = true;
                             publication.resend_outstanding_control_packet(fsm.get_mqtt());
                         }
                         else

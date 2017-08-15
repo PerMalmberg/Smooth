@@ -20,9 +20,9 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            RunState(MqttFSM<MQTTBaseState>& fsm, bool session_exists_on_server)
+                            RunState(MqttFSM<MQTTBaseState>& fsm)
                                     : ConnectedState(fsm, "RunState"),
-                                      session_exists_on_server(session_exists_on_server)
+                                      reconnect_handled(false)
                             {
                             }
 
@@ -40,7 +40,7 @@ namespace smooth
                             void receive(packet::PubRel& pub_rel) override;
 
                         private:
-                            bool session_exists_on_server;
+                            bool reconnect_handled;
                     };
                 }
             }
