@@ -7,7 +7,7 @@
 
 namespace smooth
 {
-    namespace  core
+    namespace core
     {
         Task::Task(const std::string& task_name, uint32_t stack_depth, UBaseType_t priority,
                    std::chrono::milliseconds tick_interval)
@@ -71,13 +71,19 @@ namespace smooth
 
         void Task::exec()
         {
-            ESP_LOGV("Task", "Starting task '%s', %p", pcTaskGetTaskName(task_handle), task_handle);
+            ESP_LOGV("Task", "Initializing task '%s', %p", pcTaskGetTaskName(task_handle), task_handle);
 
             init();
 
+            ESP_LOGV("Task", "Task '%s' initialized, %p", pcTaskGetTaskName(task_handle), task_handle);
+
             for (;;)
             {
-                QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification, pdMS_TO_TICKS(tick_interval.count()));
+                // Limit task tick to a minimum of 1 tick.
+                QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification,
+                                                                   std::max(static_cast<TickType_t>(1),
+                                                                            pdMS_TO_TICKS(
+                                                                                    tick_interval.count())));
 
                 if (queue == nullptr)
                 {

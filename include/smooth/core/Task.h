@@ -52,11 +52,16 @@ namespace smooth
                 /// the tick may be delayed (depending on the tick_interval).
                 virtual void tick()
                 {
-                };
+                }
 
                 /// Called once when task is started.
                 virtual void init()
                 {
+                }
+
+                std::chrono::milliseconds get_tick_interval() const
+                {
+                    return tick_interval;
                 }
 
             private:

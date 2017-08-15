@@ -2,9 +2,9 @@
 // Created by permal on 7/1/17.
 //
 
-#include <smooth/core/network/SocketDispatcher.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <smooth/core/network/SocketDispatcher.h>
 #include "esp_log.h"
 
 namespace smooth
@@ -29,7 +29,7 @@ namespace smooth
 
 
             SocketDispatcher::SocketDispatcher()
-                    : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(100)),
+                    : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(0)),
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
