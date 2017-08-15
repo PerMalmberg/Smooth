@@ -73,6 +73,8 @@ namespace smooth
                     {
                         smooth::core::ipc::Mutex::Lock lock(guard);
                         buffer.clear();
+                        // Clear out any packets in progress too.
+                        prepare_new_packet();
                         in_progress = false;
                     }
 
