@@ -135,8 +135,7 @@ namespace smooth
                             {
                                 START = 1,
                                 REMAINING_LENGTH,
-                                DATA,
-                                TOO_BIG
+                                DATA
                             };
                             static const int REMAINING_LENGTH_OFFSET = 1;
                             ReadingHeaderSection state = ReadingHeaderSection::START;

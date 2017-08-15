@@ -34,8 +34,19 @@ namespace smooth
                     int MQTTPacket::get_wanted_amount()
                     {
                         // If we're just reading data to get rid of a too large packet
-                        // then we read only one byte at a time.
-                        return state == TOO_BIG ? 1 : wanted_amount;
+                        // then we read the maximum allowed amount, but it will just be overwritten
+                        // by the next time we read data.
+                        int wanted;
+                        if (is_too_big())
+                        {
+                            wanted = std::min( wanted_amount, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                        }
+                        else
+                        {
+                            wanted = wanted_amount;
+                        }
+
+                        return wanted;
                     }
 
                     void MQTTPacket::data_received(int length)
@@ -65,10 +76,10 @@ namespace smooth
 
                                 if (wanted_amount > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
-                                    state = TOO_BIG;
+                                    ESP_LOGV("MQTTPacket", "Too big packet detected: %d > %d", wanted_amount,
+                                             CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                                    state = DATA;
                                     too_big = true;
-                                    // Make this packet unwanted by the application by setting the type to Reserved.
-                                    packet[0] = PacketType::Reserved;
                                 }
                                 else if (wanted_amount > 0)
                                 {
@@ -76,7 +87,7 @@ namespace smooth
                                 }
                             }
                         }
-                        else if (state == DATA || state == TOO_BIG)
+                        else if (state == DATA)
                         {
                             wanted_amount -= length;
                         }
@@ -277,21 +288,35 @@ namespace smooth
 
                     bool MQTTPacket::validate_packet() const
                     {
-                        // Ensure that data lengths add up.
-                        calculate_remaining_length_and_variable_header_offset();
-                        int left_over = packet.size()
-                                        // Fixed header
-                                        - std::distance(packet.cbegin(), variable_header_start)
-                                        // Variable header
-                                        - get_variable_header_length()
-                                        // Payload
-                                        - get_payload_length();
+                        // Must first check if the back was deemed to big. If that is the
+                        // case, then the data held by the packet is invalid and must not
+                        // be used for calculations since the data has been overwritten
+                        // at least once while reading the data we cannot hold.
 
-                        bool res = left_over == 0;
+                        bool res = true;
 
-                        if (!res)
+                        if(is_too_big())
                         {
-                            ESP_LOGE("MQTTPacket", "Invalid packet, lengths do not add up: %d", left_over);
+                            ESP_LOGE("MQTTPacket", "Too big packet received, discarding");
+                            res = false;
+                        }
+                        else
+                        {
+                            // Ensure that data lengths add up.
+                            calculate_remaining_length_and_variable_header_offset();
+                            int left_over = packet.size()
+                                            // Fixed header
+                                            - std::distance(packet.cbegin(), variable_header_start)
+                                            // Variable header
+                                            - get_variable_header_length()
+                                            // Payload
+                                            - get_payload_length();
+
+                            if( left_over != 0 )
+                            {
+                                ESP_LOGE("MQTTPacket", "Invalid packet, lengths do not add up: %d", left_over);
+                                res = false;
+                            }
                         }
 
                         return res;
@@ -301,8 +326,12 @@ namespace smooth
                     {
                         uint8_t* pos;
 
+                        // Make room for remaining data. In the case of a too big package, allocate
+                        // maximum allowed to enable quick read of the data.
                         auto required_size =
-                                state == TOO_BIG ? received_header_length + 1 : bytes_received + get_wanted_amount();
+                                is_too_big() ?
+                                received_header_length + CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE :
+                                bytes_received + get_wanted_amount();
 
                         // Make sure there is room to do direct memory writes by expanding the vector.
                         while (packet.size() < required_size)
@@ -310,7 +339,7 @@ namespace smooth
                             packet.push_back(0);
                         }
 
-                        if (state == TOO_BIG)
+                        if (is_too_big())
                         {
                             // Always write to the byte after the header
                             pos = &packet[received_header_length];

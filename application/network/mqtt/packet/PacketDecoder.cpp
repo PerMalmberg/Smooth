@@ -33,41 +33,52 @@ namespace smooth
                         std::unique_ptr<MQTTPacket> res;
                         using namespace core::util;
 
-                        if (packet.get_mqtt_type() == CONNACK)
+                        if( packet.is_too_big())
                         {
-                            res = make_unique<ConnAck>(packet);
+                            // Depending on the type of packet, too big packets should be
+                            // discarded or a new replacement packet should be created to all
+                            // us to fake receiving them, i.e. fulfill the protocol requirements.
+
+                            // QQQ TODO
                         }
-                        else if (packet.get_mqtt_type() == PUBLISH)
+                        else
                         {
-                            res = make_unique<Publish>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == PUBACK)
-                        {
-                            res = make_unique<PubAck>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == PUBREC)
-                        {
-                            res = make_unique<PubRec>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == PUBREL)
-                        {
-                            res = make_unique<PubRel>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == PUBCOMP)
-                        {
-                            res = make_unique<PubComp>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == SUBACK)
-                        {
-                            res = make_unique<SubAck>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == UNSUBACK)
-                        {
-                            res = make_unique<UnsubAck>(packet);
-                        }
-                        else if (packet.get_mqtt_type() == PINGRESP)
-                        {
-                            res = make_unique<PingResp>(packet);
+                            if (packet.get_mqtt_type() == CONNACK)
+                            {
+                                res = make_unique<ConnAck>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PUBLISH)
+                            {
+                                res = make_unique<Publish>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PUBACK)
+                            {
+                                res = make_unique<PubAck>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PUBREC)
+                            {
+                                res = make_unique<PubRec>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PUBREL)
+                            {
+                                res = make_unique<PubRel>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PUBCOMP)
+                            {
+                                res = make_unique<PubComp>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == SUBACK)
+                            {
+                                res = make_unique<SubAck>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == UNSUBACK)
+                            {
+                                res = make_unique<UnsubAck>(packet);
+                            }
+                            else if (packet.get_mqtt_type() == PINGRESP)
+                            {
+                                res = make_unique<PingResp>(packet);
+                            }
                         }
 
                         if (res)
