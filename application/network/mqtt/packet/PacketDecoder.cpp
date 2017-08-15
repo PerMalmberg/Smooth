@@ -36,10 +36,12 @@ namespace smooth
                         if( packet.is_too_big())
                         {
                             // Depending on the type of packet, too big packets should be
-                            // discarded or a new replacement packet should be created to all
-                            // us to fake receiving them, i.e. fulfill the protocol requirements.
+                            // discarded or a new replacement packet should be created to allow
+                            // us to fake receiving them, i.e. fulfill the protocol requirements
+                            // but not actually present them to the application.
 
                             // QQQ TODO
+                            ESP_LOGV("PacketDecoder", "Too big packet discarded");
                         }
                         else
                         {

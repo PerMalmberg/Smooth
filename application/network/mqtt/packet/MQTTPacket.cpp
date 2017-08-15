@@ -297,7 +297,7 @@ namespace smooth
 
                         if(is_too_big())
                         {
-                            ESP_LOGE("MQTTPacket", "Too big packet received, discarding");
+                            ESP_LOGE("MQTTPacket", "Packet is too big.");
                             res = false;
                         }
                         else
