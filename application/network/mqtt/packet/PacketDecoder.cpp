@@ -33,14 +33,10 @@ namespace smooth
                         std::unique_ptr<MQTTPacket> res;
                         using namespace core::util;
 
-                        if( packet.is_too_big())
+                        if (packet.is_too_big())
                         {
-                            // Depending on the type of packet, too big packets should be
-                            // discarded or a new replacement packet should be created to allow
-                            // us to fake receiving them, i.e. fulfill the protocol requirements
-                            // but not actually present them to the application.
-
-                            // QQQ TODO
+                            // We can't do anything with packets that are too big as their contents
+                            // is invalid; not even the variable header can be considered intact.
                             ESP_LOGV("PacketDecoder", "Too big packet discarded");
                         }
                         else
@@ -87,7 +83,7 @@ namespace smooth
                         {
                             if (res->validate_packet())
                             {
-                                res->dump("Incoming");
+                                //qqq res->dump("Incoming");
                             }
                             else
                             {
