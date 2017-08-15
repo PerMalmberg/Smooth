@@ -83,7 +83,7 @@ namespace smooth
                         {
                             if (res->validate_packet())
                             {
-                                //qqq res->dump("Incoming");
+                                res->dump("Incoming");
                             }
                             else
                             {
