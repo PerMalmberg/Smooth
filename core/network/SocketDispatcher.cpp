@@ -191,8 +191,6 @@ namespace smooth
             {
                 if (has_ip)
                 {
-                    smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-
                     // Start and move sockets from inactive to active list
                     for (auto& socket : inactive_sockets)
                     {
