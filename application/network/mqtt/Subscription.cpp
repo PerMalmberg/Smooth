@@ -66,6 +66,28 @@ namespace smooth
                             mqtt.reconnect();
                         }
                     }
+
+                    // Resend any unacknowledged Publish messages
+                    for (auto& pair : receiving)
+                    {
+                        auto& flight = pair.second;
+
+                        if (flight.get_waiting_for() == PacketType::PUBREL)
+                        {
+                            if (flight.get_elapsed_time() > std::chrono::seconds(15))
+                            {
+                                // Send a PubRec message.
+                                auto& packet = flight.get_packet();
+                                packet::PubRec rec(packet.get_packet_identifier());
+                                // If we can enqueue it, restart the timer to give the response a chance to arrive.
+                                // Otherwise, another try will happen the next turn.
+                                if (mqtt.send_packet(rec))
+                                {
+                                    flight.start_timer();
+                                }
+                            }
+                        }
+                    }
                 }
 
                 void Subscription::handle_disconnect()
@@ -90,7 +112,6 @@ namespace smooth
                         it = active_subscription.erase(it);
                         subscribe(copy.first, copy.second);
                     }
-
 
                 }
 
@@ -140,7 +161,8 @@ namespace smooth
                             // Prepare to receive a PubRel
                             InFlight<packet::Publish> flight(publish);
                             flight.set_wait_packet(PacketType::PUBREL);
-                            receiving.emplace(std::make_pair(publish.get_packet_identifier(), flight));
+                            flight.start_timer();
+                            receiving.insert(std::make_pair(publish.get_packet_identifier(), flight));
                         }
 
                         // Always send a PubRec message as an ack.
@@ -152,7 +174,7 @@ namespace smooth
                 void Subscription::receive(packet::PubRel& pub_rel, IMqtt& mqtt)
                 {
                     auto found = receiving.find(pub_rel.get_packet_identifier());
-                    if( found != receiving.end())
+                    if (found != receiving.end())
                     {
                         // We may now forward the data to the application.
                         forward_to_application((*found).second.get_packet(), mqtt);
