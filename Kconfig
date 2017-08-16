@@ -20,4 +20,34 @@ config SMOOTH_MAX_MQTT_OUTGOING_MESSAGES
         (Incoming messages are immediately passed to the application without any buffering so it is up to the
         application developer to handle that side.)
 
+choice SMOOTH_MQTT_LOGGING_LEVEL
+    bool "MQTT Log level"
+    default SMOOTH_MQTT_LOG_LEVEL_INFO
+    help
+        Set log level for MQTT.
+
+    config SMOOTH_MQTT_LOG_LEVEL_NONE
+       bool "None"
+    config SMOOTH_MQTT_LOG_LEVEL_ERROR
+       bool "Error"
+    config SMOOTH_MQTT_LOG_LEVEL_WARN
+       bool "Warning"
+    config SMOOTH_MQTT_LOG_LEVEL_INFO
+       bool "Info"
+    config SMOOTH_MQTT_LOG_LEVEL_DEBUG
+       bool "Debug"
+    config SMOOTH_MQTT_LOG_LEVEL_VERBOSE
+        bool "Verbose"
+
+config SMOOTH_MQTT_LOGGING_LEVEL
+    int
+    default 0 if SMOOTH_MQTT_LOG_LEVEL_NONE
+    default 1 if SMOOTH_MQTT_LOG_LEVEL_ERROR
+    default 2 if SMOOTH_MQTT_LOG_LEVEL_WARN
+    default 3 if SMOOTH_MQTT_LOG_LEVEL_INFO
+    default 4 if SMOOTH_MQTT_LOG_LEVEL_DEBUG
+    default 5 if SMOOTH_MQTT_LOG_LEVEL_VERBOSE
+endchoice
+
+
 endmenu
