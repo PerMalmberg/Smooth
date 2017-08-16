@@ -8,8 +8,6 @@
 #include <esp_wifi.h>
 #include <smooth/core/ipc/IEventListener.h>
 
-#undef connect
-
 namespace smooth
 {
     namespace core
