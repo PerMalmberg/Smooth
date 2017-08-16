@@ -22,6 +22,14 @@ namespace smooth
                         public:
                             PubComp() = default;
 
+                            PubComp(uint16_t packet_id)
+                            {
+                                set_header(PUBCOMP, 0x2);
+                                std::vector<uint8_t> variable_header;
+                                append_msb_lsb(packet_id, variable_header);
+                                apply_constructed_data(variable_header);
+                            }
+
                             PubComp(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }

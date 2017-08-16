@@ -51,7 +51,7 @@ namespace smooth
                                 return variable_header_start + get_variable_header_length();
                             }
 
-                            std::vector<uint8_t>::const_iterator get_payload_cend()
+                            std::vector<uint8_t>::const_iterator get_payload_cend() const
                             {
                                 return packet.cend();
                             }

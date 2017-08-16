@@ -33,14 +33,13 @@ namespace smooth
 
                                 std::vector<uint8_t> variable_header;
                                 append_msb_lsb(packet_id, variable_header);
-
                                 apply_constructed_data(variable_header);
                             }
 
                             void visit( IPacketReceiver& receiver ) override;
-                        protected:
 
                             uint16_t get_packet_identifier() const;
+                        protected:
 
                             bool has_packet_identifier() const override
                             {

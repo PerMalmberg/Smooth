@@ -39,7 +39,9 @@ namespace smooth
                         void subscribe_next(IMqtt& mqtt);
                         void handle_disconnect();
                     private:
-                        std::vector<InFlight<packet::Publish>> receiving{};
+                        void forward_to_application(const packet::Publish& publish, IMqtt& mqtt);
+
+                        std::unordered_map<uint16_t, InFlight<packet::Publish>> receiving{};
 
                         std::vector<InFlight<packet::Subscribe>> subscribing{};
                         std::unordered_map<std::string, QoS> active_subscription{};

@@ -22,6 +22,14 @@ namespace smooth
                         public:
                             PubRec() = default;
 
+                            PubRec(uint16_t packet_id)
+                            {
+                                set_header(PUBREC, 0);
+                                std::vector<uint8_t> variable_header;
+                                append_msb_lsb(packet_id, variable_header);
+                                apply_constructed_data(variable_header);
+                            }
+
                             PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }

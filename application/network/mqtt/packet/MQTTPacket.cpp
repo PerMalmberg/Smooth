@@ -4,6 +4,8 @@
 
 #include <bitset>
 #include <sstream>
+#include <iterator>
+#include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include "esp_log.h"
 #include "sdkconfig.h"
@@ -39,7 +41,7 @@ namespace smooth
                         int wanted;
                         if (is_too_big())
                         {
-                            wanted = std::min( wanted_amount, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                            wanted = std::min(wanted_amount, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
                         }
                         else
                         {
@@ -179,7 +181,11 @@ namespace smooth
                     void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
                     {
                         encode_remaining_length(variable.size());
-                        std::copy(variable.begin(), variable.end(), std::back_inserter(packet));
+                        // Using move_iterator we reduce the memory foot print by actually moving
+                        // instead of copying the data.
+                        std::copy(std::make_move_iterator(variable.begin()),
+                                  std::make_move_iterator(variable.end()),
+                                  std::back_inserter(packet));
                         calculate_remaining_length_and_variable_header_offset();
                     }
 
@@ -295,7 +301,7 @@ namespace smooth
 
                         bool res = true;
 
-                        if(is_too_big())
+                        if (is_too_big())
                         {
                             ESP_LOGE("MQTTPacket", "Packet is too big.");
                             res = false;
@@ -312,7 +318,7 @@ namespace smooth
                                             // Payload
                                             - get_payload_length();
 
-                            if( left_over != 0 )
+                            if (left_over != 0)
                             {
                                 ESP_LOGE("MQTTPacket", "Invalid packet, lengths do not add up: %d", left_over);
                                 res = false;
