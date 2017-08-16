@@ -376,11 +376,6 @@ namespace smooth
                         return &packet[0];
                     }
 
-                    const std::vector<uint8_t>& MQTTPacket::get_data_as_vector() const
-                    {
-                        return packet;
-                    }
-
                     bool MQTTPacket::is_too_big() const
                     {
                         return too_big;

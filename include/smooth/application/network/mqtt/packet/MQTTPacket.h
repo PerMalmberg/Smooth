@@ -65,8 +65,6 @@ namespace smooth
                             // Must return a pointer to the data to be sent.
                             const uint8_t* get_data() override;
 
-                            const std::vector<uint8_t>& get_data_as_vector() const;
-
                             bool is_too_big() const;
 
                             void dump(const char* header) const;
@@ -87,7 +85,12 @@ namespace smooth
 
                             bool validate_packet() const;
 
+                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const
+                            {
+                                return packet.cend();
+                            }
                         protected:
+
                             virtual bool has_packet_identifier() const
                             {
                                 return false;
@@ -104,11 +107,6 @@ namespace smooth
                             }
 
                             int get_payload_length() const;
-
-                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const
-                            {
-                                return packet.cend();
-                            }
 
                             uint16_t read_packet_identifier(std::vector<uint8_t>::const_iterator pos) const
                             {

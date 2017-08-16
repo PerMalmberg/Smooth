@@ -5,6 +5,7 @@
 #pragma once
 
 #include <chrono>
+#include <smooth/core/ipc/TaskEventQueue.h>
 
 namespace smooth
 {
@@ -34,6 +35,8 @@ namespace smooth
                         virtual bool send_packet(packet::MQTTPacket& packet) = 0;
                         virtual Publication& get_publication() = 0;
                         virtual Subscription& get_subscription() = 0;
+                        virtual core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>&
+                                                    get_application_queue() = 0;
                 };
 
             }

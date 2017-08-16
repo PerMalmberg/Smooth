@@ -38,6 +38,8 @@ namespace smooth
         {
             namespace mqtt
             {
+                typedef std::pair<std::string, std::vector<uint8_t>> MQTTData;
+
                 // The MQTT class handles everything required for a connection to a single MQTT broker,
                 // such as connecting, subscribing and publish topics.
                 class MQTT
@@ -52,7 +54,7 @@ namespace smooth
                 {
                     public:
                         MQTT(const std::string& mqtt_client_id, std::chrono::seconds keep_alive, uint32_t stack_depth,
-                             UBaseType_t priority);
+                             UBaseType_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
 
                         void
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect);
@@ -95,6 +97,11 @@ namespace smooth
                             return subscription;
                         }
 
+                        core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& get_application_queue()
+                        {
+                            return application_queue;
+                        }
+
                     protected:
                         void tick() override;
 
@@ -102,6 +109,7 @@ namespace smooth
 
                         bool send_packet(packet::MQTTPacket& packet) override;
 
+                        core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;
                         core::network::PacketSendBuffer<packet::MQTTPacket, 5> tx_buffer;
                         core::network::PacketReceiveBuffer<packet::MQTTPacket, 5> rx_buffer;
                         core::ipc::TaskEventQueue<core::network::TransmitBufferEmptyEvent> tx_empty;

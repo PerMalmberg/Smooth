@@ -25,8 +25,9 @@ namespace smooth
                 MQTT::MQTT(const std::string& mqtt_client_id,
                            std::chrono::seconds keep_alive,
                            uint32_t stack_depth,
-                           UBaseType_t priority)
+                           UBaseType_t priority, TaskEventQueue<MQTTData>& application_queue)
                         : Task(mqtt_client_id, stack_depth, priority, std::chrono::milliseconds(50)),
+                          application_queue(application_queue),
                           tx_buffer(),
                           rx_buffer(),
                           tx_empty("TX_empty", 5, *this, *this),

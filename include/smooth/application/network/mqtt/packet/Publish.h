@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 
 namespace smooth
@@ -43,6 +44,18 @@ namespace smooth
                                 return id;
                             }
 
+                            std::string get_topic() const;
+
+                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const override
+                            {
+                                return variable_header_start + get_variable_header_length();
+                            }
+
+                            std::vector<uint8_t>::const_iterator get_payload_cend()
+                            {
+                                return packet.cend();
+                            }
+
                         protected:
 
                             bool has_packet_identifier() const override
@@ -55,13 +68,6 @@ namespace smooth
                                 // Payload is optional for Publish
                                 return get_payload_length() > 0;
                             }
-
-                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const override
-                            {
-                                return variable_header_start + get_variable_header_length();
-                            }
-
-                            std::string get_topic() const;
 
                             int get_variable_header_length() const override;
                     };

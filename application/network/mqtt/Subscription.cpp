@@ -119,11 +119,12 @@ namespace smooth
                     // Note: It is a valid use case where a Publish packet is received
                     // before a SubAck has been received for a subscription.
 
-                    ESP_LOGV(tag, "To publish message!");
-
                     if (publish.get_qos() == QoS::AT_MOST_ONCE)
                     {
                         // Send to application
+                        std::vector<uint8_t> data;
+                        std::copy(publish.get_payload_cbegin(), publish.get_payload_cend(), std::back_inserter(data));
+                        mqtt.get_application_queue().push(std::make_pair(publish.get_topic(), data));
                     }
                     else if (publish.get_qos() == QoS::AT_LEAST_ONCE)
                     {
