@@ -23,7 +23,14 @@ namespace smooth
                 {
                     // Check active and not-yet completed subscriptions
                     auto it = active_subscription.find(topic);
-                    if (it != active_subscription.end())
+                    if (it == active_subscription.end())
+                    {
+                        // Simply add another subscription. If it already exists in the collection (possibly
+                        // partly through the subscription process) we'll just handle it as any other subscription.
+                        packet::Subscribe s(topic, qos);
+                        subscribing.push_back(InFlight<packet::Subscribe>(s));
+                    }
+                    else
                     {
                         auto& sub = *it;
                         if (qos != sub.second)
@@ -32,58 +39,42 @@ namespace smooth
                             subscribing.push_back(InFlight<packet::Subscribe>(s));
                         }
                     }
-                    else
-                    {
-                        // Simply add another subscription. If it already exists in the collection (possibly
-                        // partly through the subscription process) we'll just handle it as any other subscription.
-                        packet::Subscribe s(topic, qos);
-                        subscribing.push_back(InFlight<packet::Subscribe>(s));
-                    }
+                }
+
+                void Subscription::unsubscribe(const std::string& topic)
+                {
+                    // Just encueue for transfer to server.
+                    packet::Unsubscribe us(topic);
+                    unsubscribing.push_back(InFlight<packet::Unsubscribe>(us));
                 }
 
                 void Subscription::subscribe_next(IMqtt& mqtt)
                 {
                     // We'll never have more than one outstanding subscription request.
                     // and it will always be the first one in the list.
-                    if (subscribing.size() > 0)
-                    {
-                        auto& flight = subscribing.front();
-                        if (flight.get_waiting_for() == PacketType::Reserved)
-                        {
-                            auto& packet = flight.get_packet();
-                            if (mqtt.send_packet(packet))
-                            {
-                                flight.start_timer();
-                                flight.set_wait_packet(PacketType::SUBACK);
-                            }
-                        }
-                        else if (flight.get_elapsed_time() > seconds(15))
-                        {
-                            // Waited too long, force a reconnect.
-                            ESP_LOGE("MQTT",
-                                     "Too long since a reply was received to a subscription request, forcing reconnect.");
-                            flight.stop_timer();
-                            mqtt.reconnect();
-                        }
-                    }
+                    bool all_ok = send_control_packet(subscribing, PacketType::SUBACK, mqtt, "subscription");
+                    all_ok = all_ok && send_control_packet(unsubscribing, PacketType::UNSUBACK, mqtt, "unsubscription");
 
-                    // Resend any unacknowledged Publish messages
-                    for (auto& pair : receiving)
+                    if (all_ok)
                     {
-                        auto& flight = pair.second;
-
-                        if (flight.get_waiting_for() == PacketType::PUBREL)
+                        // Resend any unacknowledged Publish messages
+                        for (auto& pair : receiving)
                         {
-                            if (flight.get_elapsed_time() > std::chrono::seconds(15))
+                            auto& flight = pair.second;
+
+                            if (flight.get_waiting_for() == PacketType::PUBREL)
                             {
-                                // Send a PubRec message.
-                                auto& packet = flight.get_packet();
-                                packet::PubRec rec(packet.get_packet_identifier());
-                                // If we can enqueue it, restart the timer to give the response a chance to arrive.
-                                // Otherwise, another try will happen the next turn.
-                                if (mqtt.send_packet(rec))
+                                if (flight.get_elapsed_time() > std::chrono::seconds(15))
                                 {
-                                    flight.start_timer();
+                                    // Send a PubRec message.
+                                    auto& packet = flight.get_packet();
+                                    packet::PubRec rec(packet.get_packet_identifier());
+                                    // If we can enqueue it, restart the timer to give the response a chance to arrive.
+                                    // Otherwise, another try will happen the next turn.
+                                    if (mqtt.send_packet(rec))
+                                    {
+                                        flight.start_timer();
+                                    }
                                 }
                             }
                         }
@@ -96,13 +87,7 @@ namespace smooth
                     // list of subscriptions net yet subscribed.
                     // Any subscription currently being subscribed should just be reset.
 
-                    auto first = subscribing.begin();
-                    if (first != subscribing.end())
-                    {
-                        auto& flight = *first;
-                        flight.set_wait_packet(PacketType::Reserved);
-                        flight.stop_timer();
-                    }
+                    reset_control_packet(subscribing);
 
                     // As we're actively checking for duplicates when adding a subscription
                     // we must first remove it.
@@ -113,6 +98,8 @@ namespace smooth
                         subscribe(copy.first, copy.second);
                     }
 
+                    // Reset any unsubscriptions
+                    reset_control_packet(unsubscribing);
                 }
 
                 void Subscription::receive(packet::SubAck& sub_ack, IMqtt& mqtt)
@@ -173,6 +160,10 @@ namespace smooth
 
                 void Subscription::receive(packet::PubRel& pub_rel, IMqtt& mqtt)
                 {
+                    // Always respond with a PubComp
+                    packet::PubComp pub_comp(pub_rel.get_packet_identifier());
+                    mqtt.send_packet(pub_comp);
+
                     auto found = receiving.find(pub_rel.get_packet_identifier());
                     if (found != receiving.end())
                     {
@@ -182,15 +173,28 @@ namespace smooth
                         // be treated as a new publication.
                         receiving.erase(found);
                     }
-
-                    // Always respond with a PubComp
-                    packet::PubComp pub_comp(pub_rel.get_packet_identifier());
-                    mqtt.send_packet(pub_comp);
                 }
 
                 void Subscription::receive(packet::UnsubAck& unsub_ack, IMqtt& mqtt)
                 {
+                    if (unsubscribing.size())
+                    {
+                        auto& front = unsubscribing.front();
+                        auto& packet = front.get_packet();
+                        if (packet.get_packet_identifier() == unsub_ack.get_packet_identifier())
+                        {
+                            std::vector<std::string> topics{};
+                            packet.get_topics(topics);
+                            for (auto& t : topics)
+                            {
+                                ESP_LOGV(tag, "Unsubscription of topic %s completed", t.c_str());
+                                active_subscription.erase(t);
+                            }
 
+
+                            unsubscribing.erase(unsubscribing.begin());
+                        }
+                    }
                 }
 
                 void Subscription::forward_to_application(const packet::Publish& publish, IMqtt& mqtt)

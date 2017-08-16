@@ -24,6 +24,11 @@ namespace smooth
                             {
                             }
 
+                            virtual uint16_t get_packet_identifier() const
+                            {
+                                return read_packet_identifier(variable_header_start);
+                            }
+
                             void visit(IPacketReceiver& receiver) override;
                         protected:
                             bool has_packet_identifier() const override

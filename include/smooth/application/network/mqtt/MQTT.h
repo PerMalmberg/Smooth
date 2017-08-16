@@ -62,7 +62,8 @@ namespace smooth
                         void publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain);
                         void publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
-                        void subscribe(const std::string topic, QoS qos);
+                        void subscribe(const std::string& topic, QoS qos);
+                        void unsubscribe(const std::string& topic);
 
                         void init() override;
 

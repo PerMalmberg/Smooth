@@ -41,7 +41,6 @@ namespace smooth
                                 it = packet.end();
                             }
                         }
-
                     }
                 }
             }
