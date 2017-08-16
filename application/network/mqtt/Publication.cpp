@@ -19,11 +19,22 @@ namespace smooth
             {
                 static const char* tag = "MQTT-Publish";
 
-                void Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
+                Publication::Publication()
+                {
+                    in_progress.reserve(CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES);
+                }
+
+                bool Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                           bool retain)
                 {
-                    packet::Publish p(topic, data, length, qos, retain);
-                    in_progress.push_back(InFlight<packet::Publish>(p));
+                    bool res = in_progress.size() < CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES;
+                    if (res)
+                    {
+                        packet::Publish p(topic, data, length, qos, retain);
+                        in_progress.push_back(InFlight<packet::Publish>(p));
+                    }
+
+                    return res;
                 }
 
                 void Publication::handle_disconnect()
@@ -56,7 +67,7 @@ namespace smooth
                             flight.zero_timer();
                             flight.set_wait_packet(PacketType::Reserved);
                         }
-                        else if(flight.get_waiting_for() == PacketType::PUBREC)
+                        else if (flight.get_waiting_for() == PacketType::PUBREC)
                         {
                             // Let normal procedure send the packet
                             flight.zero_timer();
@@ -149,7 +160,8 @@ namespace smooth
                             else
                             {
                                 ESP_LOGV(tag, "Waiting to send: %s, QoS %d, waiting for: %d, timer: %lld",
-                                         packet.get_mqtt_type_as_string(), packet.get_qos(), flight.get_waiting_for(), flight.get_elapsed_time().count());
+                                         packet.get_mqtt_type_as_string(), packet.get_qos(), flight.get_waiting_for(),
+                                         flight.get_elapsed_time().count());
                             }
                         }
                     }

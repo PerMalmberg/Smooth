@@ -25,7 +25,9 @@ namespace smooth
                 class Publication
                 {
                     public:
-                        void
+                        Publication();
+
+                        bool
                         publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
                         void publish_next(IMqtt& mqtt);

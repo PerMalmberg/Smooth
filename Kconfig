@@ -10,4 +10,14 @@ config SMOOTH_MAX_MQTT_MESSAGE_SIZE
 	larger than the set value will be 'swallowed' by the Smooth MQTT protocol implementation and never
 	seen by the application.
 
+config SMOOTH_MAX_MQTT_OUTGOING_MESSAGES
+    int "Maximum number of queued outgoing messages"
+    range 5 50
+    default 10
+    help
+        As there is a limited amount of heap memory available, the number of outgoing messages needs to be
+        limited to prevent using up all memory, eventually resulting in a undefined behavior of the application.
+        (Incoming messages are immediately passed to the application without any buffering so it is up to the
+        application developer to handle that side.)
+
 endmenu
