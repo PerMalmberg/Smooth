@@ -11,9 +11,10 @@
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
-#include "MqttFsmConstants.h"
 #include <smooth/application/network/mqtt/IMqtt.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
+#include <smooth/application/network/mqtt/Logging.h>
+#include "MqttFsmConstants.h"
 
 namespace smooth
 {
@@ -63,13 +64,13 @@ namespace smooth
                     template<typename BaseState>
                     void MqttFSM<BaseState>::entering_state(BaseState* state)
                     {
-                        ESP_LOGD("MqttFSM", "Entering %s", state->get_name());
+                        ESP_LOGD(mqtt_log_tag, "Entering %s", state->get_name());
                     }
 
                     template<typename BaseState>
                     void MqttFSM<BaseState>::leaving_state(BaseState* state)
                     {
-                        ESP_LOGD("MqttFSM", "Leaving %s", state->get_name());
+                        ESP_LOGD(mqtt_log_tag, "Leaving %s", state->get_name());
                     }
 
                     template<typename BaseState>

@@ -5,7 +5,7 @@
 #include <smooth/application/network/mqtt/Publication.h>
 #include <smooth/application/network/mqtt/packet/PubRel.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
-#include "esp_log.h"
+#include <smooth/application/network/mqtt/Logging.h>
 
 using namespace std::chrono;
 
@@ -17,8 +17,6 @@ namespace smooth
         {
             namespace mqtt
             {
-                static const char* tag = "MQTT-Publish";
-
                 Publication::Publication()
                 {
                     in_progress.reserve(CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES);
@@ -103,12 +101,12 @@ namespace smooth
                             // Fire and forget
                             if (mqtt.send_packet(packet))
                             {
-                                ESP_LOGV(tag, "QoS %d publish completed", packet.get_qos());
+                                ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", packet.get_qos());
                                 in_progress.erase(in_progress.begin());
                             }
                             else
                             {
-                                ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
                             }
                         }
                         else if (flight.get_waiting_for() == PacketType::Reserved)
@@ -126,7 +124,7 @@ namespace smooth
                                 }
                                 else
                                 {
-                                    ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                    ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
                                 }
                             }
                             else if (packet.get_qos() == QoS::EXACTLY_ONCE)
@@ -139,7 +137,7 @@ namespace smooth
                                 }
                                 else
                                 {
-                                    ESP_LOGV(tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                    ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
                                 }
                             }
 
@@ -152,14 +150,14 @@ namespace smooth
                             if (flight.get_elapsed_time() > seconds(15))
                             {
                                 // Waited too long, force a reconnect.
-                                ESP_LOGE("MQTT",
+                                ESP_LOGE(mqtt_log_tag,
                                          "Too long since a reply was received to a publish message, forcing reconnect.");
                                 flight.stop_timer();
                                 mqtt.reconnect();
                             }
                             else
                             {
-                                ESP_LOGV(tag, "Waiting to send: %s, QoS %d, waiting for: %d, timer: %lld",
+                                ESP_LOGD(mqtt_log_tag, "Waiting to send: %s, QoS %d, waiting for: %d, timer: %lld",
                                          packet.get_mqtt_type_as_string(), packet.get_qos(), flight.get_waiting_for(),
                                          flight.get_elapsed_time().count());
                             }
@@ -175,7 +173,7 @@ namespace smooth
                         auto& flight = *first;
                         if (flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
                         {
-                            ESP_LOGV(tag, "QoS %d publish completed", flight.get_packet().get_qos());
+                            ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }
@@ -217,7 +215,7 @@ namespace smooth
                         if (flight.get_waiting_for() == PUBCOMP
                             && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
-                            ESP_LOGV(tag, "QoS %d publish completed", flight.get_packet().get_qos());
+                            ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", flight.get_packet().get_qos());
                             in_progress.erase(in_progress.begin());
                         }
                     }

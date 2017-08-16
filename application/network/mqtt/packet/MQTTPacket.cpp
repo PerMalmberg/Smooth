@@ -7,7 +7,7 @@
 #include <iterator>
 #include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
-#include "esp_log.h"
+#include <smooth/application/network/mqtt/Logging.h>
 #include "sdkconfig.h"
 
 using namespace std;
@@ -78,7 +78,7 @@ namespace smooth
 
                                 if (wanted_amount > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
-                                    ESP_LOGV("MQTTPacket", "Too big packet detected: %d > %d", wanted_amount,
+                                    ESP_LOGV(mqtt_log_tag, "Too big packet detected: %d > %d", wanted_amount,
                                              CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
                                     state = DATA;
                                     too_big = true;
@@ -125,7 +125,7 @@ namespace smooth
 
                         if (error)
                         {
-                            ESP_LOGE("mqtt", "Invalid remaining length");
+                            ESP_LOGE(mqtt_log_tag, "Invalid remaining length");
                         }
 
                         return res;
@@ -269,7 +269,7 @@ namespace smooth
                         core::util::ByteSet b(packet[0]);
                         ss << "R(" << b.test(0) << ") ";
                         ss << "D(" << b.test(3) << ") ";
-                        ESP_LOGD(header, "%s", ss.str().c_str());
+                        ESP_LOGV(mqtt_log_tag, "%s: %s",header, ss.str().c_str());
 
 
                         if (has_payload() && get_payload_length() > 0)
@@ -288,7 +288,7 @@ namespace smooth
                                 }
                             }
 
-                            ESP_LOGD(header, "%s", ss.str().c_str());
+                            ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
                         }
                     }
 
@@ -303,7 +303,7 @@ namespace smooth
 
                         if (is_too_big())
                         {
-                            ESP_LOGE("MQTTPacket", "Packet is too big.");
+                            ESP_LOGE(mqtt_log_tag, "Packet is too big.");
                             res = false;
                         }
                         else
@@ -320,7 +320,7 @@ namespace smooth
 
                             if (left_over != 0)
                             {
-                                ESP_LOGE("MQTTPacket", "Invalid packet, lengths do not add up: %d", left_over);
+                                ESP_LOGE(mqtt_log_tag, "Invalid packet, lengths do not add up: %d", left_over);
                                 res = false;
                             }
                         }

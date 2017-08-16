@@ -8,8 +8,6 @@
 #include <smooth/application/network/mqtt/state/StartupState.h>
 #include <smooth/application/network/mqtt/event/ConnectEvent.h>
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
-#include "esp_log.h"
-
 
 using namespace smooth::core::ipc;
 using namespace std::chrono;
@@ -56,6 +54,8 @@ namespace smooth
 
                 void MQTT::init()
                 {
+                    esp_log_level_set(mqtt_log_tag, static_cast<esp_log_level_t>(CONFIG_SMOOTH_MQTT_LOGGING_LEVEL));
+
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
@@ -154,6 +154,8 @@ namespace smooth
 
                 void MQTT::event(const core::network::ConnectionStatusEvent& event)
                 {
+                    ESP_LOGI(mqtt_log_tag, "MQTT %s server",
+                             event.is_connected() ? "connected to" : "disconnected from");
                     fsm.event(event);
                 }
 

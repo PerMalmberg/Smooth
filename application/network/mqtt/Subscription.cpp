@@ -17,8 +17,6 @@ namespace smooth
         {
             namespace mqtt
             {
-                static const char* tag = "MQTT-Subscribe";
-
                 void Subscription::subscribe(const std::string& topic, QoS qos)
                 {
                     // Check active and not-yet completed subscriptions
@@ -115,7 +113,7 @@ namespace smooth
                             flight.get_packet().get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGV(tag, "Subscription of topic %s completed, QoS: %d", t.first.c_str(), t.second);
+                                ESP_LOGD(mqtt_log_tag, "Subscription of topic %s completed, QoS: %d", t.first.c_str(), t.second);
                                 active_subscription.emplace(t.first, t.second);
                             }
 
@@ -187,7 +185,7 @@ namespace smooth
                             packet.get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGV(tag, "Unsubscription of topic %s completed", t.c_str());
+                                ESP_LOGD(mqtt_log_tag, "Unsubscription of topic %s completed", t.c_str());
                                 active_subscription.erase(t);
                             }
 
@@ -199,7 +197,7 @@ namespace smooth
 
                 void Subscription::forward_to_application(const packet::Publish& publish, IMqtt& mqtt)
                 {
-                    ESP_LOGV(tag, "Reception of QoS %d complete", publish.get_qos());
+                    ESP_LOGD(mqtt_log_tag, "Reception of QoS %d complete", publish.get_qos());
                     // Grab the payload
                     std::vector<uint8_t> payload;
                     // Move data into our local vector.
