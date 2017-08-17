@@ -15,7 +15,7 @@
 #include <smooth/application/network/mqtt/packet/Subscribe.h>
 #include <smooth/application/network/mqtt/packet/UnsubAck.h>
 #include <smooth/application/network/mqtt/packet/Unsubscribe.h>
-#include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/InFlight.h>
 #include <smooth/application/network/mqtt/Logging.h>
 
@@ -33,18 +33,18 @@ namespace smooth
                         void subscribe(const std::string& topic, QoS qos);
                         void unsubscribe(const std::string& topic);
 
-                        void receive(packet::Publish& publish, IMqtt& mqtt);
-                        void receive(packet::SubAck& sub_ack, IMqtt& mqtt);
-                        void receive(packet::UnsubAck& unsub_ack, IMqtt& mqtt);
-                        void receive(packet::PubRel& pub_rel, IMqtt& mqtt);
+                        void receive(packet::Publish& publish, IMqttClient& mqtt);
+                        void receive(packet::SubAck& sub_ack, IMqttClient& mqtt);
+                        void receive(packet::UnsubAck& unsub_ack, IMqttClient& mqtt);
+                        void receive(packet::PubRel& pub_rel, IMqttClient& mqtt);
 
-                        void subscribe_next(IMqtt& mqtt);
+                        void subscribe_next(IMqttClient& mqtt);
                         void handle_disconnect();
                     private:
-                        void forward_to_application(const packet::Publish& publish, IMqtt& mqtt);
+                        void forward_to_application(const packet::Publish& publish, IMqttClient& mqtt);
 
                         template<typename T>
-                        bool send_control_packet(std::vector<InFlight<T>>& in_flight, PacketType wait_for, IMqtt& mqtt, const char* control_type)
+                        bool send_control_packet(std::vector<InFlight<T>>& in_flight, PacketType wait_for, IMqttClient& mqtt, const char* control_type)
                         {
                             bool all_ok = true;
 

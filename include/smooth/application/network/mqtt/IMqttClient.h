@@ -19,10 +19,10 @@ namespace smooth
 
                 class Subscription;
 
-                class IMqtt
+                class IMqttClient
                 {
                     public:
-                        virtual ~IMqtt()
+                        virtual ~IMqttClient()
                         {
                         }
 

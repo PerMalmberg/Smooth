@@ -11,7 +11,7 @@
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
-#include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include "MqttFsmConstants.h"
@@ -34,7 +34,7 @@ namespace smooth
                               public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                     {
                         public:
-                            explicit MqttFSM(mqtt::IMqtt& mqtt) : mqtt(mqtt)
+                            explicit MqttFSM(mqtt::IMqttClient& mqtt) : mqtt(mqtt)
                             {
                             }
 
@@ -51,13 +51,13 @@ namespace smooth
 
                             void disconnect_event();
 
-                            mqtt::IMqtt& get_mqtt() const
+                            mqtt::IMqttClient& get_mqtt() const
                             {
                                 return mqtt;
                             }
 
                         private:
-                            mqtt::IMqtt& mqtt;
+                            mqtt::IMqttClient& mqtt;
                             packet::PacketDecoder decoder;
                     };
 

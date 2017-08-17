@@ -2,7 +2,7 @@
 // Created by permal on 7/20/17.
 //
 
-#include <smooth/application/network/mqtt/MQTT.h>
+#include <smooth/application/network/mqtt/MqttClient.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
 #include <smooth/application/network/mqtt/state/StartupState.h>
@@ -20,14 +20,12 @@ namespace smooth
         {
             namespace mqtt
             {
-                MQTT::MQTT(const std::string& mqtt_client_id,
+                MqttClient::MqttClient(const std::string& mqtt_client_id,
                            std::chrono::seconds keep_alive,
                            uint32_t stack_depth,
                            UBaseType_t priority, TaskEventQueue<MQTTData>& application_queue)
                         : Task(mqtt_client_id, stack_depth, priority, std::chrono::milliseconds(50)),
                           application_queue(application_queue),
-                          tx_buffer(),
-                          rx_buffer(),
                           tx_empty("TX_empty", 5, *this, *this),
                           data_available("data_available", 5, *this, *this),
                           connection_status("connection_status", 5, *this, *this),
@@ -47,19 +45,19 @@ namespace smooth
                 {
                 }
 
-                void MQTT::tick()
+                void MqttClient::tick()
                 {
                     fsm.tick();
                 }
 
-                void MQTT::init()
+                void MqttClient::init()
                 {
                     esp_log_level_set(mqtt_log_tag, static_cast<esp_log_level_t>(CONFIG_SMOOTH_MQTT_LOGGING_LEVEL));
 
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
-                void MQTT::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
+                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
                 {
                     Mutex::Lock lock(guard);
                     this->address = address;
@@ -67,40 +65,40 @@ namespace smooth
                     control_event.push(event::ConnectEvent());
                 }
 
-                void MQTT::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
+                bool MqttClient::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
                 {
-                    publish(topic,
+                    return publish(topic,
                             reinterpret_cast<const uint8_t*>(msg.c_str()),
                             msg.size(),
                             qos,
                             retain);
                 }
 
-                void MQTT::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
+                bool MqttClient::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                    bool retain)
                 {
                     Mutex::Lock lock(guard);
-                    publication.publish(topic, data, length, qos, retain);
+                    return publication.publish(topic, data, length, qos, retain);
                 }
 
-                void MQTT::subscribe(const std::string& topic, QoS qos)
+                void MqttClient::subscribe(const std::string& topic, QoS qos)
                 {
                     Mutex::Lock lock(guard);
                     subscription.subscribe(topic, qos);
                 }
 
-                void MQTT::unsubscribe(const std::string& topic)
+                void MqttClient::unsubscribe(const std::string& topic)
                 {
                     Mutex::Lock lock(guard);
                     subscription.unsubscribe(topic);
                 }
 
-                void MQTT::disconnect()
+                void MqttClient::disconnect()
                 {
                     control_event.push(event::DisconnectEvent());
                 }
 
-                bool MQTT::send_packet(packet::MQTTPacket& packet)
+                bool MqttClient::send_packet(packet::MQTTPacket& packet)
                 {
                     packet.dump("Outgoing");
 
@@ -112,28 +110,28 @@ namespace smooth
                     return res;
                 }
 
-                const std::string& MQTT::get_client_id() const
+                const std::string& MqttClient::get_client_id() const
                 {
                     return client_id;
                 }
 
-                const std::chrono::seconds MQTT::get_keep_alive() const
+                const std::chrono::seconds MqttClient::get_keep_alive() const
                 {
                     return keep_alive;
                 }
 
-                void MQTT::start_reconnect()
+                void MqttClient::start_reconnect()
                 {
                     reconnect_timer.start();
                 }
 
-                void MQTT::reconnect()
+                void MqttClient::reconnect()
                 {
                     control_event.push(event::DisconnectEvent());
                     control_event.push(event::ConnectEvent());
                 }
 
-                void MQTT::set_keep_alive_timer(std::chrono::seconds interval)
+                void MqttClient::set_keep_alive_timer(std::chrono::seconds interval)
                 {
                     if (interval.count() == 0)
                     {
@@ -147,19 +145,19 @@ namespace smooth
                     }
                 }
 
-                void MQTT::event(const core::network::TransmitBufferEmptyEvent& event)
+                void MqttClient::event(const core::network::TransmitBufferEmptyEvent& event)
                 {
                     fsm.event(event);
                 }
 
-                void MQTT::event(const core::network::ConnectionStatusEvent& event)
+                void MqttClient::event(const core::network::ConnectionStatusEvent& event)
                 {
                     ESP_LOGI(mqtt_log_tag, "MQTT %s server",
                              event.is_connected() ? "connected to" : "disconnected from");
                     fsm.event(event);
                 }
 
-                void MQTT::event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event)
+                void MqttClient::event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event)
                 {
                     packet::MQTTPacket p;
                     if (event.get(p))
@@ -168,12 +166,12 @@ namespace smooth
                     }
                 }
 
-                void MQTT::event(const core::timer::TimerExpiredEvent& event)
+                void MqttClient::event(const core::timer::TimerExpiredEvent& event)
                 {
                     fsm.event(event);
                 }
 
-                void MQTT::event(const event::BaseEvent& event)
+                void MqttClient::event(const event::BaseEvent& event)
                 {
                     if (event.get_type() == event::BaseEvent::DISCONNECT)
                     {
@@ -199,7 +197,7 @@ namespace smooth
                     }
                 }
 
-                void MQTT::event(const system_event_t& event)
+                void MqttClient::event(const system_event_t& event)
                 {
                     if (event.event_id == SYSTEM_EVENT_STA_GOT_IP
                         || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)

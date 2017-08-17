@@ -46,7 +46,7 @@ namespace smooth
                     unsubscribing.push_back(InFlight<packet::Unsubscribe>(us));
                 }
 
-                void Subscription::subscribe_next(IMqtt& mqtt)
+                void Subscription::subscribe_next(IMqttClient& mqtt)
                 {
                     // We'll never have more than one outstanding subscription request.
                     // and it will always be the first one in the list.
@@ -100,7 +100,7 @@ namespace smooth
                     reset_control_packet(unsubscribing);
                 }
 
-                void Subscription::receive(packet::SubAck& sub_ack, IMqtt& mqtt)
+                void Subscription::receive(packet::SubAck& sub_ack, IMqttClient& mqtt)
                 {
                     auto first = subscribing.begin();
                     if (first != subscribing.end())
@@ -122,7 +122,7 @@ namespace smooth
                     }
                 }
 
-                void Subscription::receive(packet::Publish& publish, IMqtt& mqtt)
+                void Subscription::receive(packet::Publish& publish, IMqttClient& mqtt)
                 {
                     // Note: It is a valid use case where a Publish packet is received
                     // before a SubAck has been received for a subscription.
@@ -156,7 +156,7 @@ namespace smooth
                     }
                 }
 
-                void Subscription::receive(packet::PubRel& pub_rel, IMqtt& mqtt)
+                void Subscription::receive(packet::PubRel& pub_rel, IMqttClient& mqtt)
                 {
                     // Always respond with a PubComp
                     packet::PubComp pub_comp(pub_rel.get_packet_identifier());
@@ -173,7 +173,7 @@ namespace smooth
                     }
                 }
 
-                void Subscription::receive(packet::UnsubAck& unsub_ack, IMqtt& mqtt)
+                void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient& mqtt)
                 {
                     if (unsubscribing.size())
                     {
@@ -195,7 +195,7 @@ namespace smooth
                     }
                 }
 
-                void Subscription::forward_to_application(const packet::Publish& publish, IMqtt& mqtt)
+                void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt)
                 {
                     ESP_LOGD(mqtt_log_tag, "Reception of QoS %d complete", publish.get_qos());
                     // Grab the payload

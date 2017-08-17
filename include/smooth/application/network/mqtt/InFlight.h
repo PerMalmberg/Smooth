@@ -11,7 +11,7 @@
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
 #include <smooth/application/network/mqtt/packet/PubRec.h>
-#include <smooth/application/network/mqtt/IMqtt.h>
+#include <smooth/application/network/mqtt/IMqttClient.h>
 
 namespace smooth
 {

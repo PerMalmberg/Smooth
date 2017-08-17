@@ -46,7 +46,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::resend_outstanding_control_packet(IMqtt& mqtt)
+                void Publication::resend_outstanding_control_packet(IMqttClient& mqtt)
                 {
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
                     // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
@@ -89,7 +89,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::publish_next(IMqtt& mqtt)
+                void Publication::publish_next(IMqttClient& mqtt)
                 {
                     if (in_progress.size() > 0)
                     {
@@ -165,7 +165,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::receive(packet::PubAck& pub_ack, IMqtt& mqtt)
+                void Publication::receive(packet::PubAck& pub_ack, IMqttClient& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
@@ -179,7 +179,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::receive(packet::PubRec& pub_rec, IMqtt& mqtt)
+                void Publication::receive(packet::PubRec& pub_rec, IMqttClient& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
@@ -205,7 +205,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::receive(packet::PubComp& pub_rec, IMqtt& mqtt)
+                void Publication::receive(packet::PubComp& pub_rec, IMqttClient& mqtt)
                 {
                     auto first = in_progress.begin();
                     if (first != in_progress.end())

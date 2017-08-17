@@ -10,7 +10,7 @@ namespace smooth
     {
         namespace ipc
         {
-            /// Inherit from this class to allow TaskEventQueue to send event to your subclass.
+            /// Implement this interface for each type of event you wish to receive from a TaskEventQueue.
             /// \tparam T
             template<typename EventType>
             class IEventListener
@@ -20,9 +20,8 @@ namespace smooth
                     {
                     }
 
-                    /// The event method where the event message will be received.
-                    /// Override this in your subclass.
-                    /// \param event
+                    /// The response method where the event will be received from a TaskEventQueue<EventType>
+                    /// \param event The event
                     virtual void event(const EventType& event) = 0;
             };
         }
