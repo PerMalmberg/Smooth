@@ -4,18 +4,29 @@ C++ framework for writing applications based on Espressif's ESP-IDF.
 ## Overview
 
 Smooth provides a set of classes that makes life as a developer easier compared to working directly with ESP-IDF & FreeRTOS APIs.
-An application built with Smooth is entirely event driven and thread-safe. Smooth utilizes the power of FreeRTOS, but hides all the complexities from the application programmer.
+An application built with Smooth is entirely event driven and thread-safe*. Smooth utilizes the power of FreeRTOS, but hides all the complexities from the application programmer.
+
+Traditionally, and fully understandable, embedded systems require a fully static memory footprint after start-up. Smooth takes
+a somewhat more pragmatic view on this; it utilizes the standard library (which is not memory static) to provide cleaner code,
+at the cost of some extra used bytes of RAM. However, where it is appropriate, such as with the *Queue*, things are designed so
+that the result is a memory static instance, i.e. a *smooth::ipc::Queue* will _not_ behave like an *std::vector*.  
+
+*) To certain limits, of course.
 
 ### Provided functionality
 
+#### Core
 - Application initialization
 - Wifi configuration / control
 - Tasks
-- Queues
+- Queues (with support for proper C++ objects, not just plain data structures)
 - Mutex / RecursiveMutex
 - (Software) Timer Events
 - Event-driven TCP Sockets
 - System events
+
+#### Application level
+- MQTT Client
 
 ## Installation
 
@@ -27,20 +38,4 @@ git submodule add https://github.com/PerMalmberg/Smooth.git components/smooth
 
 ### Sample application
 
-```C++
-extern "C" void app_main()
-{
-    Application app("Main app", 4096, 6);
-    app.set_system_log_level(ESP_LOG_ERROR);
-    app.start();
-
-    Wifi wifi;
-    wifi.connect_to_ap("YourHostName", "Your SSID", "YourPassword", true);
-
-    SocketDispatcher::instance();
-
-    ESP_LOGV("Main", "Free heap: %u", esp_get_free_heap_size());
-
-    smooth::core::Task::never_return();
-}
-```
+Please see the [test application in this repository.](https://github.com/PerMalmberg/Smooth-test)
