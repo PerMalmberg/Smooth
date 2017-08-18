@@ -51,12 +51,12 @@ namespace smooth
                         /// Override this method to perform pre-transmission actions.
                         /// @warning This method is run in ISR context
                         /// \param trans The transmission data
-                        virtual void pre_transmission(spi_transaction_t* trans);
+                        virtual void pre_transmission_action(spi_transaction_t* trans) {}
 
                         /// Override this method to perform post-transmission actions.
                         /// @warning This method is run in ISR context
                         /// \param trans The transmission data
-                        virtual void post_transmission(spi_transaction_t* trans);
+                        virtual void post_transmission_action(spi_transaction_t* trans) {}
 
                     private:
                         static void pre_transmission_callback(spi_transaction_t* trans);

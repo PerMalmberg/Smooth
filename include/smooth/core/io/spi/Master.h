@@ -6,10 +6,12 @@
 
 #include <memory>
 #include <smooth/core/util/make_unique.h>
+#include <smooth/core/ipc/Mutex.h>
 #include <driver/gpio.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #include "SPIDevice.h"
+#include "esp_log.h"
 
 namespace smooth
 {
@@ -28,6 +30,9 @@ namespace smooth
 
                 class Master
                 {
+                    private:
+                        static constexpr const char* log_tag = "SPIMaster";
+
                     public:
                         /// Create a driver for the specified host using the specified I/O pins.
                         /// @note Set unused pins to -1.
@@ -35,39 +40,44 @@ namespace smooth
                         /// \param mosi Master Output, Slave Input, i.e. data pin for sending data to slave.
                         /// \param miso Master Input, Slave Output, i.e. data pin for receiving data from slave.
                         /// \param clock Cock pin.
-                        /// \param chip_select Chip select pin.
                         /// \param data__or_command Pin to signal data or command to slave.
                         Master(spi_host_device_t host,
                                SPI_DMA_Channel dma_channel,
                                gpio_num_t mosi,
                                gpio_num_t miso,
                                gpio_num_t clock,
-                               gpio_num_t chip_select,
-                               gpio_num_t data__or_command
+                               gpio_num_t quadwp_io_num = static_cast<gpio_num_t>(-1),
+                               gpio_num_t quadhd_io_num = static_cast<gpio_num_t>(-1)
                         );
 
                         /// Initialize the SPI host.
                         /// \param host The host, either HSPI_HOST or HSPI_HOST
                         /// \return true on success, false on failure
-                        bool initialize() const;
+                        bool initialize();
 
                         /// Adds a device using the provided parameters.
                         /// \tparam DeviceType The type of device to add
                         /// \param chip_select GPIO pin for chip select, or -1 if not used.
                         /// \return A unique pointer to a device, or an empty on failure.
-                        template<typename DeviceType>
-                        std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select)
+                        template<typename DeviceType, typename ...Args>
+                        std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select, Args&& ...args)
                         {
-                            auto device = core::util::make_unique<DeviceType>();
-                            if (!device->initialize(host, chip_select))
+                            core::ipc::Mutex::Lock lock(guard);
+                            auto device = core::util::make_unique<DeviceType>(std::forward<Args>(args)...);
+                            if (device->initialize(host, chip_select))
+                            {
+                                ESP_LOGV(log_tag, "Device added");
+                            }
+                            else
                             {
                                 device.reset();
                             }
-
                             return device;
                         }
 
                     private:
+                        bool initialized = false;
+                        core::ipc::Mutex guard{};
                         spi_host_device_t host;
                         SPI_DMA_Channel dma_channel;
                         spi_bus_config_t bus_config{};

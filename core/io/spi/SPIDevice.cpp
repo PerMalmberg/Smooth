@@ -84,7 +84,7 @@ namespace smooth
                     auto device = reinterpret_cast<SPIDevice*>(trans->user);
                     if (device != nullptr)
                     {
-                        device->pre_transmission(trans);
+                        device->pre_transmission_action(trans);
                     }
                 }
 
@@ -93,7 +93,7 @@ namespace smooth
                     auto device = reinterpret_cast<SPIDevice*>(trans->user);
                     if (device != nullptr)
                     {
-                        device->post_transmission(trans);
+                        device->post_transmission_action(trans);
                     }
                 }
             }

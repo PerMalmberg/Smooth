@@ -9,6 +9,7 @@ COMPONENT_SRCDIRS := \
 	core/io \
 	core/io/spi \
 	application \
+	application/display \
 	application/network \
 	application/network/mqtt \
 	application/network/mqtt/state \
