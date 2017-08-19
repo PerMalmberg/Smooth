@@ -15,6 +15,8 @@ namespace smooth
         {
             namespace i2c
             {
+                // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
+
                 static const char* log_tag = "I2CMasterDevice";
 
                 bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack)
@@ -76,23 +78,62 @@ namespace smooth
                     // Set R/W bit to 1 for read.
                     uint8_t read_address = (address << 1) | 0x1;
 
+                    // Generate start condition
                     auto res = i2c_master_start(link);
-                    res |= i2c_master_write_byte(link, write_address, true );
-                    res |= i2c_master_write_byte(link, slave_register, true );
+                    // Write the slave write address followed by the register address.
+                    res |= i2c_master_write_byte(link, write_address, true);
+                    res |= i2c_master_write_byte(link, slave_register, true);
                     res |= i2c_master_cmd_begin(port, link, portMAX_DELAY);
+
+                    // Generate another start condition
                     res |= i2c_master_start(link);
+                    // Write the read address, then read the desired amount,
+                    // ending the read with a NACK to signal the slave to stop sending data.
                     res |= i2c_master_write_byte(link, read_address, true);
                     res |= i2c_master_read(link, data.data(), data.capacity(), 0);
+                    // Complete the read with a stop condition.
+                    res |= res && i2c_master_stop(link);
                     res |= i2c_master_cmd_begin(port, link, portMAX_DELAY);
-                    res |= i2c_master_stop(link);
 
-                    if( res != ESP_OK)
+                    if (res != ESP_OK)
                     {
                         i2c_reset_tx_fifo(port);
                         i2c_reset_rx_fifo(port);
                     }
 
                     return res == ESP_OK;
+                }
+
+                bool I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices)
+                {
+
+                    // Write the address of each possible device and see if an ACK is received or not.
+                    // TODO: Ignore reserved addresses
+                    for (uint8_t address = 1; address <= 127; ++address)
+                    {
+                        I2CCommandLink link;
+                        auto read_address = address << 1;
+
+                        auto res = i2c_master_start(link);
+                        res |= i2c_master_write_byte(link, read_address, true);
+                        res |= i2c_master_stop(link);
+                        res |= i2c_master_cmd_begin(port, link, pdMS_TO_TICKS(50));
+
+                        if (res != ESP_OK)
+                        {
+                            // No ACK, no device on this address
+                        }
+                        else
+                        {
+                            found_devices.push_back(address);
+                        }
+                    }
+
+                    // Cleanup
+                    i2c_reset_tx_fifo(port);
+                    i2c_reset_rx_fifo(port);
+
+                    return true;
                 }
             }
         }

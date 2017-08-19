@@ -40,6 +40,11 @@ namespace smooth
                         {
                         }
 
+                        /// Scans the bus for devices and reports each found device's address in the provided vector.
+                        /// \param found_devices Where the address of found devices are placed
+                        /// \return true if scan succeeded (regardles if any device is found), false on failure.
+                        bool scan_i2c_bus(std::vector<uint8_t>& found_devices);
+
                     protected:
                         /// Writes the data in the vector to the slave with the provided address.
                         /// Usually the data consists of one or more pairs of register and data bytes.

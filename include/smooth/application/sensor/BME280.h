@@ -13,14 +13,16 @@ namespace smooth
     {
         namespace sensor
         {
-            class BMP280
+            // https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf
+            class BME280
                     : public core::io::i2c::I2CMasterDevice
             {
                 public:
-                    BMP280(i2c_port_t port, core::ipc::Mutex& guard);
+                    BME280(i2c_port_t port, core::ipc::Mutex& guard, uint8_t address);
 
-                    void read_id();
-
+                    uint8_t read_id();
+                private:
+                    uint8_t address;
             };
         }
     }
