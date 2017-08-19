@@ -104,7 +104,7 @@ namespace smooth
                     return res == ESP_OK;
                 }
 
-                bool I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices)
+                void I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices)
                 {
 
                     // Write the address of each possible device and see if an ACK is received or not.
@@ -132,8 +132,6 @@ namespace smooth
                     // Cleanup
                     i2c_reset_tx_fifo(port);
                     i2c_reset_rx_fifo(port);
-
-                    return true;
                 }
             }
         }
