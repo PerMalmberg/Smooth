@@ -8,6 +8,7 @@
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #include <driver/gpio.h>
+#include <smooth/core/ipc/Mutex.h>
 #include "ISPIDevice.h"
 
 namespace smooth
@@ -24,6 +25,7 @@ namespace smooth
                     public:
                         /// Base constructor for SPI devices.
                         /// @note These arguments corresponds to those in the spi_device_interface_config_t structure.
+                        /// \param The guard mutex (owned by the SPI Master) used to synchronize SPI transmisions between devices.
                         /// \param command_bits Number of bits in command phase (0-16)
                         /// \param address_bits Number of bits in address phase (0-64)
                         /// \param bits_between_address_and_data_phase Number of bits to insert between address and data phase
@@ -33,7 +35,8 @@ namespace smooth
                         /// \param clock_speed_hz Clock speed, in Hz
                         /// \param flags Bitwise OR of SPI_DEVICE_* flags
                         /// \param queue_size Transaction queue size. This sets how many transactions can be 'in the air' (queued using spi_device_queue_trans but not yet finished using spi_device_get_trans_result) at the same time
-                        SPIDevice(uint8_t command_bits,
+                        SPIDevice(core::ipc::Mutex& guard,
+                                  uint8_t command_bits,
                                   uint8_t address_bits,
                                   uint8_t bits_between_address_and_data_phase,
                                   uint8_t spi_mode,
@@ -49,18 +52,29 @@ namespace smooth
                         bool initialize(spi_host_device_t host, gpio_num_t chip_select);
 
                         bool write(spi_transaction_t& transaction) override;
+
+                        virtual core::ipc::Mutex& get_guard() const
+                        {
+                            return guard;
+                        }
+
                     protected:
                         /// Override this method to perform pre-transmission actions.
                         /// @warning This method is run in ISR context
                         /// \param trans The transmission data
-                        virtual void pre_transmission_action(spi_transaction_t* trans) {}
+                        virtual void pre_transmission_action(spi_transaction_t* trans)
+                        {
+                        }
 
                         /// Override this method to perform post-transmission actions.
                         /// @warning This method is run in ISR context
                         /// \param trans The transmission data
-                        virtual void post_transmission_action(spi_transaction_t* trans) {}
+                        virtual void post_transmission_action(spi_transaction_t* trans)
+                        {
+                        }
 
                     private:
+                        core::ipc::Mutex& guard;
                         static void pre_transmission_callback(spi_transaction_t* trans);
                         static void post_transmission_callback(spi_transaction_t* trans);
                         spi_device_interface_config_t config{};

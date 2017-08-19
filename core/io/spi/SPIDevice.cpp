@@ -15,17 +15,20 @@ namespace smooth
             {
                 static const char* log_tag = "SPIDevice";
 
-                SPIDevice::SPIDevice(uint8_t command_bits,
-                                     uint8_t address_bits,
-                                     uint8_t bits_between_address_and_data_phase,
-                                     uint8_t spi_mode,
-                                     uint8_t positive_duty_cycle,
-                                     uint8_t cs_ena_posttrans,
-                                     int clock_speed_hz,
-                                     uint32_t flags,
-                                     int queue_size,
-                                     bool use_pre_transaction_callback,
-                                     bool use_post_transaction_callback)
+                SPIDevice::SPIDevice(
+                        core::ipc::Mutex& guard,
+                        uint8_t command_bits,
+                        uint8_t address_bits,
+                        uint8_t bits_between_address_and_data_phase,
+                        uint8_t spi_mode,
+                        uint8_t positive_duty_cycle,
+                        uint8_t cs_ena_posttrans,
+                        int clock_speed_hz,
+                        uint32_t flags,
+                        int queue_size,
+                        bool use_pre_transaction_callback,
+                        bool use_post_transaction_callback)
+                        : guard(guard)
                 {
                     config.command_bits = command_bits;
                     config.address_bits = address_bits;
@@ -84,7 +87,7 @@ namespace smooth
                     // Attach ourselves as the user-data
                     transaction.user = this;
                     auto res = spi_device_transmit(dev, &transaction);
-                    if( res != ESP_OK)
+                    if (res != ESP_OK)
                     {
                         ESP_LOGE(log_tag, "write() failed");
                     }

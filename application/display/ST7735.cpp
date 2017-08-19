@@ -6,6 +6,8 @@
 #include <chrono>
 #include <smooth/application/display/ST7735.h>
 #include <smooth/core/Task.h>
+#include <smooth/core/ipc/Mutex.h>
+
 
 using namespace smooth::core::io::spi;
 
@@ -56,9 +58,10 @@ namespace smooth
 
             void ST7735::software_reset()
             {
+                core::ipc::Mutex::Lock lock(spi->get_guard());
                 spi_transaction_t trans;
                 std::memset(&trans, 0, sizeof(trans));
-                trans.flags = SPI_TRANS_USE_TXDATA|SPI_TRANS_USE_RXDATA;
+                trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
                 trans.length = 8 * 1;
                 trans.tx_data[0] = 0x01;
                 spi->write(trans);

@@ -63,7 +63,7 @@ namespace smooth
                         std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select, Args&& ...args)
                         {
                             core::ipc::Mutex::Lock lock(guard);
-                            auto device = core::util::make_unique<DeviceType>(std::forward<Args>(args)...);
+                            auto device = core::util::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
                             if (device->initialize(host, chip_select))
                             {
                                 ESP_LOGV(log_tag, "Device added");

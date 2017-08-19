@@ -39,8 +39,11 @@ namespace smooth
                             : public smooth::core::io::spi::SPIDevice
                     {
                         public:
-                            ST7735_SPI(gpio_num_t data_command_pin)
+                            ST7735_SPI(
+                                    core::ipc::Mutex& guard,
+                                    gpio_num_t data_command_pin)
                                     : SPIDevice(
+                                    guard,
                                     0,  // command_bits
                                     0,  // address_bits,
                                     0,  // bits_between_address_and_data_phase,
