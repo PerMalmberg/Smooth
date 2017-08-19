@@ -56,8 +56,10 @@ namespace smooth
                         bool initialize();
 
                         /// Adds a device using the provided parameters.
-                        /// \tparam DeviceType The type of device to add
+                        /// \tparam DeviceType The type of device to add, must inherit from SPIDevice
+                        /// \tparam Args Parameter argument types
                         /// \param chip_select GPIO pin for chip select, or -1 if not used.
+                        /// \param args Additional arguments that should be passed to the device.
                         /// \return A unique pointer to a device, or an empty on failure.
                         template<typename DeviceType, typename ...Args>
                         std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select, Args&& ...args)
