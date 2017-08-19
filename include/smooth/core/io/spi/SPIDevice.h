@@ -47,6 +47,8 @@ namespace smooth
 
                         ~SPIDevice();
                         bool initialize(spi_host_device_t host, gpio_num_t chip_select);
+
+                        bool write(spi_transaction_t& transaction) override;
                     protected:
                         /// Override this method to perform pre-transmission actions.
                         /// @warning This method is run in ISR context

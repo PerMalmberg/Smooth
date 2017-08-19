@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <array>
 #include <smooth/core/io/spi/Master.h>
 #include <smooth/core/io/spi/SPIDevice.h>
 #include <smooth/core/io/Output.h>
@@ -25,10 +26,13 @@ namespace smooth
 
                     bool initialize();
 
-                    void set_back_light( bool on)
+                    void set_back_light(bool on)
                     {
                         on ? back_light.set() : back_light.clr();
                     }
+
+                    void read_display_id(std::array<uint8_t, 4> id);
+                    void software_reset();
 
                 private:
                     class ST7735_SPI

@@ -2,6 +2,7 @@
 // Created by permal on 8/18/17.
 //
 
+#include <cstring>
 #include <chrono>
 #include <smooth/application/display/ST7735.h>
 #include <smooth/core/Task.h>
@@ -46,6 +47,21 @@ namespace smooth
                 }
 
                 return spi ? true : false;
+            }
+
+            void ST7735::read_display_id(std::array<uint8_t, 4> id)
+            {
+
+            }
+
+            void ST7735::software_reset()
+            {
+                spi_transaction_t trans;
+                std::memset(&trans, 0, sizeof(trans));
+                trans.flags = SPI_TRANS_USE_TXDATA|SPI_TRANS_USE_RXDATA;
+                trans.length = 8 * 1;
+                trans.tx_data[0] = 0x01;
+                spi->write(trans);
             }
         }
     }

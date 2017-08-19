@@ -79,6 +79,19 @@ namespace smooth
                     return res == ESP_OK;
                 }
 
+                bool SPIDevice::write(spi_transaction_t& transaction)
+                {
+                    // Attach ourselves as the user-data
+                    transaction.user = this;
+                    auto res = spi_device_transmit(dev, &transaction);
+                    if( res != ESP_OK)
+                    {
+                        ESP_LOGE(log_tag, "write() failed");
+                    }
+
+                    return res == ESP_OK;
+                }
+
                 void SPIDevice::pre_transmission_callback(spi_transaction_t* trans)
                 {
                     auto device = reinterpret_cast<SPIDevice*>(trans->user);
