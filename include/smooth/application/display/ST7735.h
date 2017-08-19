@@ -17,9 +17,18 @@ namespace smooth
             class ST7735
             {
                 public:
-                    ST7735(core::io::spi::Master& master);
+                    ST7735(core::io::spi::Master& master,
+                           gpio_num_t chip_select_pin,
+                           gpio_num_t data_command_pin,
+                           gpio_num_t reset_pin,
+                           gpio_num_t back_light_pin);
 
                     bool initialize();
+
+                    void set_back_light( bool on)
+                    {
+                        on ? back_light.set() : back_light.clr();
+                    }
 
                 private:
                     class ST7735_SPI
@@ -34,7 +43,7 @@ namespace smooth
                                     0,  // spi_mode,
                                     128,// positive_duty_cycle,
                                     1,  //cs_ena_posttrans,
-                                    26000000,//clock_speed_hz,
+                                    2000000,//clock_speed_hz,
                                     SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX,// flags,
                                     7,  // queue_size,
                                     true,
@@ -54,6 +63,10 @@ namespace smooth
 
                     core::io::spi::Master& master;
                     std::unique_ptr<core::io::spi::ISPIDevice> spi;
+                    core::io::Output reset_pin;
+                    core::io::Output back_light;
+                    gpio_num_t chip_select_pin;
+                    gpio_num_t data_command_pin;
             };
         }
     }
