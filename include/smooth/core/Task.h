@@ -30,10 +30,19 @@ namespace smooth
                 /// Starts the task.
                 void start();
 
-                // This is static so that it can be used also in app_main().
+                /// Delay for the specified amount
+                /// \param ms Time to wait
                 static void delay(std::chrono::milliseconds ms)
                 {
                     vTaskDelay(ms.count() / portTICK_PERIOD_MS);
+                }
+
+                /// Convert time to ticks
+                /// \param ms Time
+                /// \return Ticks
+                static inline TickType_t to_tick(std::chrono::milliseconds ms)
+                {
+                    return pdMS_TO_TICKS(ms.count());
                 }
 
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);

@@ -27,7 +27,6 @@ namespace smooth
                 {
 
                     public:
-
                         /// Constructor
                         /// \param port The port
                         /// \param guard The guard mutex.
@@ -43,6 +42,11 @@ namespace smooth
                         /// Scans the bus for devices and reports each found device's address in the provided vector.
                         /// \param found_devices Where the address of found devices are placed
                         void scan_i2c_bus(std::vector<uint8_t>& found_devices);
+
+                        core::ipc::Mutex& get_guard() const
+                        {
+                            return guard;
+                        }
 
                     protected:
                         /// Writes the data in the vector to the slave with the provided address.

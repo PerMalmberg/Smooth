@@ -14,10 +14,12 @@ namespace smooth
         {
             namespace i2c
             {
+                class I2CMasterDevice;
+
                 class I2CCommandLink
                 {
                     public:
-                        I2CCommandLink();
+                        I2CCommandLink(I2CMasterDevice& master_device);
                         ~I2CCommandLink();
 
                         operator i2c_cmd_handle_t() const
@@ -27,6 +29,7 @@ namespace smooth
 
                     private:
                         i2c_cmd_handle_t cmd_link;
+                        I2CMasterDevice& master_device;
                 };
             }
         }
