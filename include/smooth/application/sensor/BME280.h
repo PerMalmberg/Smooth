@@ -121,11 +121,11 @@ namespace smooth
 
                     // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional bits).
                     // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
-//                    BME280_U32_t BME280_compensate_P_int64(BME280_S32_t adc_P);
+                    BME280_U32_t BME280_compensate_P_int64(BME280_S32_t adc_P);
 
                     // Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22 integer and 10 fractional bits).
                     // Output value of “47445” represents 47445/1024 = 46.333 %RH
-//                    BME280_U32_t bme280_compensate_H_int32(BME280_S32_t adc_H);
+                    BME280_U32_t BME280_compensate_H_int32(BME280_S32_t adc_H);
 
 
                     template<typename T>
@@ -142,11 +142,42 @@ namespace smooth
                         return res;
                     }
 
+                    template<typename T>
+                    bool read_8bit(uint8_t start_reg, T& target)
+                    {
+                        core::util::FixedBuffer<uint8_t, 1> buff;
+                        bool res = read(address, start_reg, buff);
+                        if (res)
+                        {
+                            target = buff[0];
+                        }
+
+                        return res;
+                    }
+
                     struct TrimmingType
                     {
                         uint16_t dig_T1;
                         int16_t dig_T2;
                         int16_t dig_T3;
+
+                        uint16_t dig_P1;
+                        int16_t dig_P2;
+                        int16_t dig_P3;
+                        int16_t dig_P4;
+                        int16_t dig_P5;
+                        int16_t dig_P6;
+                        int16_t dig_P7;
+                        int16_t dig_P8;
+                        int16_t dig_P9;
+
+                        uint8_t dig_H1;
+                        int16_t dig_H2;
+                        uint8_t dig_H3;
+                        int16_t dig_H4; // 0xE4 / 0xE5[3:0] | [11:4] / [3:0]
+                        int16_t dig_H5; // 0xE5[7:4] / 0xE6 | [3:0] / [11:4]
+                        int8_t dig_H6;
+
                     } trimming;
 
 
@@ -171,6 +202,23 @@ namespace smooth
                     const uint8_t DIG_T1_REG = 0x88;
                     const uint8_t DIG_T2_REG = 0x8A;
                     const uint8_t DIG_T3_REG = 0x8C;
+
+                    const uint8_t DIG_P1_REG = 0x8E;
+                    const uint8_t DIG_P2_REG = 0x90;
+                    const uint8_t DIG_P3_REG = 0x92;
+                    const uint8_t DIG_P4_REG = 0x94;
+                    const uint8_t DIG_P5_REG = 0x96;
+                    const uint8_t DIG_P6_REG = 0x98;
+                    const uint8_t DIG_P7_REG = 0x9A;
+                    const uint8_t DIG_P8_REG = 0x9C;
+                    const uint8_t DIG_P9_REG = 0x9E;
+
+                    const uint8_t DIG_H1_REG = 0xA1;
+                    const uint8_t DIG_H2_REG = 0xE1;
+                    const uint8_t DIG_H3_REG = 0xE2;
+                    const uint8_t DIG_H4_REG = 0xE4; // 0xE4 / 0xE5[3:0]
+                    const uint8_t DIG_H5_REG = 0xE5; // 0xE5[7:4] / 0xE6
+                    const uint8_t DIG_H6_REG = 0xE7;
 
                     uint8_t address;
             };

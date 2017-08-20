@@ -111,10 +111,38 @@ namespace smooth
             {
                 if (!trimming_read)
                 {
+                    uint8_t h4, h4_1, h5, h5_1;
+
                     trimming_read =
                             read_16bit(DIG_T1_REG, trimming.dig_T1)
                             && read_16bit(DIG_T2_REG, trimming.dig_T2)
-                            && read_16bit(DIG_T3_REG, trimming.dig_T3);
+                            && read_16bit(DIG_T3_REG, trimming.dig_T3)
+                            && read_16bit(DIG_P1_REG, trimming.dig_P1)
+                            && read_16bit(DIG_P2_REG, trimming.dig_P2)
+                            && read_16bit(DIG_P3_REG, trimming.dig_P3)
+                            && read_16bit(DIG_P4_REG, trimming.dig_P4)
+                            && read_16bit(DIG_P5_REG, trimming.dig_P5)
+                            && read_16bit(DIG_P6_REG, trimming.dig_P6)
+                            && read_16bit(DIG_P7_REG, trimming.dig_P7)
+                            && read_16bit(DIG_P8_REG, trimming.dig_P8)
+                            && read_16bit(DIG_P9_REG, trimming.dig_P8)
+                            && read_8bit(DIG_H1_REG, trimming.dig_H1)
+                            && read_16bit(DIG_H2_REG, trimming.dig_H2)
+                            && read_8bit(DIG_H3_REG, trimming.dig_H3)
+                            && read_8bit(DIG_H6_REG, trimming.dig_H6)
+
+                            // The following data is a bit tricky as it is not split over multiple bytes.
+                            // dig_H4: Bits 11:4 located in DIG_H4_REG, bits 3:0 located in DIG_H4_REG+1
+                            // dig_H5: bits 3:0 located in DIG_H5_REG[7:4], bits 11:4 in DIG_H5_REG+1
+
+                            && read_8bit(DIG_H4_REG, h4)
+                            && read_8bit(DIG_H4_REG + 1, h4_1)
+                            && read_8bit(DIG_H5_REG, h5)
+                            && read_8bit(DIG_H5_REG + 1, h5_1);
+
+                    // Adjust values so they are directly usable.
+                    trimming.dig_H4 = (h4 << 4) | (h4_1 & 0xF);
+                    trimming.dig_H5 = (h5 >> 4) | (h5_1 << 4);
                 }
 
                 return trimming_read;
@@ -140,6 +168,20 @@ namespace smooth
                     temp |= measurement[3] << (4 + 8);
 
                     temperature = BME280_compensate_T_int32(temp) / 100.0;
+
+                    // Pressure data is at index: MSB: 0, LSB: 1, XLSB: 2
+                    int32_t press = measurement[2] & 0xF;
+                    press |= measurement[1] << 4;
+                    press |= measurement[0] << (4 + 8);
+
+                    pressure = BME280_compensate_P_int64(press) / 256.0;
+
+                    // Humidity data is at index: MSB: 6, LSB: 7
+
+                    int32_t hum = measurement[7];
+                    hum |= measurement[6] << 8;
+
+                    humidity = BME280_compensate_H_int32(hum) / 1024;
                 }
 
                 return res;
@@ -158,72 +200,51 @@ namespace smooth
                 T = (t_fine * 5 + 128) >> 8;
                 return T;
             }
-/*
-            BME280_U32_t BME280::BME280_compensate_P_int64(BME280_S32_t adc_P)
+
+            BME280::BME280_U32_t BME280::BME280_compensate_P_int64(BME280_S32_t adc_P)
             {
                 BME280_S64_t var1, var2, p;
                 var1 = ((BME280_S64_t) t_fine) - 128000;
-                var2 = var1 * var1 * (BME280_S64_t) dig_P6;
-                var2 = var2 + ((var1 * (BME280_S64_t) dig_P5) << 17);
-                var2 = var2 + (((BME280_S64_t) dig_P4) << 35);
-                var1 = ((var1 * var1 * (BME280_S64_t) dig_P3) >> 8) + ((var1 * (BME280_S64_t) dig_P2) << 12);
-                var1 = (((((BME280_S64_t) 1) << 47) + var1)) * ((BME280_S64_t) dig_P1) >> 33;
+                var2 = var1 * var1 * (BME280_S64_t) trimming.dig_P6;
+                var2 = var2 + ((var1 * (BME280_S64_t) trimming.dig_P5) << 17);
+                var2 = var2 + (((BME280_S64_t) trimming.dig_P4) << 35);
+                var1 = ((var1 * var1 * (BME280_S64_t) trimming.dig_P3) >> 8) +
+                       ((var1 * (BME280_S64_t) trimming.dig_P2) << 12);
+                var1 = (((((BME280_S64_t) 1) << 47) + var1)) * ((BME280_S64_t) trimming.dig_P1) >> 33;
                 if (var1 == 0)
                 {
                     return 0; // avoid exception caused by division by zero
                 }
                 p = 1048576 - adc_P;
                 p = (((p << 31) - var2) * 3125) / var1;
-                var1 = (((BME280_S64_t) dig_P9) * (p >> 13) * (p >> 13)) >> 25;
-                var2 = (((BME280_S64_t) dig_P8) * p) >> 19;
-                p = ((p + var1 + var2) >> 8) + (((BME280_S64_t) dig_P7) << 4);
+                var1 = (((BME280_S64_t) trimming.dig_P9) * (p >> 13) * (p >> 13)) >> 25;
+                var2 = (((BME280_S64_t) trimming.dig_P8) * p) >> 19;
+                p = ((p + var1 + var2) >> 8) + (((BME280_S64_t) trimming.dig_P7) << 4);
                 return (BME280_U32_t) p;
             }
 
-            BME280_U32_t BME280::bme280_compensate_H_int32(BME280_S32_t adc_H)
+            BME280::BME280_U32_t BME280::BME280_compensate_H_int32(BME280_S32_t adc_H)
             {
                 BME280_S32_t v_x1_u32r;
                 v_x1_u32r = (t_fine - ((BME280_S32_t) 76800));
-                v_x1_u32r = (((((adc_H << 14) - (((BME280_S32_t) dig_H4) << 20) - (((BME280_S32_t) dig_H5) *
-                                                                                   v_x1_u32r)) +
+                v_x1_u32r = (((((adc_H << 14) - (((BME280_S32_t) trimming.dig_H4) << 20) -
+                                (((BME280_S32_t) trimming.dig_H5) *
+                                 v_x1_u32r)) +
                                ((BME280_S32_t) 16384)) >> 15) * (
-                                     ((((((v_x1_u32r * ((BME280_S32_t) dig_H6)) >> 10) * (((v_x1_u32r *
-                                                                                            ((BME280_S32_t) dig_H3))
+                                     ((((((v_x1_u32r * ((BME280_S32_t) trimming.dig_H6)) >> 10) * (((v_x1_u32r *
+                                                                                                     ((BME280_S32_t) trimming.dig_H3))
                                              >> 11) +
-                                                                                          ((BME280_S32_t) 32768)))
+                                                                                                   ((BME280_S32_t) 32768)))
                                              >> 10) +
                                        ((BME280_S32_t) 2097152)) *
-                                      ((BME280_S32_t) dig_H2) + 8192) >> 14));
-                v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((BME280_S32_t) dig_H1))
-                        >> 4));
+                                      ((BME280_S32_t) trimming.dig_H2) + 8192) >> 14));
+                v_x1_u32r = (v_x1_u32r -
+                             (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((BME280_S32_t) trimming.dig_H1))
+                                     >> 4));
                 v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
                 v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
                 return (BME280_U32_t) (v_x1_u32r >> 12);
             }
-*/
-            /*
-                Register Address Register content Data type
-                0x88 / 0x89 dig_T1 [7:0] / [15:8] unsigned short
-                0x8A / 0x8B dig_T2 [7:0] / [15:8] signed short
-                0x8C / 0x8D dig_T3 [7:0] / [15:8] signed short
-                0x8E / 0x8F dig_P1 [7:0] / [15:8] unsigned short
-                0x90 / 0x91 dig_P2 [7:0] / [15:8] signed short
-                0x92 / 0x93 dig_P3 [7:0] / [15:8] signed short
-                0x94 / 0x95 dig_P4 [7:0] / [15:8] signed short
-                0x96 / 0x97 dig_P5 [7:0] / [15:8] signed short
-                0x98 / 0x99 dig_P6 [7:0] / [15:8] signed short
-                0x9A / 0x9B dig_P7 [7:0] / [15:8] signed short
-                0x9C / 0x9D dig_P8 [7:0] / [15:8] signed short
-                0x9E / 0x9F dig_P9 [7:0] / [15:8] signed short
-                0xA1 dig_H1 [7:0] unsigned char
-                0xE1 / 0xE2 dig_H2 [7:0] / [15:8] signed short
-                0xE3 dig_H3 [7:0] unsigned char
-                0xE4 / 0xE5[3:0] dig_H4 [11:4] / [3:0] signed short
-                0xE5[7:4] / 0xE6 dig_H5 [3:0] / [11:4] signed short
-                0xE7 dig_H6 signed char
-
-             */
-
         }
     }
 }
