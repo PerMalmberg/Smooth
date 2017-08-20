@@ -10,6 +10,7 @@
 #include <driver/gpio.h>
 #include <smooth/core/ipc/Mutex.h>
 #include <smooth/core/util/make_unique.h>
+#include <smooth/core/util/FixedBufferBase.h>
 
 #undef read
 #undef write
@@ -58,15 +59,15 @@ namespace smooth
                         bool write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack);
 
                         /// Reads data from the register of the slave with the provided address.
-                        /// The amount of data read is the same as the amount of data currently being
-                        /// held by the vector, so fill that with the number of bytes to read.
                         /// \param address The slave address
                         /// \param slave_register The register to read from.
                         /// \param data Where the data will be written to.
                         /// \return true on success, false on failure.
-                        bool read(uint8_t address, uint8_t slave_register, std::vector<uint8_t>& data);
+                        bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data);
 
                     private:
+                        void log_error(esp_err_t err, const char* msg);
+
                         i2c_port_t port;
                         core::ipc::Mutex& guard;
                 };
