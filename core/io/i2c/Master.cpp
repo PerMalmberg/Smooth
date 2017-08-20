@@ -1,8 +1,10 @@
 //
 // Created by permal on 8/19/17.
 //
-
+#include <chrono>
 #include <smooth/core/io/i2c/Master.h>
+#include <driver/gpio.h>
+#include <smooth/core/Task.h>
 #include "esp_log.h"
 #include "esp_intr_alloc.h"
 
@@ -34,16 +36,18 @@ namespace smooth
 
                 Master::~Master()
                 {
-                    if (initialized)
-                    {
-                        i2c_driver_delete(port);
-                    }
+                    deinitialize();
                 }
 
                 bool Master::initialize()
                 {
                     ipc::Mutex::Lock lock(guard);
+                    do_initialization();
+                    return initialized;
+                }
 
+                void Master::do_initialization()
+                {
                     if (!initialized)
                     {
                         initialized = i2c_param_config(port, &config) == ESP_OK
@@ -54,8 +58,15 @@ namespace smooth
                             ESP_LOGE(log_tag, "Initialization failed");
                         }
                     }
+                }
 
-                    return initialized;
+                void Master::deinitialize()
+                {
+                    if (initialized)
+                    {
+                        initialized = false;
+                        i2c_driver_delete(port);
+                    }
                 }
             }
         }

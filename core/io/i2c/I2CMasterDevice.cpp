@@ -17,6 +17,7 @@ namespace smooth
             namespace i2c
             {
                 // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
+                // I2C specification: http://www.nxp.com/docs/en/user-guide/UM10204.pdf
 
                 static const char* log_tag = "I2CMasterDevice";
                 static const std::chrono::milliseconds timeout(1000);
@@ -67,15 +68,18 @@ namespace smooth
 
                     // Generate start condition
                     auto res = i2c_master_start(link);
+
                     // Write the slave write address followed by the register address.
                     res |= i2c_master_write_byte(link, write_address, true);
                     res |= i2c_master_write_byte(link, slave_register, true);
                     // Generate another start condition
                     res = i2c_master_start(link);
+
                     // Write the read address, then read the desired amount,
-                    // ending the read with a NACK to signal the slave to stop sending data.
+                    // ending the read with a NACK (0) to signal the slave to stop sending data.
                     res |= i2c_master_write_byte(link, read_address, true);
                     res |= i2c_master_read(link, data.data(), data.size(), 0);
+
                     // Complete the read with a stop condition.
                     res |= res && i2c_master_stop(link);
                     res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));

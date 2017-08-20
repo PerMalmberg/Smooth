@@ -61,7 +61,7 @@ namespace smooth
                         /// Reads data from the register of the slave with the provided address.
                         /// \param address The slave address
                         /// \param slave_register The register to read from.
-                        /// \param data Where the data will be written to.
+                        /// \param data Where the data will be written to. The size of the buffer determines how many bytes to read.
                         /// \return true on success, false on failure.
                         bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data);
 

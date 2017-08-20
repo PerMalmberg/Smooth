@@ -32,18 +32,27 @@ namespace smooth
 
                         bool initialize();
 
+                        /// Attempts to clear the bus as described in §3.1.6 of the I2C specification and user manual
+                        /// http://www.nxp.com/docs/en/user-guide/UM10204.pdf
+                        bool clear_bus();
+
                         template<typename DeviceType, typename ...Args>
-                        std::unique_ptr<DeviceType> add_device(Args&& ...args);
+                        std::unique_ptr<DeviceType> create_device(Args&& ...args);
 
                     private:
+                        void do_initialization();
+                        void deinitialize();
+
                         bool initialized = false;
+
+                        // This mutex is shared among all the devices created from this master.
                         core::ipc::Mutex guard{};
                         i2c_config_t config{};
                         i2c_port_t port;
                 };
 
                 template<typename DeviceType, typename ...Args>
-                std::unique_ptr<DeviceType> Master::add_device(Args&& ...args)
+                std::unique_ptr<DeviceType> Master::create_device(Args&& ...args)
                 {
                     std::unique_ptr<DeviceType> dev;
                     if (initialize())
