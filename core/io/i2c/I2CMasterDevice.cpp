@@ -19,16 +19,17 @@ namespace smooth
                 // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
 
                 static const char* log_tag = "I2CMasterDevice";
-                static const std::chrono::milliseconds timeout(100);
+                static const std::chrono::milliseconds timeout(1000);
 
                 bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack)
                 {
                     I2CCommandLink link(*this);
 
                     // Set R/W bit to 0 for write.
-                    address = (address << 1);
+                    address = address << 1;
 
                     auto res = i2c_master_start(link);
+                    res |= i2c_master_write_byte(link, address, enable_ack);
                     res |= i2c_master_write(link, data.data(), data.size(), enable_ack);
                     res |= i2c_master_stop(link);
 
@@ -37,29 +38,12 @@ namespace smooth
                     if (res == ESP_OK)
                     {
                         res = i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
-
-                        if (res == ESP_ERR_INVALID_ARG)
-                        {
-                            ESP_LOGE(log_tag, "Parameter error");
-                        }
-                        else if (res == ESP_FAIL)
-                        {
-                            ESP_LOGE(log_tag, "Send command error, no ACK from slave");
-                        }
-                        else if (res == ESP_ERR_INVALID_STATE)
-                        {
-                            ESP_LOGE(log_tag, "I2C driver not installed or not in master mode");
-                        }
-                        else if (res == ESP_ERR_TIMEOUT)
-                        {
-                            ESP_LOGE(log_tag, "Operation timeout, bus busy");
-                        }
-
+                        log_error(res, "Error during write");
                         write_result = res == ESP_OK;
                     }
                     else
                     {
-                        ESP_LOGE(log_tag, "Failed to prepare write");
+                        log_error(res, "Failed to prepare write");
                     }
 
                     if (!write_result)
@@ -71,7 +55,8 @@ namespace smooth
                     return write_result;
                 }
 
-                bool I2CMasterDevice::read(uint8_t address, uint8_t slave_register, std::vector<uint8_t>& data)
+                bool I2CMasterDevice::read(uint8_t address, uint8_t slave_register,
+                                           core::util::FixedBufferBase<uint8_t>& data)
                 {
                     I2CCommandLink link(*this);
 
@@ -85,20 +70,19 @@ namespace smooth
                     // Write the slave write address followed by the register address.
                     res |= i2c_master_write_byte(link, write_address, true);
                     res |= i2c_master_write_byte(link, slave_register, true);
-                    res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
-
                     // Generate another start condition
-                    res |= i2c_master_start(link);
+                    res = i2c_master_start(link);
                     // Write the read address, then read the desired amount,
                     // ending the read with a NACK to signal the slave to stop sending data.
                     res |= i2c_master_write_byte(link, read_address, true);
-                    res |= i2c_master_read(link, data.data(), data.capacity(), 0);
+                    res |= i2c_master_read(link, data.data(), data.size(), 0);
                     // Complete the read with a stop condition.
                     res |= res && i2c_master_stop(link);
                     res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
 
                     if (res != ESP_OK)
                     {
+                        log_error(res, "Error during read");
                         i2c_reset_tx_fifo(port);
                         i2c_reset_rx_fifo(port);
                     }
@@ -132,6 +116,30 @@ namespace smooth
                     // Cleanup
                     i2c_reset_tx_fifo(port);
                     i2c_reset_rx_fifo(port);
+                }
+
+                void I2CMasterDevice::log_error(esp_err_t err, const char* msg)
+                {
+                    if (err == ESP_ERR_INVALID_ARG)
+                    {
+                        ESP_LOGE(log_tag, "%s - Parameter error", msg);
+                    }
+                    else if (err == ESP_FAIL)
+                    {
+                        ESP_LOGE(log_tag, "%s - Send command error, no ACK from slave", msg);
+                    }
+                    else if (err == ESP_ERR_INVALID_STATE)
+                    {
+                        ESP_LOGE(log_tag, "%s - I2C driver not installed or not in master mode", msg);
+                    }
+                    else if (err == ESP_ERR_TIMEOUT)
+                    {
+                        ESP_LOGE(log_tag, "%s - Operation timeout, bus busy", msg);
+                    }
+                    else if (err != ESP_OK)
+                    {
+                        ESP_LOGE(log_tag, "%s - unknown error: %d", msg, err);
+                    }
                 }
             }
         }
