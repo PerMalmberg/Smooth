@@ -145,13 +145,13 @@ namespace smooth
                 int res = shutdown(socket->get_socket_id(), SHUT_RDWR);
                 if (res < 0)
                 {
-                    ESP_LOGE("SD", "Shutdown error: %s", strerror(errno));
+                    ESP_LOGE("SocketDispatcher", "Shutdown error: %s", strerror(errno));
                 }
 
                 res = close(socket->get_socket_id());
                 if (res < 0)
                 {
-                    ESP_LOGE("SD", "Close error: %s", strerror(errno));
+                    ESP_LOGE("SocketDispatcher", "Close error: %s", strerror(errno));
                 }
 
                 socket->publish_connected_status(socket);
@@ -216,8 +216,11 @@ namespace smooth
                 {
                     has_ip = true;
                 }
-                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
+                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED
+                         || event.event_id == SYSTEM_EVENT_STA_LOST_IP)
                 {
+                    ESP_LOGW("SocketDispatcher", "Station disconnected or IP lost, closing all sockets.");
+
                     // Close all sockets
                     has_ip = false;
 
