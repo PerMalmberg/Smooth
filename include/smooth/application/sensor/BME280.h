@@ -98,9 +98,9 @@ namespace smooth
                     bool read_status(bool& is_measuring, bool& updating_from_nvm);
 
                     /// Reads the current measurements
-                    /// \param humidity Humidity
-                    /// \param pressure Pressure
-                    /// \param temperature Temperature
+                    /// \param humidity Humidity, in %RH
+                    /// \param pressure Pressure, in Pa
+                    /// \param temperature Temperature in degree Celsius
                     /// \return true on success, false on failure.
                     bool read_measurements(float& humidity, float& pressure, float& temperature);
 
