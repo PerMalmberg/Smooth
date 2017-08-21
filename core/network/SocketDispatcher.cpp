@@ -210,20 +210,26 @@ namespace smooth
 
             void SocketDispatcher::event(const system_event_t& event)
             {
+                bool shall_close_sockets = false;
+
+
                 smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                if (event.event_id == SYSTEM_EVENT_STA_GOT_IP
-                    || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
                 {
                     has_ip = true;
+                    shall_close_sockets = event.event_info.got_ip.ip_changed;
                 }
-                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED
-                         || event.event_id == SYSTEM_EVENT_STA_LOST_IP)
+                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED || event.event_id == SYSTEM_EVENT_STA_LOST_IP)
                 {
                     ESP_LOGW("SocketDispatcher", "Station disconnected or IP lost, closing all sockets.");
 
                     // Close all sockets
                     has_ip = false;
+                    shall_close_sockets = true;
+                }
 
+                if (shall_close_sockets)
+                {
                     // shutdown_socket modifies active_sockets to we must work against a copy.
                     auto copy = active_sockets;
                     for (auto& socket : copy)
