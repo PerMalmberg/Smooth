@@ -154,6 +154,7 @@ namespace smooth
                 {
                     ESP_LOGI(mqtt_log_tag, "MQTT %s server",
                              event.is_connected() ? "connected to" : "disconnected from");
+                    connected = event.is_connected();
                     fsm.event(event);
                 }
 

@@ -59,8 +59,9 @@ namespace smooth
                         /// \param stack_depth The stack depth for the worker task. >=4096 should be sufficient.
                         /// \param priority Task priority. Depends on your system requirements. Usually tskIDLE_PRIORITY + some value.
                         /// \param application_queue The queue where incoming messages will be posted.
-                        MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive, uint32_t stack_depth,
-                             UBaseType_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
+                        MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive,
+                                   uint32_t stack_depth,
+                                   UBaseType_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
 
                         /// Initiates a connection to the provided address.
                         /// \param address The address
@@ -92,7 +93,8 @@ namespace smooth
                         /// \param retain if true, the message is marked for retainment in the broker.
                         /// \return true if the message could be queued for delivery, otherwise false. A true value
                         /// does not mean it has been delivered.
-                        bool publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
+                        bool
+                        publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
                         /// Subscribes to a topic.
                         /// \param topic The topic
@@ -102,6 +104,13 @@ namespace smooth
                         /// Unsubscribes from a topic.
                         /// \param topic The topic.
                         void unsubscribe(const std::string& topic);
+
+                        /// Returns a value indicating of the client is connected on a socket-level or not
+                        /// \return true or false
+                        bool is_connected() const
+                        {
+                            return connected;
+                        }
 
                     private:
                         void event(const core::network::TransmitBufferEmptyEvent& event);
@@ -140,6 +149,7 @@ namespace smooth
                         {
                             return application_queue;
                         }
+
                         void init() override;
                         void tick() override;
 
@@ -167,6 +177,7 @@ namespace smooth
                         std::shared_ptr<smooth::core::network::InetAddress> address;
                         Publication publication{};
                         Subscription subscription{};
+                        bool connected = false;
 
                 };
             }
