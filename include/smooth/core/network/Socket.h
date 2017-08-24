@@ -440,9 +440,15 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket", "[%s, %d, %d %p]: %s: %s", ip->get_ip_as_string().c_str(), ip->get_port(), socket_id,
+                ESP_LOGE("Socket",
+                         "[%s, %d, %d %p]: %s: %s (%d)",
+                         ip->get_ip_as_string().c_str(),
+                         ip->get_port(),
+                         socket_id,
                          this,
-                         message, strerror(errno));
+                         message,
+                         strerror(errno),
+                         errno);
             }
         }
     }

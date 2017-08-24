@@ -109,7 +109,11 @@ namespace smooth
                         {
                             FD_SET(s->get_socket_id(), &write_set);
                         }
-                        FD_SET(s->get_socket_id(), &read_set);
+
+                        if(s->is_connected())
+                        {
+                            FD_SET(s->get_socket_id(), &read_set);
+                        }
                     }
                 }
 
