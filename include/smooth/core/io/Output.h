@@ -18,7 +18,7 @@ namespace smooth
                     Output(gpio_num_t io, bool active_high, bool clear_on_creation = true) : io(io),
                                                                                              active_high(active_high)
                     {
-                        gpio_set_direction(io, GPIO_MODE_OUTPUT);
+                        gpio_set_direction(io, active_high ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
                         if (clear_on_creation)
                         {
                             clr();
@@ -27,13 +27,16 @@ namespace smooth
 
                     void set()
                     {
-                        gpio_set_level(io, active_high ? 1 : 0);
+                        gpio_set_level(io, 1);
                     }
 
                     void clr()
                     {
-                        gpio_set_level(io, active_high ? 0 : 1);
+                        gpio_set_level(io, 0);
                     }
+
+                    Output(const Output&) = delete;
+                    Output& operator=(const Output&) = delete;
 
                 private:
                     gpio_num_t io;
