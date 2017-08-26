@@ -32,12 +32,14 @@ namespace smooth
 
                         bool initialize();
 
-                        /// Attempts to clear the bus as described in §3.1.6 of the I2C specification and user manual
-                        /// http://www.nxp.com/docs/en/user-guide/UM10204.pdf
-                        bool clear_bus();
-
+                        /// Creates a device of the given type.
+                        /// \tparam DeviceType The device type.
+                        /// \tparam Args The device-specific argument types.
+                        /// \param address The device address.
+                        /// \param args The device-specific arguments
+                        /// \return A device, or nullptr.
                         template<typename DeviceType, typename ...Args>
-                        std::unique_ptr<DeviceType> create_device(Args&& ...args);
+                        std::unique_ptr<DeviceType> create_device(uint8_t address, Args&& ...args);
 
                     private:
                         void do_initialization();
@@ -52,13 +54,13 @@ namespace smooth
                 };
 
                 template<typename DeviceType, typename ...Args>
-                std::unique_ptr<DeviceType> Master::create_device(Args&& ...args)
+                std::unique_ptr<DeviceType> Master::create_device(uint8_t address, Args&& ...args)
                 {
                     std::unique_ptr<DeviceType> dev;
                     if (initialize())
                     {
                         ipc::Mutex::Lock lock(guard);
-                        dev = core::util::make_unique<DeviceType>(port, guard, std::forward<Args>(args)...);
+                        dev = core::util::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
                     }
                     return dev;
                 }
