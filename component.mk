@@ -12,6 +12,7 @@ COMPONENT_SRCDIRS := \
 	application \
 	application/display \
 	application/sensor \
+	application/io \
 	application/network \
 	application/network/mqtt \
 	application/network/mqtt/state \
