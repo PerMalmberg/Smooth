@@ -16,8 +16,8 @@ namespace smooth
     {
         namespace sensor
         {
-            BME280::BME280(i2c_port_t port, core::ipc::Mutex& guard, uint8_t address)
-                    : I2CMasterDevice(port, guard), address(address)
+            BME280::BME280(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard)
+                    : I2CMasterDevice(port, address, guard)
             {
             }
 

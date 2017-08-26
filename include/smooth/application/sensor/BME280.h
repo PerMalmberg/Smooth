@@ -19,7 +19,7 @@ namespace smooth
                     : public core::io::i2c::I2CMasterDevice
             {
                 public:
-                    BME280(i2c_port_t port, core::ipc::Mutex& guard, uint8_t address1);
+                    BME280(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard);
 
                     enum SensorMode
                     {
@@ -219,8 +219,6 @@ namespace smooth
                     const uint8_t DIG_H4_REG = 0xE4; // 0xE4 / 0xE5[3:0]
                     const uint8_t DIG_H5_REG = 0xE5; // 0xE5[7:4] / 0xE6
                     const uint8_t DIG_H6_REG = 0xE7;
-
-                    uint8_t address;
             };
         }
     }
