@@ -29,7 +29,7 @@ namespace smooth
 
 
             SocketDispatcher::SocketDispatcher()
-                    : Task("SocketDispatcher", 8192, 6, std::chrono::milliseconds(0)),
+                    : Task("SocketDispatcher", 8192, tskIDLE_PRIORITY + 6, std::chrono::milliseconds(0)),
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
