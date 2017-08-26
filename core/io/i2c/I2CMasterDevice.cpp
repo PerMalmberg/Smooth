@@ -2,6 +2,7 @@
 // Created by permal on 8/19/17.
 //
 
+#include <algorithm>
 #include <smooth/core/Task.h>
 #include <smooth/core/io/i2c/I2CMasterDevice.h>
 #include <smooth/core/io/i2c/I2CCommandLink.h>
@@ -94,7 +95,15 @@ namespace smooth
                     return res == ESP_OK;
                 }
 
-                void I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices)
+                bool I2CMasterDevice::is_present() const
+                {
+                    std::vector<uint8_t> found;
+                    scan_i2c_bus(found);
+                    auto dev = std::find(found.begin(), found.end(), address);
+                    return dev != found.end();
+                }
+
+                void I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices) const
                 {
                     // Write the address of each possible device and see if an ACK is received or not.
                     for (uint8_t address = 2; address <= 127; ++address)

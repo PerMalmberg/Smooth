@@ -13,7 +13,7 @@ namespace smooth
         {
             namespace i2c
             {
-                I2CCommandLink::I2CCommandLink(I2CMasterDevice& master_device)
+                I2CCommandLink::I2CCommandLink(const I2CMasterDevice& master_device)
                         : master_device(master_device)
                 {
                     // Acquire the guard to ensure noone else is trying to use the I2C bus.

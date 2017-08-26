@@ -30,9 +30,10 @@ namespace smooth
                     public:
                         /// Constructor
                         /// \param port The port
+                        /// \param address The device address
                         /// \param guard The guard mutex.
-                        I2CMasterDevice(i2c_port_t port, core::ipc::Mutex& guard)
-                                : port(port), guard(guard)
+                        I2CMasterDevice(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard)
+                                : address(address), port(port), guard(guard)
                         {
                         }
 
@@ -42,11 +43,22 @@ namespace smooth
 
                         /// Scans the bus for devices and reports each found device's address in the provided vector.
                         /// \param found_devices Where the address of found devices are placed
-                        void scan_i2c_bus(std::vector<uint8_t>& found_devices);
+                        void scan_i2c_bus(std::vector<uint8_t>& found_devices) const;
 
                         core::ipc::Mutex& get_guard() const
                         {
                             return guard;
+                        }
+
+                        /// Determines if a device with the given address is present on the bus.
+                        /// \return true if present, otherwise false.
+                        bool is_present() const;
+
+                        /// Gets the address of the device
+                        /// \return The address
+                        uint8_t get_address() const
+                        {
+                            return address;
                         }
 
                     protected:
@@ -65,9 +77,10 @@ namespace smooth
                         /// \return true on success, false on failure.
                         bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data);
 
+                        uint8_t address;
                     private:
-                        void log_error(esp_err_t err, const char* msg);
 
+                        void log_error(esp_err_t err, const char* msg);
                         i2c_port_t port;
                         core::ipc::Mutex& guard;
                 };
