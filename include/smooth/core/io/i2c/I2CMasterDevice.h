@@ -78,6 +78,9 @@ namespace smooth
                         bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data);
 
                         uint8_t address;
+
+                        const uint8_t ACK = 0x0;
+                        const uint8_t NACK = 0x1;
                     private:
 
                         void log_error(esp_err_t err, const char* msg);

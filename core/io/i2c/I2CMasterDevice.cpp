@@ -69,20 +69,24 @@ namespace smooth
 
                     // Generate start condition
                     auto res = i2c_master_start(link);
-
                     // Write the slave write address followed by the register address.
                     res |= i2c_master_write_byte(link, write_address, true);
                     res |= i2c_master_write_byte(link, slave_register, true);
                     // Generate another start condition
-                    res = i2c_master_start(link);
+                    res |= i2c_master_start(link);
 
                     // Write the read address, then read the desired amount,
                     // ending the read with a NACK (0) to signal the slave to stop sending data.
                     res |= i2c_master_write_byte(link, read_address, true);
-                    res |= i2c_master_read(link, data.data(), data.size(), 0);
+
+                    if (data.size() > 1)
+                    {
+                        res |= i2c_master_read(link, data.data(), data.size() - 1, ACK);
+                    }
+                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, NACK);
 
                     // Complete the read with a stop condition.
-                    res |= res && i2c_master_stop(link);
+                    res |= i2c_master_stop(link);
                     res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
 
                     if (res != ESP_OK)
