@@ -51,13 +51,21 @@ namespace smooth
                                            uint8_t input_b_polarity)
             {
                 // Write direction and polarity in a single operation.
-                std::vector<uint8_t> data{B0_IODIRA, port_a_direction,
+                std::vector<uint8_t> data{B0_IODIRA,
+                                          port_a_direction,
                                           port_b_direction,
                                           input_a_polarity,
                                           input_b_polarity};
+
                 bool res = write(address, data, true);
-                std::vector<uint8_t> pol{B0_GPPUA, input_a_polarity, input_b_polarity};
-                res = res && write(address, pol, true);
+
+                // Write pull-up
+                std::vector<uint8_t> pull_up{B0_GPPUA,
+                                             input_a_pull_up,
+                                             input_b_pull_up};
+
+                res = res && write(address, pull_up, true);
+
                 return res;
             }
 

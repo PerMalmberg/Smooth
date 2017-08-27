@@ -76,7 +76,7 @@ namespace smooth
                     res |= i2c_master_start(link);
 
                     // Write the read address, then read the desired amount,
-                    // ending the read with a NACK (0) to signal the slave to stop sending data.
+                    // ending the read with a NACK to signal the slave to stop sending data.
                     res |= i2c_master_write_byte(link, read_address, true);
 
                     if (data.size() > 1)
