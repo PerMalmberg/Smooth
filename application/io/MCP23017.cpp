@@ -67,6 +67,19 @@ namespace smooth
                 std::vector<uint8_t> data{p, state};
                 return write(address, data, true);
             }
+
+            bool MCP23017::read_input(Port port, uint8_t& state)
+            {
+                auto p = (port == Port::A) ? B0_GPIOA : B0_GPIOB;
+                core::util::FixedBuffer<uint8_t, 1> read_data{};
+                auto res = read(address, p, read_data);
+                if (res)
+                {
+                    state = read_data[0];
+                }
+
+                return res;
+            }
         }
     }
 }

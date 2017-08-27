@@ -108,11 +108,17 @@ namespace smooth
                                             uint8_t input_b_pull_up,
                                             uint8_t input_b_polarity);
 
-                    /// Sets the output state
-                    /// \param port The port
-                    /// \param state The state, where 1 is
+                    /// Sets the output state.
+                    /// \param port The port.
+                    /// \param state The state, where 1 is on, 0 is off.
                     /// \return tru on success, false on failure.
                     bool set_output(Port port, uint8_t state);
+
+                    /// Reads the inputs.
+                    /// \param port The port.
+                    /// \param state The receiver of the state of the inputs, where a 1 is logic-high.
+                    /// \return true on success, false on failure.
+                    bool read_input(Port port, uint8_t& state);
 
                 private:
 
