@@ -55,7 +55,7 @@ namespace smooth
                                     7,  // queue_size,
                                     true,
                                     false),
-                                      dc(data_command_pin, false, true)
+                                      dc(data_command_pin, false, true, false, true)
                             {
                             }
 

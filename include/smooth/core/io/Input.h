@@ -17,7 +17,7 @@ namespace smooth
                 public:
                     Input(gpio_num_t io);
 
-                    Input(gpio_num_t io, gpio_pull_mode_t pull);
+                    Input(gpio_num_t io, bool pull_up, bool pull_down);
 
                     bool read();
 

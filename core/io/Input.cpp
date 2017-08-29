@@ -10,15 +10,22 @@ namespace smooth
     {
         namespace io
         {
-            Input::Input(gpio_num_t io) : io(io)
+            Input::Input(gpio_num_t io)
+                    : Input(io, false, true)
             {
-                gpio_set_direction(io, GPIO_MODE_INPUT);
             }
 
-            Input::Input(gpio_num_t io, gpio_pull_mode_t pull)
+            Input::Input(gpio_num_t io, bool pull_up, bool pull_down)
                     : Input(io)
             {
-                gpio_set_pull_mode(io, pull);
+                gpio_config_t config;
+                config.pin_bit_mask = 1 << io;
+                config.mode = GPIO_MODE_INPUT;
+                config.pull_down_en = pull_down ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
+                config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE :GPIO_PULLUP_DISABLE;
+                config.intr_type = GPIO_INTR_DISABLE;
+
+                gpio_config(&config);
             }
 
             bool Input::read()

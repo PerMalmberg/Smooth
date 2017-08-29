@@ -15,7 +15,7 @@ namespace smooth
             class Output
             {
                 public:
-                    Output(gpio_num_t io, bool active_high, bool clear_on_creation = true);
+                    Output(gpio_num_t io, bool active_high, bool pull_up, bool pull_down, bool clear_on_creation = true);
 
                     void set();
 

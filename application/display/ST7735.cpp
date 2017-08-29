@@ -23,8 +23,8 @@ namespace smooth
                            gpio_num_t reset_pin,
                            gpio_num_t back_light_pin)
                     : master(master),
-                      reset_pin(reset_pin, false),
-                      back_light(back_light_pin, true),
+                      reset_pin(reset_pin, false, true, false),
+                      back_light(back_light_pin, true, false, true),
                       chip_select_pin(chip_select_pin),
                       data_command_pin(data_command_pin)
             {
