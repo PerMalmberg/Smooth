@@ -15,25 +15,11 @@ namespace smooth
             class Output
             {
                 public:
-                    Output(gpio_num_t io, bool active_high, bool clear_on_creation = true) : io(io),
-                                                                                             active_high(active_high)
-                    {
-                        gpio_set_direction(io, active_high ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
-                        if (clear_on_creation)
-                        {
-                            clr();
-                        }
-                    }
+                    Output(gpio_num_t io, bool active_high, bool clear_on_creation = true);
 
-                    void set()
-                    {
-                        gpio_set_level(io, 1);
-                    }
+                    void set();
 
-                    void clr()
-                    {
-                        gpio_set_level(io, 0);
-                    }
+                    void clr();
 
                     Output(const Output&) = delete;
                     Output& operator=(const Output&) = delete;
