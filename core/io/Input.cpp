@@ -19,7 +19,7 @@ namespace smooth
                     : Input(io)
             {
                 gpio_config_t config;
-                config.pin_bit_mask = 1 << io;
+                config.pin_bit_mask = static_cast<uint64_t>(1) << io;
                 config.mode = GPIO_MODE_INPUT;
                 config.pull_down_en = pull_down ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
                 config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
