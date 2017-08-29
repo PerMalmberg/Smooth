@@ -18,11 +18,10 @@ namespace smooth
                 config.pin_bit_mask = 1 << io;
                 config.mode = active_high ? GPIO_MODE_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD;
                 config.pull_down_en = pull_down ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
-                config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE :GPIO_PULLUP_DISABLE;
+                config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
                 config.intr_type = GPIO_INTR_DISABLE;
 
                 gpio_config(&config);
-
 
                 if (clear_on_creation)
                 {
