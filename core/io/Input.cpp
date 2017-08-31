@@ -3,6 +3,7 @@
 //
 
 #include <smooth/core/io/Input.h>
+#include <cstring>
 
 namespace smooth
 {
@@ -16,16 +17,19 @@ namespace smooth
             }
 
             Input::Input(gpio_num_t io, bool pull_up, bool pull_down)
-                    : Input(io)
+                    : io(io)
             {
                 gpio_config_t config;
-                config.pin_bit_mask = static_cast<uint64_t>(1) << io;
+
+                config.pin_bit_mask = 1;
+                config.pin_bit_mask <<= io;
+
                 config.mode = GPIO_MODE_INPUT;
                 config.pull_down_en = pull_down ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
                 config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
                 config.intr_type = GPIO_INTR_DISABLE;
 
-                gpio_config(&config);
+                ESP_ERROR_CHECK(gpio_config(&config));
             }
 
             bool Input::read()
