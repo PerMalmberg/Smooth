@@ -69,6 +69,46 @@ namespace smooth
                 return res;
             }
 
+            bool MCP23017::configure_device(bool mirror_change_interrupt,
+                                            bool interrupt_polarity_active_high,
+                                            uint8_t interrupt_on_change_enable_a,
+                                            uint8_t interrupt_control_register_a,
+                                            uint8_t interrupt_default_val_a,
+                                            uint8_t interrupt_on_change_enable_b,
+                                            uint8_t interrupt_control_register_b,
+                                            uint8_t interrupt_default_val_b)
+            {
+                core::util::FixedBuffer<uint8_t, 1> data;
+                // Read current config
+                bool res = read(address, B0_IOCON, data);
+
+                if (res)
+                {
+                    core::util::ByteSet b(data[0]);
+                    b.set(6, mirror_change_interrupt);
+                    b.set(1, interrupt_polarity_active_high);
+
+                    std::vector<uint8_t> d{B0_IOCON, b};
+                    res = res && write(address, d, true);
+                }
+
+                if(res)
+                {
+                    // GPINTENA, GPINTENB, DEFVALA, DEFVALB, INTCONA, INTCONB
+                    std::vector<uint8_t> d{B0_GPINTENA,
+                                  interrupt_on_change_enable_a,
+                                  interrupt_on_change_enable_b,
+                                  interrupt_default_val_a,
+                                  interrupt_default_val_b,
+                                  interrupt_control_register_a,
+                                  interrupt_control_register_b};
+
+                    res = res && write(address, d, true);
+                }
+
+                return res;
+            }
+
             bool MCP23017::set_output(Port port, uint8_t state)
             {
                 auto p = (port == Port::A) ? B0_OLATA : B0_OLATB;
@@ -81,6 +121,18 @@ namespace smooth
                 auto p = (port == Port::A) ? B0_GPIOA : B0_GPIOB;
                 core::util::FixedBuffer<uint8_t, 1> read_data{};
                 auto res = read(address, p, read_data);
+                if (res)
+                {
+                    state = read_data[0];
+                }
+
+                return res;
+            }
+
+            bool MCP23017::read_interrupt_capture(Port port, uint8_t& state)
+            {
+                core::util::FixedBuffer<uint8_t, 1> read_data{};
+                bool res = read(address, port == Port::A ? B0_INTCAPA : B0_INTCAPB, read_data);
                 if (res)
                 {
                     state = read_data[0];

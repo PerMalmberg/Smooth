@@ -102,11 +102,38 @@ namespace smooth
                     /// \param input_b_polarity For I/O configured as input, report the inverted read state if the corresponding bit is set. For port B.
                     /// \return true on success, false on failure
                     bool configure_ports(uint8_t port_a_direction,
-                                            uint8_t input_a_pull_up,
-                                            uint8_t input_a_polarity,
-                                            uint8_t port_b_direction,
-                                            uint8_t input_b_pull_up,
-                                            uint8_t input_b_polarity);
+                                         uint8_t input_a_pull_up,
+                                         uint8_t input_a_polarity,
+                                         uint8_t port_b_direction,
+                                         uint8_t input_b_pull_up,
+                                         uint8_t input_b_polarity);
+
+                    /// Configures the device.
+                    /// @note Only a subset if the capabilities of the device can be configures, i.e those supported by this implementation.
+                    /// \param mirror_change_interrupt If true, input change interrupts are logically OR:ed, resulting
+                    /// in both interrupts signaling on any change. If false, INTA is associated with PORTA and INTB with PORTB.
+                    /// \param interrupt_polarity_active_high If true, interrupt signaling is active-high.
+                    /// \param interrupt_on_change_enable_port_a bit mask for enabling interrupt-on-change on per pin-basis for port A.
+                    /// \param interrupt_control_register_a For port A, controls how the associated pin value is compared for the interrupt-on-change feature.
+                    /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_a value. If a
+                    /// bit value is clear, the corresponding I/O pin is compared against the previous value.
+                    /// \param interrupt_default_val_a For port A, default compare register for interrupt on-change. If enabled (via GPINTEN and
+                    /// INTCON) to compare against the DEFVAL register, an opposite value on the associated pin will cause an interrupt to occur.
+                    /// \param interrupt_on_change_enable_port_b bit mask for enabling interrupt-on-change on per pin-basis for port A.
+                    /// \param interrupt_control_register_b For port B, controls how the associated pin value is compared for the interrupt-on-change feature.
+                    /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_b value. If a
+                    /// bit value is clear, the corresponding I/O pin is compared against the previous value.
+                    /// \param interrupt_default_val_b For port B, default compare register for interrupt on-change. If enabled (via GPINTEN and
+                    /// INTCON) to compare against the DEFVAL register, an opposite value on the associated pin will cause an interrupt to occur.
+                    /// \return true on success, false on failure.
+                    bool configure_device(bool mirror_change_interrupt,
+                                          bool interrupt_polarity_active_high,
+                                          uint8_t interrupt_on_change_enable_a,
+                                          uint8_t interrupt_control_register_a,
+                                          uint8_t interrupt_default_val_a,
+                                          uint8_t interrupt_on_change_enable_b,
+                                          uint8_t interrupt_control_register_b,
+                                          uint8_t interrupt_default_val_b);
 
                     /// Sets the output state.
                     /// \param port The port.
@@ -119,6 +146,14 @@ namespace smooth
                     /// \param state The receiver of the state of the inputs, where a 1 is logic-high.
                     /// \return true on success, false on failure.
                     bool read_input(Port port, uint8_t& state);
+
+                    /// Reads the interrupt capture filter. This register captures the input port state  at
+                    /// the time the interrupt occurred.
+                    /// @note This register remains unchanged until it is read, or the GPIO state is read.
+                    /// \param port The port for which to read the captured input value.
+                    /// \param state The value of the port when the interrupt triggered.
+                    /// \return true on success, false on failure
+                    bool read_interrupt_capture(Port port, uint8_t& state);
 
                 private:
 
