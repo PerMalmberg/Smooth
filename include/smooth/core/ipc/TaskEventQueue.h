@@ -48,6 +48,14 @@ namespace smooth
                         return queue.push(item);
                     }
 
+                    /// Push an item onto the queue from ISR.
+                    /// \param item The item to push
+                    /// \return true if the queue could accept the item, otherwise false.
+                    IRAM_ATTR bool push_from_isr(const T& item)
+                    {
+                        return queue.push_from_isr(item);
+                    }
+
                     /// Gets the size of the queue.
                     /// \return number of items the queue can hold.
                     int size()

@@ -88,6 +88,19 @@ namespace smooth
                         return push(item, std::chrono::milliseconds(0));
                     }
 
+                    IRAM_ATTR bool push_from_isr(const T& item)
+                    {
+                        smooth::core::ipc::Mutex::ISRLock lock(guard);
+                        BaseType_t xTaskWokenByReceive = pdFALSE;
+                        uint8_t dummy = 0;
+                        bool res = xQueueSendFromISR(handle, &dummy, &xTaskWokenByReceive );
+                        if(res)
+                        {
+                            items.push_back(item);
+                        }
+                        return res;
+                    }
+
                     /// /// Pushes an item into the queue
                     /// \param item The item of which a copy will be placed on the queue.
                     /// \param wait_time The time to wait for a slot to become available in the queue before failing.

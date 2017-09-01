@@ -16,7 +16,7 @@ namespace smooth
             {
             }
 
-            Input::Input(gpio_num_t io, bool pull_up, bool pull_down)
+            Input::Input(gpio_num_t io, bool pull_up, bool pull_down, gpio_int_type_t interrupt_type)
                     : io(io)
             {
                 gpio_config_t config;
@@ -27,7 +27,7 @@ namespace smooth
                 config.mode = GPIO_MODE_INPUT;
                 config.pull_down_en = pull_down ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
                 config.pull_up_en = pull_up ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
-                config.intr_type = GPIO_INTR_DISABLE;
+                config.intr_type = interrupt_type;
 
                 ESP_ERROR_CHECK(gpio_config(&config));
             }

@@ -6,6 +6,7 @@
 #include <esp_event.h>
 #include <esp_event_loop.h>
 #include <nvs_flash.h>
+#include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <smooth/core/Application.h>
@@ -50,6 +51,7 @@ namespace smooth
                   system_event("system_event", 10, *this, *this)
         {
             nvs_flash_init();
+            gpio_install_isr_service(0);
 
             // Setup the system event callback so that we receive events.
             ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));

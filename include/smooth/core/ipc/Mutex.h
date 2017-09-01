@@ -6,6 +6,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+#include <freertos/task.h>
 #include <chrono>
 
 namespace smooth
@@ -38,6 +39,24 @@ namespace smooth
                             Mutex& m;
                     };
 
+                    class ISRLock
+                    {
+                        public:
+                            ISRLock(Mutex& m)
+                                    : m(m)
+                            {
+                                m.acquire_from_isr();
+                            }
+
+                            ~ISRLock()
+                            {
+                                m.release_from_isr();
+                            }
+
+                        private:
+                            Mutex& m;
+                    };
+
 
                     Mutex() = default;
 
@@ -62,7 +81,11 @@ namespace smooth
                     /// Acquires the mutex from an ISR, blocking until the mutex is acquired.
                     bool acquire_from_isr()
                     {
-                        return xSemaphoreTakeFromISR(semaphore, nullptr) == pdTRUE;
+                        while( xSemaphoreTakeFromISR(semaphore, nullptr) != pdTRUE)
+                        {
+                            taskYIELD();
+                        }
+                        return true;
                     }
 
                     /// Releases the mutex.
