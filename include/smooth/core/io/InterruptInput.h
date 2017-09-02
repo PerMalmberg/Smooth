@@ -13,12 +13,13 @@ namespace smooth
     {
         namespace io
         {
-            class InputInterruptEventEvent
+            ///
+            class InterruptInputEvent
             {
                 public:
-                    InputInterruptEventEvent() = default;
+                    InterruptInputEvent() = default;
 
-                    InputInterruptEventEvent(gpio_num_t io, bool state)
+                    InterruptInputEvent(gpio_num_t io, bool state)
                             : io(io), state(state)
                     {
                     }
@@ -38,18 +39,24 @@ namespace smooth
                     bool state;
             };
 
-            class EventInput
-                    : public Input
+            class InterruptInput
+                    : private Input
             {
                 public:
-                    EventInput(core::ipc::TaskEventQueue<InputInterruptEventEvent>& queue, gpio_num_t io,
-                               bool pull_up,
-                               bool pull_down
+                    InterruptInput(core::ipc::TaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
+                                   bool pull_up,
+                                   bool pull_down
                     );
 
                     void signal();
+
+                    gpio_num_t get_io() const
+                    {
+                        return io;
+                    }
+
                 private:
-                    core::ipc::TaskEventQueue<InputInterruptEventEvent>& queue;
+                    core::ipc::TaskEventQueue<InterruptInputEvent>& queue;
             };
         }
     }

@@ -39,6 +39,7 @@ namespace smooth
                             Mutex& m;
                     };
 
+                    /// Class used to do scoped-based locking of a mutex from an ISR.
                     class ISRLock
                     {
                         public:
@@ -81,7 +82,7 @@ namespace smooth
                     /// Acquires the mutex from an ISR, blocking until the mutex is acquired.
                     bool acquire_from_isr()
                     {
-                        while( xSemaphoreTakeFromISR(semaphore, nullptr) != pdTRUE)
+                        while (xSemaphoreTakeFromISR(semaphore, nullptr) != pdTRUE)
                         {
                             taskYIELD();
                         }
