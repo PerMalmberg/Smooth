@@ -30,7 +30,7 @@ namespace smooth
                     {
                         gettimeofday(&end_time, nullptr);
                         active = false;
-                        timersub(end_time, start_time, elapsed);
+                        timersub(&end_time, &start_time, &elapsed);
                     }
 
                     /// Semantically the same as start(), but provided for syntactical reasons.
@@ -51,7 +51,6 @@ namespace smooth
                     std::chrono::microseconds get_running_time();
 
                 private:
-                    void timersub(const timeval& a, const timeval& b, timeval& result);
                     bool active = false;
                     timeval start_time;
                     // Keep end_time as a member to get slightly more accurate values
