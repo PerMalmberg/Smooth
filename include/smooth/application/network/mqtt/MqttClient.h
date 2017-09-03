@@ -56,11 +56,11 @@ namespace smooth
                         /// Constructor
                         /// \param mqtt_client_id The client ID to use when identifying to the broker. Must be unique.
                         /// \param keep_alive The interval used for keep alive messages.
-                        /// \param stack_depth The stack depth for the worker task. >=4096 should be sufficient.
+                        /// \param stack_size The stack depth for the worker task. >=4096 should be sufficient.
                         /// \param priority Task priority. Depends on your system requirements. Usually tskIDLE_PRIORITY + some value.
                         /// \param application_queue The queue where incoming messages will be posted.
                         MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive,
-                                   uint32_t stack_depth,
+                                   uint32_t stack_size,
                                    UBaseType_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
 
                         /// Initiates a connection to the provided address.
