@@ -39,26 +39,6 @@ namespace smooth
                             Mutex& m;
                     };
 
-                    /// Class used to do scoped-based locking of a mutex from an ISR.
-                    class ISRLock
-                    {
-                        public:
-                            ISRLock(Mutex& m)
-                                    : m(m)
-                            {
-                                m.acquire_from_isr();
-                            }
-
-                            ~ISRLock()
-                            {
-                                m.release_from_isr();
-                            }
-
-                        private:
-                            Mutex& m;
-                    };
-
-
                     Mutex() = default;
 
                     Mutex(const Mutex&) = delete;

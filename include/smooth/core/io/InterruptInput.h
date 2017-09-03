@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Input.h"
-#include <smooth/core/ipc/TaskEventQueue.h>
+#include <smooth/core/ipc/IISRTaskEventQueue.h>
 
 namespace smooth
 {
@@ -13,7 +13,6 @@ namespace smooth
     {
         namespace io
         {
-            ///
             class InterruptInputEvent
             {
                 public:
@@ -43,7 +42,7 @@ namespace smooth
                     : private Input
             {
                 public:
-                    InterruptInput(core::ipc::TaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
+                    InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
                                    bool pull_up,
                                    bool pull_down
                     );
@@ -56,7 +55,7 @@ namespace smooth
                     }
 
                 private:
-                    core::ipc::TaskEventQueue<InterruptInputEvent>& queue;
+                    core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue;
             };
         }
     }

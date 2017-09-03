@@ -3,7 +3,6 @@
 //
 
 #include <smooth/core/io/InterruptInput.h>
-#include <smooth/core/ipc/Publisher.h>
 #include <driver/gpio.h>
 
 namespace smooth
@@ -21,7 +20,7 @@ namespace smooth
                 }
             }
 
-            InterruptInput::InterruptInput(core::ipc::TaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
+            InterruptInput::InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
                                    bool pull_up, bool pull_down)
                     : Input(io, pull_up, pull_down, pull_up ? GPIO_INTR_NEGEDGE : GPIO_INTR_POSEDGE), queue(queue)
             {
@@ -31,7 +30,7 @@ namespace smooth
             void InterruptInput::signal()
             {
                 InterruptInputEvent ev(io, read());
-                queue.push_from_isr(ev);
+                queue.signal(ev);
             }
         }
     }

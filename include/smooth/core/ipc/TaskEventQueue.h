@@ -25,6 +25,9 @@ namespace smooth
                 public:
                     friend core::Task;
 
+                    static_assert(std::is_default_constructible<T>::value, "DataType must be default-constructible");
+                    static_assert(std::is_assignable<T,T>::value, "DataType must be a assignable");
+
                     /// Constructor
                     /// \param name The name of the event queue, mainly used for debugging and logging.
                     /// \param size The size of the queue, i.e. the number of items it can hold.
@@ -46,14 +49,6 @@ namespace smooth
                     bool push(const T& item)
                     {
                         return queue.push(item);
-                    }
-
-                    /// Push an item onto the queue from ISR.
-                    /// \param item The item to push
-                    /// \return true if the queue could accept the item, otherwise false.
-                    IRAM_ATTR bool push_from_isr(const T& item)
-                    {
-                        return queue.push_from_isr(item);
                     }
 
                     /// Gets the size of the queue.
