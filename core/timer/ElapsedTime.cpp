@@ -2,7 +2,7 @@
 // Created by permal on 8/1/17.
 //
 
-#include <smooth/core/timer/PerfCount.h>
+#include <smooth/core/timer/ElapsedTime.h>
 
 namespace smooth
 {
@@ -10,7 +10,7 @@ namespace smooth
     {
         namespace timer
         {
-            std::chrono::microseconds PerfCount::get_running_time()
+            std::chrono::microseconds ElapsedTime::get_running_time()
             {
                 if( active )
                 {

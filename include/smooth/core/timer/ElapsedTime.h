@@ -14,8 +14,8 @@ namespace smooth
     {
         namespace timer
         {
-            /// Performance timer. Used to measure the time between to points in time.
-            class PerfCount
+            /// Performance/time keeping timer. Used to measure the time between to points in time.
+            class ElapsedTime
             {
                 public:
                     /// Starts and the performance timer.

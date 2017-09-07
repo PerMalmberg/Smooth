@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <chrono>
-#include <smooth/core/timer/PerfCount.h>
+#include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -69,7 +69,7 @@ namespace smooth
                     private:
                         T p{};
                         PacketType waiting_for_packet = PacketType::Reserved;
-                        core::timer::PerfCount timer{};
+                        core::timer::ElapsedTime timer{};
                 };
             }
         }

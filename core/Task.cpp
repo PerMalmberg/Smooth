@@ -2,7 +2,8 @@
 // Created by permal on 6/25/17.
 //
 
-#include "smooth/core/Task.h"
+#include <smooth/core/Task.h>
+#include <smooth/core/timer/ElapsedTime.h>
 #include <algorithm>
 
 namespace smooth
@@ -77,26 +78,42 @@ namespace smooth
 
             ESP_LOGV("Task", "Task '%s' initialized, %p", pcTaskGetTaskName(task_handle), task_handle);
 
+            timer::ElapsedTime delayed{};
+
+            delayed.start();
+
             for (;;)
             {
-                // Limit task tick to a minimum of 1 tick.
-                QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification,
-                                                                   std::max(static_cast<TickType_t>(1),
-                                                                            pdMS_TO_TICKS(
-                                                                                    tick_interval.count())));
 
-                if (queue == nullptr)
+                // Try to keep the tick alive even when there are lots of incoming messages
+                // by simply not checking the queues when more than one tick interval has passed.
+                if (tick_interval.count() > 0 && delayed.get_running_time() > tick_interval)
                 {
-                    // Timeout, perform tick.
                     tick();
+                    delayed.reset();
                 }
                 else
                 {
-                    // A queue or mutex has signaled an item is available.
-                    auto it = queues.find(queue);
-                    if (it != queues.end())
+                    // Limit task tick to a minimum of 1 tick.
+                    QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification,
+                                                                       std::max(static_cast<TickType_t>(1),
+                                                                                pdMS_TO_TICKS(
+                                                                                        tick_interval.count())));
+
+                    if (queue == nullptr)
                     {
-                        it->second->forward_to_event_queue();
+                        // Timeout - no messages.
+                        tick();
+                        delayed.reset();
+                    }
+                    else
+                    {
+                        // A queue or mutex has signaled an item is available.
+                        auto it = queues.find(queue);
+                        if (it != queues.end())
+                        {
+                            it->second->forward_to_event_queue();
+                        }
                     }
                 }
             }
