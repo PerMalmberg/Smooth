@@ -21,9 +21,7 @@ namespace smooth
                     void set_pixel(uint16_t ix, uint8_t red, uint8_t green, uint8_t blue);
                     void apply();
 
-                    virtual ~WS2812B()
-                    {
-                    }
+                    virtual ~WS2812B();
 
                 private:
                     static constexpr double pulse_width = 12.5; // ns, i.e. 1 / 80MHz
@@ -44,6 +42,7 @@ namespace smooth
                     rmt_item32_t hi;
                     rmt_item32_t low;
                     rmt_item32_t reset;
+                    rmt_item32_t terminator;
             };
         }
     }
