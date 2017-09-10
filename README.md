@@ -36,7 +36,8 @@ that the result is a memory static instance, i.e. a *smooth::ipc::Queue* will _n
 
 - MQTT Client
 - Sensor BME280
-- 16 channel I/O expander MCP23017 
+- 16 channel I/O expander MCP23017
+- RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 
 
 ## Installation
