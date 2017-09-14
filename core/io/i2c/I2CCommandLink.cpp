@@ -29,6 +29,12 @@ namespace smooth
                     // Release the guard
                     master_device.get_guard().release();
                 }
+
+                void I2CCommandLink::reset()
+                {
+                    i2c_cmd_link_delete(cmd_link);
+                    cmd_link = i2c_cmd_link_create();
+                }
             }
         }
     }

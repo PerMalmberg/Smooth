@@ -58,7 +58,9 @@ namespace smooth
                 }
 
                 bool I2CMasterDevice::read(uint8_t address, uint8_t slave_register,
-                                           core::util::FixedBufferBase<uint8_t>& data)
+                                           core::util::FixedBufferBase<uint8_t>& data,
+                                           bool use_restart_signal,
+                                           bool end_with_nack)
                 {
                     I2CCommandLink link(*this);
 
@@ -72,8 +74,21 @@ namespace smooth
                     // Write the slave write address followed by the register address.
                     res |= i2c_master_write_byte(link, write_address, true);
                     res |= i2c_master_write_byte(link, slave_register, true);
-                    // Generate another start condition
-                    res |= i2c_master_start(link);
+                    // Generate another start condition or stop condition
+                    if (use_restart_signal)
+                    {
+                        res |= i2c_master_start(link);
+                    }
+                    else
+                    {
+                        // Finish the transmission without releasing the lock we have on the i2c master.
+                        res |= i2c_master_stop(link);
+                        res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
+
+                        // Start a new transmission
+                        link.reset();
+                        res |= i2c_master_start(link);
+                    }
 
                     // Write the read address, then read the desired amount,
                     // ending the read with a NACK to signal the slave to stop sending data.
@@ -83,7 +98,8 @@ namespace smooth
                     {
                         res |= i2c_master_read(link, data.data(), data.size() - 1, ACK);
                     }
-                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, NACK);
+
+                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, end_with_nack ? NACK : ACK);
 
                     // Complete the read with a stop condition.
                     res |= i2c_master_stop(link);

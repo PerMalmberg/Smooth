@@ -74,17 +74,22 @@ namespace smooth
                         /// \param address The slave address
                         /// \param slave_register The register to read from.
                         /// \param data Where the data will be written to. The size of the buffer determines how many bytes to read.
+                        /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave address.
+                        /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
                         /// \return true on success, false on failure.
-                        bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data);
+                        bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data,
+                                  bool use_restart_signal = true,
+                                  bool end_with_nack = true);
 
                         uint8_t address;
 
                         const uint8_t ACK = 0x0;
                         const uint8_t NACK = 0x1;
-                    private:
-
-                        void log_error(esp_err_t err, const char* msg);
+                    protected:
                         i2c_port_t port;
+
+                    private:
+                        void log_error(esp_err_t err, const char* msg);
                         core::ipc::Mutex& guard;
                 };
             }

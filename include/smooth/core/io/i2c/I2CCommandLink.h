@@ -27,6 +27,8 @@ namespace smooth
                             return cmd_link;
                         }
 
+                        void reset();
+
                     private:
                         i2c_cmd_handle_t cmd_link;
                         const I2CMasterDevice& master_device;
