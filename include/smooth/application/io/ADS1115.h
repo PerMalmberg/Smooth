@@ -103,7 +103,9 @@ namespace smooth
                                    LatchingComparator latching,
                                    AssertStrategy assert_strategy);
 
-                    bool read_conversion(const Multiplexer mux, uint16_t& result);
+                    bool set_mux(const Multiplexer mux);
+
+                    bool read_conversion(uint16_t& result);
                 private:
 
                     bool configure(const uint16_t config);

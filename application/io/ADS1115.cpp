@@ -65,15 +65,17 @@ namespace smooth
                 return res;
             }
 
-            bool ADS1115::read_conversion(const Multiplexer mux, uint16_t& result)
+            bool ADS1115::set_mux(const Multiplexer mux)
             {
                 uint16_t new_config = current_config | mux << 12;
 
+                return configure(new_config);
+            }
 
-                bool res = configure(new_config);
-
+            bool ADS1115::read_conversion(uint16_t& result)
+            {
                 core::util::FixedBuffer<uint8_t, 2> data;
-                res = res && read(address, Register::Conversion, data, false, false);
+                bool res = read(address, Register::Conversion, data, false, false);
 
                 if( res)
                 {
