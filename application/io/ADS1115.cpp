@@ -52,7 +52,7 @@ namespace smooth
 
                 // Read back value to confirm write.
                 core::util::FixedBuffer<uint8_t, 2> read_data;
-                res = res && read(address, Register::Config, read_data);
+                res = res && read(address, Register::Config, read_data, false, false);
 
                 res = res && (read_data[1] == (config & 0xFF));
                 res = res && (read_data[0] = (config >> 8));
@@ -69,10 +69,12 @@ namespace smooth
             {
                 uint16_t new_config = current_config | mux << 12;
 
+
                 bool res = configure(new_config);
 
                 core::util::FixedBuffer<uint8_t, 2> data;
-                res = res && read(address, Register::Conversion, data);
+                res = res && read(address, Register::Conversion, data, false, false);
+
                 if( res)
                 {
                     result = 0;
