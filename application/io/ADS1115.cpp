@@ -5,6 +5,7 @@
 
 #include <smooth/application/io/ADS1115.h>
 #include <smooth/core/util/FixedBuffer.h>
+#include <bitset>
 #include "esp_log.h"
 
 namespace smooth
@@ -25,25 +26,41 @@ namespace smooth
                                     ComparatorMode comp_mode,
                                     Alert_Ready_Polarity alert_ready_polarity,
                                     LatchingComparator latching,
-                                    AssertStrategy assert_strategy)
+                                    AssertStrategy assert_strategy,
+                                    uint16_t low_thresh_hold,
+                                    uint16_t high_thresh_hold)
             {
 
-                uint16_t new_config{0};
+                std::bitset<16> new_config;
+                new_config.set(0, assert_strategy & 1);
+                new_config.set(1, assert_strategy & 2);
 
-                new_config |= mux << 12;
-                new_config |= range << 9;
-                new_config |= op_mode << 8;
-                new_config |= rate << 5;
-                new_config |= comp_mode << 4;
-                new_config |= alert_ready_polarity << 3;
-                new_config |= latching << 2;
-                new_config |= assert_strategy;
+                new_config.set(2, latching);
+                new_config.set(3, alert_ready_polarity);
+                new_config.set(4, comp_mode);
 
+                new_config.set(5, rate & 1);
+                new_config.set(6, rate & 2);
+                new_config.set(7, rate & 4);
 
-                return configure(new_config);
+                new_config.set(8, op_mode);
+
+                new_config.set(9, range & 1);
+                new_config.set(10, range & 2);
+                new_config.set(11, range & 4);
+
+                new_config.set(12, mux & 1);
+                new_config.set(13, mux & 2);
+                new_config.set(14, mux & 4);
+
+                new_config.set(15, 0);
+
+                return configure(static_cast<uint16_t>(new_config.to_ulong()), low_thresh_hold, high_thresh_hold);
             }
 
-            bool ADS1115::configure(const uint16_t config)
+            bool ADS1115::configure(const uint16_t config,
+                                    uint16_t low_thresh_hold,
+                                    uint16_t high_thresh_hold)
             {
                 std::vector<uint8_t> data{Register::Config};
                 data.push_back(static_cast<uint8_t>(config >> 8));
@@ -57,9 +74,24 @@ namespace smooth
                 res = res && (read_data[1] == (config & 0xFF));
                 res = res && (read_data[0] = (config >> 8));
 
+                data.clear();
+                data.push_back(Register::LowThresh);
+                data.push_back(low_thresh_hold >> 8);
+                data.push_back(low_thresh_hold & 0xFF);
+                res = res && write(address, data, true);
+
+                data.clear();
+                data.push_back(Register::HighThresh);
+                data.push_back(high_thresh_hold >> 8);
+                data.push_back(high_thresh_hold & 0xFF);
+                res = res && write(address, data, true);
+
                 if (res)
                 {
                     current_config = config;
+                    current_low_thresh_hold = low_thresh_hold;
+                    current_high_thresh_hold = high_thresh_hold;
+                    ESP_LOGV("New config:", "%x", current_config);
                 }
 
                 return res;
@@ -69,7 +101,7 @@ namespace smooth
             {
                 uint16_t new_config = current_config | mux << 12;
 
-                return configure(new_config);
+                return configure(new_config, current_low_thresh_hold, current_high_thresh_hold);
             }
 
             bool ADS1115::read_conversion(uint16_t& result)
@@ -77,7 +109,7 @@ namespace smooth
                 core::util::FixedBuffer<uint8_t, 2> data;
                 bool res = read(address, Register::Conversion, data, false, false);
 
-                if( res)
+                if (res)
                 {
                     result = 0;
                     result |= data[0] << 8;
@@ -85,6 +117,13 @@ namespace smooth
                 }
 
                 return res;
+            }
+
+            bool ADS1115::trigger_single_read()
+            {
+                uint16_t new_config = current_config | 1 << 15;
+
+                return configure(new_config, current_low_thresh_hold, current_low_thresh_hold);
             }
         }
     }

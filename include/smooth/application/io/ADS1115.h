@@ -49,8 +49,8 @@ namespace smooth
 
                     enum OperationalMode
                     {
-                        Continuous,
-                        SingleShot
+                        Continuous = 0,
+                        SingleShot = 1
                     };
 
                     enum DataRate
@@ -101,16 +101,24 @@ namespace smooth
                                    ComparatorMode comp_mode,
                                    Alert_Ready_Polarity alert_ready_polarity,
                                    LatchingComparator latching,
-                                   AssertStrategy assert_strategy);
+                                   AssertStrategy assert_strategy,
+                                   uint16_t low_thresh_hold,
+                                   uint16_t high_thresh_hold);
 
                     bool set_mux(const Multiplexer mux);
 
                     bool read_conversion(uint16_t& result);
+
+                    bool trigger_single_read();
                 private:
 
-                    bool configure(const uint16_t config);
+                    bool configure(const uint16_t config,
+                                   uint16_t low_thresh_hold,
+                                   uint16_t high_thresh_hold);
 
                     uint16_t current_config;
+                    uint16_t current_low_thresh_hold;
+                    uint16_t current_high_thresh_hold;
             };
         }
     }
