@@ -71,8 +71,8 @@ namespace smooth
                 core::util::FixedBuffer<uint8_t, 2> read_data;
                 res = res && read(address, Register::Config, read_data, false, false);
 
-                res = res && (read_data[1] == (config & 0xFF));
                 res = res && (read_data[0] = (config >> 8));
+                res = res && (read_data[1] == (config & 0xFF));
 
                 data.clear();
                 data.push_back(Register::LowThresh);
@@ -99,7 +99,7 @@ namespace smooth
 
             bool ADS1115::set_mux(const Multiplexer mux)
             {
-                uint16_t new_config = current_config | mux << 12;
+                uint16_t new_config = (current_config & 0x0FFF) | mux << 12;
 
                 return configure(new_config, current_low_thresh_hold, current_high_thresh_hold);
             }
