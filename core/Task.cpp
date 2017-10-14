@@ -143,5 +143,10 @@ namespace smooth
             // The notification queue must be be able to hold the total number of possible waiting messages.
             queues.insert(std::make_pair(task_queue->get_handle(), task_queue));
         }
+
+        void Task::print_task_info()
+        {
+            ESP_LOGI( "TaskInfo", "%s: Stack: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr));
+        }
     }
 }

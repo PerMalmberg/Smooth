@@ -83,6 +83,9 @@ namespace smooth
                     return tick_interval;
                 }
 
+                // Prints the task information.
+                void print_task_info();
+
             private:
                 std::string name;
                 TaskHandle_t task_handle = nullptr;
