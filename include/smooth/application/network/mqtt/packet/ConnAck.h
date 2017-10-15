@@ -45,7 +45,7 @@ namespace smooth
                                 return static_cast<ReturnCode>(*(variable_header_start+1));
                             }
 
-                            bool was_connection_accepted()
+                            bool connection_was_accepted()
                             {
                                 return get_return_code() == ACCEPTED;
                             }

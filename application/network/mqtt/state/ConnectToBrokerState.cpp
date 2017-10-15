@@ -27,7 +27,7 @@ namespace smooth
 
                     void ConnectToBrokerState::receive(packet::ConnAck& conn_ack)
                     {
-                        if (conn_ack.was_connection_accepted())
+                        if (conn_ack.connection_was_accepted())
                         {
                             fsm.set_state(new(fsm) RunState(fsm));
                         }
