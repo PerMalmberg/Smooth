@@ -41,7 +41,7 @@ namespace smooth
 
                 bool Master::initialize()
                 {
-                    ipc::Mutex::Lock lock(guard);
+                    ipc::Lock lock(guard);
                     do_initialization();
                     return initialized;
                 }

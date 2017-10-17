@@ -41,7 +41,7 @@ namespace smooth
 
                     RecursiveMutex() = default;
 
-                    RecursiveMutex(const Mutex&) = delete;
+                    RecursiveMutex(const RecursiveMutex&) = delete;
 
                     /// Acquires the mutex, blocking until the mutex is acquired.
                     void acquire()

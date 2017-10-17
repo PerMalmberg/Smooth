@@ -4,7 +4,7 @@
 
 #undef write
 #include <driver/spi_master.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 namespace smooth
 {
     namespace core
@@ -21,7 +21,7 @@ namespace smooth
                         }
 
                         virtual bool write(spi_transaction_t& transaction) = 0;
-                        virtual core::ipc::Mutex& get_guard() const = 0;
+                        virtual std::mutex& get_guard() const = 0;
 
                     private:
                 };

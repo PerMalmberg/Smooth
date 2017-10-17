@@ -17,7 +17,7 @@ namespace smooth
                         : master_device(master_device)
                 {
                     // Acquire the guard to ensure noone else is trying to use the I2C bus.
-                    master_device.get_guard().acquire();
+                    master_device.get_guard().lock();
 
                     cmd_link = i2c_cmd_link_create();
                 }
@@ -27,7 +27,7 @@ namespace smooth
                     i2c_cmd_link_delete(cmd_link);
 
                     // Release the guard
-                    master_device.get_guard().release();
+                    master_device.get_guard().unlock();
                 }
 
                 void I2CCommandLink::reset()

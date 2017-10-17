@@ -8,7 +8,7 @@
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #include <driver/gpio.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 #include "ISPIDevice.h"
 
 namespace smooth
@@ -35,7 +35,7 @@ namespace smooth
                         /// \param clock_speed_hz Clock speed, in Hz
                         /// \param flags Bitwise OR of SPI_DEVICE_* flags
                         /// \param queue_size Transaction queue size. This sets how many transactions can be 'in the air' (queued using spi_device_queue_trans but not yet finished using spi_device_get_trans_result) at the same time
-                        SPIDevice(core::ipc::Mutex& guard,
+                        SPIDevice(std::mutex& guard,
                                   uint8_t command_bits,
                                   uint8_t address_bits,
                                   uint8_t bits_between_address_and_data_phase,
@@ -53,7 +53,7 @@ namespace smooth
 
                         bool write(spi_transaction_t& transaction) override;
 
-                        virtual core::ipc::Mutex& get_guard() const
+                        virtual std::mutex& get_guard() const
                         {
                             return guard;
                         }
@@ -74,7 +74,7 @@ namespace smooth
                         }
 
                     private:
-                        core::ipc::Mutex& guard;
+                        std::mutex& guard;
                         static void pre_transmission_callback(spi_transaction_t* trans);
                         static void post_transmission_callback(spi_transaction_t* trans);
                         spi_device_interface_config_t config{};

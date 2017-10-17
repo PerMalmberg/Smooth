@@ -12,7 +12,7 @@
 #include <map>
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/ipc/ITaskEventQueue.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 
 namespace smooth
 {

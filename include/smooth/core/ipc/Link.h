@@ -6,7 +6,7 @@
 
 #include <forward_list>
 #include <chrono>
-#include "Mutex.h"
+#include "Lock.h"
 #include "Queue.h"
 
 namespace smooth
@@ -42,7 +42,7 @@ namespace smooth
                     /// \return true of all subscribers could receive the item, false if one or more queues were full.
                     static bool publish(T& item)
                     {
-                        Mutex::Lock l(get_mutex());
+                        Lock l(get_mutex());
                         bool res = false;
 
                         for (Queue<T>* subscriber : get_subscribers())
@@ -56,9 +56,9 @@ namespace smooth
                 private:
 
                     static std::forward_list<Queue<T>*>& get_subscribers();
-                    static Mutex& get_mutex()
+                    static std::mutex& get_mutex()
                     {
-                        static Mutex m;
+                        static std::mutex m;
                         return m;
                     }
             };
@@ -75,14 +75,14 @@ namespace smooth
             template<typename T>
             void Link<T>::subscribe(Queue<T>* queue)
             {
-                Mutex::Lock l(get_mutex());
+                Lock l(get_mutex());
                 get_subscribers().push_front(queue);
             }
 
             template<typename T>
             void Link<T>::unsubscribe(Queue<T>* queue)
             {
-                Mutex::Lock l(get_mutex());
+                Lock l(get_mutex());
                 get_subscribers().remove(queue);
             }
 

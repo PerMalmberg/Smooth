@@ -84,7 +84,7 @@ namespace smooth
                         B
                     };
 
-                    MCP23017(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard);
+                    MCP23017(i2c_port_t port, uint8_t address, std::mutex& guard);
 
                     /// Puts the device into a known state where IOCON.BANK = 0
                     /// @note Unless you have specifically set IOCON.BANK=1, there is no need to call this method

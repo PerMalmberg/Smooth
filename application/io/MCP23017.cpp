@@ -16,7 +16,7 @@ namespace smooth
     {
         namespace io
         {
-            MCP23017::MCP23017(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard)
+            MCP23017::MCP23017(i2c_port_t port, uint8_t address, std::mutex& guard)
                     : I2CMasterDevice(port, address, guard)
             {
             }

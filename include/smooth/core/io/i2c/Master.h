@@ -7,7 +7,7 @@
 #include <memory>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/util/make_unique.h>
 
 namespace smooth
@@ -48,7 +48,7 @@ namespace smooth
                         bool initialized = false;
 
                         // This mutex is shared among all the devices created from this master.
-                        core::ipc::Mutex guard{};
+                        std::mutex guard{};
                         i2c_config_t config{};
                         i2c_port_t port;
                 };
@@ -59,7 +59,7 @@ namespace smooth
                     std::unique_ptr<DeviceType> dev;
                     if (initialize())
                     {
-                        ipc::Mutex::Lock lock(guard);
+                        ipc::Lock lock(guard);
                         dev = core::util::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
                     }
                     return dev;

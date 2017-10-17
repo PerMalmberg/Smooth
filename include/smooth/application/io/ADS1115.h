@@ -92,7 +92,7 @@ namespace smooth
                     };
 
 
-                    ADS1115(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard);
+                    ADS1115(i2c_port_t port, uint8_t address, std::mutex& guard);
 
                     bool configure(Multiplexer mux,
                                    Range range,

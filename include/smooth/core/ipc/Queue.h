@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 #include <vector>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 
 namespace smooth
 {
@@ -55,7 +55,7 @@ namespace smooth
                     /// Destructor
                     virtual ~Queue()
                     {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        smooth::core::ipc::Lock lock(guard);
                         if (handle != nullptr)
                         {
                             vQueueDelete(handle);
@@ -67,7 +67,7 @@ namespace smooth
                     /// \return number of items the queue can hold.
                     int size()
                     {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        smooth::core::ipc::Lock lock(guard);
                         return queue_size;
                     }
 
@@ -94,7 +94,7 @@ namespace smooth
                     /// \return true if the queue could accept the item, otherwise false.
                     bool push(const T& item, std::chrono::milliseconds wait_time)
                     {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        smooth::core::ipc::Lock lock(guard);
 
                         uint8_t dummy = 0;
                         bool res = xQueueSend(handle, &dummy, to_ticks(wait_time)) == pdTRUE;
@@ -121,7 +121,7 @@ namespace smooth
                     /// \return true if an item could be received, otherwise false.
                     bool pop(T& target, std::chrono::milliseconds wait_time)
                     {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        smooth::core::ipc::Lock lock(guard);
                         uint8_t dummy = 0;
                         bool res = xQueueReceive(handle, &dummy, 0) == pdTRUE;
                         if( res )
@@ -144,7 +144,7 @@ namespace smooth
                     /// \return The number of items in the queue.
                     int count()
                     {
-                        smooth::core::ipc::Mutex::Lock lock(guard);
+                        smooth::core::ipc::Lock lock(guard);
                         return uxQueueMessagesWaiting(handle);
                     }
 
@@ -153,7 +153,7 @@ namespace smooth
                     std::string name;
                     int queue_size;
                     std::vector<T> items;
-                    smooth::core::ipc::Mutex guard;
+                    std::mutex guard;
 
                     TickType_t to_ticks(std::chrono::milliseconds ms)
                     {

@@ -13,7 +13,7 @@ namespace smooth
             {
                 namespace packet
                 {
-                    smooth::core::ipc::Mutex PacketIdentifierFactory::guard{};
+                    std::mutex PacketIdentifierFactory::guard{};
                     uint16_t PacketIdentifierFactory::id = 0;
                 }
             }

@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include "esp_event.h"
 #include <smooth/core/Task.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
@@ -166,7 +166,7 @@ namespace smooth
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
                         core::ipc::SubscribingTaskEventQueue<system_event_t> system_event;
-                        smooth::core::ipc::Mutex guard;
+                        std::mutex guard;
                         std::string client_id;
                         std::chrono::seconds keep_alive;
                         std::shared_ptr<smooth::core::network::ISocket> mqtt_socket;

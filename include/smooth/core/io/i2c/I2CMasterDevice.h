@@ -8,7 +8,7 @@
 #include <vector>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/ipc/Mutex.h>
+#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/util/make_unique.h>
 #include <smooth/core/util/FixedBufferBase.h>
 
@@ -32,7 +32,7 @@ namespace smooth
                         /// \param port The port
                         /// \param address The device address
                         /// \param guard The guard mutex.
-                        I2CMasterDevice(i2c_port_t port, uint8_t address, core::ipc::Mutex& guard)
+                        I2CMasterDevice(i2c_port_t port, uint8_t address, std::mutex& guard)
                                 : address(address), port(port), guard(guard)
                         {
                         }
@@ -45,7 +45,7 @@ namespace smooth
                         /// \param found_devices Where the address of found devices are placed
                         void scan_i2c_bus(std::vector<uint8_t>& found_devices) const;
 
-                        core::ipc::Mutex& get_guard() const
+                        std::mutex& get_guard() const
                         {
                             return guard;
                         }
@@ -90,7 +90,7 @@ namespace smooth
 
                     private:
                         void log_error(esp_err_t err, const char* msg);
-                        core::ipc::Mutex& guard;
+                        std::mutex& guard;
                 };
             }
         }

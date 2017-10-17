@@ -40,7 +40,7 @@ namespace smooth
                     {
                         public:
                             ST7735_SPI(
-                                    core::ipc::Mutex& guard,
+                                    std::mutex& guard,
                                     gpio_num_t data_command_pin)
                                     : SPIDevice(
                                     guard,

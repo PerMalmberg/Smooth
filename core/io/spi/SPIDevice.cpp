@@ -16,7 +16,7 @@ namespace smooth
                 static const char* log_tag = "SPIDevice";
 
                 SPIDevice::SPIDevice(
-                        core::ipc::Mutex& guard,
+                        std::mutex& guard,
                         uint8_t command_bits,
                         uint8_t address_bits,
                         uint8_t bits_between_address_and_data_phase,
