@@ -139,7 +139,7 @@ namespace smooth
                             ReadingHeaderSection state = ReadingHeaderSection::START;
                             int bytes_received = 0;
                             int current_length = 0;
-                            int wanted_amount = 1;
+                            int remaining_bytes_to_read = 1;
                             int received_header_length = 0;
                             mutable bool error = false;
                             bool too_big = false;

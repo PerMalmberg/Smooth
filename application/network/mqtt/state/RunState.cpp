@@ -20,21 +20,18 @@ namespace smooth
                     {
                         auto& publication = fsm.get_mqtt().get_publication();
 
-                        if (!reconnect_handled)
+                        if (reconnect_handled)
                         {
-                            // Only do this once
-                            reconnect_handled = true;
-                            publication.resend_outstanding_control_packet(fsm.get_mqtt());
+                            publication.publish_next(fsm.get_mqtt());
+                            auto& subscription = fsm.get_mqtt().get_subscription();
+                            subscription.subscribe_next(fsm.get_mqtt());
                         }
                         else
                         {
-                            publication.publish_next(fsm.get_mqtt());
+                            // Only do this once
+                            reconnect_handled = true;
+                            publication.resend_outstanding_control_packet(fsm.get_mqtt(), clean_session);
                         }
-
-                        auto& subscription = fsm.get_mqtt().get_subscription();
-
-                        subscription.subscribe_next(fsm.get_mqtt());
-
                     }
 
                     void RunState::receive(packet::PubAck& pub_ack)

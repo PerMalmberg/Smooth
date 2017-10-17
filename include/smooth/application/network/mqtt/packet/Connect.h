@@ -22,7 +22,9 @@ namespace smooth
                     {
                         public:
                             Connect() = default;
-                            Connect(const std::string& client_id, std::chrono::seconds keep_alive);
+                            Connect(const std::string& client_id, std::chrono::seconds keep_alive, bool clean_session = true);
+
+                            bool get_clean_session();
 
                         protected:
                             bool has_payload() const override
@@ -31,6 +33,7 @@ namespace smooth
                             }
 
                         private:
+                            bool clean_session;
                     };
                 }
             }

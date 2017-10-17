@@ -21,6 +21,8 @@ namespace smooth
                     void ConnectToBrokerState::enter_state()
                     {
                         packet::Connect con(fsm.get_mqtt().get_client_id(), fsm.get_mqtt().get_keep_alive());
+
+                        is_using_clean_session = con.get_clean_session();
                         fsm.get_mqtt().send_packet(con);
                         fsm.get_mqtt().set_keep_alive_timer(fsm.get_mqtt().get_keep_alive());
                     }
@@ -29,7 +31,7 @@ namespace smooth
                     {
                         if (conn_ack.connection_was_accepted())
                         {
-                            fsm.set_state(new(fsm) RunState(fsm));
+                            fsm.set_state(new(fsm) RunState(fsm, is_using_clean_session));
                         }
                         else
                         {

@@ -90,7 +90,7 @@ namespace smooth
                 std::string name;
                 TaskHandle_t task_handle = nullptr;
                 uint32_t stack_size;
-                UBaseType_t priority;
+                uint32_t priority;
                 std::chrono::milliseconds tick_interval;
                 QueueSetHandle_t notification;
                 std::map<QueueSetMemberHandle_t, smooth::core::ipc::ITaskEventQueue*> queues{};

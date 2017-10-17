@@ -46,7 +46,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::resend_outstanding_control_packet(IMqttClient& mqtt)
+                void Publication::resend_outstanding_control_packet(IMqttClient& mqtt, bool clean_session)
                 {
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
                     // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
@@ -56,46 +56,60 @@ namespace smooth
                     if (in_progress.size() > 0)
                     {
                         auto& flight = in_progress.front();
-                        auto& packet = flight.get_packet();
 
-                        if (flight.get_waiting_for() == PacketType::PUBACK)
+                        if (clean_session)
                         {
-                            // Set dup flag and let normal procedure send the packet.
-                            packet.set_dup_flag();
-                            flight.zero_timer();
-                            flight.set_wait_packet(PacketType::Reserved);
-                        }
-                        else if (flight.get_waiting_for() == PacketType::PUBREC)
-                        {
-                            // Let normal procedure send the packet
-                            flight.zero_timer();
-                            flight.set_wait_packet(PacketType::Reserved);
-                        }
-                        else if (flight.get_waiting_for() == PacketType::PUBCOMP)
-                        {
-                            packet::PubRel pub_rel(packet.get_packet_identifier());
-
-                            // As this is running directly after a reconnect, and the TX buffer is cleared
-                            // on disconnect, it is guaranteed that this message will fit in the buffer.
-                            mqtt.send_packet(pub_rel);
+                            if(flight.get_waiting_for() == PacketType::PUBACK
+                                || flight.get_waiting_for() == PacketType::PUBREC
+                                   || flight.get_waiting_for() == PacketType::PUBCOMP)
+                            {
+                                // Drop message
+                                in_progress.erase(in_progress.begin());
+                            }
                         }
                         else
                         {
-                            // Haven't gotten far enough to wait for PUBACK or PUBCOMP, reset.
-                            packet.set_dup_flag();
-                            flight.start_timer();
-                            flight.set_wait_packet(PacketType::Reserved);
+                            auto& packet = flight.get_packet();
+
+                            if (flight.get_waiting_for() == PacketType::PUBACK)
+                            {
+                                // Set dup flag and let normal procedure send the packet.
+                                packet.set_dup_flag();
+                                flight.zero_timer();
+                                flight.set_wait_packet(PacketType::Reserved);
+                            }
+                            else if (flight.get_waiting_for() == PacketType::PUBREC)
+                            {
+                                // Let normal procedure send the packet
+                                flight.zero_timer();
+                                flight.set_wait_packet(PacketType::Reserved);
+                            }
+                            else if (flight.get_waiting_for() == PacketType::PUBCOMP)
+                            {
+                                packet::PubRel pub_rel(packet.get_packet_identifier());
+
+                                // As this is running directly after a reconnect, and the TX buffer is cleared
+                                // on disconnect, it is guaranteed that this message will fit in the buffer.
+                                mqtt.send_packet(pub_rel);
+                            }
+                            else
+                            {
+                                // Haven't gotten far enough to wait for PUBACK or PUBCOMP, reset.
+                                packet.set_dup_flag();
+                                flight.start_timer();
+                                flight.set_wait_packet(PacketType::Reserved);
+                            }
                         }
                     }
                 }
 
                 void Publication::publish_next(IMqttClient& mqtt)
                 {
+                    auto& flight = in_progress.front();
+                    auto& packet = flight.get_packet();
+
                     if (in_progress.size() > 0)
                     {
-                        auto& flight = in_progress.front();
-                        auto& packet = flight.get_packet();
-
                         if (packet.get_qos() == QoS::AT_MOST_ONCE)
                         {
                             // Fire and forget

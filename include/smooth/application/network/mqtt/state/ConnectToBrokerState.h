@@ -28,7 +28,8 @@ namespace smooth
                             void enter_state() override;
 
                             void receive(packet::ConnAck& conn_ack) override;
-
+                        private:
+                            bool is_using_clean_session = true;
                     };
                 }
             }

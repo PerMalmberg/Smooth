@@ -41,11 +41,11 @@ namespace smooth
                         int wanted;
                         if (is_too_big())
                         {
-                            wanted = std::min(wanted_amount, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                            wanted = std::min(remaining_bytes_to_read, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
                         }
                         else
                         {
-                            wanted = wanted_amount;
+                            wanted = remaining_bytes_to_read;
                         }
 
                         return wanted;
@@ -67,23 +67,23 @@ namespace smooth
                             if (b.test(7))
                             {
                                 // Not yet received all length bytes
-                                wanted_amount = 1;
+                                remaining_bytes_to_read = 1;
                             }
                             else
                             {
                                 received_header_length = bytes_received;
 
                                 // We can now calculate the length of the remaining data
-                                wanted_amount = calculate_remaining_length_and_variable_header_offset();
+                                remaining_bytes_to_read = calculate_remaining_length_and_variable_header_offset();
 
-                                if (wanted_amount > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
+                                if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
-                                    ESP_LOGV(mqtt_log_tag, "Too big packet detected: %d > %d", wanted_amount,
+                                    ESP_LOGV(mqtt_log_tag, "Too big packet detected: %d > %d", remaining_bytes_to_read,
                                              CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
                                     state = DATA;
                                     too_big = true;
                                 }
-                                else if (wanted_amount > 0)
+                                else if (remaining_bytes_to_read > 0)
                                 {
                                     state = DATA;
                                 }
@@ -91,7 +91,7 @@ namespace smooth
                         }
                         else if (state == DATA)
                         {
-                            wanted_amount -= length;
+                            remaining_bytes_to_read -= length;
                         }
                         else
                         {
@@ -269,7 +269,7 @@ namespace smooth
                         core::util::ByteSet b(packet[0]);
                         ss << "R(" << b.test(0) << ") ";
                         ss << "D(" << b.test(3) << ") ";
-                        ESP_LOGV(mqtt_log_tag, "%s: %s",header, ss.str().c_str());
+                        ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
 
 
                         if (has_payload() && get_payload_length() > 0)
@@ -339,11 +339,8 @@ namespace smooth
                                 received_header_length + CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE :
                                 bytes_received + get_wanted_amount();
 
-                        // Make sure there is room to do direct memory writes by expanding the vector.
-                        while (packet.size() < required_size)
-                        {
-                            packet.push_back(0);
-                        }
+                        // Make sure there is room to do direct memory writes by reserving space.
+                        packet.resize(required_size, 0);
 
                         if (is_too_big())
                         {
@@ -362,7 +359,7 @@ namespace smooth
 
                     bool MQTTPacket::is_complete()
                     {
-                        return wanted_amount == 0;
+                        return remaining_bytes_to_read == 0;
                     }
 
 

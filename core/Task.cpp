@@ -10,7 +10,7 @@ namespace smooth
 {
     namespace core
     {
-        Task::Task(const std::string& task_name, uint32_t stack_size, UBaseType_t priority,
+        Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
                    std::chrono::milliseconds tick_interval)
                 : name(task_name),
                   stack_size(stack_size),
@@ -20,7 +20,7 @@ namespace smooth
         {
         }
 
-        Task::Task(TaskHandle_t task_to_attach_to, UBaseType_t priority, std::chrono::milliseconds tick_interval)
+        Task::Task(TaskHandle_t task_to_attach_to, uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
                 task_handle(task_to_attach_to),
@@ -146,7 +146,7 @@ namespace smooth
 
         void Task::print_task_info()
         {
-            ESP_LOGI( "TaskInfo", "%s: Stack: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr));
+            ESP_LOGI("TaskInfo", "%s: Stack: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr));
         }
     }
 }

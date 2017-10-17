@@ -34,7 +34,7 @@ namespace smooth
 
                         void handle_disconnect();
 
-                        void resend_outstanding_control_packet(IMqttClient& mqtt);
+                        void resend_outstanding_control_packet(IMqttClient& mqtt, bool clean_session);
 
                         void receive(packet::PubAck& pub_ack, IMqttClient& mqtt);
 

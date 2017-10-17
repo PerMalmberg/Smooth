@@ -20,9 +20,10 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            RunState(MqttFSM<MQTTBaseState>& fsm)
+                            RunState(MqttFSM<MQTTBaseState>& fsm, bool clean_session)
                                     : ConnectedState(fsm, "RunState"),
-                                      reconnect_handled(false)
+                                      reconnect_handled(false),
+                                      clean_session(clean_session)
                             {
                             }
 
@@ -41,6 +42,7 @@ namespace smooth
 
                         private:
                             bool reconnect_handled;
+                            bool clean_session;
                     };
                 }
             }

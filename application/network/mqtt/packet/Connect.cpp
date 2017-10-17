@@ -19,8 +19,8 @@ namespace smooth
                 namespace packet
                 {
                     // Minimum connect packet
-                    Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive)
-                            : MQTTPacket()
+                    Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive, bool clean_session)
+                            : MQTTPacket(), clean_session(clean_session)
                     {
                         set_header(PacketType::CONNECT, 0);
 
@@ -36,7 +36,7 @@ namespace smooth
                         variable_header.push_back(0);
                         core::util::ByteSet connect_flags(0);
                         connect_flags.set(0, false); // Reserved
-                        connect_flags.set(1, true);  // Clean session
+                        connect_flags.set(1, clean_session);  // Clean session
                         connect_flags.set(2, false); // Will flag
                         connect_flags.set(3, false); // Will QoS LSB
                         connect_flags.set(4, false); // Will QoS MSB
@@ -64,6 +64,11 @@ namespace smooth
 
                         apply_constructed_data(variable_header);
 
+                    }
+
+                    bool Connect::get_clean_session()
+                    {
+                        return clean_session;
                     }
                 }
             }
