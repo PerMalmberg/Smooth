@@ -8,6 +8,7 @@
 #include "ITaskEventQueue.h"
 #include "IEventListener.h"
 #include "Link.h"
+#include "QueueNotification.h"
 
 namespace smooth
 {
@@ -48,7 +49,12 @@ namespace smooth
                     /// \return true if the queue could accept the item, otherwise false.
                     bool push(const T& item)
                     {
-                        return queue.push(item);
+                        auto res = queue.push(item);
+                        if(res)
+                        {
+                            notification->notify(this);
+                        }
+                        return res;
                     }
 
                     /// Gets the size of the queue.
@@ -74,8 +80,14 @@ namespace smooth
                         return queue.get_handle();
                     }
 
+                    void register_notification(QueueNotification* notification) override
+                    {
+                        this->notification = notification;
+                    }
+
                 protected:
                     Queue<T> queue;
+                    QueueNotification* notification = nullptr;
                 private:
                     void forward_to_event_queue()
                     {

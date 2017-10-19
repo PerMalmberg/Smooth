@@ -10,6 +10,8 @@ namespace smooth
     {
         namespace ipc
         {
+            class QueueNotification;
+
             /// Common interface for TaskEventQueue
             /// As an application programmer you are not meant to call any of these methods.
             class ITaskEventQueue
@@ -19,8 +21,7 @@ namespace smooth
                     virtual void forward_to_event_queue() = 0;
                     /// Returns the size of the event queue.
                     virtual int size() = 0;
-                    /// Returns the underlying FreeRTOS queue handle.
-                    virtual QueueHandle_t get_handle() = 0;
+                    virtual void register_notification(QueueNotification* notification);
             };
         }
     }

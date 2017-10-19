@@ -49,6 +49,7 @@ namespace smooth
                     /// Gets the amount of time passed since start.
                     /// \return The amount of time.
                     std::chrono::microseconds get_running_time();
+                    std::chrono::microseconds get_running_time() const;
 
                 private:
                     bool active = false;

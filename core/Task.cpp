@@ -16,7 +16,7 @@ namespace smooth
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  notification(nullptr)
+                  notification()
         {
         }
 
@@ -27,7 +27,7 @@ namespace smooth
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                notification(nullptr)
+                notification()
         {
             vTaskPrioritySet(task_handle, priority);
             is_attached = true;
@@ -35,12 +35,7 @@ namespace smooth
 
         Task::~Task()
         {
-            for (auto& q : queues)
-            {
-                xQueueRemoveFromSet(q.second->get_handle(), notification);
-            }
-
-            queues.clear();
+            notification.clear();
             vTaskDelete(task_handle);
         }
 
@@ -50,8 +45,6 @@ namespace smooth
             if (!started)
             {
                 started = true;
-
-                prepare_queues();
 
                 if (is_attached)
                 {
@@ -94,11 +87,7 @@ namespace smooth
                 }
                 else
                 {
-                    // Limit task tick to a minimum of 1 tick.
-                    QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification,
-                                                                       std::max(static_cast<TickType_t>(1),
-                                                                                pdMS_TO_TICKS(
-                                                                                        tick_interval.count())));
+                    auto* queue = notification.wait_for_notification(tick_interval);
 
                     if (queue == nullptr)
                     {
@@ -108,45 +97,24 @@ namespace smooth
                     }
                     else
                     {
-                        // A queue or mutex has signaled an item is available.
-                        auto it = queues.find(queue);
-                        if (it != queues.end())
-                        {
-                            it->second->forward_to_event_queue();
-                        }
+                        // A queue has signaled an item is available.
+                        // Note: do not get tempted to retrieve all messages from
+                        // the queue - it would cause message ordering to get mixed up.
+                        queue->forward_to_event_queue();
                     }
                 }
             }
         }
 
-        void Task::prepare_queues()
-        {
-            int queue_set_size = 0;
-            // Add all queues belonging to this Task.
-            for (auto& q : queues)
-            {
-                queue_set_size += q.second->size();
-            }
-
-            // Create the queue notification set, always 1 slots or greater to to handle
-            // tasks without any queues.
-            notification = xQueueCreateSet(std::max(1, queue_set_size));
-
-            for (auto& q : queues)
-            {
-                xQueueAddToSet(q.second->get_handle(), notification);
-            }
-        }
 
         void Task::register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue)
         {
-            // The notification queue must be be able to hold the total number of possible waiting messages.
-            queues.insert(std::make_pair(task_queue->get_handle(), task_queue));
+            task_queue->register_notification(&notification);
         }
 
         void Task::print_task_info()
         {
-            ESP_LOGI("TaskInfo", "%s: Stack: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr));
+            ESP_LOGI("TaskInfo", "%s: Stack: %u, Min heap: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr), esp_get_minimum_free_heap_size());
         }
     }
 }

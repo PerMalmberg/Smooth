@@ -13,6 +13,8 @@
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/ipc/Lock.h>
+#include <thread>
+#include <smooth/core/ipc/QueueNotification.h>
 
 namespace smooth
 {
@@ -34,7 +36,7 @@ namespace smooth
                 /// \param ms Time to wait
                 static void delay(std::chrono::milliseconds ms)
                 {
-                    vTaskDelay(ms.count() / portTICK_PERIOD_MS);
+                    std::this_thread::sleep_for(ms);
                 }
 
                 /// Convert time to ticks
@@ -92,8 +94,8 @@ namespace smooth
                 uint32_t stack_size;
                 uint32_t priority;
                 std::chrono::milliseconds tick_interval;
-                QueueSetHandle_t notification;
-                std::map<QueueSetMemberHandle_t, smooth::core::ipc::ITaskEventQueue*> queues{};
+                smooth::core::ipc::QueueNotification notification;
+
                 bool is_attached = false;
                 bool started = false;
 
