@@ -6,9 +6,9 @@
 
 #include <memory>
 #include <vector>
+#include <mutex>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/util/make_unique.h>
 #include <smooth/core/util/FixedBufferBase.h>
 
@@ -90,6 +90,15 @@ namespace smooth
 
                     private:
                         void log_error(esp_err_t err, const char* msg);
+
+                        /// Convert time to ticks
+                        /// \param ms Time
+                        /// \return Ticks
+                        inline TickType_t to_tick(std::chrono::milliseconds ms) const
+                        {
+                            return pdMS_TO_TICKS(ms.count());
+                        }
+
                         std::mutex& guard;
                 };
             }

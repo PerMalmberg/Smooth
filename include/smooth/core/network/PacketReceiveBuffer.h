@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <mutex>
 #include <smooth/core/util/CircularBuffer.h>
-#include <smooth/core/ipc/Lock.h>
 #include "IPacketReceiveBuffer.h"
 
 namespace smooth
@@ -34,7 +34,7 @@ namespace smooth
 
                     bool is_full() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return buffer.is_full();
                     }
 
@@ -65,13 +65,13 @@ namespace smooth
 
                     bool get(Packet& target) override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return buffer.get(target);
                     }
 
                     void clear() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         buffer.clear();
                         // Clear out any packets in progress too.
                         prepare_new_packet();

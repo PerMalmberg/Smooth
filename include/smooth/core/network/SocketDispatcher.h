@@ -5,15 +5,15 @@
 #pragma once
 
 #include <cstring>
-#include <sys/socket.h>
-#include <esp_event.h>
-#include <smooth/core/Task.h>
 #include <map>
 #include <vector>
+#include <sys/socket.h>
+#include <smooth/core/Task.h>
 #include <smooth/core/ipc/RecursiveMutex.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include "ISocket.h"
+#include <esp_event.h>
 
 namespace smooth
 {

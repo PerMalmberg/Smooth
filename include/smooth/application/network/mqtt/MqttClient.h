@@ -8,10 +8,10 @@
 #include <chrono>
 #include <memory>
 #include <deque>
+#include <mutex>
 #include <unordered_map>
 #include "esp_event.h"
 #include <smooth/core/Task.h>
-#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>

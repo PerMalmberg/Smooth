@@ -2,9 +2,12 @@
 // Created by permal on 6/25/17.
 //
 
+#include <algorithm>
 #include <smooth/core/Task.h>
 #include <smooth/core/timer/ElapsedTime.h>
-#include <algorithm>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -13,6 +16,7 @@ namespace smooth
         Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
                    std::chrono::milliseconds tick_interval)
                 : name(task_name),
+                  worker(),
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
@@ -20,23 +24,20 @@ namespace smooth
         {
         }
 
-        Task::Task(TaskHandle_t task_to_attach_to, uint32_t priority, std::chrono::milliseconds tick_interval)
+        Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
-                task_handle(task_to_attach_to),
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
                 notification()
         {
-            vTaskPrioritySet(task_handle, priority);
             is_attached = true;
         }
 
         Task::~Task()
         {
             notification.clear();
-            vTaskDelete(task_handle);
         }
 
         void Task::start()
@@ -44,6 +45,8 @@ namespace smooth
             // Prevent multiple starts
             if (!started)
             {
+                // TODO: Set priority
+
                 started = true;
 
                 if (is_attached)
@@ -53,23 +56,21 @@ namespace smooth
                 }
                 else
                 {
-                    xTaskCreate(
-                            [](void* o)
-                            {
-                                static_cast<Task*>(o)->exec();
-                            },
-                            name.c_str(), stack_size, this, priority, &task_handle);
+                    worker = std::thread([this]()
+                                         {
+                                             this->exec();
+                                         });
                 }
             }
         }
 
         void Task::exec()
         {
-            ESP_LOGV("Task", "Initializing task '%s', %p", pcTaskGetTaskName(task_handle), task_handle);
+            Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
 
             init();
 
-            ESP_LOGV("Task", "Task '%s' initialized, %p", pcTaskGetTaskName(task_handle), task_handle);
+            Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
 
             timer::ElapsedTime delayed{};
 
@@ -77,7 +78,6 @@ namespace smooth
 
             for (;;)
             {
-
                 // Try to keep the tick alive even when there are lots of incoming messages
                 // by simply not checking the queues when more than one tick interval has passed.
                 if (tick_interval.count() > 0 && delayed.get_running_time() > tick_interval)
@@ -106,15 +106,9 @@ namespace smooth
             }
         }
 
-
         void Task::register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue)
         {
             task_queue->register_notification(&notification);
-        }
-
-        void Task::print_task_info()
-        {
-            ESP_LOGI("TaskInfo", "%s: Stack: %u, Min heap: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr), esp_get_minimum_free_heap_size());
         }
     }
 }

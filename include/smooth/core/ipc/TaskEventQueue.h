@@ -71,15 +71,6 @@ namespace smooth
                         return queue.count();
                     }
 
-                    /// Gets the underlying FreeRTOS handle for the FreeRTOS queue.
-                    /// Unless you are implementing a specialization of the Queue, you
-                    /// shouldn't need to call this method.
-                    /// \return The queue handle
-                    QueueHandle_t get_handle()
-                    {
-                        return queue.get_handle();
-                    }
-
                     void register_notification(QueueNotification* notification) override
                     {
                         this->notification = notification;

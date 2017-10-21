@@ -59,7 +59,7 @@ namespace smooth
 
                 void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
                 {
-                    Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     this->address = address;
                     this->auto_reconnect = auto_reconnect;
                     control_event.push(event::ConnectEvent());
@@ -77,19 +77,19 @@ namespace smooth
                 bool MqttClient::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                    bool retain)
                 {
-                    Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     return publication.publish(topic, data, length, qos, retain);
                 }
 
                 void MqttClient::subscribe(const std::string& topic, QoS qos)
                 {
-                    Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     subscription.subscribe(topic, qos);
                 }
 
                 void MqttClient::unsubscribe(const std::string& topic)
                 {
-                    Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     subscription.unsubscribe(topic);
                 }
 

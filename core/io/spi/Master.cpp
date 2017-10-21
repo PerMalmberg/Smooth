@@ -35,7 +35,7 @@ namespace smooth
 
                 bool Master::initialize()
                 {
-                    core::ipc::Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     if (!initialized)
                     {
                         esp_err_t res = spi_bus_initialize(host, &bus_config, dma_channel);

@@ -39,7 +39,7 @@ namespace smooth
 
                     if (res == ESP_OK)
                     {
-                        res = i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
+                        res = i2c_master_cmd_begin(port, link, to_tick(timeout));
                         log_error(res, "Error during write");
                         write_result = res == ESP_OK;
                     }
@@ -83,7 +83,7 @@ namespace smooth
                     {
                         // Finish the transmission without releasing the lock we have on the i2c master.
                         res |= i2c_master_stop(link);
-                        res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
+                        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
 
                         // Start a new transmission
                         link.reset();
@@ -103,7 +103,7 @@ namespace smooth
 
                     // Complete the read with a stop condition.
                     res |= i2c_master_stop(link);
-                    res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
+                    res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
 
                     if (res != ESP_OK)
                     {
@@ -134,7 +134,7 @@ namespace smooth
                         auto res = i2c_master_start(link);
                         res |= i2c_master_write_byte(link, read_address, true);
                         res |= i2c_master_stop(link);
-                        res |= i2c_master_cmd_begin(port, link, Task::to_tick(timeout));
+                        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
 
                         if (res != ESP_OK)
                         {

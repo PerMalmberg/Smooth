@@ -2,8 +2,6 @@
 // Created by permal on 7/1/17.
 //
 
-#include <fcntl.h>
-#include <algorithm>
 #include <smooth/core/network/SocketDispatcher.h>
 #include "esp_log.h"
 

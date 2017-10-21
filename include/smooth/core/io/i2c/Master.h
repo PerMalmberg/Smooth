@@ -5,9 +5,9 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/ipc/Lock.h>
 #include <smooth/core/util/make_unique.h>
 
 namespace smooth
@@ -59,7 +59,7 @@ namespace smooth
                     std::unique_ptr<DeviceType> dev;
                     if (initialize())
                     {
-                        ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         dev = core::util::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
                     }
                     return dev;

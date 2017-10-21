@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <smooth/core/util/make_unique.h>
-#include <smooth/core/ipc/Lock.h>
 #include <driver/gpio.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
@@ -64,7 +64,7 @@ namespace smooth
                         template<typename DeviceType, typename ...Args>
                         std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select, Args&& ...args)
                         {
-                            core::ipc::Lock lock(guard);
+                            std::lock_guard<std::mutex> lock(guard);
                             auto device = core::util::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
                             if (device->initialize(host, chip_select))
                             {

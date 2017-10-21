@@ -47,7 +47,7 @@ namespace smooth
         };
 
         Application::Application(UBaseType_t priority, std::chrono::milliseconds tick_interval)
-                : Task(xTaskGetCurrentTaskHandle(), priority, tick_interval),
+                : Task(priority, tick_interval),
                   system_event("system_event", 10, *this, *this)
         {
             nvs_flash_init();

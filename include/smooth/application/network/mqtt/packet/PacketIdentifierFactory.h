@@ -6,7 +6,7 @@
 
 
 #include <stdint.h>
-#include <smooth/core/ipc/Lock.h>
+#include <mutex>
 
 namespace smooth
 {
@@ -23,7 +23,7 @@ namespace smooth
                         public:
                             static uint16_t get_id()
                             {
-                                smooth::core::ipc::Lock lock(guard);
+                                std::lock_guard<std::mutex> lock(guard);
                                 return ++id;
 
                             }
