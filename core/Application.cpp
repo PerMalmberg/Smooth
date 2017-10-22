@@ -3,16 +3,17 @@
 //
 
 #include <algorithm>
+#include <smooth/core/Application.h>
+#include <smooth/core/ipc/Publisher.h>
+#ifdef ESP_PLATFORM
+
+#include <smooth/core/network/SocketDispatcher.h>
+#include <smooth/core/logging/log.h>
+
 #include <esp_event.h>
 #include <esp_event_loop.h>
 #include <nvs_flash.h>
-#include <driver/gpio.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <smooth/core/Application.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/logging/log.h>
+#endif // END ESP_PLATFORM
 
 using namespace std::chrono;
 using namespace smooth::core::logging;
@@ -21,6 +22,19 @@ namespace smooth
 {
     namespace core
     {
+        Application::Application(uint32_t priority, std::chrono::milliseconds tick_interval)
+                : Task(priority, tick_interval)
+        {
+        }
+
+        void Application::init()
+        {
+            // Start socket dispatcher first of all so that it is
+            // ready to receive network status events.
+            //qqq network::SocketDispatcher::instance();
+        }
+
+#ifdef ESP_PLATFORM
         const std::unordered_map<int, const char*> Application::id_to_system_event = {
                 {SYSTEM_EVENT_WIFI_READY,          "ESP32 WiFi ready"},
                 {SYSTEM_EVENT_SCAN_DONE,           "ESP32 finish scanning AP"},
@@ -48,7 +62,7 @@ namespace smooth
                 {SYSTEM_EVENT_MAX,                 ""}
         };
 
-        Application::Application(UBaseType_t priority, std::chrono::milliseconds tick_interval)
+        IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
                 : Task(priority, tick_interval),
                   system_event("system_event", 10, *this, *this)
         {
@@ -59,7 +73,7 @@ namespace smooth
             ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));
         }
 
-        esp_err_t Application::event_callback(void* ctx, system_event_t* event)
+        esp_err_t IDFApplication::event_callback(void* ctx, system_event_t* event)
         {
 
             auto name = id_to_system_event.find(event->event_id);
@@ -78,17 +92,7 @@ namespace smooth
             return ESP_OK;
         }
 
-        void Application::set_system_log_level(esp_log_level_t level) const
-        {
-            // Silence wifi logging
-            std::vector<const char*> logs{"wifi", "tcpip_adapter"};
-            for (auto log : logs)
-            {
-                esp_log_level_set(log, level);
-            }
-        }
-
-        void Application::init()
+        void IDFApplication::init()
         {
             // Start socket dispatcher first of all so that it is
             // ready to receive network status events.
@@ -100,9 +104,10 @@ namespace smooth
             }
         }
 
-        void Application::event(const system_event_t& event)
+        void IDFApplication::event(const system_event_t& event)
         {
             wifi.event(event);
         }
+#endif
     }
 }

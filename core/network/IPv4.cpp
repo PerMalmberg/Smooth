@@ -4,8 +4,7 @@
 
 #include <smooth/core/network/IPv4.h>
 #include <arpa/inet.h>
-#include <stdint.h>
-#include <esp_log.h>
+#include <cstdint>
 
 namespace smooth
 {

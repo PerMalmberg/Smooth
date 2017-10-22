@@ -40,7 +40,7 @@ namespace smooth
 
             void SocketDispatcher::tick()
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::recursive_mutex> lock(socket_guard);
                 restart_inactive_sockets();
 
                 int max_file_descriptor = build_sets();
@@ -121,7 +121,7 @@ namespace smooth
 
             void SocketDispatcher::start_socket(std::shared_ptr<ISocket> socket)
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::recursive_mutex> lock(socket_guard);
 
                 if (has_ip)
                 {
@@ -138,7 +138,7 @@ namespace smooth
 
             void SocketDispatcher::shutdown_socket(std::shared_ptr<ISocket> socket)
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::recursive_mutex> lock(socket_guard);
 
                 Log::verbose(tag, Format("Shutting down socket {1}", Pointer(socket.get())));
                 socket->stop();
@@ -215,7 +215,7 @@ namespace smooth
             {
                 bool shall_close_sockets = false;
 
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::recursive_mutex> lock(socket_guard);
                 if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
                 {
                     has_ip = true;

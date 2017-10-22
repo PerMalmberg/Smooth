@@ -5,7 +5,6 @@
 #pragma once
 
 #include <smooth/core/network/ISocket.h>
-#include "esp_log.h"
 
 namespace smooth
 {

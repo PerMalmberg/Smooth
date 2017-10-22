@@ -9,7 +9,9 @@
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
+#ifdef ESP_PLATFORM
 #include "sdkconfig.h"
+#endif // END ESP_PLATFORM
 
 using namespace std;
 using namespace smooth::core::logging;

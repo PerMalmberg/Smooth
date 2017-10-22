@@ -4,7 +4,6 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/Connect.h>
-#include "esp_log.h"
 
 using namespace std;
 
@@ -50,8 +49,8 @@ namespace smooth
                                                             std::min(std::numeric_limits<uint16_t>::max(),
                                                                      static_cast<uint16_t>( keep_alive.count())));
 
-                        variable_header.push_back(keep_alive_interval >> 8); // MSB
-                        variable_header.push_back(keep_alive_interval & 0xFF); // LSB
+                        variable_header.push_back(static_cast<uint8_t>(keep_alive_interval >> 8)); // MSB
+                        variable_header.push_back(static_cast<uint8_t>(keep_alive_interval & 0xFF)); // LSB
 
                         // Payload, in order if used
                         // Client Identifier

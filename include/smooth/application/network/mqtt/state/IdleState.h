@@ -5,7 +5,7 @@
 #pragma once
 
 #include "DisconnectedState.h"
-#include "esp_log.h"
+
 
 namespace smooth
 {

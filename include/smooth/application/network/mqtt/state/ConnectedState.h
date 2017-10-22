@@ -5,7 +5,6 @@
 #pragma once
 
 #include "MQTTBaseState.h"
-#include "esp_log.h"
 
 namespace smooth
 {

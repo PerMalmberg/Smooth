@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "esp_log.h"
-
 namespace smooth
 {
     namespace application

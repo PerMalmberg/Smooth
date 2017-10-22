@@ -32,13 +32,6 @@ namespace smooth
                 /// Starts the task.
                 void start();
 
-                /// Delay for the specified amount
-                /// \param ms Time to wait
-                static void delay(std::chrono::milliseconds ms)
-                {
-                    std::this_thread::sleep_for(ms);
-                }
-
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
 
             protected:
@@ -70,26 +63,18 @@ namespace smooth
                 {
                 }
 
-                /// Gets the tick interval
-                /// \return The tick interval.
-                std::chrono::milliseconds get_tick_interval() const
-                {
-                    return tick_interval;
-                }
-
             private:
+                void exec();
+
                 std::string name;
                 std::thread worker;
                 uint32_t stack_size;
                 uint32_t priority;
                 std::chrono::milliseconds tick_interval;
-                smooth::core::ipc::QueueNotification notification;
 
+                smooth::core::ipc::QueueNotification notification;
                 bool is_attached = false;
                 bool started = false;
-
-                void exec();
-                void prepare_queues();
         };
     }
 }

@@ -7,9 +7,9 @@
 #include <cstring>
 #include <map>
 #include <vector>
+#include <mutex>
 #include <sys/socket.h>
 #include <smooth/core/Task.h>
-#include <smooth/core/ipc/RecursiveMutex.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include "ISocket.h"
@@ -64,7 +64,7 @@ namespace smooth
                     std::vector<std::shared_ptr<ISocket>> inactive_sockets;
                     std::vector<std::shared_ptr<ISocket>> all_sockets;
                     std::vector<std::shared_ptr<ISocket>> sockets_to_close;
-                    smooth::core::ipc::RecursiveMutex socket_guard;
+                    std::recursive_mutex socket_guard;
                     smooth::core::ipc::SubscribingTaskEventQueue<system_event_t> system_events;
 
                     fd_set read_set;

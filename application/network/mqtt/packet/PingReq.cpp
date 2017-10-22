@@ -4,7 +4,6 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/PingReq.h>
-#include "esp_log.h"
 
 using namespace std;
 
