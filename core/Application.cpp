@@ -35,7 +35,7 @@ namespace smooth
         }
 
 #ifdef ESP_PLATFORM
-        const std::unordered_map<int, const char*> Application::id_to_system_event = {
+        const std::unordered_map<int, const char*> IDFApplication::id_to_system_event = {
                 {SYSTEM_EVENT_WIFI_READY,          "ESP32 WiFi ready"},
                 {SYSTEM_EVENT_SCAN_DONE,           "ESP32 finish scanning AP"},
                 {SYSTEM_EVENT_STA_START,           "ESP32 station start"},
@@ -63,14 +63,14 @@ namespace smooth
         };
 
         IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
-                : Task(priority, tick_interval),
+                : Application(priority, tick_interval),
                   system_event("system_event", 10, *this, *this)
         {
             nvs_flash_init();
             gpio_install_isr_service(0);
 
             // Setup the system event callback so that we receive events.
-            ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));
+            ESP_ERROR_CHECK(esp_event_loop_init(&IDFApplication::event_callback, this));
         }
 
         esp_err_t IDFApplication::event_callback(void* ctx, system_event_t* event)

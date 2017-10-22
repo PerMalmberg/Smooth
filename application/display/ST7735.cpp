@@ -5,7 +5,7 @@
 #include <cstring>
 #include <chrono>
 #include <smooth/application/display/ST7735.h>
-#include <smooth/core/Task.h>
+#include <thread>
 
 
 using namespace smooth::core::io::spi;
@@ -41,10 +41,10 @@ namespace smooth
                 {
                     // Reset the display
                     reset_pin.set();
-                    core::Task::delay(std::chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     reset_pin.clr();
                     // Wait for reset completion
-                    core::Task::delay(std::chrono::milliseconds(120));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(120));
                 }
 
                 return spi ? true : false;

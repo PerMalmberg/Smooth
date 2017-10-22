@@ -8,6 +8,10 @@
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
 
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
+
 using namespace std::chrono;
 using namespace smooth::core::logging;
 

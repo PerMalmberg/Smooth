@@ -10,7 +10,12 @@
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
 #include <smooth/core/logging/log.h>
 
+#ifdef ESP_PLATFORM
+#include "esp_log.h"
+#endif
+
 using namespace smooth::core::ipc;
+using namespace smooth::core::timer;
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
@@ -23,9 +28,9 @@ namespace smooth
             namespace mqtt
             {
                 MqttClient::MqttClient(const std::string& mqtt_client_id,
-                           std::chrono::seconds keep_alive,
-                           uint32_t stack_size,
-                           UBaseType_t priority, TaskEventQueue<MQTTData>& application_queue)
+                                       std::chrono::seconds keep_alive,
+                                       uint32_t stack_size,
+                                       UBaseType_t priority, TaskEventQueue<MQTTData>& application_queue)
                         : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
                           application_queue(application_queue),
                           tx_empty("TX_empty", 5, *this, *this),
@@ -38,10 +43,18 @@ namespace smooth
                           client_id(mqtt_client_id),
                           keep_alive(keep_alive),
                           mqtt_socket(),
-                          reconnect_timer("reconnect_timer", MQTT_FSM_RECONNECT_TIMER_ID, timer_events, false,
-                                          std::chrono::seconds(5)),
-                          keep_alive_timer("keep_alive_timer", MQTT_FSM_KEEP_ALIVE_TIMER_ID, timer_events, true,
-                                           std::chrono::seconds(1)),
+                          reconnect_timer(
+                                  Timer::create("reconnect_timer",
+                                                MQTT_FSM_RECONNECT_TIMER_ID,
+                                                timer_events,
+                                                false,
+                                                std::chrono::seconds(5))),
+                          keep_alive_timer(
+                                  Timer::create("keep_alive_timer",
+                                                MQTT_FSM_KEEP_ALIVE_TIMER_ID,
+                                                timer_events,
+                                                true,
+                                                std::chrono::seconds(1))),
                           fsm(*this),
                           address()
                 {
@@ -54,12 +67,15 @@ namespace smooth
 
                 void MqttClient::init()
                 {
+#ifdef ESP_PLATFORM
                     esp_log_level_set(mqtt_log_tag, static_cast<esp_log_level_t>(CONFIG_SMOOTH_MQTT_LOGGING_LEVEL));
+#endif
 
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
-                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
+                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address,
+                                            bool auto_reconnect)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     this->address = address;
@@ -70,14 +86,14 @@ namespace smooth
                 bool MqttClient::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
                 {
                     return publish(topic,
-                            reinterpret_cast<const uint8_t*>(msg.c_str()),
-                            msg.size(),
-                            qos,
-                            retain);
+                                   reinterpret_cast<const uint8_t*>(msg.c_str()),
+                                   msg.size(),
+                                   qos,
+                                   retain);
                 }
 
                 bool MqttClient::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
-                                   bool retain)
+                                         bool retain)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     return publication.publish(topic, data, length, qos, retain);
@@ -124,7 +140,7 @@ namespace smooth
 
                 void MqttClient::start_reconnect()
                 {
-                    reconnect_timer.start();
+                    reconnect_timer->start();
                 }
 
                 void MqttClient::reconnect()
@@ -137,13 +153,13 @@ namespace smooth
                 {
                     if (interval.count() == 0)
                     {
-                        keep_alive_timer.stop();
+                        keep_alive_timer->stop();
                     }
                     else
                     {
                         std::chrono::milliseconds ms = interval;
                         ms /= 2;
-                        keep_alive_timer.start(ms);
+                        keep_alive_timer->start(ms);
                     }
                 }
 
@@ -154,7 +170,8 @@ namespace smooth
 
                 void MqttClient::event(const core::network::ConnectionStatusEvent& event)
                 {
-                    Log::info(mqtt_log_tag, Format("MQTT {1} server", Str(event.is_connected() ? "connected to" : "disconnected from")));
+                    Log::info(mqtt_log_tag, Format("MQTT {1} server",
+                                                   Str(event.is_connected() ? "connected to" : "disconnected from")));
                     connected = event.is_connected();
                     fsm.event(event);
                 }
@@ -177,8 +194,8 @@ namespace smooth
                 {
                     if (event.get_type() == event::BaseEvent::DISCONNECT)
                     {
-                        keep_alive_timer.stop();
-                        reconnect_timer.stop();
+                        keep_alive_timer->stop();
+                        reconnect_timer->stop();
                         fsm.disconnect_event();
                         tx_buffer.clear();
                         rx_buffer.clear();

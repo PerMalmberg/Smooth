@@ -170,8 +170,8 @@ namespace smooth
                         std::string client_id;
                         std::chrono::seconds keep_alive;
                         std::shared_ptr<smooth::core::network::ISocket> mqtt_socket;
-                        core::timer::Timer reconnect_timer;
-                        core::timer::Timer keep_alive_timer;
+                        std::shared_ptr<core::timer::Timer> reconnect_timer;
+                        std::shared_ptr<core::timer::Timer> keep_alive_timer;
                         smooth::application::network::mqtt::state::MqttFSM<state::MQTTBaseState> fsm;
                         bool auto_reconnect = false;
                         std::shared_ptr<smooth::core::network::InetAddress> address;

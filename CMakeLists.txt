@@ -38,9 +38,9 @@ set(SOURCE_FILES
         application/network/mqtt/Subscription.cpp ]]
         core/ipc/QueueNotification.cpp
         core/logging/posix/posix_log.cpp
-        #[[core/network/IPv4.cpp
-        core/network/IPv6.cpp
-        core/network/SocketDispatcher.cpp ]]
+        #core/network/IPv4.cpp
+        #core/network/IPv6.cpp
+        #core/network/SocketDispatcher.cpp
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
@@ -97,7 +97,7 @@ set(SOURCE_FILES
         include/smooth/core/ipc/SubscribingTaskEventQueue.h
         include/smooth/core/ipc/TaskEventQueue.h
         include/smooth/core/logging/log.h
-        #[[include/smooth/core/network/ConnectionStatusEvent.h
+        include/smooth/core/network/ConnectionStatusEvent.h
         include/smooth/core/network/DataAvailableEvent.h
         include/smooth/core/network/InetAddress.h
         include/smooth/core/network/IPacketAssembly.h
@@ -111,7 +111,7 @@ set(SOURCE_FILES
         include/smooth/core/network/PacketSendBuffer.h
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
-        include/smooth/core/network/TransmitBufferEmptyEvent.h]]
+        include/smooth/core/network/TransmitBufferEmptyEvent.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h
         include/smooth/core/timer/Timer.h

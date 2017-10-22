@@ -52,7 +52,8 @@ namespace smooth
 #ifdef ESP_PLATFORM
         /// The IDFApplication extends Application with things needed to run under the IDF framework
         class IDFApplication
-                : public Application
+                : public Application,
+                public smooth::core::ipc::IEventListener<system_event_t>
         {
             public:
                 /// Constructor
@@ -71,6 +72,9 @@ namespace smooth
                 {
                     return wifi;
                 }
+
+            protected:
+                void init() override;
 
             private:
                 static esp_err_t event_callback(void* ctx, system_event_t* event);
