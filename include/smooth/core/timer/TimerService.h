@@ -28,12 +28,12 @@ namespace smooth
                     : public std::priority_queue<SharedTimer, std::vector<SharedTimer>, TimerComparator>
             {
                 public:
-                    explicit TimerQueue(const TimerComparator cmp) :
+                    explicit TimerQueue(const TimerComparator& cmp) :
                             std::priority_queue<SharedTimer, std::vector<SharedTimer>, TimerComparator>(cmp)
                     {
                     }
 
-                    void remove_timer(SharedTimer timer)
+                    void remove_timer(const SharedTimer& timer)
                     {
                         auto it = find_if(c.begin(),
                                           c.end(),
@@ -53,6 +53,7 @@ namespace smooth
 
             /// TimerService provides functionality to register a Timer that, when expired results in
             /// a message being posted to the Timer's event queue.
+            /// \note You are not meant to use this class directly.
             class TimerService
                     : private smooth::core::Task
             {
