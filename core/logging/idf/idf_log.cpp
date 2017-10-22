@@ -7,7 +7,6 @@ namespace smooth
     {
         namespace logging
         {
-
             void Log::error(const std::string& tag, const Format& fmt)
             {
                 ESP_LOGE(tag.c_str(), "%s", fmt.get());

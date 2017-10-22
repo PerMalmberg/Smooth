@@ -7,6 +7,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include <chrono>
+#include <mutex>
 
 namespace smooth
 {
@@ -18,7 +19,6 @@ namespace smooth
             class RecursiveMutex
             {
                 public:
-
                     /// Class used to do scoped-based locking of an RecursiveMutex.
                     class Lock
                     {

@@ -4,16 +4,12 @@
 
 #pragma once
 
-#include <cstring>
 #include <sys/socket.h>
-
-#undef bind
-
 #include "InetAddress.h"
 #include "ISocket.h"
+#include <cstring>
 #include <array>
 #include <memory>
-#include <openssl/ssl.h>
 #include <smooth/core/util/CircularBuffer.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
@@ -21,6 +17,9 @@
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -433,22 +432,27 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::log(const char* message)
             {
-                ESP_LOGV("Socket", "[%s, %d, %d, %p]: %s", ip->get_ip_as_string().c_str(), ip->get_port(), socket_id,
-                         this, message);
+                Log::verbose("Socket",
+                             Format("[{1}, {2}, {3}, {4}]: {5}",
+                                    Str(ip->get_ip_as_string()),
+                                    Int32(ip->get_port()),
+                                    Int32(socket_id),
+                                    Pointer(this),
+                                    Str(message)));
             }
 
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket",
-                         "[%s, %d, %d %p]: %s: %s (%d)",
-                         ip->get_ip_as_string().c_str(),
-                         ip->get_port(),
-                         socket_id,
-                         this,
-                         message,
-                         strerror(errno),
-                         errno);
+                Log::error("Socket",
+                           Format("[%s, %d, %d %p]: %s: %s (%d)",
+                                  Str(ip->get_ip_as_string()),
+                                  Int32(ip->get_port()),
+                                  Int32(socket_id),
+                                  Pointer(this),
+                                  Str(message),
+                                  Str(strerror(errno)),
+                                  Int32(errno)));
             }
         }
     }

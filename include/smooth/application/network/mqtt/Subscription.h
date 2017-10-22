@@ -18,6 +18,9 @@
 #include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/InFlight.h>
 #include <smooth/application/network/mqtt/Logging.h>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -63,8 +66,8 @@ namespace smooth
                                 else if (flight.get_elapsed_time() > std::chrono::seconds(15))
                                 {
                                     // Waited too long, force a reconnect.
-                                    ESP_LOGE(mqtt_log_tag,
-                                             "Too long since a reply was received to a %s request, forcing reconnect.", control_type);
+                                    Log::error(mqtt_log_tag, Format(
+                                             "Too long since a reply was received to a {1} request, forcing reconnect.", Str(control_type)));
                                     flight.stop_timer();
                                     mqtt.reconnect();
                                     all_ok = false;

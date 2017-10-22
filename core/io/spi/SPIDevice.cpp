@@ -3,7 +3,9 @@
 //
 
 #include <smooth/core/io/spi/SPIDevice.h>
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -13,7 +15,7 @@ namespace smooth
         {
             namespace spi
             {
-                static const char* log_tag = "SPIDevice";
+                static constexpr const char* log_tag = "SPIDevice";
 
                 SPIDevice::SPIDevice(
                         std::mutex& guard,
@@ -68,15 +70,15 @@ namespace smooth
 
                     if (res == ESP_ERR_INVALID_ARG)
                     {
-                        ESP_LOGE(log_tag, "Invalid parameter");
+                        Log::error(log_tag, Format("Invalid parameter"));
                     }
                     else if (res == ESP_ERR_NOT_FOUND)
                     {
-                        ESP_LOGE(log_tag, "No free CS slots");
+                        Log::error(log_tag, Format("No free CS slots"));
                     }
                     else if (res == ESP_ERR_NO_MEM)
                     {
-                        ESP_LOGE(log_tag, "Out of memory");
+                        Log::error(log_tag, Format("Out of memory"));
                     }
 
                     return res == ESP_OK;
@@ -89,7 +91,7 @@ namespace smooth
                     auto res = spi_device_transmit(dev, &transaction);
                     if (res != ESP_OK)
                     {
-                        ESP_LOGE(log_tag, "write() failed");
+                        Log::error(log_tag, Format("write() failed"));
                     }
 
                     return res == ESP_OK;

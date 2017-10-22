@@ -5,9 +5,10 @@
 #include <algorithm>
 #include <smooth/application/network/mqtt/Subscription.h>
 #include <smooth/application/network/mqtt/packet/Subscribe.h>
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
 
 using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -113,7 +114,9 @@ namespace smooth
                             flight.get_packet().get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGD(mqtt_log_tag, "Subscription of topic %s completed, QoS: %d", t.first.c_str(), t.second);
+                                Log::debug(mqtt_log_tag, Format("Subscription of topic {1} completed, QoS: {2}",
+                                                                Str(t.first),
+                                                                Int32(t.second)));
                                 active_subscription.emplace(t.first, t.second);
                             }
 
@@ -185,7 +188,7 @@ namespace smooth
                             packet.get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGD(mqtt_log_tag, "Unsubscription of topic %s completed", t.c_str());
+                                Log::debug(mqtt_log_tag, Format("Unsubscription of topic {1} completed", Str(t)));
                                 active_subscription.erase(t);
                             }
 
@@ -197,7 +200,7 @@ namespace smooth
 
                 void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt)
                 {
-                    ESP_LOGD(mqtt_log_tag, "Reception of QoS %d complete", publish.get_qos());
+                    Log::debug(mqtt_log_tag, Format("Reception of QoS {1} complete", Int32(publish.get_qos())));
                     // Grab the payload
                     std::vector<uint8_t> payload;
                     // Move data into our local vector.

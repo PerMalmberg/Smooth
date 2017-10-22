@@ -3,8 +3,10 @@
 //
 
 #include <smooth/core/timer/Timer.h>
-#include "esp_log.h"
 #include "esp_attr.h"
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -34,7 +36,7 @@ namespace smooth
                 active = true;
 
                 // Ensure at least one tick interval
-                auto tick_count = std::max( pdMS_TO_TICKS(interval.count()), 1u );
+                auto tick_count = std::max(pdMS_TO_TICKS(interval.count()), 1u);
 
                 if (interval != this->interval)
                 {
@@ -104,7 +106,7 @@ namespace smooth
 
                                           if (timer != nullptr)
                                           {
-                                              if( timer->active )
+                                              if (timer->active)
                                               {
                                                   timer->expired();
                                               }
@@ -113,7 +115,7 @@ namespace smooth
 
                 if (handle == nullptr)
                 {
-                    ESP_LOGE("Timer", "Could not create timer '%s', aborting.", name.c_str());
+                    Log::error("Timer", Format("Could not create timer '{1}', aborting.", Str(name)));
                     abort();
                 }
             }

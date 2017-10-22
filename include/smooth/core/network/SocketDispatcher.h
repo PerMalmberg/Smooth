@@ -43,7 +43,7 @@ namespace smooth
 
                     void event(const system_event_t& event) override;
 
-                    void socket_created( std::shared_ptr<ISocket> socket);
+                    void socket_created(std::shared_ptr<ISocket> socket);
 
 
                 protected:
@@ -56,7 +56,8 @@ namespace smooth
 
                     void complete_socket_shutdown();
 
-                    void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col, std::shared_ptr<ISocket> socket);
+                    void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
+                                                       std::shared_ptr<ISocket> socket);
                     void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
                     std::map<int, std::shared_ptr<ISocket>> active_sockets;
@@ -70,6 +71,7 @@ namespace smooth
                     fd_set write_set;
                     timeval tv;
                     bool has_ip = false;
+                    static constexpr const char* tag = "SocketDispatcher";
             };
         }
     }

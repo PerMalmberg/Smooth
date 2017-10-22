@@ -7,6 +7,7 @@
 #include <smooth/core/fsm/StaticFSM.h>
 #include <smooth/core/timer/TimerExpiredEvent.h>
 #include <smooth/core/ipc/IEventListener.h>
+#include <smooth/core/logging/log.h>
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
@@ -15,6 +16,8 @@
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include "MqttFsmConstants.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -64,13 +67,13 @@ namespace smooth
                     template<typename BaseState>
                     void MqttFSM<BaseState>::entering_state(BaseState* state)
                     {
-                        ESP_LOGD(mqtt_log_tag, "Entering %s", state->get_name());
+                        Log::debug(mqtt_log_tag, Format("Entering {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>
                     void MqttFSM<BaseState>::leaving_state(BaseState* state)
                     {
-                        ESP_LOGD(mqtt_log_tag, "Leaving %s", state->get_name());
+                        Log::debug(mqtt_log_tag, Format("Leaving {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>

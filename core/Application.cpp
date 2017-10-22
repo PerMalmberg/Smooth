@@ -11,9 +11,11 @@
 #include <freertos/task.h>
 #include <smooth/core/Application.h>
 #include <smooth/core/ipc/Publisher.h>
-#include <smooth/core//network/SocketDispatcher.h>
+#include <smooth/core/network/SocketDispatcher.h>
+#include <smooth/core/logging/log.h>
 
 using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -63,11 +65,11 @@ namespace smooth
             auto name = id_to_system_event.find(event->event_id);
             if (name != id_to_system_event.end())
             {
-                ESP_LOGV("Application", "%s", (*name).second);
+                Log::verbose("Application", Format((*name).second));
             }
             else
             {
-                ESP_LOGV("Application", "Got untranslated event id %d", event->event_id);
+                Log::verbose("Application", Format("Got untranslated event id {1}", Int32(event->event_id)));
             }
 
             // Publish event to listeners

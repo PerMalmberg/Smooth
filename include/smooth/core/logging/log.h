@@ -213,6 +213,11 @@ namespace smooth
                         data = arg;
                     }
 
+                    explicit Format(const std::string& arg)
+                    {
+                        data = arg;
+                    }
+
                     /// Replaces the all {1} in the format string with arg1 and logs the resulting string.
                     Format(const std::string& format, const BaseArg& arg1)
                     {

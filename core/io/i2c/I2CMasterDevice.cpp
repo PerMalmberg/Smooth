@@ -6,8 +6,10 @@
 #include <smooth/core/Task.h>
 #include <smooth/core/io/i2c/I2CMasterDevice.h>
 #include <smooth/core/io/i2c/I2CCommandLink.h>
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
 #include "esp_intr_alloc.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -20,8 +22,8 @@ namespace smooth
                 // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
                 // I2C specification: http://www.nxp.com/docs/en/user-guide/UM10204.pdf
 
-                static const char* log_tag = "I2CMasterDevice";
-                static const std::chrono::milliseconds timeout(1000);
+                static constexpr const char* log_tag = "I2CMasterDevice";
+                static constexpr const std::chrono::milliseconds timeout(1000);
 
                 bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack)
                 {
@@ -155,23 +157,23 @@ namespace smooth
                 {
                     if (err == ESP_ERR_INVALID_ARG)
                     {
-                        ESP_LOGE(log_tag, "%s - Parameter error", msg);
+                        Log::error(log_tag, Format("{1} - Parameter error", Str(msg)));
                     }
                     else if (err == ESP_FAIL)
                     {
-                        ESP_LOGE(log_tag, "%s - Send command error, no ACK from slave", msg);
+                        Log::error(log_tag, Format("{1} - Send command error, no ACK from slave", Str(msg)));
                     }
                     else if (err == ESP_ERR_INVALID_STATE)
                     {
-                        ESP_LOGE(log_tag, "%s - I2C driver not installed or not in master mode", msg);
+                        Log::error(log_tag, Format("{1} - I2C driver not installed or not in master mode", Str(msg)));
                     }
                     else if (err == ESP_ERR_TIMEOUT)
                     {
-                        ESP_LOGE(log_tag, "%s - Operation timeout, bus busy", msg);
+                        Log::error(log_tag, Format("{1} - Operation timeout, bus busy", Str(msg)));
                     }
                     else if (err != ESP_OK)
                     {
-                        ESP_LOGE(log_tag, "%s - unknown error: %d", msg, err);
+                        Log::error(log_tag, Format("{1} - unknown error: {2}", Str(msg), Int32(err)));
                     }
                 }
             }

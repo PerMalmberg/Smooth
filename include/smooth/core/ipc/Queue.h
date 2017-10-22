@@ -3,12 +3,14 @@
 //
 #pragma once
 
-#include <esp_log.h>
 #include <esp_attr.h>
 #include <chrono>
 #include <string>
 #include <vector>
 #include <mutex>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -38,8 +40,11 @@ namespace smooth
                               items(),
                               guard()
                     {
-                        ESP_LOGV("Queue", "Creating queue '%s', with %d items of size %d.", name.c_str(), size,
-                                 sizeof(T));
+                        Log::verbose("Queue",
+                                     Format("Creating queue '{1}', with {2} items of size {3}.",
+                                            Str(name),
+                                            Int32(size),
+                                            UInt32(sizeof(T))));
                         items.reserve(size);
                     }
 

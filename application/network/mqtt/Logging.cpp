@@ -10,7 +10,7 @@ namespace smooth
         {
             namespace mqtt
             {
-                const char* mqtt_log_tag = "SmoothMQTT";
+                static constexpr const char* mqtt_log_tag = "SmoothMQTT";
             }
         }
     }

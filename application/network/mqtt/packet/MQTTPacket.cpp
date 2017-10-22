@@ -8,9 +8,11 @@
 #include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/application/network/mqtt/Logging.h>
+#include <smooth/core/logging/log.h>
 #include "sdkconfig.h"
 
 using namespace std;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -78,8 +80,9 @@ namespace smooth
 
                                 if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
-                                    ESP_LOGV(mqtt_log_tag, "Too big packet detected: %d > %d", remaining_bytes_to_read,
-                                             CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                                    Log::verbose(mqtt_log_tag, Format("Too big packet detected: {1} > {2}",
+                                                                      Int32(remaining_bytes_to_read),
+                                                                      Int32(CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)));
                                     state = DATA;
                                     too_big = true;
                                 }
@@ -125,7 +128,7 @@ namespace smooth
 
                         if (error)
                         {
-                            ESP_LOGE(mqtt_log_tag, "Invalid remaining length");
+                            Log::error(mqtt_log_tag, Format("Invalid remaining length"));
                         }
 
                         return res;
@@ -269,7 +272,7 @@ namespace smooth
                         core::util::ByteSet b(packet[0]);
                         ss << "R(" << b.test(0) << ") ";
                         ss << "D(" << b.test(3) << ") ";
-                        ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
+                        Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
 
 
                         if (has_payload() && get_payload_length() > 0)
@@ -288,7 +291,7 @@ namespace smooth
                                 }
                             }
 
-                            ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
+                            Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
                         }
                     }
 
@@ -303,7 +306,7 @@ namespace smooth
 
                         if (is_too_big())
                         {
-                            ESP_LOGE(mqtt_log_tag, "Packet is too big.");
+                            Log::verbose(mqtt_log_tag, Format("Packet is too big."));
                             res = false;
                         }
                         else
@@ -320,7 +323,7 @@ namespace smooth
 
                             if (left_over != 0)
                             {
-                                ESP_LOGE(mqtt_log_tag, "Invalid packet, lengths do not add up: %d", left_over);
+                                Log::error(mqtt_log_tag, Format("Invalid packet, lengths do not add up: {1}", Int32(left_over)));
                                 res = false;
                             }
                         }

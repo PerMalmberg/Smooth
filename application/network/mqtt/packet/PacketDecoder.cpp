@@ -14,9 +14,10 @@
 #include <smooth/application/network/mqtt/packet/PingResp.h>
 #include <smooth/core/util/make_unique.h>
 #include <smooth/application/network/mqtt/Logging.h>
-
+#include <smooth/core/logging/log.h>
 #include <string>
-#include "esp_log.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -38,7 +39,7 @@ namespace smooth
                         {
                             // We can't do anything with packets that are too big as their contents
                             // is invalid; not even the variable header can be considered intact.
-                            ESP_LOGV(mqtt_log_tag, "Too big packet discarded");
+                            Log::verbose(mqtt_log_tag, Format("Too big packet discarded"));
                         }
                         else
                         {

@@ -11,7 +11,9 @@
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #include "SPIDevice.h"
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -68,7 +70,7 @@ namespace smooth
                             auto device = core::util::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
                             if (device->initialize(host, chip_select))
                             {
-                                ESP_LOGV(log_tag, "Device added");
+                                Log::verbose(log_tag, Format("Device added"));
                             }
                             else
                             {
