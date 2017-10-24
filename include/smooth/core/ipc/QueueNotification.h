@@ -7,26 +7,28 @@
 #include <chrono>
 #include <queue>
 #include <mutex>
-#include <condition_variable>
 #include <algorithm>
 #include "QueueNotification.h"
 #include "ITaskEventQueue.h"
 #include <smooth/core/timer/ElapsedTime.h>
+#include <smooth/core/ipc/condition_variable.h>
 
 namespace smooth
 {
     namespace core
     {
+        class Task;
+
         namespace ipc
         {
             class QueueNotification
             {
                 public:
-                    QueueNotification();
+                    QueueNotification(Task& parent);
                     ~QueueNotification() = default;
 
                     void notify(ITaskEventQueue* queue);
-                    ITaskEventQueue* wait_for_notification(std::chrono::milliseconds timeout);
+                    ITaskEventQueue* wait_for_notification(Task* callee, std::chrono::milliseconds timeout);
 
                     void clear()
                     {
@@ -40,7 +42,7 @@ namespace smooth
                 private:
                     std::queue<ITaskEventQueue*> queues;
                     std::mutex guard;
-                    std::condition_variable cond;
+                    smooth::core::ipc::condition_variable cond;
                     bool has_data = false;
             };
         }

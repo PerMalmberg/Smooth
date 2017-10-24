@@ -6,7 +6,7 @@
 
 #include <string>
 #include <chrono>
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 
 #undef bind
@@ -15,6 +15,14 @@
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/ipc/QueueNotification.h>
 #include <smooth/core/ipc/Queue.h>
+
+#ifdef ESP_PLATFORM
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#else
+
+#endif
+
 
 namespace smooth
 {
@@ -34,6 +42,13 @@ namespace smooth
 
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
 
+#ifdef ESP_PLATFORM
+                TaskHandle_t get_freertos_task() const
+                {
+                    return freertos_task;
+                }
+#endif
+
             protected:
 
                 /// Use this constructor to attach to an existing task, i.e. the main task.
@@ -47,7 +62,9 @@ namespace smooth
                 /// \param stack_size Tack size, in bytes.
                 /// \param priority Task priority
                 /// \param tick_interval Tick interval
-                Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
+                Task(const std::string& task_name,
+                     uint32_t stack_size,
+                     uint32_t priority,
                      std::chrono::milliseconds tick_interval);
 
                 /// The tick() method is where the task shall perform its work.
@@ -71,10 +88,12 @@ namespace smooth
                 uint32_t stack_size;
                 uint32_t priority;
                 std::chrono::milliseconds tick_interval;
-
                 smooth::core::ipc::QueueNotification notification;
                 bool is_attached = false;
                 bool started = false;
+#ifdef ESP_PLATFORM
+                TaskHandle_t freertos_task;
+#endif
         };
     }
 }

@@ -20,7 +20,7 @@ namespace smooth
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  notification()
+                  notification(*this)
         {
         }
 
@@ -30,7 +30,7 @@ namespace smooth
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                notification()
+                notification(*this)
         {
             is_attached = true;
         }
@@ -45,10 +45,6 @@ namespace smooth
             // Prevent multiple starts
             if (!started)
             {
-                // TODO: Set priority
-
-                started = true;
-
                 if (is_attached)
                 {
                     // Attaching to another task, just run execute.
@@ -56,19 +52,32 @@ namespace smooth
                 }
                 else
                 {
+                    // To avoid race conditions between tasks during start up,
+                    // always wait for the new task to start.
                     worker = std::thread([this]()
                                          {
                                              this->exec();
                                          });
+
+                    while(!started)
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    }
                 }
             }
         }
 
         void Task::exec()
         {
+#ifdef ESP_PLATFORM
+            freertos_task = xTaskGetCurrentTaskHandle();
+            vTaskPrioritySet(nullptr, priority);
+#endif
+
             Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
 
             init();
+            started = true;
 
             Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
 
@@ -87,7 +96,7 @@ namespace smooth
                 }
                 else
                 {
-                    auto* queue = notification.wait_for_notification(tick_interval);
+                    auto* queue = notification.wait_for_notification(this, tick_interval);
 
                     if (queue == nullptr)
                     {

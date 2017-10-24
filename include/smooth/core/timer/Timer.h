@@ -46,7 +46,7 @@ namespace smooth
                     int get_id() const override;
                     const std::string& get_name() override;
                     bool is_repeating() const { return repeating;}
-                    std::chrono::high_resolution_clock::time_point expires_at() const;
+                    std::chrono::steady_clock::time_point expires_at() const;
                 protected:
 
                     const std::string name;
@@ -69,7 +69,7 @@ namespace smooth
                     void expired();
                     void calculate_next_execution();
                     ipc::TaskEventQueue<TimerExpiredEvent>& event_queue;
-                    std::chrono::high_resolution_clock::time_point expire_time;
+                    std::chrono::steady_clock::time_point expire_time;
             };
         }
     }

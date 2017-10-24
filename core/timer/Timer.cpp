@@ -17,7 +17,7 @@ namespace smooth
             Timer::Timer(const std::string& name, uint32_t id, ipc::TaskEventQueue<TimerExpiredEvent>& event_queue,
                          bool repeating, milliseconds interval)
                     : name(name), id(id), repeating(repeating), interval(interval), event_queue(event_queue),
-                      expire_time(high_resolution_clock::now())
+                      expire_time(steady_clock::now())
             {
                 // Start the timer service when a timer is used.
                 TimerService::start_service();
@@ -39,7 +39,7 @@ namespace smooth
                 {
                     this->interval = interval;
                 }
-                expire_time = high_resolution_clock::now() + interval;
+                expire_time = steady_clock::now() + interval;
                 reset();
             }
 
@@ -99,14 +99,14 @@ namespace smooth
                 return std::make_shared<ConstructableTimer>(name, id, event_queue, auto_reload, interval);
             }
 
-            std::chrono::high_resolution_clock::time_point Timer::expires_at() const
+            std::chrono::steady_clock::time_point Timer::expires_at() const
             {
                 return expire_time;
             }
 
             void Timer::calculate_next_execution()
             {
-                expire_time = high_resolution_clock::now() + interval;
+                expire_time = steady_clock::now() + interval;
             }
         }
     }

@@ -125,6 +125,7 @@ set(SOURCE_FILES
         include/smooth/core/util/make_unique.h
         include/smooth/core/Application.h
         include/smooth/core/Task.h
-        )
+        include/smooth/core/ipc/condition_variable.h
+        core/ipc/condition_variable.cpp)
 
 add_library(Smooth ${SOURCE_FILES})

@@ -3,6 +3,7 @@
 //
 
 #include <thread>
+#include <smooth/core/Task.h>
 #include <smooth/core/ipc/QueueNotification.h>
 #include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/logging/log.h>
@@ -14,8 +15,8 @@ namespace smooth
     {
         namespace ipc
         {
-            QueueNotification::QueueNotification()
-                    : queues(), guard(), cond()
+            QueueNotification::QueueNotification(Task& parent)
+                    : queues(), guard(), cond(parent)
             {
             }
 
@@ -28,16 +29,11 @@ namespace smooth
                 std::lock_guard<std::mutex> lock(guard);
                 queues.push(queue);
                 has_data = true;
-#ifdef ESP_PLATFORM
-                std::this_thread::yield();
-#else
-                // TODO: QQQ This is a temporary workaround due to missing functional std::condition_variable in the xtensa-gcc port.
                 cond.notify_one();
-#endif
             }
 
 
-            ITaskEventQueue* QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
+            ITaskEventQueue* QueueNotification::wait_for_notification(Task* callee,std::chrono::milliseconds timeout)
             {
                 ITaskEventQueue* res = nullptr;
 
@@ -45,27 +41,9 @@ namespace smooth
 
                 if (queues.empty())
                 {
-#ifdef ESP_PLATFORM
-                    // TODO: QQQ This is a temporary workaround due to missing functional std::condition_variable in the xtensa-gcc port.
-                    timer::ElapsedTime e;
-                    e.start();
-
-                    lock.unlock();
-                    while (res == nullptr && e.get_running_time() < timeout)
-                    {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                        lock.lock();
-                        if(!queues.empty())
-                        {
-                            res = queues.front();
-                            queues.pop();
-                        }
-                        lock.unlock();
-                    }
-#else
                     // Wait until data is available, or timeout. This will atomically release the lock.
                     auto wait_result = cond.wait_until(lock,
-                                                       std::chrono::system_clock::now() + timeout,
+                                                       std::chrono::steady_clock::now() + timeout,
                                                        [this]()
                                                        {
                                                            // Stop waiting when there is data
@@ -82,7 +60,6 @@ namespace smooth
                             queues.pop();
                         }
                     }
-#endif // END ESP_PLATFORM
                 }
                 else
                 {

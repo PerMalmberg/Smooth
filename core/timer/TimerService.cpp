@@ -26,7 +26,7 @@ namespace smooth
                           }),
                       queue(cmp),
                       guard(),
-                      cond(),
+                      cond(*this),
                       processed()
             {
             }
@@ -71,7 +71,7 @@ namespace smooth
                 else
                 {
                     // Get a fixed 'now'
-                    auto now = high_resolution_clock::now();
+                    auto now = steady_clock::now();
 
                     while (!queue.empty() && queue.top()->expires_at() <= now)
                     {

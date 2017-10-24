@@ -29,7 +29,7 @@ namespace smooth
 
             void Log::verbose(const std::string& tag, const Format& fmt)
             {
-                std::cout << "(D)" << tag << ": " << fmt << std::endl;
+                std::cout << "(V)" << tag << ": " << fmt << std::endl;
             }
         };
     }
