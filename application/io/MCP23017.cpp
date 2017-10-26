@@ -89,7 +89,7 @@ namespace smooth
                     b.set(1, interrupt_polarity_active_high);
 
                     std::vector<uint8_t> d{B0_IOCON, b};
-                    res = res && write(address, d, true);
+                    res = write(address, d, true);
                 }
 
                 if(res)
@@ -103,7 +103,7 @@ namespace smooth
                                   interrupt_control_register_a,
                                   interrupt_control_register_b};
 
-                    res = res && write(address, d, true);
+                    res = write(address, d, true);
                 }
 
                 return res;
