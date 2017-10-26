@@ -30,7 +30,7 @@ namespace smooth
                 MqttClient::MqttClient(const std::string& mqtt_client_id,
                                        std::chrono::seconds keep_alive,
                                        uint32_t stack_size,
-                                       UBaseType_t priority, TaskEventQueue<MQTTData>& application_queue)
+                                       uint32_t priority, TaskEventQueue<MQTTData>& application_queue)
                         : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
                           application_queue(application_queue),
                           tx_empty("TX_empty", 5, *this, *this),
@@ -81,6 +81,7 @@ namespace smooth
                     this->address = address;
                     this->auto_reconnect = auto_reconnect;
                     control_event.push(event::ConnectEvent());
+                    start();
                 }
 
                 bool MqttClient::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
@@ -216,10 +217,9 @@ namespace smooth
                     }
                 }
 
-                void MqttClient::event(const system_event_t& event)
+                void MqttClient::event(const smooth::core::network::NetworkStatus& event)
                 {
-                    if (event.event_id == SYSTEM_EVENT_STA_GOT_IP
-                        || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                    if (event.event == smooth::core::network::NetworkEvent::GOT_IP)
                     {
                         reconnect();
                     }

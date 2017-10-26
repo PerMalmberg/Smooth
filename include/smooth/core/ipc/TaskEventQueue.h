@@ -80,7 +80,7 @@ namespace smooth
                     Queue<T> queue;
                     QueueNotification* notification = nullptr;
                 private:
-                    void forward_to_event_queue()
+                    void forward_to_event_queue() override
                     {
                         // All messages passed via a queue needs a default constructor
                         // and must be copyable and have the assignment operator.

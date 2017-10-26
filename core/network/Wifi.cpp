@@ -7,6 +7,8 @@
 #include <esp_log.h>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
+#include <smooth/core/network/NetworkStatus.h>
+#include <smooth/core/ipc/Publisher.h>
 
 namespace smooth
 {
@@ -81,6 +83,11 @@ namespace smooth
                 if (event.event_id == SYSTEM_EVENT_STA_START)
                 {
                     tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, host_name.c_str());
+                }
+                else if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                {
+                    network::NetworkStatus status(network::NetworkEvent::GOT_IP, event.event_info.got_ip.ip_changed);
+                    core::ipc::Publisher<network::NetworkStatus>::publish(status);
                 }
                 else if (event.event_id == SYSTEM_EVENT_STA_CONNECTED)
                 {

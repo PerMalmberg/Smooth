@@ -10,7 +10,6 @@
 #include <deque>
 #include <mutex>
 #include <unordered_map>
-#include "esp_event.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/network/DataAvailableEvent.h>
@@ -19,6 +18,7 @@
 #include <smooth/core/network/Socket.h>
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/PacketReceiveBuffer.h>
+#include <smooth/core/network/NetworkStatus.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
@@ -43,14 +43,14 @@ namespace smooth
                 /// MQTT client; handles everything required for a connection to a single MQTT broker
                 /// such as connecting, subscribing and publishing topics.
                 class MqttClient
-                        : public smooth::core::Task,
+                        : private smooth::core::Task,
                           private IMqttClient,
                           private core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
                           private core::ipc::IEventListener<core::network::DataAvailableEvent<packet::MQTTPacket>>,
                           private core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
                           private core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
                           private core::ipc::IEventListener<event::BaseEvent>,
-                          private core::ipc::IEventListener<system_event_t>
+                          private core::ipc::IEventListener<smooth::core::network::NetworkStatus>
                 {
                     public:
                         /// Constructor
@@ -61,7 +61,7 @@ namespace smooth
                         /// \param application_queue The queue where incoming messages will be posted.
                         MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive,
                                    uint32_t stack_size,
-                                   UBaseType_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
+                                   uint32_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
 
                         /// Initiates a connection to the provided address.
                         /// \param address The address
@@ -122,7 +122,7 @@ namespace smooth
 
                         void event(const event::BaseEvent& event);
 
-                        void event(const system_event_t& event);
+                        void event(const smooth::core::network::NetworkStatus& event);
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;
                         void start_reconnect() override;
@@ -165,7 +165,7 @@ namespace smooth
                         core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
-                        core::ipc::SubscribingTaskEventQueue<system_event_t> system_event;
+                        core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus> system_event;
                         std::mutex guard;
                         std::string client_id;
                         std::chrono::seconds keep_alive;

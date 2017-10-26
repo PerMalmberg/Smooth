@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <smooth/core/Application.h>
 #include <smooth/core/ipc/Publisher.h>
-#ifdef ESP_PLATFORM
-
 #include <smooth/core/network/SocketDispatcher.h>
+
+#ifdef ESP_PLATFORM
 #include <smooth/core/logging/log.h>
 
 #include <esp_event.h>
@@ -22,16 +22,21 @@ namespace smooth
 {
     namespace core
     {
-        Application::Application(uint32_t priority, std::chrono::milliseconds tick_interval)
+        POSIXApplication::POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
                 : Task(priority, tick_interval)
         {
         }
 
-        void Application::init()
+        void POSIXApplication::init()
         {
             // Start socket dispatcher first of all so that it is
             // ready to receive network status events.
-            //qqq network::SocketDispatcher::instance();
+            network::SocketDispatcher::instance();
+#ifndef ESP_PLATFORM
+            // Assume network is available when running under POSIX system.
+            network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
         }
 
 #ifdef ESP_PLATFORM
@@ -63,11 +68,12 @@ namespace smooth
         };
 
         IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
-                : Application(priority, tick_interval),
+                : POSIXApplication(priority, tick_interval),
                   system_event("system_event", 10, *this, *this)
         {
             nvs_flash_init();
             gpio_install_isr_service(0);
+            Log::verbose("ASDFSF", Format(""));
 
             // Setup the system event callback so that we receive events.
             ESP_ERROR_CHECK(esp_event_loop_init(&IDFApplication::event_callback, this));

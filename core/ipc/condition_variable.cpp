@@ -1,6 +1,7 @@
 
 #include <smooth/core/ipc/condition_variable.h>
 #include <smooth/core/Task.h>
+#include <algorithm>
 
 using namespace smooth::core::logging;
 using namespace std::chrono;
@@ -36,7 +37,9 @@ namespace smooth
 
                 lock.unlock();
 
-                timed_out = xTaskNotifyWait(0, 0, &dummy, pdMS_TO_TICKS(expires_in_ms.count())) == pdFALSE;
+                // Don't let the tick be less than one in order to prevent CPU hogging.
+                auto ms = expires_in_ms.count();
+                timed_out = xTaskNotifyWait(0, 0, &dummy, std::max(pdMS_TO_TICKS(ms), static_cast<TickType_t>(1))) == pdFALSE;
 
                 if(pred)
                 {

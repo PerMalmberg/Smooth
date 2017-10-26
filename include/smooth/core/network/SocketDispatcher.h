@@ -13,7 +13,7 @@
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include "ISocket.h"
-#include <esp_event.h>
+#include "NetworkStatus.h"
 
 namespace smooth
 {
@@ -26,13 +26,11 @@ namespace smooth
             /// you should never have to care about this class.
             class SocketDispatcher
                     : public smooth::core::Task,
-                      public smooth::core::ipc::IEventListener<system_event_t>
+                      public smooth::core::ipc::IEventListener<NetworkStatus>
             {
                 public:
 
-                    virtual ~SocketDispatcher()
-                    {
-                    }
+                    ~SocketDispatcher() override = default;
 
                     static SocketDispatcher& instance();
 
@@ -41,9 +39,7 @@ namespace smooth
                     void start_socket(std::shared_ptr<ISocket> socket);
                     void shutdown_socket(std::shared_ptr<ISocket> socket);
 
-                    void event(const system_event_t& event) override;
-
-                    void socket_created(std::shared_ptr<ISocket> socket);
+                    void event(const NetworkStatus& event) override;
 
 
                 protected:
@@ -54,18 +50,14 @@ namespace smooth
                     void set_timeout();
                     void restart_inactive_sockets();
 
-                    void complete_socket_shutdown();
-
                     void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
                                                        std::shared_ptr<ISocket> socket);
                     void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
                     std::map<int, std::shared_ptr<ISocket>> active_sockets;
                     std::vector<std::shared_ptr<ISocket>> inactive_sockets;
-                    std::vector<std::shared_ptr<ISocket>> all_sockets;
-                    std::vector<std::shared_ptr<ISocket>> sockets_to_close;
                     std::recursive_mutex socket_guard;
-                    smooth::core::ipc::SubscribingTaskEventQueue<system_event_t> system_events;
+                    smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus> network_events;
 
                     fd_set read_set;
                     fd_set write_set;

@@ -3,7 +3,10 @@
 //
 
 #include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/logging/log.h>
+#ifndef ESP_PLATFORM
+#include <unistd.h>
+#endif
+#include <sys/socket.h>
 
 using namespace smooth::core::logging;
 
@@ -29,11 +32,11 @@ namespace smooth
 
 
             SocketDispatcher::SocketDispatcher()
-                    : Task(tag, 8192, tskIDLE_PRIORITY + 6, std::chrono::milliseconds(0)),
+                    : Task(tag, 8192, 10, std::chrono::milliseconds(0)),
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
-                      system_events(tag, 10, *this, *this)
+                      network_events(tag, 10, *this, *this)
             {
                 clear_sets();
             }
@@ -211,17 +214,17 @@ namespace smooth
                 }
             }
 
-            void SocketDispatcher::event(const system_event_t& event)
+            void SocketDispatcher::event(const NetworkStatus& event)
             {
                 bool shall_close_sockets = false;
 
                 std::lock_guard<std::recursive_mutex> lock(socket_guard);
-                if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                if (event.event == NetworkEvent::GOT_IP )
                 {
                     has_ip = true;
-                    shall_close_sockets = event.event_info.got_ip.ip_changed;
+                    shall_close_sockets = event.ip_changed;
                 }
-                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED || event.event_id == SYSTEM_EVENT_STA_LOST_IP)
+                else if (event.event == NetworkEvent::DISCONNECTED)
                 {
                     Log::warning(tag, Format(Str("Station disconnected or IP lost, closing all sockets.")));
 

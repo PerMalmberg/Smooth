@@ -8,6 +8,7 @@
 #include <chrono>
 #include <mutex>
 #include "Queue.h"
+#include "ILinkSubscriber.h"
 
 namespace smooth
 {
@@ -27,15 +28,19 @@ namespace smooth
 
                     Link(const Link&) = delete;
 
-                    virtual ~Link();
+                    // Do not clear subscribers on sdestruction - it breaks all
+                    // subscriptions when an instance of a class inheriting from
+                    // Link<> is destructed. The correct way is to unsubscribe
+                    // in the subclass destructor.
+                    virtual ~Link() = default;
 
                     /// Subscribe to messages
-                    /// \param queue The queue which shall receive the messages.
-                    void subscribe(Queue<T>* queue);
+                    /// \param queue The subscriber which shall receive the messages.
+                    void subscribe(ILinkSubscriber<T>* queue);
 
                     /// Unsubscribes to messages
                     /// \param queue
-                    void unsubscribe(Queue<T>* queue);
+                    void unsubscribe(ILinkSubscriber<T>* queue);
 
                     /// Publishes a copy of the the provided item to each subscriber.
                     /// \param item The item to publish
@@ -45,9 +50,9 @@ namespace smooth
                         std::lock_guard<std::mutex> l(get_mutex());
                         bool res = false;
 
-                        for (Queue<T>* subscriber : get_subscribers())
+                        for (auto* subscriber : get_subscribers())
                         {
-                            res &= subscriber->push(item);
+                            res &= subscriber->receive_published_data(item);
                         }
 
                         return res;
@@ -55,7 +60,7 @@ namespace smooth
 
                 private:
 
-                    static std::forward_list<Queue<T>*>& get_subscribers();
+                    static std::forward_list<ILinkSubscriber<T>*>& get_subscribers();
                     static std::mutex& get_mutex()
                     {
                         static std::mutex m;
@@ -65,33 +70,25 @@ namespace smooth
 
 
             template<typename T>
-            Link<T>::~Link()
-            {
-                // Do not clear subscribers - it breaks all subscriptions when an
-                // instance of a class inheriting from Link<> is destructed.
-                // The correct way is to unsubscribe in the subclass destructor.
-            }
-
-            template<typename T>
-            void Link<T>::subscribe(Queue<T>* queue)
+            void Link<T>::subscribe(ILinkSubscriber<T>* subscriber)
             {
                 std::lock_guard<std::mutex> l(get_mutex());
-                get_subscribers().push_front(queue);
+                get_subscribers().push_front(subscriber);
             }
 
             template<typename T>
-            void Link<T>::unsubscribe(Queue<T>* queue)
+            void Link<T>::unsubscribe(ILinkSubscriber<T>* subscriber)
             {
                 std::lock_guard<std::mutex> l(get_mutex());
-                get_subscribers().remove(queue);
+                get_subscribers().remove(subscriber);
             }
 
             template<typename T>
-            std::forward_list<Queue<T>*>& Link<T>::get_subscribers()
+            std::forward_list<ILinkSubscriber<T>*>& Link<T>::get_subscribers()
             {
                 // Place list in method to ensure linker finds it, it also guarantees
                 // no race condition exists while constructing the forward_list.
-                static std::forward_list<Queue<T>*> subscribers;
+                static std::forward_list<ILinkSubscriber<T>*> subscribers;
                 return subscribers;
             }
         }

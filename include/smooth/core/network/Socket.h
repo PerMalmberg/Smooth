@@ -19,6 +19,12 @@
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/logging/log.h>
 
+#ifndef ESP_PLATFORM
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#endif
+
 using namespace smooth::core::logging;
 
 namespace smooth
@@ -445,7 +451,7 @@ namespace smooth
             void Socket<Packet>::loge(const char* message)
             {
                 Log::error("Socket",
-                           Format("[%s, %d, %d %p]: %s: %s (%d)",
+                           Format("[{1}, {2}, {3} {4}]: {5}: {6} ({7})",
                                   Str(ip->get_ip_as_string()),
                                   Int32(ip->get_port()),
                                   Int32(socket_id),

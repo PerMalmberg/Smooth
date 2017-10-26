@@ -25,7 +25,7 @@ namespace smooth
                 // It might look like the queue can grow without bounds, but that is not the case
                 // as TaskEventQueues only call this method when they have successfully added the
                 // data item to their internal queue. As such, the queue can only be as large as
-                // the sum of all tasks within the same Task.
+                // the sum of all queues within the same Task.
                 std::lock_guard<std::mutex> lock(guard);
                 queues.push(queue);
                 has_data = true;

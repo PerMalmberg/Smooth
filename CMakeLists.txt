@@ -6,9 +6,10 @@ set(CMAKE_CXX_STANDARD 11)
 include_directories(include)
 
 add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512")
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
 
 set(SOURCE_FILES
-        #[[application/network/mqtt/packet/ConnAck.cpp
+        application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
         application/network/mqtt/packet/MQTTPacket.cpp
@@ -32,15 +33,14 @@ set(SOURCE_FILES
         application/network/mqtt/state/DisconnectState.cpp
         application/network/mqtt/state/MQTTBaseState.cpp
         application/network/mqtt/state/RunState.cpp
-        application/network/mqtt/Logging.cpp
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
-        application/network/mqtt/Subscription.cpp ]]
+        application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
         core/logging/posix/posix_log.cpp
-        #core/network/IPv4.cpp
+        core/network/IPv4.cpp
         #core/network/IPv6.cpp
-        #core/network/SocketDispatcher.cpp
+        core/network/SocketDispatcher.cpp
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
@@ -49,7 +49,7 @@ set(SOURCE_FILES
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
         include/smooth/application/io/MCP23017.h
-        #[[include/smooth/application/network/mqtt/event/BaseEvent.h
+        include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
         include/smooth/application/network/mqtt/packet/ConnAck.h
@@ -86,7 +86,7 @@ set(SOURCE_FILES
         include/smooth/application/network/mqtt/MqttClient.h
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
-        include/smooth/application/network/mqtt/Subscription.h ]]
+        include/smooth/application/network/mqtt/Subscription.h
         include/smooth/core/fsm/StaticFSM.h
         include/smooth/core/ipc/IEventListener.h
         include/smooth/core/ipc/ITaskEventQueue.h
@@ -126,6 +126,7 @@ set(SOURCE_FILES
         include/smooth/core/Application.h
         include/smooth/core/Task.h
         include/smooth/core/ipc/condition_variable.h
-        core/ipc/condition_variable.cpp)
+        core/ipc/condition_variable.cpp
+        include/smooth/core/network/NetworkStatus.h include/smooth/core/ipc/ILinkSubscriber.h)
 
 add_library(Smooth ${SOURCE_FILES})
