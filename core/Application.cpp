@@ -73,7 +73,6 @@ namespace smooth
         {
             nvs_flash_init();
             gpio_install_isr_service(0);
-            Log::verbose("ASDFSF", Format(""));
 
             // Setup the system event callback so that we receive events.
             ESP_ERROR_CHECK(esp_event_loop_init(&IDFApplication::event_callback, this));

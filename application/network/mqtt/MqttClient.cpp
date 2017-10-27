@@ -78,10 +78,13 @@ namespace smooth
                                             bool auto_reconnect)
                 {
                     std::lock_guard<std::mutex> lock(guard);
+                    // Must start the task before pushing an event, otherwise the task will not
+                    // have run its exec() far enough to initialize the FreeRTOS pointer
+                    start();
+
                     this->address = address;
                     this->auto_reconnect = auto_reconnect;
                     control_event.push(event::ConnectEvent());
-                    start();
                 }
 
                 bool MqttClient::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
@@ -146,8 +149,13 @@ namespace smooth
 
                 void MqttClient::reconnect()
                 {
-                    control_event.push(event::DisconnectEvent());
-                    control_event.push(event::ConnectEvent());
+                    // Depending on how fast the network is reported as connected, we might end up here
+                    // before we have gotten an address.
+                    if(address)
+                    {
+                        control_event.push(event::DisconnectEvent());
+                        control_event.push(event::ConnectEvent());
+                    }
                 }
 
                 void MqttClient::set_keep_alive_timer(std::chrono::seconds interval)

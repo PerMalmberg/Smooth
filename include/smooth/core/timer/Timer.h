@@ -64,7 +64,6 @@ namespace smooth
 
                 private:
 
-                    void destroy();
                     friend class smooth::core::timer::TimerService;
                     void expired();
                     void calculate_next_execution();

@@ -52,13 +52,13 @@ namespace smooth
                 }
                 else
                 {
-                    // To avoid race conditions between tasks during start up,
-                    // always wait for the new task to start.
                     worker = std::thread([this]()
                                          {
                                              this->exec();
                                          });
 
+                    // To avoid race conditions between tasks during start up,
+                    // always wait for the new task to start.
                     while(!started)
                     {
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));

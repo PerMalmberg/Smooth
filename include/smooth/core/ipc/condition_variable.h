@@ -31,7 +31,7 @@ namespace smooth
             class condition_variable
             {
                 public:
-                    explicit condition_variable(smooth::core::Task& parent);
+                    explicit condition_variable(const smooth::core::Task& parent);
 
                     bool
                     wait_for(std::unique_lock<std::mutex>& lock,
@@ -44,7 +44,7 @@ namespace smooth
 
                     void notify_one();
                 private:
-                    Task& parent;
+                    const Task& parent;
 #ifndef ESP_PLATFORM
                     std::condition_variable cond{};
 #endif

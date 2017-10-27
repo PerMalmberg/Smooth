@@ -25,7 +25,7 @@ namespace smooth
 
             Timer::~Timer()
             {
-                destroy();
+                stop();
             }
 
             void Timer::start()
@@ -64,14 +64,9 @@ namespace smooth
                 return name;
             }
 
-            void Timer::destroy()
-            {
-                stop();
-            }
-
             void Timer::expired()
             {
-                TimerExpiredEvent ev(this);
+                TimerExpiredEvent ev(id);
                 event_queue.push(ev);
             }
 

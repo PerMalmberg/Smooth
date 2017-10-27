@@ -12,7 +12,7 @@ namespace smooth
     {
         namespace ipc
         {
-            condition_variable::condition_variable(smooth::core::Task& parent)
+            condition_variable::condition_variable(const smooth::core::Task& parent)
                     : parent(parent)
             {
             }

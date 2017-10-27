@@ -31,7 +31,7 @@ namespace smooth
 
                     void DisconnectedState::event(const core::timer::TimerExpiredEvent& event)
                     {
-                        if (event.get_timer()->get_id() == MQTT_FSM_RECONNECT_TIMER_ID)
+                        if (event.get_id() == MQTT_FSM_RECONNECT_TIMER_ID)
                         {
                             fsm.get_mqtt().reconnect();
                         }
