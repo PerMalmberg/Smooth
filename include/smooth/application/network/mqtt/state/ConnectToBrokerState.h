@@ -20,7 +20,7 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            ConnectToBrokerState(MqttFSM<MQTTBaseState>& fsm)
+                            explicit ConnectToBrokerState(MqttFSM<MQTTBaseState>& fsm)
                                     : ConnectedState(fsm, "ConnectToBroker")
                             {
                             }

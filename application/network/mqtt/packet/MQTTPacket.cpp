@@ -160,19 +160,19 @@ namespace smooth
                     void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
                     {
                         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
-                        uint16_t length = static_cast<uint16_t>( str.length());
+                        auto length = static_cast<uint16_t>( str.length());
                         append_msb_lsb(length, target);
 
                         for (uint16_t i = 0; i < length; ++i)
                         {
-                            target.push_back(str[i]);
+                            target.push_back(static_cast<uint8_t&&>(str[i]));
                         }
                     }
 
                     void MQTTPacket::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
                     {
-                        target.push_back(value >> 8);
-                        target.push_back(value & 0xFF);
+                        target.push_back(static_cast<uint8_t&&>(value >> 8));
+                        target.push_back(static_cast<uint8_t&&>(value & 0xFF));
                     }
 
                     void MQTTPacket::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)

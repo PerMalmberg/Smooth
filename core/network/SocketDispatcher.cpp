@@ -160,7 +160,7 @@ namespace smooth
                     Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
                 }
 
-                socket->publish_connected_status(socket);
+                socket->publish_connected_status();
             }
 
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,

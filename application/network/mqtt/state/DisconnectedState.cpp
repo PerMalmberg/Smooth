@@ -43,7 +43,7 @@ namespace smooth
                         {
                             fsm.get_mqtt().start_reconnect();
                         }
-                        else if( event.is_connected())
+                        else if (event.is_connected())
                         {
                             fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
                         }

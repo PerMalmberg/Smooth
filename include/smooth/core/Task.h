@@ -19,8 +19,6 @@
 #ifdef ESP_PLATFORM
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#else
-
 #endif
 
 

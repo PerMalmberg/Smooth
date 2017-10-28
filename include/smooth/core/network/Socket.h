@@ -117,7 +117,7 @@ namespace smooth
                     void log(const char* message);
                     void loge(const char* message);
 
-                    void publish_connected_status(std::shared_ptr<ISocket>& socket) override;
+                    void publish_connected_status() override;
                     int socket_id = -1;
                     std::shared_ptr<InetAddress> ip;
                     bool started = false;
@@ -273,8 +273,7 @@ namespace smooth
                 {
                     // Just connected
                     connected = true;
-                    auto self = shared_from_this();
-                    publish_connected_status(self);
+                    publish_connected_status();
                 }
 
                 if (connected)
@@ -307,10 +306,11 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::read_data(uint8_t* target, int max_length)
             {
+                errno = 0;
                 // Try to read the desired amount
                 int read_count = recv(socket_id, target, max_length, 0);
 
-                if (read_count == 0)
+                if (read_count == 0 && errno)
                 {
                     // Disconnected
                     loge("Disconnection detected");
@@ -345,7 +345,8 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::write_data(const uint8_t* src, int length)
             {
-                int amount_sent = send(socket_id, tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length(),
+                int amount_sent = send(socket_id, tx_buffer.get_data_to_send(),
+                                       tx_buffer.get_remaining_data_length(),
                                        0);
 
                 if (amount_sent == -1)
@@ -420,7 +421,7 @@ namespace smooth
             }
 
             template<typename Packet>
-            void Socket<Packet>::publish_connected_status(std::shared_ptr<ISocket>& socket)
+            void Socket<Packet>::publish_connected_status()
             {
                 if (is_connected())
                 {
@@ -431,7 +432,8 @@ namespace smooth
                     log("Disconnected");
                 }
 
-                ConnectionStatusEvent ev(socket, is_connected());
+                auto self = shared_from_this();
+                ConnectionStatusEvent ev(self, is_connected());
                 connection_status.push(ev);
             }
 

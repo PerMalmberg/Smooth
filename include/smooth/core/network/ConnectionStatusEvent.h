@@ -19,7 +19,7 @@ namespace smooth
                     ConnectionStatusEvent() = default;
                     ConnectionStatusEvent(const ConnectionStatusEvent&) = default;
 
-                    ConnectionStatusEvent(std::shared_ptr<smooth::core::network::ISocket> sock, bool is_connected)
+                    ConnectionStatusEvent(std::shared_ptr<smooth::core::network::ISocket>& sock, bool is_connected)
                             : sock(sock),
                               connected(is_connected)
                     {
@@ -37,7 +37,7 @@ namespace smooth
 
                 private:
                     std::shared_ptr<smooth::core::network::ISocket> sock;
-                    bool connected;
+                    bool connected = false;
             };
         }
     }

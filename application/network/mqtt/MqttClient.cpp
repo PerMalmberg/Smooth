@@ -196,6 +196,7 @@ namespace smooth
 
                 void MqttClient::event(const core::timer::TimerExpiredEvent& event)
                 {
+                    Log::verbose("TimerExpired", Format("ID {1}", Int32(event.get_id())));
                     fsm.event(event);
                 }
 

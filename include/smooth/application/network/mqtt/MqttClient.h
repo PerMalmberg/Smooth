@@ -113,16 +113,15 @@ namespace smooth
                         }
 
                     private:
-                        void event(const core::network::TransmitBufferEmptyEvent& event);
-                        void event(const core::network::ConnectionStatusEvent& event);
-                        void event(const packet::MQTTPacket& event);
-                        void event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event);
+                        void event(const core::network::TransmitBufferEmptyEvent& event) override;
+                        void event(const core::network::ConnectionStatusEvent& event) override;
+                        void event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event) override;
 
-                        void event(const core::timer::TimerExpiredEvent& event);
+                        void event(const core::timer::TimerExpiredEvent& event) override;
 
-                        void event(const event::BaseEvent& event);
+                        void event(const event::BaseEvent& event) override;
 
-                        void event(const smooth::core::network::NetworkStatus& event);
+                        void event(const smooth::core::network::NetworkStatus& event) override;
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;
                         void start_reconnect() override;
@@ -135,17 +134,17 @@ namespace smooth
                             return auto_reconnect;
                         }
 
-                        Publication& get_publication()
+                        Publication& get_publication() override
                         {
                             return publication;
                         }
 
-                        Subscription& get_subscription()
+                        Subscription& get_subscription() override
                         {
                             return subscription;
                         }
 
-                        core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& get_application_queue()
+                        core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& get_application_queue() override
                         {
                             return application_queue;
                         }

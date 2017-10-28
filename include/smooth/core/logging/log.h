@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 namespace smooth
 {
@@ -198,6 +199,32 @@ namespace smooth
                     {
                         std::stringstream ss;
                         ss << std::hex << value;
+                        data = ss.str();
+                    }
+            };
+
+            // Class to log a array of (possibly) binary data
+            class Array
+                    : public BaseArgWithData
+            {
+                public:
+                    /// Log the array
+                    /// \param src The source
+                    /// \param treat_as_readable_text If true, treat the data as readable text.
+                    Array(const std::vector<uint8_t>& src, bool treat_as_readable_text)
+                    {
+                        std::stringstream ss;
+                        for(auto& b : src)
+                        {
+                            if(treat_as_readable_text)
+                            {
+                                ss << static_cast<char>(b);
+                            }
+                            else
+                            {
+                                ss << "0x" << std::hex << b;
+                            }
+                        }
                         data = ss.str();
                     }
             };
