@@ -182,7 +182,7 @@ namespace smooth
                                                    "Too long since a reply was received to a publish message, forcing reconnect.")));
 
                                 flight.stop_timer();
-                                mqtt.reconnect();
+                                mqtt.disconnect();
                             }
                             else
                             {

@@ -69,8 +69,16 @@ namespace smooth
                         void
                         connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect);
 
+                        void reconnect() override
+                        {
+                            if(address)
+                            {
+                                connect_to(address, is_auto_reconnect());
+                            }
+                        }
+
                         /// Disconnects from the broker.
-                        void disconnect();
+                        void disconnect() override;
 
                         /// Publishes a message.
                         /// Note: There is a maximum number of messages that can be in the outgoing queue. This number
@@ -125,7 +133,6 @@ namespace smooth
                         const std::string& get_client_id() const override;
                         const std::chrono::seconds get_keep_alive() const override;
                         void start_reconnect() override;
-                        void reconnect() override;
 
                         void set_keep_alive_timer(std::chrono::seconds interval) override;
 

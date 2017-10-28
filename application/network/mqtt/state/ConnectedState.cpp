@@ -35,11 +35,6 @@ namespace smooth
                             fsm.set_state(new(fsm) IdleState(fsm));
                         }
                     }
-
-                    void ConnectedState::disconnect_event()
-                    {
-                        fsm.set_state(new(fsm) DisconnectState(fsm));
-                    }
                 }
             }
         }

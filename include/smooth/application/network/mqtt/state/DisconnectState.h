@@ -5,6 +5,7 @@
 #pragma once
 
 #include "ConnectedState.h"
+#include <smooth/core/timer/ElapsedTime.h>
 
 namespace smooth
 {
@@ -20,13 +21,16 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            DisconnectState(MqttFSM<MQTTBaseState>& fsm)
+                            explicit DisconnectState(MqttFSM<MQTTBaseState>& fsm)
                                     : ConnectedState(fsm, "DisconnectState")
                             {
                             }
 
                             void enter_state() override;
                             void event(const core::network::TransmitBufferEmptyEvent& event) override;
+                            void tick() override;
+                        private:
+                            smooth::core::timer::ElapsedTime elapsed_time{};
                     };
                 }
             }

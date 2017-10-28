@@ -20,6 +20,7 @@ namespace smooth
                     {
                         packet::Disconnect disconnect;
                         fsm.get_mqtt().send_packet(disconnect);
+                        elapsed_time.start();
                     }
 
                     void DisconnectState::event(const core::network::TransmitBufferEmptyEvent& event)
@@ -27,6 +28,17 @@ namespace smooth
                         // Disconnect sent, we're done
                         fsm.set_state(new(fsm) IdleState(fsm));
                     }
+
+                    void DisconnectState::tick()
+                    {
+                        if(elapsed_time.get_running_time() > std::chrono::seconds(2))
+                        {
+                            // Timeout, move on
+                            fsm.set_state(new(fsm) IdleState(fsm));
+                        }
+                    }
+
+
                 }
             }
         }

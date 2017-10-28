@@ -147,17 +147,6 @@ namespace smooth
                     reconnect_timer->start();
                 }
 
-                void MqttClient::reconnect()
-                {
-                    // Depending on how fast the network is reported as connected, we might end up here
-                    // before we have gotten an address.
-                    if(address)
-                    {
-                        control_event.push(event::DisconnectEvent());
-                        control_event.push(event::ConnectEvent());
-                    }
-                }
-
                 void MqttClient::set_keep_alive_timer(std::chrono::seconds interval)
                 {
                     if (interval.count() == 0)
@@ -196,7 +185,6 @@ namespace smooth
 
                 void MqttClient::event(const core::timer::TimerExpiredEvent& event)
                 {
-                    Log::verbose("TimerExpired", Format("ID {1}", Int32(event.get_id())));
                     fsm.event(event);
                 }
 
@@ -206,9 +194,12 @@ namespace smooth
                     {
                         keep_alive_timer->stop();
                         reconnect_timer->stop();
-                        fsm.disconnect_event();
                         tx_buffer.clear();
                         rx_buffer.clear();
+                        if(mqtt_socket)
+                        {
+                            mqtt_socket->stop();
+                        }
                     }
                     else if (event.get_type() == event::BaseEvent::CONNECT)
                     {

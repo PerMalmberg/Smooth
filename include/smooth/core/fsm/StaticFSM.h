@@ -87,8 +87,8 @@ namespace smooth
                 {
                     Log::error("StaticFSM",
                                Format("Attempted to activate state that is larger ({1}) than the designated buffer ({2})",
-                                      UInt32(size),
-                                      UInt32(max)));
+                                      Int32(size),
+                                      Int32(max)));
                     abort();
                 }
 
@@ -120,7 +120,7 @@ namespace smooth
 template<typename BaseState, int StateSize>
 void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
-    // Return the memory are to use for placement new.
+    // Return the memory area to use for placement new.
     return fsm.select_memory_area(size);
 }
 

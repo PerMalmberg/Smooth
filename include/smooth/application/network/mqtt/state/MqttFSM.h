@@ -41,18 +41,16 @@ namespace smooth
                             {
                             }
 
-                            virtual void entering_state(BaseState* state) override;
+                            void entering_state(BaseState* state) override;
 
-                            virtual void leaving_state(BaseState* state) override;
+                            void leaving_state(BaseState* state) override;
 
                             void tick();
                             void event(const core::network::TransmitBufferEmptyEvent& event) override;
                             void event(const core::network::ConnectionStatusEvent& event) override;
                             void event(const core::timer::TimerExpiredEvent& event) override;
 
-                            void packet_received(const packet::MQTTPacket& event);
-
-                            void disconnect_event();
+                            void packet_received(const packet::MQTTPacket& packet);
 
                             mqtt::IMqttClient& get_mqtt() const
                             {
@@ -123,15 +121,6 @@ namespace smooth
                         if (this->get_state() != nullptr)
                         {
                             this->get_state()->event(event);
-                        }
-                    }
-
-                    template<typename BaseState>
-                    void MqttFSM<BaseState>::disconnect_event()
-                    {
-                        if (this->get_state() != nullptr)
-                        {
-                            this->get_state()->disconnect_event();
                         }
                     }
                 }
