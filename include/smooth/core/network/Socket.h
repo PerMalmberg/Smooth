@@ -310,13 +310,7 @@ namespace smooth
                 // Try to read the desired amount
                 int read_count = recv(socket_id, target, max_length, 0);
 
-                if (read_count == 0 && errno)
-                {
-                    // Disconnected
-                    loge("Disconnection detected");
-                    stop();
-                }
-                else if (read_count == -1)
+                if (read_count == -1)
                 {
                     if (errno != EWOULDBLOCK)
                     {
@@ -324,7 +318,7 @@ namespace smooth
                         stop();
                     }
                 }
-                else
+                else if(read_count > 0)
                 {
                     rx_buffer.data_received(read_count);
                     if (rx_buffer.is_error())
