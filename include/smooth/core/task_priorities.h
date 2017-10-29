@@ -2,7 +2,7 @@
 // Created by permal on 10/29/17.
 //
 
-#pragma
+#pragma once
 
 #include <cstdint>
 
