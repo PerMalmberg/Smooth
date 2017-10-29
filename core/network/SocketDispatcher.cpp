@@ -3,6 +3,8 @@
 //
 
 #include <smooth/core/network/SocketDispatcher.h>
+#include <smooth/core/task_priorities.h>
+
 #ifndef ESP_PLATFORM
 #include <unistd.h>
 #endif
@@ -32,7 +34,7 @@ namespace smooth
 
 
             SocketDispatcher::SocketDispatcher()
-                    : Task(tag, 8192, 10, std::chrono::milliseconds(0)),
+                    : Task(tag, 8192, SOCKET_DISPATCHER_PRIO, std::chrono::milliseconds(0)),
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
@@ -84,6 +86,11 @@ namespace smooth
                             }
                         }
                     }
+                }
+                else
+                {
+                    // Nothing to do, yield processing time.
+                    std::this_thread::yield();
                 }
             }
 

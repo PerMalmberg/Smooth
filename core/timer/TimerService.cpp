@@ -4,6 +4,7 @@
 
 #include <smooth/core/timer/TimerService.h>
 #include <smooth/core/timer/Timer.h>
+#include <smooth/core/task_priorities.h>
 
 using namespace smooth::core::logging;
 using namespace std::chrono;
@@ -17,7 +18,7 @@ namespace smooth
             TimerService::TimerService()
                     : Task("TimerService",
                            2048,
-                           10,
+                           TIMER_SERVICE_PRIO,
                            milliseconds(0)),
                       cmp([](SharedTimer left, SharedTimer right)
                           {
