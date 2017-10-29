@@ -36,14 +36,19 @@ namespace smooth
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
-                      network_events(tag, 10, *this, *this)
+                      network_events(tag, 10, *this, *this),
+                      socket_op("SocketOperations",
+                                // Note: If there are more than 20 sockets, this queue is too small.
+                                20,
+                                *this,
+                                *this)
             {
                 clear_sets();
             }
 
             void SocketDispatcher::tick()
             {
-                std::lock_guard<std::recursive_mutex> lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
                 restart_inactive_sockets();
 
                 int max_file_descriptor = build_sets();
@@ -124,7 +129,7 @@ namespace smooth
 
             void SocketDispatcher::start_socket(std::shared_ptr<ISocket> socket)
             {
-                std::lock_guard<std::recursive_mutex> lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
 
                 if (has_ip)
                 {
@@ -141,7 +146,7 @@ namespace smooth
 
             void SocketDispatcher::shutdown_socket(std::shared_ptr<ISocket> socket)
             {
-                std::lock_guard<std::recursive_mutex> lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
 
                 Log::verbose(tag, Format("Shutting down socket {1}", Pointer(socket.get())));
                 socket->stop();
@@ -218,7 +223,7 @@ namespace smooth
             {
                 bool shall_close_sockets = false;
 
-                std::lock_guard<std::recursive_mutex> lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
                 if (event.event == NetworkEvent::GOT_IP )
                 {
                     has_ip = true;
@@ -242,6 +247,23 @@ namespace smooth
                         shutdown_socket(socket.second);
                     }
                 }
+            }
+
+            void SocketDispatcher::event(const SocketOperation& event)
+            {
+                if(event.get_op() == SocketOperation::Op::Start)
+                {
+                    start_socket(event.get_socket());
+                }
+                else
+                {
+                    shutdown_socket(event.get_socket());                    
+                }
+            }
+
+            void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
+            {
+                socket_op.push(SocketOperation(op, socket));
             }
         }
     }

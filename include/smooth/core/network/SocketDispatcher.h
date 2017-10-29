@@ -14,6 +14,7 @@
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include "ISocket.h"
 #include "NetworkStatus.h"
+#include "SocketOperation.h"
 
 namespace smooth
 {
@@ -26,7 +27,8 @@ namespace smooth
             /// you should never have to care about this class.
             class SocketDispatcher
                     : public smooth::core::Task,
-                      public smooth::core::ipc::IEventListener<NetworkStatus>
+                      public smooth::core::ipc::IEventListener<NetworkStatus>,
+                      public smooth::core::ipc::IEventListener<SocketOperation>
             {
                 public:
 
@@ -34,12 +36,11 @@ namespace smooth
 
                     static SocketDispatcher& instance();
 
+                    void perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket);
+
                     void tick() override;
-
-                    void start_socket(std::shared_ptr<ISocket> socket);
-                    void shutdown_socket(std::shared_ptr<ISocket> socket);
-
                     void event(const NetworkStatus& event) override;
+                    void event(const SocketOperation& event);
 
 
                 protected:
@@ -54,10 +55,14 @@ namespace smooth
                                                        std::shared_ptr<ISocket> socket);
                     void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
+                    void start_socket(std::shared_ptr<ISocket> socket);
+                    void shutdown_socket(std::shared_ptr<ISocket> socket);
+
                     std::map<int, std::shared_ptr<ISocket>> active_sockets;
                     std::vector<std::shared_ptr<ISocket>> inactive_sockets;
-                    std::recursive_mutex socket_guard;
+                    std::mutex socket_guard;
                     smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus> network_events;
+                    smooth::core::ipc::TaskEventQueue<SocketOperation> socket_op;
 
                     fd_set read_set;
                     fd_set write_set;

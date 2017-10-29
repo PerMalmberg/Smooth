@@ -183,7 +183,7 @@ namespace smooth
                     res = ip->is_valid();
                     if (res)
                     {
-                        SocketDispatcher::instance().start_socket(shared_from_this());
+                        SocketDispatcher::instance().perform_op(SocketOperation::Op::Start, shared_from_this());
                     }
                 }
 
@@ -410,7 +410,7 @@ namespace smooth
                     connected = false;
                     tx_buffer.clear();
                     rx_buffer.clear();
-                    SocketDispatcher::instance().shutdown_socket(shared_from_this());
+                    SocketDispatcher::instance().perform_op(SocketOperation::Op::Stop, shared_from_this());
                 }
             }
 

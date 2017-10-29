@@ -107,6 +107,8 @@ set(SOURCE_FILES
         include/smooth/core/network/IPv4.h
         include/smooth/core/network/IPv6.h
         include/smooth/core/network/ISocket.h
+        include/smooth/core/network/NetworkStatus.h
+        include/smooth/core/network/SocketOperation.h
         include/smooth/core/network/PacketReceiveBuffer.h
         include/smooth/core/network/PacketSendBuffer.h
         include/smooth/core/network/Socket.h
@@ -127,6 +129,6 @@ set(SOURCE_FILES
         include/smooth/core/Task.h
         include/smooth/core/ipc/condition_variable.h
         core/ipc/condition_variable.cpp
-        include/smooth/core/network/NetworkStatus.h include/smooth/core/ipc/ILinkSubscriber.h)
+        include/smooth/core/ipc/ILinkSubscriber.h)
 
 add_library(Smooth ${SOURCE_FILES})
