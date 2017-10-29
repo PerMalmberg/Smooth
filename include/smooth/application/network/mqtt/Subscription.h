@@ -69,8 +69,8 @@ namespace smooth
                                     Log::error(mqtt_log_tag, Format(
                                              "Too long since a reply was received to a {1} request, forcing disconnect.", Str(control_type)));
                                     flight.stop_timer();
-                                    mqtt.reconnect();
                                     all_ok = false;
+                                    mqtt.force_disconnect();
                                 }
                             }
 

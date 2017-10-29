@@ -4,8 +4,8 @@
 
 #include <smooth/application/network/mqtt/MqttClient.h>
 #include <smooth/application/network/mqtt/packet/Connect.h>
-#include <smooth/application/network/mqtt/packet/Publish.h>
 #include <smooth/application/network/mqtt/state/StartupState.h>
+#include <smooth/application/network/mqtt/state/DisconnectState.h>
 #include <smooth/application/network/mqtt/event/ConnectEvent.h>
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
 #include <smooth/core/logging/log.h>
@@ -120,6 +120,11 @@ namespace smooth
                     control_event.push(event::DisconnectEvent());
                 }
 
+                void MqttClient::force_disconnect()
+                {
+                    fsm.set_state(new(fsm) state::DisconnectState(fsm));
+                }
+
                 bool MqttClient::send_packet(packet::MQTTPacket& packet)
                 {
                     packet.dump("Outgoing");
@@ -196,9 +201,11 @@ namespace smooth
                         reconnect_timer->stop();
                         tx_buffer.clear();
                         rx_buffer.clear();
+
                         if(mqtt_socket)
                         {
                             mqtt_socket->stop();
+                            mqtt_socket.reset();
                         }
                     }
                     else if (event.get_type() == event::BaseEvent::CONNECT)
@@ -207,6 +214,9 @@ namespace smooth
                         {
                             mqtt_socket->stop();
                         }
+
+                        tx_buffer.clear();
+                        rx_buffer.clear();
 
                         mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
                                                                                         rx_buffer,

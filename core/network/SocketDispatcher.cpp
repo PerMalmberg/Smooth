@@ -156,23 +156,28 @@ namespace smooth
                 std::lock_guard<std::mutex> lock(socket_guard);
 
                 Log::verbose(tag, Format("Shutting down socket {1}", Pointer(socket.get())));
-                socket->stop();
+                socket->stop_internal();
                 remove_socket_from_active_sockets(socket);
                 remove_socket_from_collection(inactive_sockets, socket);
 
-                int res = shutdown(socket->get_socket_id(), SHUT_RDWR);
-                if (res < 0)
+                auto socket_id = socket->get_socket_id();
+                if(socket_id != -1)
                 {
-                    Log::error(tag, Format("Shutdown error: {1}", Str(strerror(errno))));
-                }
+                    int res = shutdown(socket_id, SHUT_RDWR);
+                    if (res < 0)
+                    {
+                        Log::error(tag, Format("Shutdown error: {1}", Str(strerror(errno))));
+                    }
 
-                res = close(socket->get_socket_id());
-                if (res < 0)
-                {
-                    Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
-                }
+                    res = close(socket_id);
+                    if (res < 0)
+                    {
+                        Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
+                    }
 
-                socket->publish_connected_status();
+                    socket->clear_socket_id();
+                    socket->publish_connected_status();
+                }
             }
 
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,

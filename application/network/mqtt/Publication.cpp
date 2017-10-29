@@ -35,7 +35,7 @@ namespace smooth
                     if (res)
                     {
                         packet::Publish p(topic, data, length, qos, retain);
-                        in_progress.push_back(InFlight<packet::Publish>(p));
+                        in_progress.emplace_back(p);
                     }
 
                     return res;
@@ -45,7 +45,7 @@ namespace smooth
                 {
                     // When a disconnection happens, any outgoing messages currently being timed must be reset
                     // so that they don't cause a timeout before a resend of the package happens.
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         auto& flight = in_progress.front();
                         flight.zero_timer();
@@ -59,7 +59,7 @@ namespace smooth
                     // Packet Identifiers [MQTT-4.4.0-1]. This is the only circumstance where a Client or Server is
                     // REQUIRED to redeliver messages.
 
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         auto& flight = in_progress.front();
 
@@ -114,7 +114,7 @@ namespace smooth
                     auto& flight = in_progress.front();
                     auto& packet = flight.get_packet();
 
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         if (packet.get_qos() == QoS::AT_MOST_ONCE)
                         {
@@ -182,7 +182,7 @@ namespace smooth
                                                    "Too long since a reply was received to a publish message, forcing disconnect.")));
 
                                 flight.stop_timer();
-                                mqtt.disconnect();
+                                mqtt.force_disconnect();
                             }
                             else
                             {

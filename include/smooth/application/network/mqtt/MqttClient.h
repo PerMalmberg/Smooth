@@ -185,6 +185,7 @@ namespace smooth
                         Subscription subscription{};
                         bool connected = false;
 
+                        void force_disconnect() override                                                                                                                                ;
                 };
             }
         }

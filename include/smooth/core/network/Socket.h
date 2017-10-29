@@ -85,7 +85,7 @@ namespace smooth
 
                     virtual void read_data(uint8_t* target, int max_length);
 
-                    virtual void write_data(const uint8_t* src, int length);
+                    virtual void write_data();
 
                     int get_socket_id() override
                     {
@@ -123,6 +123,8 @@ namespace smooth
                     bool started = false;
                     bool connected = false;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
+                    void stop_internal() override;
+                    void clear_socket_id() override;
             };
 
 
@@ -256,7 +258,7 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::readable()
             {
-                if (!rx_buffer.is_full())
+                if (started && !rx_buffer.is_full())
                 {
                     // How much data to assemble the current packet?
                     int wanted_length = rx_buffer.amount_wanted();
@@ -269,35 +271,35 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::writable()
             {
-                if (!connected && socket_id >= 0)
+                if(started)
                 {
-                    // Just connected
-                    connected = true;
-                    publish_connected_status();
-                }
-
-                if (connected)
-                {
-                    // Any data to send?
-                    if (tx_buffer.is_empty())
+                    if (!connected && socket_id >= 0)
                     {
-                        // Let the application know it may send a packet.
-                        smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
-                        tx_empty.push(event);
+                        // Just connected
+                        connected = true;
+                        publish_connected_status();
                     }
-                    else
-                    {
-                        if (!tx_buffer.is_in_progress())
-                        {
-                            tx_buffer.prepare_next_packet();
-                        }
 
-                        if (tx_buffer.is_in_progress())
+                    if (connected)
+                    {
+                        // Any data to send?
+                        if (tx_buffer.is_empty())
                         {
-                            // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
-                            // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
-                            // packet.
-                            write_data(tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length());
+                            // Let the application know it may send a packet.
+                            smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                            tx_empty.push(event);
+                        }
+                        else
+                        {
+                            if (!tx_buffer.is_in_progress())
+                            {
+                                tx_buffer.prepare_next_packet();
+                            }
+
+                            if (tx_buffer.is_in_progress())
+                            {
+                                write_data();
+                            }
                         }
                     }
                 }
@@ -337,9 +339,12 @@ namespace smooth
             }
 
             template<typename Packet>
-            void Socket<Packet>::write_data(const uint8_t* src, int length)
+            void Socket<Packet>::write_data()
             {
-                int amount_sent = send(socket_id, tx_buffer.get_data_to_send(),
+                // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                // packet.
+                auto amount_sent = send(socket_id, tx_buffer.get_data_to_send(),
                                        tx_buffer.get_remaining_data_length(),
                                        0);
 
@@ -350,7 +355,7 @@ namespace smooth
                 }
                 else
                 {
-                    tx_buffer.data_has_been_sent(amount_sent);
+                    tx_buffer.data_has_been_sent(static_cast<size_t>(amount_sent));
 
                     // Was a complete packet sent?
                     if (!tx_buffer.is_in_progress())
@@ -403,6 +408,13 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::stop()
             {
+                stop_internal();
+                SocketDispatcher::instance().perform_op(SocketOperation::Op::Stop, shared_from_this());
+            }
+
+            template<typename Packet>
+            void Socket<Packet>::stop_internal()
+            {
                 if (started)
                 {
                     log("Stopping");
@@ -410,7 +422,6 @@ namespace smooth
                     connected = false;
                     tx_buffer.clear();
                     rx_buffer.clear();
-                    SocketDispatcher::instance().perform_op(SocketOperation::Op::Stop, shared_from_this());
                 }
             }
 
@@ -429,6 +440,12 @@ namespace smooth
                 auto self = shared_from_this();
                 ConnectionStatusEvent ev(self, is_connected());
                 connection_status.push(ev);
+            }
+
+            template<typename Packet>
+            void Socket<Packet>::clear_socket_id()
+            {
+                socket_id = -1;
             }
 
             template<typename Packet>
