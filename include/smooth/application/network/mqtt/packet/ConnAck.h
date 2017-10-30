@@ -30,19 +30,19 @@ namespace smooth
 
                             ConnAck() = default;
 
-                            ConnAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit ConnAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
                             bool is_session_present()
                             {
-                                core::util::ByteSet b(*variable_header_start);
+                                core::util::ByteSet b(*get_variable_header_start());
                                 return b.test(0);
                             }
 
                             ReturnCode get_return_code()
                             {
-                                return static_cast<ReturnCode>(*(variable_header_start+1));
+                                return static_cast<ReturnCode>(*(get_variable_header_start()+1));
                             }
 
                             bool connection_was_accepted()
@@ -52,7 +52,7 @@ namespace smooth
 
                             void visit( IPacketReceiver& receiver ) override;
                         protected:
-                            virtual int get_variable_header_length() const
+                            int get_variable_header_length() const override
                             {
                                 return 2;
                             }

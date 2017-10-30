@@ -41,7 +41,7 @@ namespace smooth
                     std::string Publish::get_topic() const
                     {
                         calculate_remaining_length_and_variable_header_offset();
-                        return get_string(variable_header_start);
+                        return get_string(get_variable_header_start());
                     }
 
                     int Publish::get_variable_header_length() const

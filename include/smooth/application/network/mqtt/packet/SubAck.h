@@ -30,7 +30,7 @@ namespace smooth
 
                             virtual uint16_t get_packet_identifier() const
                             {
-                                return read_packet_identifier(variable_header_start);
+                                return read_packet_identifier(get_variable_header_start());
                             }
 
                         protected:

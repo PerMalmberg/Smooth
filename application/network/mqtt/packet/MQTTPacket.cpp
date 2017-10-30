@@ -126,7 +126,7 @@ namespace smooth
                         }
 
                         // If present, variable header start always is located after the remaining bytes
-                        variable_header_start = curr;
+                        variable_header_start_ix = std::distance(packet.cbegin(), curr);
 
                         if (error)
                         {
@@ -142,7 +142,7 @@ namespace smooth
                         {
                             for (int i = 0; i < 4 && length > 0; ++i)
                             {
-                                packet.push_back(length % 0x80);
+                                packet.push_back(static_cast<uint8_t&&>(length % 0x80));
                                 length /= 0x80;
 
                                 if (length > 0)
@@ -185,7 +185,7 @@ namespace smooth
 
                     void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
                     {
-                        encode_remaining_length(variable.size());
+                        encode_remaining_length(static_cast<int>(variable.size()));
                         // Using move_iterator we reduce the memory foot print by actually moving
                         // instead of copying the data.
                         std::copy(std::make_move_iterator(variable.begin()),
@@ -239,16 +239,16 @@ namespace smooth
                         // QoS is always located in the first byte but not all packets
                         // actually use the bits as QoS (e.g. PubRel)
                         smooth::core::util::ByteSet b(packet[0]);
-                        uint8_t value = (b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1);
+                        uint8_t value = static_cast<uint8_t>((b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1));
                         return static_cast<QoS>( value );
                     }
 
-                    int MQTTPacket::get_payload_length() const
+                    long MQTTPacket::get_payload_length() const
                     {
                         calculate_remaining_length_and_variable_header_offset();
 
-                        int payload_length = std::distance(
-                                variable_header_start + get_variable_header_length(),
+                        long payload_length = std::distance(
+                                get_variable_header_start() + get_variable_header_length(),
                                 packet.cend());
 
                         return payload_length;
@@ -261,7 +261,7 @@ namespace smooth
 
                         ss << "[" << get_mqtt_type_as_string() << "] "
                            << "Raw(" << packet.size() << ") "
-                           << "Fix(" << std::distance(packet.cbegin(), variable_header_start) << ") "
+                           << "Fix(" << std::distance(packet.cbegin(), get_variable_header_start()) << ") "
                            << "Var(" << get_variable_header_length() << ") "
                            << "Pay(" << get_payload_length() << ") ";
 
@@ -315,9 +315,9 @@ namespace smooth
                         {
                             // Ensure that data lengths add up.
                             calculate_remaining_length_and_variable_header_offset();
-                            int left_over = packet.size()
+                            long left_over = packet.size()
                                             // Fixed header
-                                            - std::distance(packet.cbegin(), variable_header_start)
+                                            - std::distance(packet.cbegin(), get_variable_header_start())
                                             // Variable header
                                             - get_variable_header_length()
                                             // Payload
@@ -325,7 +325,7 @@ namespace smooth
 
                             if (left_over != 0)
                             {
-                                Log::error(mqtt_log_tag, Format("Invalid packet, lengths do not add up: {1}", Int32(left_over)));
+                                Log::error(mqtt_log_tag, Format("Invalid packet, lengths do not add up: {1}", Int64(left_over)));
                                 res = false;
                             }
                         }
@@ -345,7 +345,7 @@ namespace smooth
                                 bytes_received + get_wanted_amount();
 
                         // Make sure there is room to do direct memory writes by reserving space.
-                        packet.resize(required_size, 0);
+                        packet.resize(static_cast<unsigned long>(required_size), 0);
 
                         if (is_too_big())
                         {
