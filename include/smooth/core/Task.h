@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstdint>
 #include <map>
+#include <mutex>
 
 #undef bind
 #include <thread>
@@ -89,6 +90,7 @@ namespace smooth
                 smooth::core::ipc::QueueNotification notification;
                 bool is_attached = false;
                 bool started = false;
+                std::mutex start_mutex;
 #ifdef ESP_PLATFORM
                 TaskHandle_t freertos_task;
 #endif

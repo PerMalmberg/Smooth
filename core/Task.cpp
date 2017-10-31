@@ -20,7 +20,8 @@ namespace smooth
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  notification(*this)
+                  notification(*this),
+                  start_mutex()
         {
         }
 
@@ -30,7 +31,8 @@ namespace smooth
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                notification(*this)
+                notification(*this),
+                start_mutex()
         {
             is_attached = true;
         }
@@ -43,6 +45,7 @@ namespace smooth
         void Task::start()
         {
             // Prevent multiple starts
+            std::unique_lock<std::mutex> lock(start_mutex);
             if (!started)
             {
                 if (is_attached)
@@ -59,9 +62,14 @@ namespace smooth
 
                     // To avoid race conditions between tasks during start up,
                     // always wait for the new task to start.
+                    // Ideally we should use std::condition_variable here, but since the replacement needs
+                    // a parent thread at construction, we can't create one to make the calling thread wait
+                    // and also accessible in execute(). As such we sleep instead. TODO: replace.
                     while(!started)
                     {
+                        lock.unlock();
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        lock.lock();
                     }
                 }
             }
@@ -77,7 +85,11 @@ namespace smooth
             Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
 
             init();
-            started = true;
+
+            {
+                std::lock_guard<std::mutex> lock(start_mutex);
+                started = true;
+            }
 
             Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
 
