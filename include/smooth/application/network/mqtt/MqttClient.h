@@ -162,6 +162,7 @@ namespace smooth
                     private:
 
                         bool send_packet(packet::MQTTPacket& packet) override;
+                        void force_disconnect() override;
 
                         core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;
                         core::network::PacketSendBuffer<packet::MQTTPacket, 5> tx_buffer{};
@@ -184,8 +185,6 @@ namespace smooth
                         Publication publication{};
                         Subscription subscription{};
                         bool connected = false;
-
-                        void force_disconnect() override                                                                                                                                ;
                 };
             }
         }

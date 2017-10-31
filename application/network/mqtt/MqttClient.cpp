@@ -62,6 +62,7 @@ namespace smooth
 
                 void MqttClient::tick()
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     fsm.tick();
                 }
 
@@ -82,9 +83,12 @@ namespace smooth
                     // have run its exec() far enough to initialize the FreeRTOS pointer
                     start();
 
-                    this->address = address;
-                    this->auto_reconnect = auto_reconnect;
-                    control_event.push(event::ConnectEvent());
+                    if(address)
+                    {
+                        this->address = address;
+                        this->auto_reconnect = auto_reconnect;
+                        control_event.push(event::ConnectEvent());
+                    }
                 }
 
                 bool MqttClient::publish(const std::string& topic, const std::string& msg, mqtt::QoS qos, bool retain)
