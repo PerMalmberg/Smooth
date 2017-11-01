@@ -24,7 +24,7 @@ namespace smooth
                         public:
                             Publish() = default;
 
-                            Publish(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Publish(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

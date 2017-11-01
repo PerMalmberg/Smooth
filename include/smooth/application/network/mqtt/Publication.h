@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <chrono>
+#include <mutex>
 #include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
@@ -44,6 +45,7 @@ namespace smooth
 
                     private:
                         std::vector<InFlight<packet::Publish>> in_progress{};
+                        std::mutex guard{};
                 };
             }
         }

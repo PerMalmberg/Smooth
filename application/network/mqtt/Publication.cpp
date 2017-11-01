@@ -31,6 +31,7 @@ namespace smooth
                 bool Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                           bool retain)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     bool res = in_progress.size() < CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES;
                     if (res)
                     {
@@ -43,6 +44,7 @@ namespace smooth
 
                 void Publication::handle_disconnect()
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // When a disconnection happens, any outgoing messages currently being timed must be reset
                     // so that they don't cause a timeout before a resend of the package happens.
                     if (!in_progress.empty())
@@ -54,6 +56,8 @@ namespace smooth
 
                 void Publication::resend_outstanding_control_packet(IMqttClient& mqtt, bool clean_session)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
+
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
                     // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
                     // Packet Identifiers [MQTT-4.4.0-1]. This is the only circumstance where a Client or Server is
@@ -111,6 +115,8 @@ namespace smooth
 
                 void Publication::publish_next(IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
+
                     auto& flight = in_progress.front();
                     auto& packet = flight.get_packet();
 
@@ -199,6 +205,7 @@ namespace smooth
 
                 void Publication::receive(packet::PubAck& pub_ack, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
@@ -214,6 +221,7 @@ namespace smooth
 
                 void Publication::receive(packet::PubRec& pub_rec, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
@@ -240,6 +248,7 @@ namespace smooth
 
                 void Publication::receive(packet::PubComp& pub_rec, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {

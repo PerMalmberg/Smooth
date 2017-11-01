@@ -29,12 +29,7 @@ namespace smooth
                         public:
                             MQTTPacket() = default;
                             MQTTPacket& operator=(const MQTTPacket&) = default;
-
-                            MQTTPacket(const MQTTPacket& other)
-                            {
-                                *this = other;
-                                calculate_remaining_length_and_variable_header_offset();
-                            }
+                            MQTTPacket(const MQTTPacket& other) = default;
 
                             // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned

@@ -52,12 +52,10 @@ namespace smooth
                 public:
                     CircularBuffer();
 
-                    virtual ~CircularBuffer()
-                    {
-                    }
+                    virtual ~CircularBuffer() = default;
 
                     void put(const T& data) override;
-                    bool get(T& data) override;
+                    bool get(T& d) override;
 
                     bool is_empty() override
                     {

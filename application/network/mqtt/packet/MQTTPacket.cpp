@@ -9,6 +9,7 @@
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
+
 #ifdef ESP_PLATFORM
 #include "sdkconfig.h"
 #endif // END ESP_PLATFORM
@@ -160,7 +161,7 @@ namespace smooth
                     void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
                     {
                         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
-                        auto length = static_cast<uint16_t>( str.length());
+                        auto length = static_cast<uint16_t>(str.length());
                         append_msb_lsb(length, target);
 
                         for (uint16_t i = 0; i < length; ++i)
@@ -239,7 +240,7 @@ namespace smooth
                         // QoS is always located in the first byte but not all packets
                         // actually use the bits as QoS (e.g. PubRel)
                         smooth::core::util::ByteSet b(packet[0]);
-                        uint8_t value = static_cast<uint8_t>((b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1));
+                        auto value = static_cast<uint8_t>((b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1));
                         return static_cast<QoS>( value );
                     }
 
@@ -281,15 +282,15 @@ namespace smooth
                         {
                             ss.str("");
 
-                            for (auto b = get_payload_cbegin(); b != packet.cend(); b++)
+                            for (auto p = get_payload_cbegin(); p != packet.cend(); p++)
                             {
-                                if (isascii(*b))
+                                if (isascii(*p))
                                 {
-                                    ss << static_cast<char>(*b);
+                                    ss << static_cast<char>(*p);
                                 }
                                 else
                                 {
-                                    ss << std::hex << static_cast<int>(*b) << " ";
+                                    ss << std::hex << static_cast<int>(*p) << " ";
                                 }
                             }
 
@@ -316,16 +317,17 @@ namespace smooth
                             // Ensure that data lengths add up.
                             calculate_remaining_length_and_variable_header_offset();
                             long left_over = packet.size()
-                                            // Fixed header
-                                            - std::distance(packet.cbegin(), get_variable_header_start())
-                                            // Variable header
-                                            - get_variable_header_length()
-                                            // Payload
-                                            - get_payload_length();
+                                             // Fixed header
+                                             - std::distance(packet.cbegin(), get_variable_header_start())
+                                             // Variable header
+                                             - get_variable_header_length()
+                                             // Payload
+                                             - get_payload_length();
 
                             if (left_over != 0)
                             {
-                                Log::error(mqtt_log_tag, Format("Invalid packet, lengths do not add up: {1}", Int64(left_over)));
+                                Log::error(mqtt_log_tag,
+                                           Format("Invalid packet, lengths do not add up: {1}", Int64(left_over)));
                                 res = false;
                             }
                         }
@@ -376,7 +378,7 @@ namespace smooth
 
                     int MQTTPacket::get_send_length()
                     {
-                        return static_cast<int>( packet.size());
+                        return static_cast<int>(packet.size());
                     }
 
                     const uint8_t* MQTTPacket::get_data()

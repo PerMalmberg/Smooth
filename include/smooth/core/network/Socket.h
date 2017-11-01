@@ -20,9 +20,11 @@
 #include <smooth/core/logging/log.h>
 
 #ifndef ESP_PLATFORM
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
+
 #endif
 
 using namespace smooth::core::logging;
@@ -271,7 +273,7 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::writable()
             {
-                if(started)
+                if (started)
                 {
                     if (!connected && socket_id >= 0)
                     {
@@ -320,7 +322,7 @@ namespace smooth
                         stop();
                     }
                 }
-                else if(read_count > 0)
+                else if (read_count > 0)
                 {
                     rx_buffer.data_received(read_count);
                     if (rx_buffer.is_error())
@@ -344,9 +346,12 @@ namespace smooth
                 // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
                 // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
                 // packet.
-                auto amount_sent = send(socket_id, tx_buffer.get_data_to_send(),
-                                       tx_buffer.get_remaining_data_length(),
-                                       0);
+                auto data_to_send = tx_buffer.get_data_to_send();
+                auto length = tx_buffer.get_remaining_data_length();
+                auto amount_sent = send(socket_id,
+                                        data_to_send,
+                                        length,
+                                        0);
 
                 if (amount_sent == -1)
                 {

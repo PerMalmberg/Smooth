@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -89,10 +90,14 @@ namespace smooth
                             }
                         }
 
+                        void internal_subscribe(const std::string& topic, const QoS& qos);
+
                         std::unordered_map<uint16_t, InFlight<packet::Publish>> receiving{};
                         std::vector<InFlight<packet::Subscribe>> subscribing{};
                         std::unordered_map<std::string, QoS> active_subscription{};
                         std::vector<InFlight<packet::Unsubscribe>> unsubscribing{};
+                        std::mutex guard{};
+
                 };
             }
         }
