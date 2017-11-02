@@ -13,6 +13,7 @@ namespace smooth
 {
     namespace core
     {
+        /// Constructor used when creating a new task running on a new thread.
         Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
                    std::chrono::milliseconds tick_interval)
                 : name(task_name),
@@ -25,6 +26,7 @@ namespace smooth
         {
         }
 
+        /// Constructor use when attaching to an already running thread.
         Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
@@ -65,10 +67,10 @@ namespace smooth
                     // Ideally we should use std::condition_variable here, but since the replacement needs
                     // a parent thread at construction, we can't create one to make the calling thread wait
                     // and also accessible in execute(). As such we sleep instead. TODO: replace.
-                    while(!started)
+                    while (!started)
                     {
                         lock.unlock();
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                         lock.lock();
                     }
                 }
@@ -86,6 +88,7 @@ namespace smooth
 
             init();
 
+            if(!is_attached)
             {
                 std::lock_guard<std::mutex> lock(start_mutex);
                 started = true;
