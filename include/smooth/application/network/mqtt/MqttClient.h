@@ -185,6 +185,7 @@ namespace smooth
                         Publication publication{};
                         Subscription subscription{};
                         bool connected = false;
+                        std::mutex address_guard{};
                 };
             }
         }

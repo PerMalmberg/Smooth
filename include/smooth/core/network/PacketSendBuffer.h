@@ -45,21 +45,25 @@ namespace smooth
 
                     bool is_in_progress() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return in_progress;
                     }
 
                     const uint8_t* get_data_to_send() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_data() + bytes_sent;
                     }
 
                     size_t get_remaining_data_length() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_send_length() - bytes_sent;
                     }
 
                     void data_has_been_sent(size_t length) override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         bytes_sent += length;
                         if(current_item.get_send_length() >= bytes_sent)
                         {

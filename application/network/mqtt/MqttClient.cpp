@@ -85,7 +85,10 @@ namespace smooth
 
                     if(address)
                     {
-                        this->address = address;
+                        {
+                            std::lock_guard<std::mutex> l(address_guard);
+                            this->address = address;
+                        }
                         this->auto_reconnect = auto_reconnect;
                         control_event.push(event::ConnectEvent());
                     }
