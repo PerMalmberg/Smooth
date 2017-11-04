@@ -300,7 +300,7 @@ namespace smooth
 
                     bool MQTTPacket::validate_packet() const
                     {
-                        // Must first check if the back was deemed to big. If that is the
+                        // Must first check if the pack was deemed to big. If that is the
                         // case, then the data held by the packet is invalid and must not
                         // be used for calculations since the data has been overwritten
                         // at least once while reading the data we cannot hold.
