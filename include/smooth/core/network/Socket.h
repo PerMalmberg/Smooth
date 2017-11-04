@@ -127,6 +127,13 @@ namespace smooth
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
                     void stop_internal() override;
                     void clear_socket_id() override;
+#ifdef ESP_PLATFORM
+                    // lwip doesn't signal SIGPIPE
+                    const int SEND_FLAGS = 0;
+#else
+                    // Disable SIGPIPE during send()-calls.
+                    const int SEND_FLAGS = MSG_NOSIGNAL;
+#endif
             };
 
 
@@ -351,7 +358,7 @@ namespace smooth
                 auto amount_sent = send(socket_id,
                                         data_to_send,
                                         length,
-                                        0);
+                                        SEND_FLAGS);
 
                 if (amount_sent == -1)
                 {
