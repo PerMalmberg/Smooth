@@ -39,7 +39,7 @@ namespace smooth
             /// Socket is used to perform TCP/IP communication.
             /// \tparam Packet The type of the packet used for communication on this socket
             template<typename Packet>
-            class Socket
+            class  Socket
                     : public ISocket, public std::enable_shared_from_this<ISocket>
             {
                 public:

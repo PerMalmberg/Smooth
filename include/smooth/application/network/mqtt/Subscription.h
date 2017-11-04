@@ -64,7 +64,7 @@ namespace smooth
                                         flight.set_wait_packet(wait_for);
                                     }
                                 }
-                                else if (flight.get_elapsed_time() > std::chrono::seconds(15))
+                                else if (flight.get_elapsed_time() > std::chrono::seconds(5))
                                 {
                                     // Waited too long, force a disconnect.
                                     Log::error(mqtt_log_tag, Format(

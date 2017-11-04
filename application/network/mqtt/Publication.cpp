@@ -180,7 +180,7 @@ namespace smooth
                         else
                         {
                             // Still waiting for a reply...
-                            if (flight.get_elapsed_time() > seconds(15))
+                            if (flight.get_elapsed_time() > seconds(5))
                             {
                                 // Waited too long, force a disconnect.
                                 Log::error(mqtt_log_tag,
