@@ -11,11 +11,13 @@
 #include <mutex>
 
 #undef bind
+
 #include <thread>
 
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/ipc/QueueNotification.h>
 #include <smooth/core/ipc/Queue.h>
+#include <smooth/core/timer/ElapsedTime.h>
 
 #ifdef ESP_PLATFORM
 #include <freertos/FreeRTOS.h>
@@ -90,7 +92,8 @@ namespace smooth
                 smooth::core::ipc::QueueNotification notification;
                 bool is_attached = false;
                 bool started = false;
-                std::mutex start_mutex;
+                std::mutex start_mutex{};
+                smooth::core::timer::ElapsedTime status_report_timer{};
 #ifdef ESP_PLATFORM
                 TaskHandle_t freertos_task;
 #endif

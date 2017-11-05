@@ -4,8 +4,9 @@
 
 #include <algorithm>
 #include <smooth/core/Task.h>
-#include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/logging/log.h>
+#include <smooth/core/TaskStatus.h>
+#include <smooth/core/ipc/Publisher.h>
 
 using namespace smooth::core::logging;
 
@@ -21,8 +22,7 @@ namespace smooth
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  notification(*this),
-                  start_mutex()
+                  notification(*this)
         {
         }
 
@@ -33,8 +33,7 @@ namespace smooth
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                notification(*this),
-                start_mutex()
+                notification(*this)
         {
             is_attached = true;
         }
@@ -50,6 +49,8 @@ namespace smooth
             std::unique_lock<std::mutex> lock(start_mutex);
             if (!started)
             {
+                status_report_timer.start();
+
                 if (is_attached)
                 {
                     // Attaching to another task, just run execute.
@@ -88,7 +89,7 @@ namespace smooth
 
             init();
 
-            if(!is_attached)
+            if (!is_attached)
             {
                 std::lock_guard<std::mutex> lock(start_mutex);
                 started = true;
@@ -126,6 +127,13 @@ namespace smooth
                         // the queue - it would cause message ordering to get mixed up.
                         queue->forward_to_event_queue();
                     }
+                }
+
+                if(status_report_timer.get_running_time() > std::chrono::seconds(60))
+                {
+                    status_report_timer.reset();
+                    TaskStatus ts(name, stack_size);
+                    ipc::Publisher<TaskStatus>::publish(ts);
                 }
             }
         }

@@ -23,7 +23,8 @@ namespace smooth
     namespace core
     {
         POSIXApplication::POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
-                : Task(priority, tick_interval)
+                : Task(priority, tick_interval),
+                  task_status("task_status", 5, *this, *this)
         {
         }
 
@@ -37,6 +38,31 @@ namespace smooth
             network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
 #endif
+        }
+
+        void POSIXApplication::event(const TaskStatus& status)
+        {
+            // Note: Until the std::threads can be created with a desired stack size,
+            // the 'total' will not reflect the true total stack for the task - the true
+            // total is what is configured in menu config, common for all pthreads.
+            if(status.get_remaining_stack() <= 512)
+            {
+                Log::warning(status.get_name(), Format("Remaining: {1} Total:{2}, Free heap: {3}",
+                                                     UInt32(status.get_remaining_stack()),
+                                                     UInt32(status.get_stack_size())));
+            }
+            else
+            {
+                Log::debug(status.get_name(), Format("Remaining: {1} Total:{2}",
+                                                     UInt32(status.get_remaining_stack()),
+                                                     UInt32(status.get_stack_size())));
+            }
+#ifdef ESP_PLATFORM
+            Log::debug(status.get_name(), Format("Free heap: {1} Min free heap:{2}",
+                                                     UInt32(xPortGetFreeHeapSize()),
+                                                     UInt32(xPortGetMinimumEverFreeHeapSize())));
+#endif
+
         }
 
 #ifdef ESP_PLATFORM
