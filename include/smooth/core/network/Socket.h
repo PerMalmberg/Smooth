@@ -4,16 +4,12 @@
 
 #pragma once
 
-#include <cstring>
 #include <sys/socket.h>
-
-#undef bind
-
 #include "InetAddress.h"
 #include "ISocket.h"
+#include <cstring>
 #include <array>
 #include <memory>
-#include <openssl/ssl.h>
 #include <smooth/core/util/CircularBuffer.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
@@ -21,6 +17,17 @@
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
+#include <smooth/core/logging/log.h>
+
+#ifndef ESP_PLATFORM
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+
+#endif
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -32,7 +39,7 @@ namespace smooth
             /// Socket is used to perform TCP/IP communication.
             /// \tparam Packet The type of the packet used for communication on this socket
             template<typename Packet>
-            class Socket
+            class  Socket
                     : public ISocket, public std::enable_shared_from_this<ISocket>
             {
                 public:
@@ -80,7 +87,7 @@ namespace smooth
 
                     virtual void read_data(uint8_t* target, int max_length);
 
-                    virtual void write_data(const uint8_t* src, int length);
+                    virtual void write_data();
 
                     int get_socket_id() override
                     {
@@ -112,12 +119,21 @@ namespace smooth
                     void log(const char* message);
                     void loge(const char* message);
 
-                    void publish_connected_status(std::shared_ptr<ISocket>& socket) override;
+                    void publish_connected_status() override;
                     int socket_id = -1;
                     std::shared_ptr<InetAddress> ip;
                     bool started = false;
                     bool connected = false;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
+                    void stop_internal() override;
+                    void clear_socket_id() override;
+#ifdef ESP_PLATFORM
+                    // lwip doesn't signal SIGPIPE
+                    const int SEND_FLAGS = 0;
+#else
+                    // Disable SIGPIPE during send()-calls.
+                    const int SEND_FLAGS = MSG_NOSIGNAL;
+#endif
             };
 
 
@@ -178,7 +194,7 @@ namespace smooth
                     res = ip->is_valid();
                     if (res)
                     {
-                        SocketDispatcher::instance().start_socket(shared_from_this());
+                        SocketDispatcher::instance().perform_op(SocketOperation::Op::Start, shared_from_this());
                     }
                 }
 
@@ -251,7 +267,7 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::readable()
             {
-                if (!rx_buffer.is_full())
+                if (started && !rx_buffer.is_full())
                 {
                     // How much data to assemble the current packet?
                     int wanted_length = rx_buffer.amount_wanted();
@@ -264,36 +280,35 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::writable()
             {
-                if (!connected && socket_id >= 0)
+                if (started)
                 {
-                    // Just connected
-                    connected = true;
-                    auto self = shared_from_this();
-                    publish_connected_status(self);
-                }
-
-                if (connected)
-                {
-                    // Any data to send?
-                    if (tx_buffer.is_empty())
+                    if (!connected && socket_id >= 0)
                     {
-                        // Let the application know it may send a packet.
-                        smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
-                        tx_empty.push(event);
+                        // Just connected
+                        connected = true;
+                        publish_connected_status();
                     }
-                    else
-                    {
-                        if (!tx_buffer.is_in_progress())
-                        {
-                            tx_buffer.prepare_next_packet();
-                        }
 
-                        if (tx_buffer.is_in_progress())
+                    if (connected)
+                    {
+                        // Any data to send?
+                        if (tx_buffer.is_empty())
                         {
-                            // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
-                            // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
-                            // packet.
-                            write_data(tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length());
+                            // Let the application know it may send a packet.
+                            smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                            tx_empty.push(event);
+                        }
+                        else
+                        {
+                            if (!tx_buffer.is_in_progress())
+                            {
+                                tx_buffer.prepare_next_packet();
+                            }
+
+                            if (tx_buffer.is_in_progress())
+                            {
+                                write_data();
+                            }
                         }
                     }
                 }
@@ -302,16 +317,11 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::read_data(uint8_t* target, int max_length)
             {
+                errno = 0;
                 // Try to read the desired amount
                 int read_count = recv(socket_id, target, max_length, 0);
 
-                if (read_count == 0)
-                {
-                    // Disconnected
-                    loge("Disconnection detected");
-                    stop();
-                }
-                else if (read_count == -1)
+                if (read_count == -1)
                 {
                     if (errno != EWOULDBLOCK)
                     {
@@ -319,7 +329,7 @@ namespace smooth
                         stop();
                     }
                 }
-                else
+                else if (read_count > 0)
                 {
                     rx_buffer.data_received(read_count);
                     if (rx_buffer.is_error())
@@ -338,10 +348,17 @@ namespace smooth
             }
 
             template<typename Packet>
-            void Socket<Packet>::write_data(const uint8_t* src, int length)
+            void Socket<Packet>::write_data()
             {
-                int amount_sent = send(socket_id, tx_buffer.get_data_to_send(), tx_buffer.get_remaining_data_length(),
-                                       0);
+                // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                // packet.
+                auto data_to_send = tx_buffer.get_data_to_send();
+                auto length = tx_buffer.get_remaining_data_length();
+                auto amount_sent = send(socket_id,
+                                        data_to_send,
+                                        length,
+                                        SEND_FLAGS);
 
                 if (amount_sent == -1)
                 {
@@ -350,7 +367,7 @@ namespace smooth
                 }
                 else
                 {
-                    tx_buffer.data_has_been_sent(amount_sent);
+                    tx_buffer.data_has_been_sent(static_cast<size_t>(amount_sent));
 
                     // Was a complete packet sent?
                     if (!tx_buffer.is_in_progress())
@@ -403,6 +420,13 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::stop()
             {
+                stop_internal();
+                SocketDispatcher::instance().perform_op(SocketOperation::Op::Stop, shared_from_this());
+            }
+
+            template<typename Packet>
+            void Socket<Packet>::stop_internal()
+            {
                 if (started)
                 {
                     log("Stopping");
@@ -410,12 +434,11 @@ namespace smooth
                     connected = false;
                     tx_buffer.clear();
                     rx_buffer.clear();
-                    SocketDispatcher::instance().shutdown_socket(shared_from_this());
                 }
             }
 
             template<typename Packet>
-            void Socket<Packet>::publish_connected_status(std::shared_ptr<ISocket>& socket)
+            void Socket<Packet>::publish_connected_status()
             {
                 if (is_connected())
                 {
@@ -426,29 +449,41 @@ namespace smooth
                     log("Disconnected");
                 }
 
-                ConnectionStatusEvent ev(socket, is_connected());
+                auto self = shared_from_this();
+                ConnectionStatusEvent ev(self, is_connected());
                 connection_status.push(ev);
+            }
+
+            template<typename Packet>
+            void Socket<Packet>::clear_socket_id()
+            {
+                socket_id = -1;
             }
 
             template<typename Packet>
             void Socket<Packet>::log(const char* message)
             {
-                ESP_LOGV("Socket", "[%s, %d, %d, %p]: %s", ip->get_ip_as_string().c_str(), ip->get_port(), socket_id,
-                         this, message);
+                Log::verbose("Socket",
+                             Format("[{1}, {2}, {3}, {4}]: {5}",
+                                    Str(ip->get_ip_as_string()),
+                                    Int32(ip->get_port()),
+                                    Int32(socket_id),
+                                    Pointer(this),
+                                    Str(message)));
             }
 
             template<typename Packet>
             void Socket<Packet>::loge(const char* message)
             {
-                ESP_LOGE("Socket",
-                         "[%s, %d, %d %p]: %s: %s (%d)",
-                         ip->get_ip_as_string().c_str(),
-                         ip->get_port(),
-                         socket_id,
-                         this,
-                         message,
-                         strerror(errno),
-                         errno);
+                Log::error("Socket",
+                           Format("[{1}, {2}, {3} {4}]: {5}: {6} ({7})",
+                                  Str(ip->get_ip_as_string()),
+                                  Int32(ip->get_port()),
+                                  Int32(socket_id),
+                                  Pointer(this),
+                                  Str(message),
+                                  Str(strerror(errno)),
+                                  Int32(errno)));
             }
         }
     }

@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <mutex>
 #include <smooth/core/util/CircularBuffer.h>
-#include <smooth/core/ipc/Lock.h>
 #include "IPacketReceiveBuffer.h"
 
 namespace smooth
@@ -34,22 +34,25 @@ namespace smooth
 
                     bool is_full() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return buffer.is_full();
                     }
 
                     int amount_wanted() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_wanted_amount();
                     }
 
                     uint8_t* get_write_pos() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_write_pos();
                     }
 
                     void data_received(int length) override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         current_item.data_received(length);
                         if (current_item.is_complete())
                         {
@@ -60,39 +63,48 @@ namespace smooth
 
                     bool is_packet_complete() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.is_complete();
                     }
 
                     bool get(Packet& target) override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return buffer.get(target);
                     }
 
                     void clear() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         buffer.clear();
                         // Clear out any packets in progress too.
-                        prepare_new_packet();
                         in_progress = false;
+                        ReplacePacketWithDefault();
                     }
 
                     bool is_in_progress() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return in_progress;
                     }
 
                     void prepare_new_packet() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         // Use placement new to prepare a new instance, but first destroy the current one.
+                        ReplacePacketWithDefault();
+                        in_progress = true;
+                    }
+
+                    void ReplacePacketWithDefault()
+                    {
                         current_item.~Packet();
                         new(&current_item) Packet();
-                        in_progress = true;
                     }
 
                     bool is_error() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return current_item.is_error();
                     }
 

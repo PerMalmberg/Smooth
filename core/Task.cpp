@@ -2,56 +2,54 @@
 // Created by permal on 6/25/17.
 //
 
-#include <smooth/core/Task.h>
-#include <smooth/core/timer/ElapsedTime.h>
 #include <algorithm>
+#include <smooth/core/Task.h>
+#include <smooth/core/logging/log.h>
+#include <smooth/core/TaskStatus.h>
+#include <smooth/core/ipc/Publisher.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
     namespace core
     {
+        /// Constructor used when creating a new task running on a new thread.
         Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
                    std::chrono::milliseconds tick_interval)
                 : name(task_name),
+                  worker(),
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  notification(nullptr)
+                  notification(*this)
         {
         }
 
-        Task::Task(TaskHandle_t task_to_attach_to, uint32_t priority, std::chrono::milliseconds tick_interval)
+        /// Constructor use when attaching to an already running thread.
+        Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
-                task_handle(task_to_attach_to),
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                notification(nullptr)
+                notification(*this)
         {
-            vTaskPrioritySet(task_handle, priority);
             is_attached = true;
         }
 
         Task::~Task()
         {
-            for (auto& q : queues)
-            {
-                xQueueRemoveFromSet(q.second->get_handle(), notification);
-            }
-
-            queues.clear();
-            vTaskDelete(task_handle);
+            notification.clear();
         }
 
         void Task::start()
         {
             // Prevent multiple starts
+            std::unique_lock<std::mutex> lock(start_mutex);
             if (!started)
             {
-                started = true;
-
-                prepare_queues();
+                status_report_timer.start();
 
                 if (is_attached)
                 {
@@ -60,23 +58,44 @@ namespace smooth
                 }
                 else
                 {
-                    xTaskCreate(
-                            [](void* o)
-                            {
-                                static_cast<Task*>(o)->exec();
-                            },
-                            name.c_str(), stack_size, this, priority, &task_handle);
+                    worker = std::thread([this]()
+                                         {
+                                             this->exec();
+                                         });
+
+                    // To avoid race conditions between tasks during start up,
+                    // always wait for the new task to start.
+                    // Ideally we should use std::condition_variable here, but since the replacement needs
+                    // a parent thread at construction, we can't create one to make the calling thread wait
+                    // and also accessible in execute(). As such we sleep instead. TODO: replace.
+                    while (!started)
+                    {
+                        lock.unlock();
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                        lock.lock();
+                    }
                 }
             }
         }
 
         void Task::exec()
         {
-            ESP_LOGV("Task", "Initializing task '%s', %p", pcTaskGetTaskName(task_handle), task_handle);
+#ifdef ESP_PLATFORM
+            freertos_task = xTaskGetCurrentTaskHandle();
+            vTaskPrioritySet(nullptr, priority);
+#endif
+
+            Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
 
             init();
 
-            ESP_LOGV("Task", "Task '%s' initialized, %p", pcTaskGetTaskName(task_handle), task_handle);
+            if (!is_attached)
+            {
+                std::lock_guard<std::mutex> lock(start_mutex);
+                started = true;
+            }
+
+            Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
 
             timer::ElapsedTime delayed{};
 
@@ -84,7 +103,6 @@ namespace smooth
 
             for (;;)
             {
-
                 // Try to keep the tick alive even when there are lots of incoming messages
                 // by simply not checking the queues when more than one tick interval has passed.
                 if (tick_interval.count() > 0 && delayed.get_running_time() > tick_interval)
@@ -94,11 +112,7 @@ namespace smooth
                 }
                 else
                 {
-                    // Limit task tick to a minimum of 1 tick.
-                    QueueSetMemberHandle_t queue = xQueueSelectFromSet(notification,
-                                                                       std::max(static_cast<TickType_t>(1),
-                                                                                pdMS_TO_TICKS(
-                                                                                        tick_interval.count())));
+                    auto* queue = notification.wait_for_notification(this, tick_interval);
 
                     if (queue == nullptr)
                     {
@@ -108,45 +122,25 @@ namespace smooth
                     }
                     else
                     {
-                        // A queue or mutex has signaled an item is available.
-                        auto it = queues.find(queue);
-                        if (it != queues.end())
-                        {
-                            it->second->forward_to_event_queue();
-                        }
+                        // A queue has signaled an item is available.
+                        // Note: do not get tempted to retrieve all messages from
+                        // the queue - it would cause message ordering to get mixed up.
+                        queue->forward_to_event_queue();
                     }
                 }
-            }
-        }
 
-        void Task::prepare_queues()
-        {
-            int queue_set_size = 0;
-            // Add all queues belonging to this Task.
-            for (auto& q : queues)
-            {
-                queue_set_size += q.second->size();
-            }
-
-            // Create the queue notification set, always 1 slots or greater to to handle
-            // tasks without any queues.
-            notification = xQueueCreateSet(std::max(1, queue_set_size));
-
-            for (auto& q : queues)
-            {
-                xQueueAddToSet(q.second->get_handle(), notification);
+                if(status_report_timer.get_running_time() > std::chrono::seconds(60))
+                {
+                    status_report_timer.reset();
+                    TaskStatus ts(name, stack_size);
+                    ipc::Publisher<TaskStatus>::publish(ts);
+                }
             }
         }
 
         void Task::register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue)
         {
-            // The notification queue must be be able to hold the total number of possible waiting messages.
-            queues.insert(std::make_pair(task_queue->get_handle(), task_queue));
-        }
-
-        void Task::print_task_info()
-        {
-            ESP_LOGI("TaskInfo", "%s: Stack: %u", name.c_str(), uxTaskGetStackHighWaterMark(nullptr));
+            task_queue->register_notification(&notification);
         }
     }
 }

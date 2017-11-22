@@ -20,13 +20,13 @@ namespace smooth
                         public:
                             UnsubAck() = default;
 
-                            UnsubAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit UnsubAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
-                            virtual uint16_t get_packet_identifier() const
+                            uint16_t get_packet_identifier() const override
                             {
-                                return read_packet_identifier(variable_header_start);
+                                return read_packet_identifier(get_variable_header_start());
                             }
 
                             void visit(IPacketReceiver& receiver) override;

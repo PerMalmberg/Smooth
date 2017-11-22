@@ -6,8 +6,14 @@
 #include <smooth/application/network/mqtt/packet/PubRel.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/Logging.h>
+#include <smooth/core/logging/log.h>
+
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#endif
 
 using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -25,11 +31,12 @@ namespace smooth
                 bool Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                           bool retain)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     bool res = in_progress.size() < CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES;
                     if (res)
                     {
                         packet::Publish p(topic, data, length, qos, retain);
-                        in_progress.push_back(InFlight<packet::Publish>(p));
+                        in_progress.emplace_back(p);
                     }
 
                     return res;
@@ -37,9 +44,10 @@ namespace smooth
 
                 void Publication::handle_disconnect()
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // When a disconnection happens, any outgoing messages currently being timed must be reset
                     // so that they don't cause a timeout before a resend of the package happens.
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         auto& flight = in_progress.front();
                         flight.zero_timer();
@@ -48,20 +56,22 @@ namespace smooth
 
                 void Publication::resend_outstanding_control_packet(IMqttClient& mqtt, bool clean_session)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
+
                     // When a Client reconnects with CleanSession set to 0, both the Client and Server MUST re-send
                     // any unacknowledged PUBLISH Packets (where QoS > 0) and PUBREL Packets using their original
                     // Packet Identifiers [MQTT-4.4.0-1]. This is the only circumstance where a Client or Server is
                     // REQUIRED to redeliver messages.
 
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         auto& flight = in_progress.front();
 
                         if (clean_session)
                         {
-                            if(flight.get_waiting_for() == PacketType::PUBACK
+                            if (flight.get_waiting_for() == PacketType::PUBACK
                                 || flight.get_waiting_for() == PacketType::PUBREC
-                                   || flight.get_waiting_for() == PacketType::PUBCOMP)
+                                || flight.get_waiting_for() == PacketType::PUBCOMP)
                             {
                                 // Drop message
                                 in_progress.erase(in_progress.begin());
@@ -105,22 +115,27 @@ namespace smooth
 
                 void Publication::publish_next(IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
+
                     auto& flight = in_progress.front();
                     auto& packet = flight.get_packet();
 
-                    if (in_progress.size() > 0)
+                    if (!in_progress.empty())
                     {
                         if (packet.get_qos() == QoS::AT_MOST_ONCE)
                         {
                             // Fire and forget
                             if (mqtt.send_packet(packet))
                             {
-                                ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", packet.get_qos());
+                                Log::verbose(mqtt_log_tag,
+                                             Format("QoS {1} publish completed", Int32(packet.get_qos())));
                                 in_progress.erase(in_progress.begin());
                             }
                             else
                             {
-                                ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                Log::error(mqtt_log_tag,
+                                           Format("Could not enqueue packet of QoS {1}",
+                                                  Int32(packet.get_qos())));
                             }
                         }
                         else if (flight.get_waiting_for() == PacketType::Reserved)
@@ -138,7 +153,9 @@ namespace smooth
                                 }
                                 else
                                 {
-                                    ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                    Log::error(mqtt_log_tag,
+                                               Format("Could not enqueue packet of QoS {1}",
+                                                      Int32(packet.get_qos())));
                                 }
                             }
                             else if (packet.get_qos() == QoS::EXACTLY_ONCE)
@@ -151,7 +168,9 @@ namespace smooth
                                 }
                                 else
                                 {
-                                    ESP_LOGE(mqtt_log_tag, "Could not enqueue packet of QoS %d", packet.get_qos());
+                                    Log::error(mqtt_log_tag,
+                                               Format("Could not enqueue packet of QoS {1}",
+                                                      Int32(packet.get_qos())));
                                 }
                             }
 
@@ -161,19 +180,24 @@ namespace smooth
                         else
                         {
                             // Still waiting for a reply...
-                            if (flight.get_elapsed_time() > seconds(15))
+                            if (flight.get_elapsed_time() > seconds(5))
                             {
-                                // Waited too long, force a reconnect.
-                                ESP_LOGE(mqtt_log_tag,
-                                         "Too long since a reply was received to a publish message, forcing reconnect.");
+                                // Waited too long, force a disconnect.
+                                Log::error(mqtt_log_tag,
+                                           Format(Str(
+                                                   "Too long since a reply was received to a publish message, forcing disconnect.")));
+
                                 flight.stop_timer();
-                                mqtt.reconnect();
+                                mqtt.force_disconnect();
                             }
                             else
                             {
-                                ESP_LOGD(mqtt_log_tag, "Waiting to send: %s, QoS %d, waiting for: %d, timer: %lld",
-                                         packet.get_mqtt_type_as_string(), packet.get_qos(), flight.get_waiting_for(),
-                                         flight.get_elapsed_time().count());
+                                Log::debug(mqtt_log_tag,
+                                           Format("Waiting to send: {1}, QoS {1}, waiting for: {3}, timer: {4}s",
+                                                  Str(packet.get_mqtt_type_as_string()),
+                                                  Int32(packet.get_qos()),
+                                                  Int32(flight.get_waiting_for()),
+                                                  Int64(flight.get_elapsed_time().count())));
                             }
                         }
                     }
@@ -181,13 +205,15 @@ namespace smooth
 
                 void Publication::receive(packet::PubAck& pub_ack, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
                         auto& flight = *first;
                         if (flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
                         {
-                            ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", flight.get_packet().get_qos());
+                            Log::verbose(mqtt_log_tag,
+                                         Format("QoS {1} publish completed", Int32(flight.get_packet().get_qos())));
                             in_progress.erase(in_progress.begin());
                         }
                     }
@@ -195,6 +221,7 @@ namespace smooth
 
                 void Publication::receive(packet::PubRec& pub_rec, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
@@ -221,6 +248,7 @@ namespace smooth
 
                 void Publication::receive(packet::PubComp& pub_rec, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
                     if (first != in_progress.end())
                     {
@@ -229,7 +257,9 @@ namespace smooth
                         if (flight.get_waiting_for() == PUBCOMP
                             && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
                         {
-                            ESP_LOGV(mqtt_log_tag, "QoS %d publish completed", flight.get_packet().get_qos());
+                            Log::verbose(mqtt_log_tag,
+                                         Format("QoS {1} publish completed",
+                                                Int32(flight.get_packet().get_qos())));
                             in_progress.erase(in_progress.begin());
                         }
                     }

@@ -28,10 +28,10 @@ namespace smooth
                     virtual const uint8_t* get_data_to_send() = 0;
                     /// Gets the number of bytes to be sent.
                     /// \return The number of bytes remaining to be sent.
-                    virtual int get_remaining_data_length() = 0;
+                    virtual size_t get_remaining_data_length() = 0;
                     /// Called when the specified amount of data has been sent.
                     /// \param length The number of bytes that has been sent.
-                    virtual void data_has_been_sent(int length) = 0;
+                    virtual void data_has_been_sent(size_t length) = 0;
                     /// Perpares the next packet to be sent.
                     virtual void prepare_next_packet() = 0;
                     /// Puts an item into the buffer to be sent.

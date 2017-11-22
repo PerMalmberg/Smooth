@@ -3,23 +3,70 @@
 //
 
 #include <algorithm>
+#include <smooth/core/Application.h>
+#include <smooth/core/ipc/Publisher.h>
+#include <smooth/core/network/SocketDispatcher.h>
+
+#ifdef ESP_PLATFORM
+#include <smooth/core/logging/log.h>
+
 #include <esp_event.h>
 #include <esp_event_loop.h>
 #include <nvs_flash.h>
-#include <driver/gpio.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <smooth/core/Application.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core//network/SocketDispatcher.h>
+#endif // END ESP_PLATFORM
 
 using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
     namespace core
     {
-        const std::unordered_map<int, const char*> Application::id_to_system_event = {
+        POSIXApplication::POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
+                : Task(priority, tick_interval),
+                  task_status("task_status", 5, *this, *this)
+        {
+        }
+
+        void POSIXApplication::init()
+        {
+            // Start socket dispatcher first of all so that it is
+            // ready to receive network status events.
+            network::SocketDispatcher::instance();
+#ifndef ESP_PLATFORM
+            // Assume network is available when running under POSIX system.
+            network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
+        }
+
+        void POSIXApplication::event(const TaskStatus& status)
+        {
+            // Note: Until the std::threads can be created with a desired stack size,
+            // the 'total' will not reflect the true total stack for the task - the true
+            // total is what is configured in menu config, common for all pthreads.
+            if(status.get_remaining_stack() <= 512)
+            {
+                Log::warning(status.get_name(), Format("Remaining: {1} Total:{2}, Free heap: {3}",
+                                                     UInt32(status.get_remaining_stack()),
+                                                     UInt32(status.get_stack_size())));
+            }
+            else
+            {
+                Log::debug(status.get_name(), Format("Remaining: {1} Total:{2}",
+                                                     UInt32(status.get_remaining_stack()),
+                                                     UInt32(status.get_stack_size())));
+            }
+#ifdef ESP_PLATFORM
+            Log::debug(status.get_name(), Format("Free heap: {1} Min free heap:{2}",
+                                                     UInt32(xPortGetFreeHeapSize()),
+                                                     UInt32(xPortGetMinimumEverFreeHeapSize())));
+#endif
+
+        }
+
+#ifdef ESP_PLATFORM
+        const std::unordered_map<int, const char*> IDFApplication::id_to_system_event = {
                 {SYSTEM_EVENT_WIFI_READY,          "ESP32 WiFi ready"},
                 {SYSTEM_EVENT_SCAN_DONE,           "ESP32 finish scanning AP"},
                 {SYSTEM_EVENT_STA_START,           "ESP32 station start"},
@@ -46,28 +93,28 @@ namespace smooth
                 {SYSTEM_EVENT_MAX,                 ""}
         };
 
-        Application::Application(UBaseType_t priority, std::chrono::milliseconds tick_interval)
-                : Task(xTaskGetCurrentTaskHandle(), priority, tick_interval),
+        IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
+                : POSIXApplication(priority, tick_interval),
                   system_event("system_event", 10, *this, *this)
         {
             nvs_flash_init();
             gpio_install_isr_service(0);
 
             // Setup the system event callback so that we receive events.
-            ESP_ERROR_CHECK(esp_event_loop_init(&Application::event_callback, this));
+            ESP_ERROR_CHECK(esp_event_loop_init(&IDFApplication::event_callback, this));
         }
 
-        esp_err_t Application::event_callback(void* ctx, system_event_t* event)
+        esp_err_t IDFApplication::event_callback(void* ctx, system_event_t* event)
         {
 
             auto name = id_to_system_event.find(event->event_id);
             if (name != id_to_system_event.end())
             {
-                ESP_LOGV("Application", "%s", (*name).second);
+                Log::verbose("Application", Format((*name).second));
             }
             else
             {
-                ESP_LOGV("Application", "Got untranslated event id %d", event->event_id);
+                Log::verbose("Application", Format("Got untranslated event id {1}", Int32(event->event_id)));
             }
 
             // Publish event to listeners
@@ -76,17 +123,7 @@ namespace smooth
             return ESP_OK;
         }
 
-        void Application::set_system_log_level(esp_log_level_t level) const
-        {
-            // Silence wifi logging
-            std::vector<const char*> logs{"wifi", "tcpip_adapter"};
-            for (auto log : logs)
-            {
-                esp_log_level_set(log, level);
-            }
-        }
-
-        void Application::init()
+        void IDFApplication::init()
         {
             // Start socket dispatcher first of all so that it is
             // ready to receive network status events.
@@ -98,9 +135,10 @@ namespace smooth
             }
         }
 
-        void Application::event(const system_event_t& event)
+        void IDFApplication::event(const system_event_t& event)
         {
             wifi.event(event);
         }
+#endif
     }
 }

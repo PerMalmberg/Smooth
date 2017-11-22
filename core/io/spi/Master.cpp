@@ -3,7 +3,9 @@
 //
 
 #include <smooth/core/io/spi/Master.h>
+#include <smooth/core/logging/log.h>
 
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -35,26 +37,26 @@ namespace smooth
 
                 bool Master::initialize()
                 {
-                    core::ipc::Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     if (!initialized)
                     {
                         esp_err_t res = spi_bus_initialize(host, &bus_config, dma_channel);
 
                         if (res == ESP_ERR_INVALID_ARG)
                         {
-                            ESP_LOGE(log_tag, "Invalid configuration");
+                            Log::error(log_tag, Format("Invalid configuration"));
                         }
                         else if (res == ESP_ERR_INVALID_STATE)
                         {
-                            ESP_LOGE(log_tag, "Host already is in use");
+                            Log::error(log_tag, Format("Host already is in use"));
                         }
                         else if (res == ESP_ERR_NO_MEM)
                         {
-                            ESP_LOGE(log_tag, "Out of memory");
+                            Log::error(log_tag, Format("Out of memory"));
                         }
                         else
                         {
-                            ESP_LOGV(log_tag, "SPI initialized, Host %d, DMA %d", host, dma_channel);
+                            Log::verbose(log_tag, Format("SPI initialized, Host {1}, DMA {2}", Int32(host), Int32(dma_channel)));
                         }
 
                         initialized = res == ESP_OK;

@@ -7,6 +7,7 @@
 #include <smooth/core/fsm/StaticFSM.h>
 #include <smooth/core/timer/TimerExpiredEvent.h>
 #include <smooth/core/ipc/IEventListener.h>
+#include <smooth/core/logging/log.h>
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
@@ -15,6 +16,8 @@
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include "MqttFsmConstants.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -38,18 +41,16 @@ namespace smooth
                             {
                             }
 
-                            virtual void entering_state(BaseState* state) override;
+                            void entering_state(BaseState* state) override;
 
-                            virtual void leaving_state(BaseState* state) override;
+                            void leaving_state(BaseState* state) override;
 
                             void tick();
                             void event(const core::network::TransmitBufferEmptyEvent& event) override;
                             void event(const core::network::ConnectionStatusEvent& event) override;
                             void event(const core::timer::TimerExpiredEvent& event) override;
 
-                            void packet_received(const packet::MQTTPacket& event);
-
-                            void disconnect_event();
+                            void packet_received(const packet::MQTTPacket& packet);
 
                             mqtt::IMqttClient& get_mqtt() const
                             {
@@ -64,13 +65,13 @@ namespace smooth
                     template<typename BaseState>
                     void MqttFSM<BaseState>::entering_state(BaseState* state)
                     {
-                        ESP_LOGD(mqtt_log_tag, "Entering %s", state->get_name());
+                        Log::debug(mqtt_log_tag, Format("Entering {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>
                     void MqttFSM<BaseState>::leaving_state(BaseState* state)
                     {
-                        ESP_LOGD(mqtt_log_tag, "Leaving %s", state->get_name());
+                        Log::debug(mqtt_log_tag, Format("Leaving {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>
@@ -120,15 +121,6 @@ namespace smooth
                         if (this->get_state() != nullptr)
                         {
                             this->get_state()->event(event);
-                        }
-                    }
-
-                    template<typename BaseState>
-                    void MqttFSM<BaseState>::disconnect_event()
-                    {
-                        if (this->get_state() != nullptr)
-                        {
-                            this->get_state()->disconnect_event();
                         }
                     }
                 }

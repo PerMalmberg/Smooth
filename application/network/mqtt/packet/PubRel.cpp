@@ -22,7 +22,7 @@ namespace smooth
                     uint16_t PubRel::get_packet_identifier() const
                     {
                         calculate_remaining_length_and_variable_header_offset();
-                        return read_packet_identifier(variable_header_start);
+                        return read_packet_identifier(get_variable_header_start());
                     }
                 }
             }

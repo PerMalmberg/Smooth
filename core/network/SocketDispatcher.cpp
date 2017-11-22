@@ -2,10 +2,15 @@
 // Created by permal on 7/1/17.
 //
 
-#include <fcntl.h>
-#include <algorithm>
 #include <smooth/core/network/SocketDispatcher.h>
-#include "esp_log.h"
+#include <smooth/core/task_priorities.h>
+
+#ifndef ESP_PLATFORM
+#include <unistd.h>
+#endif
+#include <sys/socket.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -29,18 +34,23 @@ namespace smooth
 
 
             SocketDispatcher::SocketDispatcher()
-                    : Task("SocketDispatcher", 8192, tskIDLE_PRIORITY + 6, std::chrono::milliseconds(0)),
+                    : Task(tag, 8192, SOCKET_DISPATCHER_PRIO, std::chrono::milliseconds(0)),
                       active_sockets(),
                       inactive_sockets(),
                       socket_guard(),
-                      system_events("SocketDispatcher", 10, *this, *this)
+                      network_events(tag, 10, *this, *this),
+                      socket_op("SocketOperations",
+                                // Note: If there are more than 20 sockets, this queue is too small.
+                                20,
+                                *this,
+                                *this)
             {
                 clear_sets();
             }
 
             void SocketDispatcher::tick()
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
                 restart_inactive_sockets();
 
                 int max_file_descriptor = build_sets();
@@ -51,8 +61,7 @@ namespace smooth
 
                     if (res == -1)
                     {
-                        const char* error = strerror(errno);
-                        ESP_LOGE("SocketDispatcher", "Error during select: %s", error);
+                        Log::error(tag, Format("Error during select: {1}", Str(strerror(errno))));
                     }
                     else if (res > 0)
                     {
@@ -77,6 +86,11 @@ namespace smooth
                             }
                         }
                     }
+                }
+                else
+                {
+                    // Nothing to do, yield processing time.
+                    std::this_thread::yield();
                 }
             }
 
@@ -110,7 +124,7 @@ namespace smooth
                             FD_SET(s->get_socket_id(), &write_set);
                         }
 
-                        if(s->is_connected())
+                        if (s->is_connected())
                         {
                             FD_SET(s->get_socket_id(), &read_set);
                         }
@@ -122,7 +136,7 @@ namespace smooth
 
             void SocketDispatcher::start_socket(std::shared_ptr<ISocket> socket)
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
 
                 if (has_ip)
                 {
@@ -139,26 +153,31 @@ namespace smooth
 
             void SocketDispatcher::shutdown_socket(std::shared_ptr<ISocket> socket)
             {
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
+                std::lock_guard<std::mutex> lock(socket_guard);
 
-                ESP_LOGV("SocketDispatcher", "Shutting down socket %p", socket.get());
-                socket->stop();
+                Log::verbose(tag, Format("Shutting down socket {1}", Pointer(socket.get())));
+                socket->stop_internal();
                 remove_socket_from_active_sockets(socket);
                 remove_socket_from_collection(inactive_sockets, socket);
 
-                int res = shutdown(socket->get_socket_id(), SHUT_RDWR);
-                if (res < 0)
+                auto socket_id = socket->get_socket_id();
+                if(socket_id != -1)
                 {
-                    ESP_LOGE("SocketDispatcher", "Shutdown error: %s", strerror(errno));
-                }
+                    int res = shutdown(socket_id, SHUT_RDWR);
+                    if (res < 0)
+                    {
+                        Log::error(tag, Format("Shutdown error: {1}", Str(strerror(errno))));
+                    }
 
-                res = close(socket->get_socket_id());
-                if (res < 0)
-                {
-                    ESP_LOGE("SocketDispatcher", "Close error: %s", strerror(errno));
-                }
+                    res = close(socket_id);
+                    if (res < 0)
+                    {
+                        Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
+                    }
 
-                socket->publish_connected_status(socket);
+                    socket->clear_socket_id();
+                    socket->publish_connected_status();
+                }
             }
 
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
@@ -212,20 +231,19 @@ namespace smooth
                 }
             }
 
-            void SocketDispatcher::event(const system_event_t& event)
+            void SocketDispatcher::event(const NetworkStatus& event)
             {
                 bool shall_close_sockets = false;
 
-
-                smooth::core::ipc::RecursiveMutex::Lock lock(socket_guard);
-                if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
+                std::lock_guard<std::mutex> lock(socket_guard);
+                if (event.event == NetworkEvent::GOT_IP )
                 {
                     has_ip = true;
-                    shall_close_sockets = event.event_info.got_ip.ip_changed;
+                    shall_close_sockets = event.ip_changed;
                 }
-                else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED || event.event_id == SYSTEM_EVENT_STA_LOST_IP)
+                else if (event.event == NetworkEvent::DISCONNECTED)
                 {
-                    ESP_LOGW("SocketDispatcher", "Station disconnected or IP lost, closing all sockets.");
+                    Log::warning(tag, Format(Str("Station disconnected or IP lost, closing all sockets.")));
 
                     // Close all sockets
                     has_ip = false;
@@ -241,6 +259,23 @@ namespace smooth
                         shutdown_socket(socket.second);
                     }
                 }
+            }
+
+            void SocketDispatcher::event(const SocketOperation& event)
+            {
+                if(event.get_op() == SocketOperation::Op::Start)
+                {
+                    start_socket(event.get_socket());
+                }
+                else
+                {
+                    shutdown_socket(event.get_socket());                    
+                }
+            }
+
+            void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
+            {
+                socket_op.push(SocketOperation(op, socket));
             }
         }
     }

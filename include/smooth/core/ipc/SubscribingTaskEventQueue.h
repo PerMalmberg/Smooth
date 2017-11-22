@@ -6,6 +6,7 @@
 
 #include "TaskEventQueue.h"
 #include "Link.h"
+#include "ILinkSubscriber.h"
 
 namespace smooth
 {
@@ -18,7 +19,8 @@ namespace smooth
             /// \tparam T The type of event to receive.
             template<typename T>
             class SubscribingTaskEventQueue
-                    : public Link<T>, TaskEventQueue<T>
+                    : TaskEventQueue<T>,
+                      ILinkSubscriber<T>
             {
                 public:
                     /// Constructor
@@ -29,17 +31,25 @@ namespace smooth
                     /// any object instance.
                     SubscribingTaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                             :
-                            Link<T>(),
-                            TaskEventQueue<T>(name, size, task, listener)
+                            TaskEventQueue<T>(name, size, task, listener),
+                            link()
                     {
-                        this->subscribe(&this->queue);
+                        link.subscribe(this);
                     }
 
                     /// Destructor
                     ~SubscribingTaskEventQueue()
                     {
-                        this->unsubscribe(&this->queue);
+                        link.unsubscribe(this);
                     }
+
+                    bool receive_published_data(const T& data)
+                    {
+                        return this->push(data);
+                    }
+
+                private:
+                    Link<T> link;
             };
         }
     }

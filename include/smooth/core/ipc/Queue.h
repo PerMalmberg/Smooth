@@ -3,13 +3,13 @@
 //
 #pragma once
 
-#include <freertos/queue.h>
-#include <esp_log.h>
-#include <esp_attr.h>
 #include <chrono>
 #include <string>
 #include <vector>
-#include <smooth/core/ipc/Lock.h>
+#include <mutex>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -17,7 +17,7 @@ namespace smooth
     {
         namespace ipc
         {
-            /// T Queue<T> is precively what that name suggest - a queue that holds items of type T.
+            /// T Queue<T> is precisely what that name suggest - a queue that holds items of type T.
             /// It is also thread-safe. It can be used either as a stand alone queue or as the base for
             /// more specialized implementations, such as the TaskEventQueue and SubscribingTaskEventQueue.
             /// Please note that this implementation supports actual C++ objects as opposed to the FreeRTOS
@@ -39,27 +39,18 @@ namespace smooth
                               items(),
                               guard()
                     {
-                        ESP_LOGV("Queue", "Creating queue '%s', with %d items of size %d.", name.c_str(), size,
-                                 sizeof(T));
-
-                        handle = xQueueCreate(size, sizeof(uint8_t));
-                        if (handle == nullptr)
-                        {
-                            ESP_LOGE("Queue", "Failed to create Queue '%s'", name.c_str());
-                            abort();
-                        }
-
+                        Log::verbose("Queue",
+                                     Format("Creating queue '{1}', with {2} items of size {3}.",
+                                            Str(name),
+                                            Int32(size),
+                                            UInt32(sizeof(T))));
                         items.reserve(size);
                     }
 
                     /// Destructor
                     virtual ~Queue()
                     {
-                        smooth::core::ipc::Lock lock(guard);
-                        if (handle != nullptr)
-                        {
-                            vQueueDelete(handle);
-                        }
+                        std::lock_guard<std::mutex> lock(guard);
                         items.clear();
                     }
 
@@ -67,17 +58,8 @@ namespace smooth
                     /// \return number of items the queue can hold.
                     int size()
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return queue_size;
-                    }
-
-                    /// Gets the underlying FreeRTOS handle for the FreeRTOS queue.
-                    /// Unless you are implementing a specialization of the Queue, you
-                    /// shouldn't need to call this method.
-                    /// \return The queue handle
-                    QueueHandle_t get_handle() const
-                    {
-                        return handle;
                     }
 
                     /// Pushes an item into the queue
@@ -85,20 +67,9 @@ namespace smooth
                     /// \return true if the queue could accept the item, otherwise false.
                     bool push(const T& item)
                     {
-                        return push(item, std::chrono::milliseconds(0));
-                    }
+                        std::lock_guard<std::mutex> lock(guard);
 
-                    /// /// Pushes an item into the queue
-                    /// \param item The item of which a copy will be placed on the queue.
-                    /// \param wait_time The time to wait for a slot to become available in the queue before failing.
-                    /// \return true if the queue could accept the item, otherwise false.
-                    bool push(const T& item, std::chrono::milliseconds wait_time)
-                    {
-                        smooth::core::ipc::Lock lock(guard);
-
-                        uint8_t dummy = 0;
-                        bool res = xQueueSend(handle, &dummy, to_ticks(wait_time)) == pdTRUE;
-
+                        bool res = items.size() < queue_size;
                         if (res)
                         {
                             items.push_back(item);
@@ -112,19 +83,10 @@ namespace smooth
                     /// \return true if an item could be received, otherwise false.
                     bool pop(T& target)
                     {
-                        return pop(target, std::chrono::milliseconds(0));
-                    }
+                        std::lock_guard<std::mutex> lock(guard);
 
-                    /// Pops an item off the queue.
-                    /// \param target A reference to an instance of T which will be assigned the item taken from the queue.
-                    /// \param wait_time The time to wait for an item to become available on the queue.
-                    /// \return true if an item could be received, otherwise false.
-                    bool pop(T& target, std::chrono::milliseconds wait_time)
-                    {
-                        smooth::core::ipc::Lock lock(guard);
-                        uint8_t dummy = 0;
-                        bool res = xQueueReceive(handle, &dummy, 0) == pdTRUE;
-                        if( res )
+                        bool res = items.size() > 0;
+                        if (res)
                         {
                             target = items.front();
                             items.erase(items.begin());
@@ -144,21 +106,15 @@ namespace smooth
                     /// \return The number of items in the queue.
                     int count()
                     {
-                        smooth::core::ipc::Lock lock(guard);
-                        return uxQueueMessagesWaiting(handle);
+                        std::lock_guard<std::mutex> lock(guard);
+                        return items.size();
                     }
 
                 private:
-                    QueueHandle_t handle = nullptr;
-                    std::string name;
-                    int queue_size;
+                    const std::string name;
+                    const int queue_size;
                     std::vector<T> items;
                     std::mutex guard;
-
-                    TickType_t to_ticks(std::chrono::milliseconds ms)
-                    {
-                        return pdMS_TO_TICKS(ms.count());
-                    }
             };
         }
     }

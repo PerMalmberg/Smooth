@@ -5,7 +5,6 @@
 #pragma once
 
 #include "MQTTBaseState.h"
-#include "esp_log.h"
 
 namespace smooth
 {
@@ -28,8 +27,6 @@ namespace smooth
 
                             void event(const core::timer::TimerExpiredEvent& event) override;
                             void event(const core::network::ConnectionStatusEvent& event) override;
-
-                            void disconnect_event() override;
                     };
                 }
             }

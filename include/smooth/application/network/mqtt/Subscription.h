@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 #include <smooth/application/network/mqtt/packet/PubAck.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -18,6 +19,9 @@
 #include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/InFlight.h>
 #include <smooth/application/network/mqtt/Logging.h>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -60,14 +64,14 @@ namespace smooth
                                         flight.set_wait_packet(wait_for);
                                     }
                                 }
-                                else if (flight.get_elapsed_time() > std::chrono::seconds(15))
+                                else if (flight.get_elapsed_time() > std::chrono::seconds(5))
                                 {
-                                    // Waited too long, force a reconnect.
-                                    ESP_LOGE(mqtt_log_tag,
-                                             "Too long since a reply was received to a %s request, forcing reconnect.", control_type);
+                                    // Waited too long, force a disconnect.
+                                    Log::error(mqtt_log_tag, Format(
+                                             "Too long since a reply was received to a {1} request, forcing disconnect.", Str(control_type)));
                                     flight.stop_timer();
-                                    mqtt.reconnect();
                                     all_ok = false;
+                                    mqtt.force_disconnect();
                                 }
                             }
 
@@ -86,10 +90,14 @@ namespace smooth
                             }
                         }
 
+                        void internal_subscribe(const std::string& topic, const QoS& qos);
+
                         std::unordered_map<uint16_t, InFlight<packet::Publish>> receiving{};
                         std::vector<InFlight<packet::Subscribe>> subscribing{};
                         std::unordered_map<std::string, QoS> active_subscription{};
                         std::vector<InFlight<packet::Unsubscribe>> unsubscribing{};
+                        std::mutex guard{};
+
                 };
             }
         }

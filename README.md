@@ -11,6 +11,9 @@ a somewhat more pragmatic view on this; it utilizes the standard library (which 
 at the cost of some extra used bytes of RAM. However, where it is appropriate, such as with the *Queue*, things are designed so
 that the result is a memory static instance, i.e. a *smooth::ipc::Queue* will _not_ behave like an *std::vector*.  
 
+Apart from hardware/IDF-specific classes, applications written using Smooth can be compiled and run on POSIX systems (e.g. Linux)
+without any special considerations. 
+
 *) To certain limits, of course.
 
 ### Provided functionality
@@ -20,8 +23,7 @@ that the result is a memory static instance, i.e. a *smooth::ipc::Queue* will _n
 - Wifi configuration / control
 - Tasks
 - Queues with support for proper C++ objects, not just plain data structures
-- Mutex / RecursiveMutex
-- (Software) Timer Events
+- Timer Events
 - Event-driven TCP Sockets
 - System events
 
@@ -48,6 +50,6 @@ In your ESP-IDF projects's root folder, type the following to add `smooth` as a 
 git submodule add https://github.com/PerMalmberg/Smooth.git components/smooth
 ```
 
-### Sample application
+### Sample applications
 
 Please see the [test application in this repository.](https://github.com/PerMalmberg/Smooth-test)

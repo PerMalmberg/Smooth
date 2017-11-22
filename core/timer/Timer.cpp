@@ -3,8 +3,10 @@
 //
 
 #include <smooth/core/timer/Timer.h>
-#include "esp_log.h"
-#include "esp_attr.h"
+#include <smooth/core/timer/TimerService.h>
+
+using namespace smooth::core::logging;
+using namespace std::chrono;
 
 namespace smooth
 {
@@ -12,16 +14,18 @@ namespace smooth
     {
         namespace timer
         {
-            Timer::Timer(const std::string& name, int id, ipc::TaskEventQueue<TimerExpiredEvent>& event_queue,
-                         bool auto_reload, std::chrono::milliseconds interval)
-                    : name(name), id(id), auto_reload(auto_reload), interval(interval), event_queue(event_queue)
+            Timer::Timer(const std::string& name, uint32_t id, ipc::TaskEventQueue<TimerExpiredEvent>& event_queue,
+                         bool repeating, milliseconds interval)
+                    : name(name), id(id), repeating(repeating), interval(interval), event_queue(event_queue),
+                      expire_time(steady_clock::now())
             {
-                create();
+                // Start the timer service when a timer is used.
+                TimerService::start_service();
             }
 
             Timer::~Timer()
             {
-                destroy();
+                stop();
             }
 
             void Timer::start()
@@ -29,54 +33,25 @@ namespace smooth
                 start(interval);
             }
 
-            void Timer::start(std::chrono::milliseconds interval)
+            void Timer::start(milliseconds interval)
             {
-                active = true;
-
-                // Ensure at least one tick interval
-                auto tick_count = std::max( pdMS_TO_TICKS(interval.count()), 1u );
-
                 if (interval != this->interval)
                 {
                     this->interval = interval;
-                    // Changing the period also starts the timer.
-                    xTimerChangePeriod(handle, tick_count, 1);
                 }
-                else if (!xTimerIsTimerActive(handle))
-                {
-                    reset();
-                }
-            }
-
-            void IRAM_ATTR Timer::start_from_isr()
-            {
-                active = true;
-                BaseType_t higher_priority_task_woken = pdFALSE;
-                xTimerStartFromISR(handle, &higher_priority_task_woken);
+                expire_time = steady_clock::now() + interval;
+                reset();
             }
 
             void Timer::stop()
             {
-                active = false;
-                xTimerStop(handle, 0);
-            }
-
-            void IRAM_ATTR Timer::stop_from_isr()
-            {
-                BaseType_t higher_priority_task_woken = pdFALSE;
-                xTimerStopFromISR(handle, &higher_priority_task_woken);
+                TimerService::get().remove_timer(shared_from_this());
             }
 
             void Timer::reset()
             {
-                active = true;
-                xTimerReset(handle, 0);
-            }
-
-            void IRAM_ATTR Timer::reset_from_isr()
-            {
-                BaseType_t higher_priority_task_woken = pdFALSE;
-                xTimerResetFromISR(handle, &higher_priority_task_woken);
+                stop();
+                TimerService::get().add_timer(shared_from_this());
             }
 
             int Timer::get_id() const
@@ -89,45 +64,44 @@ namespace smooth
                 return name;
             }
 
-            void Timer::create()
-            {
-                handle = xTimerCreate(name.c_str(),
-                                      pdMS_TO_TICKS(interval.count()),
-                                      auto_reload ? 1 : 0,
-                                      this, // Use ourselves as the timer id.
-                                      [](void* o)
-                                      {
-                                          // A bit ugly, but required - convert the timer's ID into a
-                                          // pointer to the Timer instance.
-                                          auto timer_id = pvTimerGetTimerID(o);
-                                          Timer* timer = static_cast<Timer*>(timer_id);
-
-                                          if (timer != nullptr)
-                                          {
-                                              if( timer->active )
-                                              {
-                                                  timer->expired();
-                                              }
-                                          }
-                                      });
-
-                if (handle == nullptr)
-                {
-                    ESP_LOGE("Timer", "Could not create timer '%s', aborting.", name.c_str());
-                    abort();
-                }
-            }
-
-            void Timer::destroy()
-            {
-                stop();
-                xTimerDelete(handle, 0);
-            }
-
             void Timer::expired()
             {
-                TimerExpiredEvent ev(this);
+                TimerExpiredEvent ev(id);
                 event_queue.push(ev);
+            }
+
+            // This class is only used to allow std::make_shared to create an instance of Timer.
+            class ConstructableTimer
+                    : public Timer
+            {
+                public:
+                    ConstructableTimer(const std::string& name,
+                                       uint32_t id,
+                                       ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                                       bool auto_reload,
+                                       std::chrono::milliseconds interval)
+                            : Timer(name, id, event_queue, auto_reload, interval)
+                    {
+                    }
+            };
+
+            std::shared_ptr<Timer> Timer::create(const std::string& name,
+                                                 uint32_t id,
+                                                 ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                                                 bool auto_reload,
+                                                 std::chrono::milliseconds interval)
+            {
+                return std::make_shared<ConstructableTimer>(name, id, event_queue, auto_reload, interval);
+            }
+
+            std::chrono::steady_clock::time_point Timer::expires_at() const
+            {
+                return expire_time;
+            }
+
+            void Timer::calculate_next_execution()
+            {
+                expire_time = steady_clock::now() + interval;
             }
         }
     }

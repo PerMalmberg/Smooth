@@ -5,8 +5,7 @@
 #include <cstring>
 #include <chrono>
 #include <smooth/application/display/ST7735.h>
-#include <smooth/core/Task.h>
-#include <smooth/core/ipc/Lock.h>
+#include <thread>
 
 
 using namespace smooth::core::io::spi;
@@ -42,10 +41,10 @@ namespace smooth
                 {
                     // Reset the display
                     reset_pin.set();
-                    core::Task::delay(std::chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     reset_pin.clr();
                     // Wait for reset completion
-                    core::Task::delay(std::chrono::milliseconds(120));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(120));
                 }
 
                 return spi ? true : false;
@@ -58,7 +57,7 @@ namespace smooth
 
             void ST7735::software_reset()
             {
-                core::ipc::Lock lock(spi->get_guard());
+                std::lock_guard<std::mutex> lock(spi->get_guard());
                 spi_transaction_t trans;
                 std::memset(&trans, 0, sizeof(trans));
                 trans.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;

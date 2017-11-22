@@ -5,7 +5,7 @@
 #pragma once
 
 #include "DisconnectedState.h"
-#include "esp_log.h"
+
 
 namespace smooth
 {
@@ -21,7 +21,7 @@ namespace smooth
                             : public DisconnectedState
                     {
                         public:
-                            IdleState(MqttFSM<MQTTBaseState>& fsm)
+                            explicit IdleState(MqttFSM<MQTTBaseState>& fsm)
                                     : DisconnectedState(fsm, "IdleState")
                             {
                             }

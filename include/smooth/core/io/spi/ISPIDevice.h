@@ -4,7 +4,7 @@
 
 #undef write
 #include <driver/spi_master.h>
-#include <smooth/core/ipc/Lock.h>
+#include <mutex>
 namespace smooth
 {
     namespace core

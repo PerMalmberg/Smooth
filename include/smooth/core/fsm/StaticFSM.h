@@ -5,7 +5,9 @@
 #pragma once
 
 #include <stdint.h>
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -60,6 +62,7 @@ namespace smooth
                     {
                         return current_state;
                     }
+
                 private:
                     uint8_t state[2][StateSize];
                     BaseState* current_state = nullptr;
@@ -82,10 +85,10 @@ namespace smooth
                 int max = static_cast<int>( sizeof(state[0]));
                 if (size > max)
                 {
-                    ESP_LOGE("StaticFSM",
-                             "Attempted to activate state that is larger (%d) than the designated buffer (%d)",
-                             size,
-                             max);
+                    Log::error("StaticFSM",
+                               Format("Attempted to activate state that is larger ({1}) than the designated buffer ({2})",
+                                      Int32(size),
+                                      Int32(max)));
                     abort();
                 }
 
@@ -117,7 +120,7 @@ namespace smooth
 template<typename BaseState, int StateSize>
 void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
-    // Return the memory are to use for placement new.
+    // Return the memory area to use for placement new.
     return fsm.select_memory_area(size);
 }
 

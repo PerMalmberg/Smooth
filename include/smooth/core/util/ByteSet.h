@@ -5,7 +5,6 @@
 #pragma once
 
 #include <bitset>
-#include "esp_log.h"
 
 namespace smooth
 {

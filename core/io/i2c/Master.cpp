@@ -1,12 +1,11 @@
 //
 // Created by permal on 8/19/17.
 //
-#include <chrono>
 #include <smooth/core/io/i2c/Master.h>
+#include <smooth/core/logging/log.h>
 #include <driver/gpio.h>
-#include <smooth/core/Task.h>
-#include "esp_log.h"
-#include "esp_intr_alloc.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -41,7 +40,7 @@ namespace smooth
 
                 bool Master::initialize()
                 {
-                    ipc::Lock lock(guard);
+                    std::lock_guard<std::mutex> lock(guard);
                     do_initialization();
                     return initialized;
                 }
@@ -55,7 +54,7 @@ namespace smooth
 
                         if (!initialized)
                         {
-                            ESP_LOGE(log_tag, "Initialization failed");
+                            Log::error(log_tag, Format("Initialization failed"));
                         }
                     }
                 }

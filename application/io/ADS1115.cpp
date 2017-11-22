@@ -91,7 +91,6 @@ namespace smooth
                     current_config = config;
                     current_low_thresh_hold = low_thresh_hold;
                     current_high_thresh_hold = high_thresh_hold;
-                    ESP_LOGV("New config:", "%x", current_config);
                 }
 
                 return res;

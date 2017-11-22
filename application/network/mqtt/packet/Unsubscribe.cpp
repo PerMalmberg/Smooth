@@ -23,7 +23,7 @@ namespace smooth
                     void Unsubscribe::get_topics(std::vector<std::string>& topics) const
                     {
                         calculate_remaining_length_and_variable_header_offset();
-                        auto it = variable_header_start + get_variable_header_length();
+                        auto it = get_variable_header_start() + get_variable_header_length();
 
                         bool end_reached = false;
 

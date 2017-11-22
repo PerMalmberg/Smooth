@@ -72,11 +72,8 @@ namespace smooth
                 if (ix < led_count)
                 {
                     auto pixel = led_data.begin() + ix * bits_per_pixel;
-                    //ESP_LOGV("Green", "----");
                     add_color(pixel, green);
-                    //ESP_LOGV("Red", "----");
                     add_color(pixel, red);
-                    //ESP_LOGV("Blue", "----");
                     add_color(pixel, blue);
                 }
             }
@@ -89,7 +86,6 @@ namespace smooth
                 while (bit >= 0 && pixel != led_data.end())
                 {
                     *pixel = b.test(bit) ? hi : low;
-                    //ESP_LOGV("P", "%s", (b.test(bit) ? "hi" : "low"));
                     bit--;
                     pixel++;
                 }

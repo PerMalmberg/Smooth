@@ -24,9 +24,7 @@ namespace smooth
                         strncpy(state_name, name, sizeof(state_name) - 1);
                     }
 
-                    MQTTBaseState::~MQTTBaseState()
-                    {
-                    }
+                    MQTTBaseState::~MQTTBaseState() = default;
 
                     void MQTTBaseState::receive(packet::MQTTPacket& raw_packet)
                     {

@@ -19,7 +19,7 @@ namespace smooth
                 {
                     void ConnectedState::event(const core::timer::TimerExpiredEvent& event)
                     {
-                        auto timer_id = event.get_timer()->get_id();
+                        auto timer_id = event.get_id();
 
                         if (timer_id == MQTT_FSM_KEEP_ALIVE_TIMER_ID)
                         {
@@ -34,11 +34,6 @@ namespace smooth
                         {
                             fsm.set_state(new(fsm) IdleState(fsm));
                         }
-                    }
-
-                    void ConnectedState::disconnect_event()
-                    {
-                        fsm.set_state(new(fsm) DisconnectState(fsm));
                     }
                 }
             }

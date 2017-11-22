@@ -24,7 +24,7 @@ namespace smooth
                         public:
                             Publish() = default;
 
-                            Publish(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Publish(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
@@ -38,7 +38,7 @@ namespace smooth
                                 if (has_packet_identifier())
                                 {
                                     calculate_remaining_length_and_variable_header_offset();
-                                    auto pos = variable_header_start + get_variable_header_length() - 2;
+                                    auto pos = get_variable_header_start() + get_variable_header_length() - 2;
                                     id = read_packet_identifier(pos);
                                 }
                                 return id;
@@ -46,9 +46,9 @@ namespace smooth
 
                             std::string get_topic() const;
 
-                            virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const override
+                            std::vector<uint8_t>::const_iterator get_payload_cbegin() const override
                             {
-                                return variable_header_start + get_variable_header_length();
+                                return get_variable_header_start() + get_variable_header_length();
                             }
 
                             std::vector<uint8_t>::const_iterator get_payload_cend() const

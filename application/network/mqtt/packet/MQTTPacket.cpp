@@ -8,9 +8,14 @@
 #include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/application/network/mqtt/Logging.h>
+#include <smooth/core/logging/log.h>
+
+#ifdef ESP_PLATFORM
 #include "sdkconfig.h"
+#endif // END ESP_PLATFORM
 
 using namespace std;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -78,8 +83,9 @@ namespace smooth
 
                                 if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
-                                    ESP_LOGV(mqtt_log_tag, "Too big packet detected: %d > %d", remaining_bytes_to_read,
-                                             CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                                    Log::verbose(mqtt_log_tag, Format("Too big packet detected: {1} > {2}",
+                                                                      Int32(remaining_bytes_to_read),
+                                                                      Int32(CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)));
                                     state = DATA;
                                     too_big = true;
                                 }
@@ -121,11 +127,11 @@ namespace smooth
                         }
 
                         // If present, variable header start always is located after the remaining bytes
-                        variable_header_start = curr;
+                        variable_header_start_ix = std::distance(packet.cbegin(), curr);
 
                         if (error)
                         {
-                            ESP_LOGE(mqtt_log_tag, "Invalid remaining length");
+                            Log::error(mqtt_log_tag, Format("Invalid remaining length"));
                         }
 
                         return res;
@@ -137,7 +143,7 @@ namespace smooth
                         {
                             for (int i = 0; i < 4 && length > 0; ++i)
                             {
-                                packet.push_back(length % 0x80);
+                                packet.push_back(static_cast<uint8_t&&>(length % 0x80));
                                 length /= 0x80;
 
                                 if (length > 0)
@@ -155,19 +161,19 @@ namespace smooth
                     void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
                     {
                         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
-                        uint16_t length = static_cast<uint16_t>( str.length());
+                        auto length = static_cast<uint16_t>(str.length());
                         append_msb_lsb(length, target);
 
                         for (uint16_t i = 0; i < length; ++i)
                         {
-                            target.push_back(str[i]);
+                            target.push_back(static_cast<uint8_t&&>(str[i]));
                         }
                     }
 
                     void MQTTPacket::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
                     {
-                        target.push_back(value >> 8);
-                        target.push_back(value & 0xFF);
+                        target.push_back(static_cast<uint8_t&&>(value >> 8));
+                        target.push_back(static_cast<uint8_t&&>(value & 0xFF));
                     }
 
                     void MQTTPacket::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)
@@ -180,7 +186,7 @@ namespace smooth
 
                     void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
                     {
-                        encode_remaining_length(variable.size());
+                        encode_remaining_length(static_cast<int>(variable.size()));
                         // Using move_iterator we reduce the memory foot print by actually moving
                         // instead of copying the data.
                         std::copy(std::make_move_iterator(variable.begin()),
@@ -234,16 +240,16 @@ namespace smooth
                         // QoS is always located in the first byte but not all packets
                         // actually use the bits as QoS (e.g. PubRel)
                         smooth::core::util::ByteSet b(packet[0]);
-                        uint8_t value = (b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1);
+                        auto value = static_cast<uint8_t>((b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1));
                         return static_cast<QoS>( value );
                     }
 
-                    int MQTTPacket::get_payload_length() const
+                    long MQTTPacket::get_payload_length() const
                     {
                         calculate_remaining_length_and_variable_header_offset();
 
-                        int payload_length = std::distance(
-                                variable_header_start + get_variable_header_length(),
+                        long payload_length = std::distance(
+                                get_variable_header_start() + get_variable_header_length(),
                                 packet.cend());
 
                         return payload_length;
@@ -256,7 +262,7 @@ namespace smooth
 
                         ss << "[" << get_mqtt_type_as_string() << "] "
                            << "Raw(" << packet.size() << ") "
-                           << "Fix(" << std::distance(packet.cbegin(), variable_header_start) << ") "
+                           << "Fix(" << std::distance(packet.cbegin(), get_variable_header_start()) << ") "
                            << "Var(" << get_variable_header_length() << ") "
                            << "Pay(" << get_payload_length() << ") ";
 
@@ -269,32 +275,32 @@ namespace smooth
                         core::util::ByteSet b(packet[0]);
                         ss << "R(" << b.test(0) << ") ";
                         ss << "D(" << b.test(3) << ") ";
-                        ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
+                        Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
 
 
                         if (has_payload() && get_payload_length() > 0)
                         {
                             ss.str("");
 
-                            for (auto b = get_payload_cbegin(); b != packet.cend(); b++)
+                            for (auto p = get_payload_cbegin(); p != packet.cend(); p++)
                             {
-                                if (isascii(*b))
+                                if (isascii(*p))
                                 {
-                                    ss << static_cast<char>(*b);
+                                    ss << static_cast<char>(*p);
                                 }
                                 else
                                 {
-                                    ss << std::hex << static_cast<int>(*b) << " ";
+                                    ss << std::hex << static_cast<int>(*p) << " ";
                                 }
                             }
 
-                            ESP_LOGV(mqtt_log_tag, "%s: %s", header, ss.str().c_str());
+                            Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
                         }
                     }
 
                     bool MQTTPacket::validate_packet() const
                     {
-                        // Must first check if the back was deemed to big. If that is the
+                        // Must first check if the pack was deemed to big. If that is the
                         // case, then the data held by the packet is invalid and must not
                         // be used for calculations since the data has been overwritten
                         // at least once while reading the data we cannot hold.
@@ -303,24 +309,25 @@ namespace smooth
 
                         if (is_too_big())
                         {
-                            ESP_LOGE(mqtt_log_tag, "Packet is too big.");
+                            Log::verbose(mqtt_log_tag, Format("Packet is too big."));
                             res = false;
                         }
                         else
                         {
                             // Ensure that data lengths add up.
                             calculate_remaining_length_and_variable_header_offset();
-                            int left_over = packet.size()
-                                            // Fixed header
-                                            - std::distance(packet.cbegin(), variable_header_start)
-                                            // Variable header
-                                            - get_variable_header_length()
-                                            // Payload
-                                            - get_payload_length();
+                            long left_over = packet.size()
+                                             // Fixed header
+                                             - std::distance(packet.cbegin(), get_variable_header_start())
+                                             // Variable header
+                                             - get_variable_header_length()
+                                             // Payload
+                                             - get_payload_length();
 
                             if (left_over != 0)
                             {
-                                ESP_LOGE(mqtt_log_tag, "Invalid packet, lengths do not add up: %d", left_over);
+                                Log::error(mqtt_log_tag,
+                                           Format("Invalid packet, lengths do not add up: {1}", Int64(left_over)));
                                 res = false;
                             }
                         }
@@ -340,7 +347,7 @@ namespace smooth
                                 bytes_received + get_wanted_amount();
 
                         // Make sure there is room to do direct memory writes by reserving space.
-                        packet.resize(required_size, 0);
+                        packet.resize(static_cast<unsigned long>(required_size), 0);
 
                         if (is_too_big())
                         {
@@ -371,7 +378,7 @@ namespace smooth
 
                     int MQTTPacket::get_send_length()
                     {
-                        return static_cast<int>( packet.size());
+                        return static_cast<int>(packet.size());
                     }
 
                     const uint8_t* MQTTPacket::get_data()

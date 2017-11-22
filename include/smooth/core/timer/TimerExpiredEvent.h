@@ -18,20 +18,20 @@ namespace smooth
                 public:
                     TimerExpiredEvent() = default;
 
-                    TimerExpiredEvent(smooth::core::timer::ITimer* timer)
-                            : timer(timer)
+                    explicit TimerExpiredEvent(int id)
+                            : id(id)
                     {
                     }
 
                     /// Gets the timer that has expired
                     /// \return The timer that expired.
-                    const smooth::core::timer::ITimer* get_timer() const
+                    int get_id() const
                     {
-                        return timer;
+                        return id;
                     }
 
                 private:
-                    smooth::core::timer::ITimer* timer = nullptr;
+                    int id = -1;
             };
         }
     }

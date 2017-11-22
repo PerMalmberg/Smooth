@@ -29,12 +29,7 @@ namespace smooth
                         public:
                             MQTTPacket() = default;
                             MQTTPacket& operator=(const MQTTPacket&) = default;
-
-                            MQTTPacket(const MQTTPacket& other)
-                            {
-                                *this = other;
-                                calculate_remaining_length_and_variable_header_offset();
-                            }
+                            MQTTPacket(const MQTTPacket& other) = default;
 
                             // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned
@@ -89,6 +84,7 @@ namespace smooth
                             {
                                 return packet.cend();
                             }
+
                         protected:
 
                             virtual bool has_packet_identifier() const
@@ -106,7 +102,7 @@ namespace smooth
                                 return 0;
                             }
 
-                            int get_payload_length() const;
+                            long get_payload_length() const;
 
                             uint16_t read_packet_identifier(std::vector<uint8_t>::const_iterator pos) const
                             {
@@ -124,21 +120,25 @@ namespace smooth
                             void apply_constructed_data(const std::vector<uint8_t>& variable);
 
                             std::vector<uint8_t> packet{};
-                            mutable std::vector<uint8_t>::const_iterator variable_header_start;
                             int calculate_remaining_length_and_variable_header_offset() const;
                             std::string get_string(std::vector<uint8_t>::const_iterator offset) const;
 
+                            std::vector<uint8_t>::const_iterator get_variable_header_start() const
+                            {
+                                return packet.cbegin() + variable_header_start_ix;
+                            }
+
                         private:
+
                             enum ReadingHeaderSection
                             {
                                 START = 1,
                                 REMAINING_LENGTH,
                                 DATA
                             };
-                            static const int REMAINING_LENGTH_OFFSET = 1;
+                            mutable long variable_header_start_ix = 0;
                             ReadingHeaderSection state = ReadingHeaderSection::START;
                             int bytes_received = 0;
-                            int current_length = 0;
                             int remaining_bytes_to_read = 1;
                             int received_header_length = 0;
                             mutable bool error = false;

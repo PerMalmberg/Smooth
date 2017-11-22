@@ -22,15 +22,15 @@ namespace smooth
                 class IMqttClient
                 {
                     public:
-                        virtual ~IMqttClient()
-                        {
-                        }
+                        virtual ~IMqttClient() = default;
 
                         virtual const std::string& get_client_id() const = 0;
                         virtual const std::chrono::seconds get_keep_alive() const = 0;
                         virtual void start_reconnect() = 0;
                         virtual void reconnect() = 0;
                         virtual bool is_auto_reconnect() const = 0;
+                        virtual void disconnect() = 0;
+                        virtual void force_disconnect() = 0;
                         virtual void set_keep_alive_timer(std::chrono::seconds interval) = 0;
                         virtual bool send_packet(packet::MQTTPacket& packet) = 0;
                         virtual Publication& get_publication() = 0;

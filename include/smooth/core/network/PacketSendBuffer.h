@@ -5,8 +5,8 @@
 #pragma once
 
 #include <smooth/core/util/CircularBuffer.h>
-#include <smooth/core/ipc/Lock.h>
 #include "IPacketSendBuffer.h"
+#include <mutex>
 
 namespace smooth
 {
@@ -34,7 +34,7 @@ namespace smooth
 
                     bool put(const Packet& item)
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         bool res = !buffer.is_full();
                         if (res)
                         {
@@ -45,52 +45,50 @@ namespace smooth
 
                     bool is_in_progress() override
                     {
+                        std::lock_guard<std::mutex> lock(guard);
                         return in_progress;
                     }
 
                     const uint8_t* get_data_to_send() override
                     {
-                        return current_item.get_data() + current_item.get_send_length() - current_length;
+                        std::lock_guard<std::mutex> lock(guard);
+                        return current_item.get_data() + bytes_sent;
                     }
 
-                    int get_remaining_data_length() override
+                    size_t get_remaining_data_length() override
                     {
-                        return current_length;
+                        std::lock_guard<std::mutex> lock(guard);
+                        return current_item.get_send_length() - bytes_sent;
                     }
 
-                    void data_has_been_sent(int length) override
+                    void data_has_been_sent(size_t length) override
                     {
-                        current_length -= length;
-
-                        // Just to be safe, we check for <= 0
-                        if (current_length <= 0)
+                        std::lock_guard<std::mutex> lock(guard);
+                        bytes_sent += length;
+                        if(current_item.get_send_length() >= bytes_sent)
                         {
                             in_progress = false;
-                            current_length = 0;
                         }
                     }
 
                     void prepare_next_packet() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
-                        if (buffer.get(current_item))
-                        {
-                            in_progress = true;
-                            current_length = current_item.get_send_length();
-                        }
+                        std::lock_guard<std::mutex> lock(guard);
+                        in_progress = buffer.get(current_item);
+                        bytes_sent = 0;
                     }
 
                     void clear() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         buffer.clear();
                         in_progress = false;
-                        current_length = 0;
+                        bytes_sent = 0;
                     }
 
                     bool is_empty() override
                     {
-                        smooth::core::ipc::Lock lock(guard);
+                        std::lock_guard<std::mutex> lock(guard);
                         return !in_progress && buffer.is_empty();
                     }
 
@@ -99,7 +97,7 @@ namespace smooth
                     smooth::core::util::CircularBuffer<Packet, Size> buffer;
                     Packet current_item;
                     std::mutex guard;
-                    int current_length = 0;
+                    size_t bytes_sent = 0;
                     bool in_progress = false;
 
 

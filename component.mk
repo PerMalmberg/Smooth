@@ -7,9 +7,11 @@ COMPONENT_SRCDIRS := \
 	core/network \
 	core/timer \
 	core/io \
+	core/ipc \
 	core/io/i2c \
 	core/io/rmt \
 	core/io/spi \
+	core/logging/idf \
 	application \
 	application/display \
 	application/sensor \

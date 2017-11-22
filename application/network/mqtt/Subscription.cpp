@@ -5,9 +5,10 @@
 #include <algorithm>
 #include <smooth/application/network/mqtt/Subscription.h>
 #include <smooth/application/network/mqtt/packet/Subscribe.h>
-#include "esp_log.h"
+#include <smooth/core/logging/log.h>
 
 using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -19,14 +20,22 @@ namespace smooth
             {
                 void Subscription::subscribe(const std::string& topic, QoS qos)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // Check active and not-yet completed subscriptions
+                    internal_subscribe(topic, qos);
+                }
+
+                void Subscription::internal_subscribe(const std::string& topic, const QoS& qos)
+                {
+                    // Intentionally not locking here - check call-sites.
+
                     auto it = active_subscription.find(topic);
                     if (it == active_subscription.end())
                     {
                         // Simply add another subscription. If it already exists in the collection (possibly
                         // partly through the subscription process) we'll just handle it as any other subscription.
                         packet::Subscribe s(topic, qos);
-                        subscribing.push_back(InFlight<packet::Subscribe>(s));
+                        subscribing.emplace_back(s);
                     }
                     else
                     {
@@ -34,20 +43,22 @@ namespace smooth
                         if (qos != sub.second)
                         {
                             packet::Subscribe s(topic, qos);
-                            subscribing.push_back(InFlight<packet::Subscribe>(s));
+                            subscribing.emplace_back(s);
                         }
                     }
                 }
 
                 void Subscription::unsubscribe(const std::string& topic)
                 {
-                    // Just encueue for transfer to server.
+                    std::lock_guard<std::mutex> lock(guard);
+                    // Just enqueue for transfer to server.
                     packet::Unsubscribe us(topic);
-                    unsubscribing.push_back(InFlight<packet::Unsubscribe>(us));
+                    unsubscribing.emplace_back(us);
                 }
 
                 void Subscription::subscribe_next(IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // We'll never have more than one outstanding subscription request.
                     // and it will always be the first one in the list.
                     bool all_ok = send_control_packet(subscribing, PacketType::SUBACK, mqtt, "subscription");
@@ -62,7 +73,7 @@ namespace smooth
 
                             if (flight.get_waiting_for() == PacketType::PUBREL)
                             {
-                                if (flight.get_elapsed_time() > std::chrono::seconds(15))
+                                if (flight.get_elapsed_time() > std::chrono::seconds(5))
                                 {
                                     // Send a PubRec message.
                                     auto& packet = flight.get_packet();
@@ -81,6 +92,8 @@ namespace smooth
 
                 void Subscription::handle_disconnect()
                 {
+                    std::lock_guard<std::mutex> lock(guard);
+
                     // When disconnected, we need to move active subscriptions to the
                     // list of subscriptions net yet subscribed.
                     // Any subscription currently being subscribed should just be reset.
@@ -93,7 +106,7 @@ namespace smooth
                     {
                         auto copy = *it;
                         it = active_subscription.erase(it);
-                        subscribe(copy.first, copy.second);
+                        internal_subscribe(copy.first, copy.second);
                     }
 
                     // Reset any unsubscriptions
@@ -102,6 +115,7 @@ namespace smooth
 
                 void Subscription::receive(packet::SubAck& sub_ack, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     auto first = subscribing.begin();
                     if (first != subscribing.end())
                     {
@@ -113,7 +127,9 @@ namespace smooth
                             flight.get_packet().get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGD(mqtt_log_tag, "Subscription of topic %s completed, QoS: %d", t.first.c_str(), t.second);
+                                Log::debug(mqtt_log_tag, Format("Subscription of topic {1} completed, QoS: {2}",
+                                                                Str(t.first),
+                                                                Int32(t.second)));
                                 active_subscription.emplace(t.first, t.second);
                             }
 
@@ -124,6 +140,7 @@ namespace smooth
 
                 void Subscription::receive(packet::Publish& publish, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // Note: It is a valid use case where a Publish packet is received
                     // before a SubAck has been received for a subscription.
 
@@ -158,6 +175,7 @@ namespace smooth
 
                 void Subscription::receive(packet::PubRel& pub_rel, IMqttClient& mqtt)
                 {
+                    std::lock_guard<std::mutex> lock(guard);
                     // Always respond with a PubComp
                     packet::PubComp pub_comp(pub_rel.get_packet_identifier());
                     mqtt.send_packet(pub_comp);
@@ -175,7 +193,8 @@ namespace smooth
 
                 void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient& mqtt)
                 {
-                    if (unsubscribing.size())
+                    std::lock_guard<std::mutex> lock(guard);
+                    if (!unsubscribing.empty())
                     {
                         auto& front = unsubscribing.front();
                         auto& packet = front.get_packet();
@@ -185,7 +204,7 @@ namespace smooth
                             packet.get_topics(topics);
                             for (auto& t : topics)
                             {
-                                ESP_LOGD(mqtt_log_tag, "Unsubscription of topic %s completed", t.c_str());
+                                Log::debug(mqtt_log_tag, Format("Unsubscription of topic {1} completed", Str(t)));
                                 active_subscription.erase(t);
                             }
 
@@ -197,7 +216,7 @@ namespace smooth
 
                 void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt)
                 {
-                    ESP_LOGD(mqtt_log_tag, "Reception of QoS %d complete", publish.get_qos());
+                    Log::debug(mqtt_log_tag, Format("Reception of QoS {1} complete", Int32(publish.get_qos())));
                     // Grab the payload
                     std::vector<uint8_t> payload;
                     // Move data into our local vector.
