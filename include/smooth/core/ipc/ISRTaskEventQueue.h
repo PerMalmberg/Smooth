@@ -38,9 +38,9 @@ namespace smooth
                         return Size;
                     }
 
-                    QueueHandle_t get_handle() override
+                    void register_notification(QueueNotification* notification) override
                     {
-                        return queue;
+                        this->notification = notification;
                     }
 
                 private:
@@ -49,6 +49,7 @@ namespace smooth
                     QueueHandle_t queue;
                     Task& task;
                     IEventListener<DataType>& listener;
+                    QueueNotification* notification = nullptr;
             };
 
             template<typename DataType, int Size>
@@ -63,7 +64,13 @@ namespace smooth
             void ISRTaskEventQueue<DataType,Size>::signal(const DataType& data)
             {
                 // There is a possibility that we loose signals here if the queue is full.
-                xQueueSendToBackFromISR(queue, &data, nullptr);
+                if(pdTRUE == xQueueSendToBackFromISR(queue, &data, nullptr))
+                {
+                    if(notification)
+                    {
+                        notification->notify(this);
+                    }
+                }
             }
 
             template<typename DataType, int Size>

@@ -42,6 +42,15 @@ namespace smooth
                     : private Input
             {
                 public:
+
+                    /// Constructs an InterruptInput
+                    /// \param queue The queue to put events on
+                    /// \param io GPIO pin number
+                    /// \param pull_up Set to true if the input has a pull-up (also enables the internal pull up)
+                    /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
+                    /// Note: The pull-up/down determines which edge the interrupt triggers on:
+                    /// Pull-up: Negative edges
+                    /// Pull-down: Positive edges
                     InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
                                    bool pull_up,
                                    bool pull_down

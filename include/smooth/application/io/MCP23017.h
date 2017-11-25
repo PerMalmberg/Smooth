@@ -109,7 +109,7 @@ namespace smooth
                                          uint8_t input_b_polarity);
 
                     /// Configures the device.
-                    /// @note Only a subset if the capabilities of the device can be configures, i.e those supported by this implementation.
+                    /// @note Only a subset if the capabilities of the device can be configured, i.e those supported by this implementation.
                     /// \param mirror_change_interrupt If true, input change interrupts are logically OR:ed, resulting
                     /// in both interrupts signaling on any change. If false, INTA is associated with PORTA and INTB with PORTB.
                     /// \param interrupt_polarity_active_high If true, interrupt signaling is active-high.
@@ -118,7 +118,7 @@ namespace smooth
                     /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_a value. If a
                     /// bit value is clear, the corresponding I/O pin is compared against the previous value.
                     /// \param interrupt_default_val_a For port A, default compare register for interrupt on-change. If enabled (via GPINTEN and
-                    /// INTCON) to compare against the DEFVAL register, an opposite value on the associated pin will cause an interrupt to occur.
+                    /// INTCON) to compare against the DEFVAL register, as opposite value on the associated pin will cause an interrupt to occur.
                     /// \param interrupt_on_change_enable_port_b bit mask for enabling interrupt-on-change on per pin-basis for port A.
                     /// \param interrupt_control_register_b For port B, controls how the associated pin value is compared for the interrupt-on-change feature.
                     /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_b value. If a

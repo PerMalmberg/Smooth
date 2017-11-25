@@ -116,6 +116,19 @@ namespace smooth
                     }
             };
 
+            /// Class to log a bool
+            class Bool
+                    : public BaseArgWithData
+            {
+                public:
+                    explicit Bool(bool value)
+                    {
+                        std::stringstream ss;
+                        ss << (value ? "true" : "false");
+                        data = ss.str();
+                    }
+            };
+
             /// Template class for decimal values
             /// \tparam T type of value
             template<typename T>
