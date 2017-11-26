@@ -4,6 +4,7 @@
 
 #include <smooth/core/io/InterruptInput.h>
 #include <driver/gpio.h>
+#include <chrono>
 
 namespace smooth
 {
@@ -21,8 +22,8 @@ namespace smooth
             }
 
             InterruptInput::InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
-                                   bool pull_up, bool pull_down)
-                    : Input(io, pull_up, pull_down, pull_up ? GPIO_INTR_NEGEDGE : GPIO_INTR_POSEDGE), queue(queue)
+                                           bool pull_up, bool pull_down, gpio_int_type_t interrupt_trigger)
+                    : Input(io, pull_up, pull_down, interrupt_trigger), queue(queue)
             {
                 gpio_isr_handler_add(io, input_interrupt_handler, this);
             }

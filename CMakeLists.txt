@@ -132,6 +132,7 @@ set(SOURCE_FILES
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/condition_variable.h
         include/smooth/core/ipc/ILinkSubscriber.h
+        include/smooth/core/ipc/IPolledTaskQueue.h
         )
 
 add_library(Smooth ${SOURCE_FILES})

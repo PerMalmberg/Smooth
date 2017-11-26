@@ -48,12 +48,11 @@ namespace smooth
                     /// \param io GPIO pin number
                     /// \param pull_up Set to true if the input has a pull-up (also enables the internal pull up)
                     /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
-                    /// Note: The pull-up/down determines which edge the interrupt triggers on:
-                    /// Pull-up: Negative edges
-                    /// Pull-down: Positive edges
+                    /// \param interrupt_trigger When the interrupt should trigger
                     InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
                                    bool pull_up,
-                                   bool pull_down
+                                   bool pull_down,
+                                   gpio_int_type_t interrupt_trigger
                     );
 
                     void signal();
@@ -64,6 +63,7 @@ namespace smooth
                     }
 
                 private:
+                    bool first_read = true;
                     core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue;
             };
         }

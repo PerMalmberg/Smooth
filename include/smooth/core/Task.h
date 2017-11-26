@@ -15,6 +15,7 @@
 #include <thread>
 
 #include <smooth/core/ipc/ITaskEventQueue.h>
+#include <smooth/core/ipc/IPolledTaskQueue.h>
 #include <smooth/core/ipc/QueueNotification.h>
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/timer/ElapsedTime.h>
@@ -42,6 +43,7 @@ namespace smooth
                 void start();
 
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
+                void register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue);
 
 #ifdef ESP_PLATFORM
                 TaskHandle_t get_freertos_task() const
@@ -94,6 +96,7 @@ namespace smooth
                 bool started = false;
                 std::mutex start_mutex{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
+                std::vector<smooth::core::ipc::IPolledTaskQueue*> polled_queues{};
 #ifdef ESP_PLATFORM
                 TaskHandle_t freertos_task;
 #endif

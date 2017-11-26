@@ -112,6 +112,13 @@ namespace smooth
                 }
                 else
                 {
+                    // Check the polled queues for data availability
+                    for(auto q : polled_queues)
+                    {
+                        q->poll();
+                    }
+
+                    // Wait for data to become available, or a timeout to occur.
                     auto* queue = notification.wait_for_notification(this, tick_interval);
 
                     if (queue == nullptr)
@@ -141,6 +148,12 @@ namespace smooth
         void Task::register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue)
         {
             task_queue->register_notification(&notification);
+        }
+
+        void Task::register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue)
+        {
+            polled_queue->register_notification(&notification);
+            polled_queues.push_back(polled_queue);
         }
     }
 }
