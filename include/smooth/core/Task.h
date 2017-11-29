@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <map>
 #include <mutex>
+#include <condition_variable>
 
 #undef bind
 
@@ -91,10 +92,11 @@ namespace smooth
                 uint32_t stack_size;
                 uint32_t priority;
                 std::chrono::milliseconds tick_interval;
-                smooth::core::ipc::QueueNotification notification;
+                smooth::core::ipc::QueueNotification notification{};
                 bool is_attached = false;
                 bool started = false;
                 std::mutex start_mutex{};
+                std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
                 std::vector<smooth::core::ipc::IPolledTaskQueue*> polled_queues{};
 #ifdef ESP_PLATFORM

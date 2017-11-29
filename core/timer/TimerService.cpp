@@ -27,7 +27,6 @@ namespace smooth
                           }),
                       queue(cmp),
                       guard(),
-                      cond(*this),
                       processed()
             {
             }

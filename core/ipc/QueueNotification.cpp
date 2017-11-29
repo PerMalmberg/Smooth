@@ -15,11 +15,6 @@ namespace smooth
     {
         namespace ipc
         {
-            QueueNotification::QueueNotification(Task& parent)
-                    : queues(), guard(), cond(parent)
-            {
-            }
-
             void QueueNotification::notify(ITaskEventQueue* queue)
             {
                 // It might look like the queue can grow without bounds, but that is not the case

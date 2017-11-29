@@ -21,8 +21,7 @@ namespace smooth
                   worker(),
                   stack_size(stack_size),
                   priority(priority),
-                  tick_interval(tick_interval),
-                  notification(*this)
+                  tick_interval(tick_interval)
         {
         }
 
@@ -32,8 +31,7 @@ namespace smooth
                 name("MainTask"),
                 stack_size(0),
                 priority(priority),
-                tick_interval(tick_interval),
-                notification(*this)
+                tick_interval(tick_interval)
         {
             is_attached = true;
         }
@@ -47,6 +45,7 @@ namespace smooth
         {
             // Prevent multiple starts
             std::unique_lock<std::mutex> lock(start_mutex);
+
             if (!started)
             {
                 status_report_timer.start();
@@ -65,15 +64,11 @@ namespace smooth
 
                     // To avoid race conditions between tasks during start up,
                     // always wait for the new task to start.
-                    // Ideally we should use std::condition_variable here, but since the replacement needs
-                    // a parent thread at construction, we can't create one to make the calling thread wait
-                    // and also accessible in execute(). As such we sleep instead. TODO: replace.
-                    while (!started)
-                    {
-                        lock.unlock();
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                        lock.lock();
-                    }
+                    start_condition.wait(lock,
+                                         [this]
+                                         {
+                                             return started;
+                                         });
                 }
             }
         }
@@ -89,10 +84,11 @@ namespace smooth
 
             init();
 
-            if (!is_attached)
+            if(!is_attached)
             {
-                std::lock_guard<std::mutex> lock(start_mutex);
+                std::unique_lock<std::mutex>(start_mutex);
                 started = true;
+                start_condition.notify_all();
             }
 
             Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
@@ -136,7 +132,7 @@ namespace smooth
                     }
                 }
 
-                if(status_report_timer.get_running_time() > std::chrono::seconds(60))
+                if (status_report_timer.get_running_time() > std::chrono::seconds(60))
                 {
                     status_report_timer.reset();
                     TaskStatus ts(name, stack_size);

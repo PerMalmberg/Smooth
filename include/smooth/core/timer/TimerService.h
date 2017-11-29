@@ -8,7 +8,7 @@
 #include <memory>
 #include <queue>
 #include <mutex>
-#include <smooth/core/ipc/condition_variable.h>
+#include <condition_variable>
 
 namespace smooth
 {
@@ -71,7 +71,7 @@ namespace smooth
                     TimerComparator cmp;
                     TimerQueue queue;
                     std::mutex guard;
-                    smooth::core::ipc::condition_variable cond;
+                    std::condition_variable cond{};
                     std::vector<SharedTimer> processed;
             };
         }
