@@ -55,7 +55,7 @@ namespace smooth
                                    gpio_int_type_t interrupt_trigger
                     );
 
-                    void signal();
+                    void update();
 
                     gpio_num_t get_io() const
                     {
@@ -63,7 +63,6 @@ namespace smooth
                     }
 
                 private:
-                    bool first_read = true;
                     core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue;
             };
         }

@@ -42,7 +42,6 @@ namespace smooth
                     std::queue<ITaskEventQueue*> queues{};
                     std::mutex guard{};
                     std::condition_variable cond{};
-                    bool has_data = false;
             };
         }
     }

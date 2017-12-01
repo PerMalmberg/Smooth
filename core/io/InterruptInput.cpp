@@ -17,7 +17,7 @@ namespace smooth
                 InterruptInput* ev_input = static_cast<InterruptInput*>(arg);
                 if (ev_input != nullptr)
                 {
-                    ev_input->signal();
+                    ev_input->update();
                 }
             }
 
@@ -28,7 +28,7 @@ namespace smooth
                 gpio_isr_handler_add(io, input_interrupt_handler, this);
             }
 
-            void InterruptInput::signal()
+            void InterruptInput::update()
             {
                 InterruptInputEvent ev(io, read());
                 queue.signal(ev);

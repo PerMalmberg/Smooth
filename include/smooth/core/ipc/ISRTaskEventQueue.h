@@ -46,13 +46,12 @@ namespace smooth
 
                     void poll() override
                     {
-                        DataType t;
-                        if (forward_performed
-                            && notification
-                            && xQueuePeek(queue, &t, 0) == pdTRUE)
+                        // Do we have an item in the queue?
+                        if (notification
+                            && uxQueueSpacesAvailable(queue) < Size)
                         {
+
                             notification->notify(this);
-                            forward_performed = false;
                         }
                     }
 
@@ -63,7 +62,6 @@ namespace smooth
                     Task& task;
                     IEventListener<DataType>& listener;
                     QueueNotification* notification = nullptr;
-                    bool forward_performed = true;
             };
 
             template<typename DataType, int Size>
@@ -79,6 +77,13 @@ namespace smooth
             void ISRTaskEventQueue<DataType, Size>::signal(const DataType& data)
             {
                 // There is a possibility that we loose signals here if the queue is full.
+                if(xQueueIsQueueFullFromISR(queue))
+                {
+                    // Drop oldest message, this way we'll always get the last data value onto the queue
+                    DataType lost;
+                    xQueueReceiveFromISR(queue, &lost, nullptr);
+                }
+
                 xQueueSendToBackFromISR(queue, &data, nullptr);
             }
 
@@ -93,8 +98,6 @@ namespace smooth
                 {
                     listener.event(m);
                 }
-
-                forward_performed = true;
             }
         }
     }

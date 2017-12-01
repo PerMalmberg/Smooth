@@ -21,9 +21,8 @@ namespace smooth
                 // as TaskEventQueues only call this method when they have successfully added the
                 // data item to their internal queue. As such, the queue can only be as large as
                 // the sum of all queues within the same Task.
-                std::lock_guard<std::mutex> lock(guard);
+                std::unique_lock<std::mutex> lock(guard);
                 queues.push(queue);
-                has_data = true;
                 cond.notify_one();
             }
 
@@ -41,13 +40,12 @@ namespace smooth
                                                        [this]()
                                                        {
                                                            // Stop waiting when there is data
-                                                           return has_data;
+                                                           return !queues.empty();
                                                        });
 
                     // At this point we will have the lock again.
                     if (wait_result)
                     {
-                        has_data = false;
                         if (!queues.empty())
                         {
                             res = queues.front();
