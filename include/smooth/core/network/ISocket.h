@@ -4,7 +4,6 @@
 
 #pragma once
 
-#undef bind
 #include <memory>
 
 #include "InetAddress.h"

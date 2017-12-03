@@ -11,8 +11,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#undef bind
-
 #include <thread>
 
 #include <smooth/core/ipc/ITaskEventQueue.h>

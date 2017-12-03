@@ -12,9 +12,6 @@
 #include <smooth/core/util/make_unique.h>
 #include <smooth/core/util/FixedBufferBase.h>
 
-#undef read
-#undef write
-
 namespace smooth
 {
     namespace core

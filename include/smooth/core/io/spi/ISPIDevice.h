@@ -2,7 +2,6 @@
 // Created by permal on 8/18/17.
 //
 
-#undef write
 #include <driver/spi_master.h>
 #include <mutex>
 namespace smooth
