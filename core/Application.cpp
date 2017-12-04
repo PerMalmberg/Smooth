@@ -47,13 +47,13 @@ namespace smooth
             // total is what is configured in menu config, common for all pthreads.
             if(status.get_remaining_stack() <= 512)
             {
-                Log::warning(status.get_name(), Format("Remaining: {1} Total:{2}, Free heap: {3}",
+                Log::info(status.get_name(), Format("Remaining: {1} Total:{2}, Free heap: {3}",
                                                      UInt32(status.get_remaining_stack()),
                                                      UInt32(status.get_stack_size())));
             }
             else
             {
-                Log::debug(status.get_name(), Format("Remaining: {1} Total:{2}",
+                Log::info(status.get_name(), Format("Remaining: {1} Total:{2}",
                                                      UInt32(status.get_remaining_stack()),
                                                      UInt32(status.get_stack_size())));
             }
