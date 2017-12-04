@@ -48,9 +48,10 @@ namespace smooth
                     {
                         // Do we have an item in the queue?
                         if (notification
+                            && read_since_poll
                             && uxQueueSpacesAvailable(queue) < Size)
                         {
-
+                            read_since_poll = false;
                             notification->notify(this);
                         }
                     }
@@ -62,6 +63,7 @@ namespace smooth
                     Task& task;
                     IEventListener<DataType>& listener;
                     QueueNotification* notification = nullptr;
+                    bool read_since_poll = true;
             };
 
             template<typename DataType, int Size>
@@ -98,6 +100,8 @@ namespace smooth
                 {
                     listener.event(m);
                 }
+
+                read_since_poll = true;
             }
         }
     }
