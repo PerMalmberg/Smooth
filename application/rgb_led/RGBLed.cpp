@@ -6,7 +6,6 @@
 #include <smooth/core/util/ByteSet.h>
 #include <cstring>
 #include <driver/periph_ctrl.h>
-#include "esp_log.h"
 
 namespace smooth
 {
