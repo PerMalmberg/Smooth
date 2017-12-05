@@ -49,7 +49,7 @@ namespace smooth
                         // Do we have an item in the queue?
                         if (notification
                             && read_since_poll
-                            && uxQueueSpacesAvailable(queue) < Size)
+                            && uxQueueMessagesWaiting(queue) > 0)
                         {
                             read_since_poll = false;
                             notification->notify(this);
