@@ -20,6 +20,7 @@ namespace smooth
                     RGBLed(rmt_channel_t channel, gpio_num_t io_pin, uint16_t led_count, const RGBLedTiming& timing);
 
                     void set_pixel(uint16_t ix, uint8_t red, uint8_t green, uint8_t blue);
+                    void clear();
                     void apply();
 
                     virtual ~RGBLed();
@@ -42,7 +43,7 @@ namespace smooth
 
                     std::vector<rmt_item32_t> led_data;
                     rmt_channel_t channel;
-                    uint8_t led_count;
+                    uint16_t led_count;
                     rmt_item32_t hi;
                     rmt_item32_t low;
                     rmt_item32_t reset;

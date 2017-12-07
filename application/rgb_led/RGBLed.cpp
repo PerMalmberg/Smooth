@@ -90,6 +90,14 @@ namespace smooth
                 }
             }
 
+            void RGBLed::clear()
+            {
+                for(auto i = 0; i < led_count; ++i)
+                {
+                    set_pixel(i, 0, 0, 0);
+                }
+            }
+
             void RGBLed::apply()
             {
                 // Be sure that the last item we send is the reset-pulse.
