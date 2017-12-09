@@ -73,7 +73,8 @@ namespace smooth
                     // Get a fixed 'now'
                     auto now = steady_clock::now();
 
-                    while (!queue.empty() && queue.top()->expires_at() <= now)
+                    // Process any expired timers
+                    while (!queue.empty() && now >= queue.top()->expires_at())
                     {
                         auto timer = queue.top();
                         timer->expired();
@@ -101,14 +102,17 @@ namespace smooth
                         auto timer = queue.top();
                         auto next_expire_time = timer->expires_at();
 
-                        // Wait for the time to expire, or a timer to be removed or added.
+                        auto diff = next_expire_time - now;
+
+                        // Wait for the timer to expire, or a timer to be removed or added.
+                        auto current_queue_length = queue.size();
+
                         cond.wait_until(lock,
                                         next_expire_time,
-                                        []()
+                                        [current_queue_length, this]()
                                         {
-                                            // We don't actually care about the return value if wait_util,
-                                            // we just want to either wait until the time elapses, or someone wakes us up.
-                                            return false;
+                                            // Wake up if a timer has been added or removed.
+                                            return current_queue_length != queue.size();
                                         });
                     }
                 }
