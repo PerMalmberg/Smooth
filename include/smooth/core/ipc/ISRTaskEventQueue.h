@@ -79,14 +79,12 @@ namespace smooth
             void ISRTaskEventQueue<DataType, Size>::signal(const DataType& data)
             {
                 // There is a possibility that we loose signals here if the queue is full.
-                if(xQueueIsQueueFullFromISR(queue))
+                while(xQueueSendToBackFromISR(queue, &data, nullptr) == errQUEUE_FULL)
                 {
                     // Drop oldest message, this way we'll always get the last data value onto the queue
                     DataType lost;
                     xQueueReceiveFromISR(queue, &lost, nullptr);
                 }
-
-                xQueueSendToBackFromISR(queue, &data, nullptr);
             }
 
             template<typename DataType, int Size>
