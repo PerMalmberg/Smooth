@@ -17,6 +17,7 @@ namespace smooth
                 public:
                     virtual ~BaseArg() = default;
                     virtual operator const char*() const = 0;
+                    virtual const std::string str() const = 0;
 
                     BaseArg(const BaseArg&) = delete;
 
@@ -32,6 +33,11 @@ namespace smooth
                     operator const char*() const override
                     {
                         return data.c_str();
+                    }
+
+                    const std::string str() const override
+                    {
+                        return data;
                     }
 
                 protected:
@@ -57,6 +63,11 @@ namespace smooth
                     operator const char*() const override
                     {
                         return data;
+                    }
+
+                    const std::string str() const override
+                    {
+                        return std::string(data);
                     }
 
                 private:
