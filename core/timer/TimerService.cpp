@@ -100,15 +100,12 @@ namespace smooth
                     {
                         // Get next timer to expire
                         auto timer = queue.top();
-                        auto next_expire_time = timer->expires_at();
-
-                        auto diff = next_expire_time - now;
 
                         // Wait for the timer to expire, or a timer to be removed or added.
                         auto current_queue_length = queue.size();
 
                         cond.wait_until(lock,
-                                        next_expire_time,
+                                        timer->expires_at(),
                                         [current_queue_length, this]()
                                         {
                                             // Wake up if a timer has been added or removed.
