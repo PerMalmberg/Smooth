@@ -284,7 +284,7 @@ namespace smooth
 
                             for (auto p = get_payload_cbegin(); p != packet.cend(); p++)
                             {
-                                if (isascii(*p))
+                                if (isprint(*p))
                                 {
                                     ss << static_cast<char>(*p);
                                 }
