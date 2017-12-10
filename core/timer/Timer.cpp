@@ -30,17 +30,14 @@ namespace smooth
 
             void Timer::start()
             {
-                start(interval);
+                stop();
+                TimerService::get().add_timer(shared_from_this());
             }
 
             void Timer::start(milliseconds interval)
             {
-                if (interval != this->interval)
-                {
-                    this->interval = interval;
-                }
-                expire_time = steady_clock::now() + interval;
-                reset();
+                this->interval = interval;
+                start();
             }
 
             void Timer::stop()
@@ -51,7 +48,7 @@ namespace smooth
             void Timer::reset()
             {
                 stop();
-                TimerService::get().add_timer(shared_from_this());
+                start();
             }
 
             int Timer::get_id() const
