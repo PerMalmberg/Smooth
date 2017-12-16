@@ -120,6 +120,8 @@ namespace smooth
                             return connected;
                         }
 
+                        static std::string get_payload(const MQTTData& data);
+
                     private:
                         void event(const core::network::TransmitBufferEmptyEvent& event) override;
                         void event(const core::network::ConnectionStatusEvent& event) override;
@@ -158,8 +160,6 @@ namespace smooth
 
                         void init() override;
                         void tick() override;
-
-                    private:
 
                         bool send_packet(packet::MQTTPacket& packet) override;
                         void force_disconnect() override;

@@ -241,6 +241,17 @@ namespace smooth
                         reconnect();
                     }
                 }
+
+                std::string MqttClient::get_payload(const MQTTData& data)
+                {
+                    std::stringstream ss;
+                    for(auto b : data.second)
+                    {
+                        ss << static_cast<char>(b);
+                    }
+
+                    return ss.str();
+                }
             }
         }
     }
