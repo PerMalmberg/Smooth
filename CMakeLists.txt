@@ -36,7 +36,6 @@ set(SOURCE_FILES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
-        core/ipc/condition_variable.cpp
         core/ipc/QueueNotification.cpp
         core/logging/posix/posix_log.cpp
         core/network/IPv4.cpp
@@ -130,7 +129,6 @@ set(SOURCE_FILES
         include/smooth/core/Task.h
         include/smooth/core/TaskStatus.h
         include/smooth/core/task_priorities.h
-        include/smooth/core/ipc/condition_variable.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
         )
