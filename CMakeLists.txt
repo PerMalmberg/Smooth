@@ -46,6 +46,7 @@ set(SOURCE_FILES
         core/timer/TimerService.cpp
         core/Application.cpp
         core/Task.cpp
+        core/filesystem/Filesystem.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
         include/smooth/application/io/MCP23017.h
@@ -131,6 +132,39 @@ set(SOURCE_FILES
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
+        include/smooth/core/filesystem/Filesystem.h
         )
 
-add_library(Smooth ${SOURCE_FILES})
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
+
+set(COMPONENTS
+        freertos
+        cxx
+        esp32
+        driver
+        log
+        tcpip_adapter
+        lwip
+        openssl
+        fatfs/src
+        vfs
+        storage
+        wear_levelling
+        nvs_flash
+        json
+        spi_flash
+        )
+
+set(COMPONENT_INCLUDE_DIRS "")
+
+foreach (COMP ${COMPONENTS})
+    if(EXISTS ${IDF_PATH}/components/${COMP}/include)
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP}/include)
+    else()
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP})
+    endif()
+endforeach ()
+
+include_directories(${COMPONENT_INCLUDE_DIRS})
+
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${COMPONENT_INCLUDE_DIRS})
