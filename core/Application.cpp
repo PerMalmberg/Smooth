@@ -8,11 +8,11 @@
 #include <smooth/core/network/SocketDispatcher.h>
 
 #ifdef ESP_PLATFORM
-#include <smooth/core/logging/log.h>
-
+#include <freertos/portable.h>
 #include <esp_event.h>
 #include <esp_event_loop.h>
 #include <nvs_flash.h>
+#include <smooth/core/logging/log.h>
 #endif // END ESP_PLATFORM
 
 using namespace std::chrono;
@@ -45,24 +45,27 @@ namespace smooth
             // Note: Until the std::threads can be created with a desired stack size,
             // the 'total' will not reflect the true total stack for the task - the true
             // total is what is configured in menu config, common for all pthreads.
-            if(status.get_remaining_stack() <= 512)
+
+#ifdef ESP_PLATFORM
+            Format msg("Remaining stack: {1}. Free heap: {2}, min free: {3}",
+                       UInt32(status.get_remaining_stack()),
+                       UInt32(xPortGetFreeHeapSize()),
+                       UInt32(xPortGetMinimumEverFreeHeapSize())
+            );
+#else
+
+            Format msg("Remaining stack: {1} of {2}",
+                       UInt32(status.get_remaining_stack()),
+                       UInt32(status.get_stack_size()));
+#endif
+            if (status.get_remaining_stack() <= 512)
             {
-                Log::info(status.get_name(), Format("Remaining: {1} Total:{2}, Free heap: {3}",
-                                                     UInt32(status.get_remaining_stack()),
-                                                     UInt32(status.get_stack_size())));
+                Log::warning(status.get_name(), msg);
             }
             else
             {
-                Log::info(status.get_name(), Format("Remaining: {1} Total:{2}",
-                                                     UInt32(status.get_remaining_stack()),
-                                                     UInt32(status.get_stack_size())));
+                Log::info(status.get_name(), msg);
             }
-#ifdef ESP_PLATFORM
-            Log::debug(status.get_name(), Format("Free heap: {1} Min free heap:{2}",
-                                                     UInt32(xPortGetFreeHeapSize()),
-                                                     UInt32(xPortGetMinimumEverFreeHeapSize())));
-#endif
-
         }
 
 #ifdef ESP_PLATFORM
