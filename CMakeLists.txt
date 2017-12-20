@@ -133,7 +133,8 @@ set(SOURCE_FILES
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
         include/smooth/core/filesystem/Filesystem.h
-        )
+        include/smooth/core/filesystem/File.h
+        core/filesystem/File.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
