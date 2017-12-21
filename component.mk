@@ -13,6 +13,7 @@ COMPONENT_SRCDIRS := \
 	core/io/spi \
 	core/logging/idf \
 	core/filesystem \
+	core/json \
 	application \
 	application/display \
 	application/sensor \

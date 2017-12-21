@@ -47,6 +47,7 @@ set(SOURCE_FILES
         core/Application.cpp
         core/Task.cpp
         core/filesystem/Filesystem.cpp
+        core/json/Json.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
         include/smooth/application/io/MCP23017.h
@@ -134,7 +135,9 @@ set(SOURCE_FILES
         include/smooth/core/ipc/IPolledTaskQueue.h
         include/smooth/core/filesystem/Filesystem.h
         include/smooth/core/filesystem/File.h
-        core/filesystem/File.cpp)
+        core/filesystem/File.cpp
+        include/smooth/core/json/Json.h
+        include/smooth/core/json/JsonValue.h core/json/Json.cpp include/smooth/core/json/cJSONObj.h)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
