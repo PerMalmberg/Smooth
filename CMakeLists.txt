@@ -46,7 +46,6 @@ set(SOURCE_FILES
         core/timer/TimerService.cpp
         core/Application.cpp
         core/Task.cpp
-        core/filesystem/Filesystem.cpp
         core/json/Json.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
@@ -133,11 +132,11 @@ set(SOURCE_FILES
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
-        include/smooth/core/filesystem/Filesystem.h
-        include/smooth/core/filesystem/File.h
-        core/filesystem/File.cpp
         include/smooth/core/json/Json.h
-        include/smooth/core/json/JsonValue.h core/json/Json.cpp include/smooth/core/json/cJSONObj.h)
+        include/smooth/core/json/Value.h
+        core/json/Json.cpp
+        core/json/Value.cpp
+        ${IDF_PATH}/components/json/library/cJSON.c)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
