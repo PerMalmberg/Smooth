@@ -46,6 +46,8 @@ namespace smooth
                     explicit operator int() const;
                     explicit operator double() const;
 
+                    std::string get_string(const std::string& default_value_value) const;
+
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;

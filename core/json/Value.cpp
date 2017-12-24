@@ -132,6 +132,18 @@ namespace smooth
                 return cJSON_IsString(data) ? data->valuestring : "";
             }
 
+            std::string Value::get_string(const std::string& default_value) const
+            {
+                auto res = default_value;
+
+                if(cJSON_IsString(data))
+                {
+                    res = data->valuestring;
+                }
+
+                return res;
+            }
+
             Value::operator int() const
             {
                 return cJSON_IsNumber(data) ? data->valueint : 0;
