@@ -1,5 +1,6 @@
-#include <smooth/core/json/Json.h>
+#include <smooth/core/json/Value.h>
 #include <smooth/core/util/make_unique.h>
+#include <cJSON.h>
 
 using namespace smooth::core::util;
 
@@ -93,6 +94,23 @@ namespace smooth
                 return *this;
             }
 
+            Value& Value::operator=(bool value)
+            {
+                if(parent == nullptr)
+                {
+                    // We're the root, replace it all.
+                    cJSON_Delete(data);
+                    data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+                }
+                else
+                {
+                    data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+                    cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
+                }
+
+                return *this;
+            }
+
             Value& Value::operator=(const Value& other)
             {
                 if(this != &other)
@@ -127,6 +145,11 @@ namespace smooth
                 return cJSON_IsNumber(data) && value == data->valuedouble;
             }
 
+            bool Value::operator==(bool value) const
+            {
+                return cJSON_IsBool(data) && value == ((cJSON_IsTrue(data) != 0));
+            }
+
             Value::operator std::string() const
             {
                 return cJSON_IsString(data) ? data->valuestring : "";
@@ -144,6 +167,30 @@ namespace smooth
                 return res;
             }
 
+            int Value::get_int(int default_value) const
+            {
+                auto res = default_value;
+
+                if(cJSON_IsNumber(data))
+                {
+                    res = data->valueint;
+                }
+
+                return res;
+            }
+
+            bool Value::get_bool(bool default_value) const
+            {
+                auto res = default_value;
+
+                if(cJSON_IsBool(data))
+                {
+                    res = static_cast<bool>(cJSON_IsTrue(data));
+                }
+
+                return res;
+            }
+
             Value::operator int() const
             {
                 return cJSON_IsNumber(data) ? data->valueint : 0;
@@ -152,6 +199,11 @@ namespace smooth
             Value::operator double() const
             {
                 return cJSON_IsNumber(data) ? data->valuedouble : 0;
+            }
+
+            Value::operator bool() const
+            {
+                return cJSON_IsBool(data) && cJSON_IsTrue(data);
             }
         }
     }
