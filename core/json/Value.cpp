@@ -94,7 +94,7 @@ namespace smooth
                 return *this;
             }
 
-            Value& Value::operator=(bool value)
+            Value& Value::set(bool value)
             {
                 if(parent == nullptr)
                 {
@@ -143,11 +143,6 @@ namespace smooth
             bool Value::operator==(double value) const
             {
                 return cJSON_IsNumber(data) && value == data->valuedouble;
-            }
-
-            bool Value::operator==(bool value) const
-            {
-                return cJSON_IsBool(data) && value == ((cJSON_IsTrue(data) != 0));
             }
 
             Value::operator std::string() const

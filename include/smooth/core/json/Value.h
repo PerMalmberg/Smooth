@@ -22,7 +22,7 @@ namespace smooth
                     Value& operator=(const std::string& s);
                     Value& operator=(int value);
                     Value& operator=(double value);
-                    Value& operator=(bool value);
+                    Value& set(bool value);
                     Value& operator=(const Value& other);
 
                     bool operator==(const std::string& s) const;
@@ -40,12 +40,6 @@ namespace smooth
 
                     bool operator==(double value) const;
                     bool operator!=(double value) const
-                    {
-                        return !(*this == value);
-                    }
-
-                    bool operator==(bool value) const;
-                    bool operator!=(bool value) const
                     {
                         return !(*this == value);
                     }
