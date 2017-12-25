@@ -54,6 +54,7 @@ namespace smooth
                     if (fs.is_open())
                     {
                         fs.write(reinterpret_cast<const char*>(data), length);
+                        res = true;
                     }
                 }
                 catch (std::exception& ex)

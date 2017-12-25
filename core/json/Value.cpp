@@ -1,8 +1,9 @@
 #include <smooth/core/json/Value.h>
 #include <smooth/core/util/make_unique.h>
-#include <cJSON.h>
+#include <smooth/core/logging/log.h>
 
 using namespace smooth::core::util;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
