@@ -17,7 +17,10 @@ namespace smooth
                     explicit Value(const std::string& src);
                     Value(cJSON* parent, const char* key_name, cJSON* object);
 
+                    // Object accessor
                     Value operator[](const std::string& key);
+                    // Array accessor
+                    Value operator[](int index);
 
                     Value& operator=(const std::string& s);
                     Value& operator=(int value);
@@ -52,6 +55,8 @@ namespace smooth
                     std::string get_string(const std::string& default_value_value) const;
                     int get_int(int default_value) const;
                     bool get_bool(bool default_value) const;
+
+                    int get_array_size() const;
 
                 private:
                     cJSON* parent = nullptr;

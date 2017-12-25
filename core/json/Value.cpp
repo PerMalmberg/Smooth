@@ -29,9 +29,14 @@ namespace smooth
 
             Value Value::operator[](const std::string& key)
             {
-                auto item = cJSON_GetObjectItemCaseSensitive(data, key.c_str());
+                cJSON* item = nullptr;
 
-                if(item)
+                if (cJSON_IsObject(data))
+                {
+                    item = cJSON_GetObjectItemCaseSensitive(data, key.c_str());
+                }
+
+                if (item)
                 {
                     return Value(data, key.c_str(), item);
                 }
@@ -43,9 +48,33 @@ namespace smooth
                 }
             }
 
+            Value Value::operator[](int index)
+            {
+                if (cJSON_IsArray(data))
+                {
+                    auto item = cJSON_GetArrayItem(data, index);
+                    if (item)
+                    {
+                        return Value(data, "", item);
+                    }
+                    else
+                    {
+                        return *this;
+                    }
+                }
+                else
+                {
+                    return *this;
+                }
+            }
+
             Value& Value::operator=(const std::string& s)
             {
-                if(parent == nullptr)
+                if(cJSON_IsArray(parent))
+                {
+                    cJSON_ReplaceItemViaPointer(parent, data, cJSON_CreateString(s.c_str()));
+                }
+                else if (parent == nullptr)
                 {
                     // We're the root, replace it all.
                     cJSON_Delete(data);
@@ -62,15 +91,21 @@ namespace smooth
 
             Value& Value::operator=(int value)
             {
-                if(parent == nullptr)
+                auto new_data = cJSON_CreateNumber(value);
+
+                if(cJSON_IsArray(parent))
+                {
+                    cJSON_ReplaceItemViaPointer(parent, data, new_data);
+                }
+                else if (parent == nullptr)
                 {
                     // We're the root, replace it all.
                     cJSON_Delete(data);
-                    data = cJSON_CreateNumber(value);
+                    data = new_data;
                 }
                 else
                 {
-                    data = cJSON_CreateNumber(value);
+                    data = new_data;
                     cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
@@ -79,15 +114,21 @@ namespace smooth
 
             Value& Value::operator=(double value)
             {
-                if(parent == nullptr)
+                auto new_data = cJSON_CreateNumber(value);
+
+                if(cJSON_IsArray(parent))
+                {
+                    cJSON_ReplaceItemViaPointer(parent, data, new_data);
+                }
+                else if (parent == nullptr)
                 {
                     // We're the root, replace it all.
                     cJSON_Delete(data);
-                    data = cJSON_CreateNumber(value);
+                    data = new_data;
                 }
                 else
                 {
-                    data = cJSON_CreateNumber(value);
+                    data = new_data;
                     cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
@@ -96,15 +137,21 @@ namespace smooth
 
             Value& Value::set(bool value)
             {
-                if(parent == nullptr)
+                auto new_data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+
+                if(cJSON_IsArray(parent))
+                {
+                    cJSON_ReplaceItemViaPointer(parent, data, new_data);
+                }
+                else if (parent == nullptr)
                 {
                     // We're the root, replace it all.
                     cJSON_Delete(data);
-                    data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+                    data = new_data;
                 }
                 else
                 {
-                    data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+                    data = new_data;
                     cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
@@ -113,9 +160,9 @@ namespace smooth
 
             Value& Value::operator=(const Value& other)
             {
-                if(this != &other)
+                if (this != &other)
                 {
-                    if(parent == nullptr)
+                    if (parent == nullptr)
                     {
                         // We're the root, replace it all.
                         cJSON_Delete(data);
@@ -154,7 +201,7 @@ namespace smooth
             {
                 auto res = default_value;
 
-                if(cJSON_IsString(data))
+                if (cJSON_IsString(data))
                 {
                     res = data->valuestring;
                 }
@@ -166,7 +213,7 @@ namespace smooth
             {
                 auto res = default_value;
 
-                if(cJSON_IsNumber(data))
+                if (cJSON_IsNumber(data))
                 {
                     res = data->valueint;
                 }
@@ -178,7 +225,7 @@ namespace smooth
             {
                 auto res = default_value;
 
-                if(cJSON_IsBool(data))
+                if (cJSON_IsBool(data))
                 {
                     res = static_cast<bool>(cJSON_IsTrue(data));
                 }
@@ -199,6 +246,11 @@ namespace smooth
             Value::operator bool() const
             {
                 return cJSON_IsBool(data) && cJSON_IsTrue(data);
+            }
+
+            int Value::get_array_size() const
+            {
+                return cJSON_GetArraySize(data);
             }
         }
     }
