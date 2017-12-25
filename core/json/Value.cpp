@@ -11,6 +11,13 @@ namespace smooth
     {
         namespace json
         {
+
+            Value::Value()
+            {
+                // We're owning the root object so save it som we can delete it later.
+                owned_data = data = cJSON_CreateObject();
+            }
+
             Value::Value(cJSON* src)
             {
                 data = src;

@@ -14,9 +14,18 @@ namespace smooth
             class Value
             {
                 public:
+                    Value();
                     explicit Value(cJSON* src);
                     explicit Value(const std::string& src);
                     Value(cJSON* parent, cJSON* object);
+
+                    ~Value()
+                    {
+                        if(owned_data)
+                        {
+                            cJSON_Delete(owned_data);
+                        }
+                    }
 
                     // Object accessor
                     Value operator[](const std::string& key);
@@ -64,6 +73,7 @@ namespace smooth
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;
+                    cJSON* owned_data = nullptr;
             };
         }
     }
