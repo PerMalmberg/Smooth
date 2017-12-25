@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <cJSON.h>
 
 namespace smooth
@@ -58,6 +59,8 @@ namespace smooth
 
                     int get_array_size() const;
 
+                    std::string get_name() const;
+                    void get_member_names(std::vector<std::string>& names) const;
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;

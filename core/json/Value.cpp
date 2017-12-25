@@ -253,6 +253,28 @@ namespace smooth
             {
                 return cJSON_GetArraySize(data);
             }
+
+            std::string Value::get_name() const
+            {
+                return key;
+            }
+
+            void Value::get_member_names(std::vector<std::string>& names) const
+            {
+                // Get names of this nodes child and its siblings
+                cJSON* curr = data;
+                if(curr != nullptr && curr->child != nullptr)
+                {
+                    curr = curr->child;
+
+                    while( curr != nullptr && curr->string != nullptr)
+                    {
+                        names.emplace_back(curr->string);
+                        curr = curr->next;
+                    }
+                }
+
+            }
         }
     }
 }
