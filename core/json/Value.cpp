@@ -21,11 +21,9 @@ namespace smooth
                 data = cJSON_Parse(src.c_str());
             }
 
-            Value::Value(cJSON* parent, const char* key_name, cJSON* object)
+            Value::Value(cJSON* parent, cJSON* object)
+                    : parent(parent), data(object)
             {
-                this->parent = parent;
-                key = key_name;
-                data = object;
             }
 
             Value Value::operator[](const std::string& key)
@@ -39,13 +37,13 @@ namespace smooth
 
                 if (item)
                 {
-                    return Value(data, key.c_str(), item);
+                    return Value(data, item);
                 }
                 else
                 {
                     auto new_item = cJSON_CreateObject();
                     cJSON_AddItemToObject(data, key.c_str(), new_item);
-                    return Value(data, key.c_str(), new_item);
+                    return Value(data, new_item);
                 }
             }
 
@@ -56,7 +54,7 @@ namespace smooth
                     auto item = cJSON_GetArrayItem(data, index);
                     if (item)
                     {
-                        return Value(data, "", item);
+                        return Value(data, item);
                     }
                     else
                     {
@@ -71,9 +69,11 @@ namespace smooth
 
             Value& Value::operator=(const std::string& s)
             {
-                if(cJSON_IsArray(parent))
+                auto new_data = cJSON_CreateString(s.c_str());
+
+                if (cJSON_IsArray(parent))
                 {
-                    cJSON_ReplaceItemViaPointer(parent, data, cJSON_CreateString(s.c_str()));
+                    cJSON_ReplaceItemViaPointer(parent, data, new_data);
                 }
                 else if (parent == nullptr)
                 {
@@ -83,8 +83,8 @@ namespace smooth
                 }
                 else
                 {
-                    data = cJSON_CreateString(s.c_str());
-                    cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
+                    cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, new_data);
+                    data = new_data;
                 }
 
                 return *this;
@@ -94,7 +94,7 @@ namespace smooth
             {
                 auto new_data = cJSON_CreateNumber(value);
 
-                if(cJSON_IsArray(parent))
+                if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
                 }
@@ -106,8 +106,8 @@ namespace smooth
                 }
                 else
                 {
+                    cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, new_data);
                     data = new_data;
-                    cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
                 return *this;
@@ -117,7 +117,7 @@ namespace smooth
             {
                 auto new_data = cJSON_CreateNumber(value);
 
-                if(cJSON_IsArray(parent))
+                if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
                 }
@@ -129,8 +129,8 @@ namespace smooth
                 }
                 else
                 {
+                    cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, new_data);
                     data = new_data;
-                    cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
                 return *this;
@@ -140,7 +140,7 @@ namespace smooth
             {
                 auto new_data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
 
-                if(cJSON_IsArray(parent))
+                if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
                 }
@@ -152,8 +152,8 @@ namespace smooth
                 }
                 else
                 {
+                    cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, new_data);
                     data = new_data;
-                    cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), data);
                 }
 
                 return *this;
@@ -171,7 +171,7 @@ namespace smooth
                     }
                     else
                     {
-                        cJSON_ReplaceItemInObjectCaseSensitive(parent, key.c_str(), other.data);
+                        cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, other.data);
                     }
                 }
 
@@ -256,18 +256,18 @@ namespace smooth
 
             std::string Value::get_name() const
             {
-                return key;
+                return data->string;
             }
 
             void Value::get_member_names(std::vector<std::string>& names) const
             {
                 // Get names of this nodes child and its siblings
                 cJSON* curr = data;
-                if(curr != nullptr && curr->child != nullptr)
+                if (curr != nullptr && curr->child != nullptr)
                 {
                     curr = curr->child;
 
-                    while( curr != nullptr && curr->string != nullptr)
+                    while (curr != nullptr && curr->string != nullptr)
                     {
                         names.emplace_back(curr->string);
                         curr = curr->next;

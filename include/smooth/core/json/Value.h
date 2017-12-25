@@ -16,7 +16,7 @@ namespace smooth
                 public:
                     explicit Value(cJSON* src);
                     explicit Value(const std::string& src);
-                    Value(cJSON* parent, const char* key_name, cJSON* object);
+                    Value(cJSON* parent, cJSON* object);
 
                     // Object accessor
                     Value operator[](const std::string& key);
@@ -64,7 +64,6 @@ namespace smooth
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;
-                    std::string key{};
             };
         }
     }
