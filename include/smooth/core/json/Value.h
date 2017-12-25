@@ -57,7 +57,7 @@ namespace smooth
                         return !(*this == value);
                     }
 
-                    explicit operator std::string() const;
+                    explicit operator const char*() const;
                     explicit operator int() const;
                     explicit operator double() const;
                     explicit operator bool() const;
