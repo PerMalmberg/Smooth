@@ -193,7 +193,7 @@ namespace smooth
                 return cJSON_IsNumber(data) && value == data->valuedouble;
             }
 
-            Value::operator std::string() const
+            Value::operator const char*() const
             {
                 return cJSON_IsString(data) ? data->valuestring : "";
             }
