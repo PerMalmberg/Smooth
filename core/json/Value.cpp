@@ -256,7 +256,7 @@ namespace smooth
 
             std::string Value::get_name() const
             {
-                return data->string;
+                return data->string == nullptr ? "" : data->string;
             }
 
             void Value::get_member_names(std::vector<std::string>& names) const
