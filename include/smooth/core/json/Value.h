@@ -15,15 +15,15 @@ namespace smooth
             {
                 public:
                     Value();
-                    explicit Value(cJSON* src);
+                    explicit Value(cJSON* src, bool owning = false);
                     explicit Value(const std::string& src);
                     Value(cJSON* parent, cJSON* object);
 
                     ~Value()
                     {
-                        if(owned_data)
+                        if(owns_data && data)
                         {
-                            cJSON_Delete(owned_data);
+                            cJSON_Delete(data);
                         }
                     }
 
@@ -36,7 +36,6 @@ namespace smooth
                     Value& operator=(int value);
                     Value& operator=(double value);
                     Value& set(bool value);
-                    Value& operator=(const Value& other);
 
                     bool operator==(const std::string& s) const;
 
@@ -74,7 +73,7 @@ namespace smooth
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;
-                    cJSON* owned_data = nullptr;
+                    bool owns_data = false;
             };
         }
     }

@@ -13,20 +13,22 @@ namespace smooth
         namespace json
         {
 
+            /// This constructor takes ownership of the data
             Value::Value()
+                    : Value(cJSON_CreateObject(), true)
             {
-                // We're owning the root object so save it som we can delete it later.
-                owned_data = data = cJSON_CreateObject();
             }
 
-            Value::Value(cJSON* src)
+            /// This constructor conditionally takes ownership of the data
+            Value::Value(cJSON* src, bool owning)
+                    : data(src), owns_data(owning)
             {
-                data = src;
             }
 
+            /// This constructor takes ownership of the data
             Value::Value(const std::string& src)
+                    : Value(cJSON_Parse(src.c_str()), true)
             {
-                data = cJSON_Parse(src.c_str());
             }
 
             Value::Value(cJSON* parent, cJSON* object)
@@ -57,33 +59,28 @@ namespace smooth
 
             Value Value::operator[](size_t index)
             {
-                if (cJSON_IsArray(data))
+                // Indexing as an array means we want to access the current object as an array.
+                if (!cJSON_IsArray(data))
                 {
-                    auto size = cJSON_GetArraySize(data);
-                    if(index >= size)
-                    {
-                        // Add any missing items in the array
-                        size_t to_add = index - size + 1;
-                        for (int i = 0; i < to_add; ++i)
-                        {
-                            cJSON_AddItemToArray(data, cJSON_CreateObject());
-                        }
-                    }
+                    std::string name = data->string;
+                    cJSON_DeleteItemFromObjectCaseSensitive(parent, name.c_str());
+                    data = cJSON_CreateArray();
+                    cJSON_AddItemToObject(parent, name.c_str(), data);
+                }
 
-                    auto item = cJSON_GetArrayItem(data, static_cast<int>(index));
-                    if (item)
-                    {
-                        return Value(data, item);
-                    }
-                    else
-                    {
-                        return *this;
-                    }
-                }
-                else
+                // Add any missing items in the array
+                auto size = cJSON_GetArraySize(data);
+                if (index >= size)
                 {
-                    return *this;
+                    size_t to_add = index - size + 1;
+                    for (int i = 0; i < to_add; ++i)
+                    {
+                        cJSON_AddItemToArray(data, cJSON_CreateObject());
+                    }
                 }
+
+                auto item = cJSON_GetArrayItem(data, static_cast<int>(index));
+                return Value(data, item);
             }
 
             Value& Value::operator=(const std::string& s)
@@ -173,25 +170,6 @@ namespace smooth
                 {
                     cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, new_data);
                     data = new_data;
-                }
-
-                return *this;
-            }
-
-            Value& Value::operator=(const Value& other)
-            {
-                if (this != &other)
-                {
-                    if (parent == nullptr)
-                    {
-                        // We're the root, replace it all.
-                        cJSON_Delete(data);
-                        data = other.data;
-                    }
-                    else
-                    {
-                        cJSON_ReplaceItemInObjectCaseSensitive(parent, data->string, other.data);
-                    }
                 }
 
                 return *this;
