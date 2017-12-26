@@ -51,17 +51,23 @@ namespace smooth
                 }
                 else
                 {
-                    auto new_item = cJSON_CreateObject();
-                    cJSON_AddItemToObject(data, key.c_str(), new_item);
-                    return Value(data, new_item);
+                    item = cJSON_CreateObject();
+                    cJSON_AddItemToObject(data, key.c_str(), item);
+                    return Value(data, item);
                 }
             }
 
             Value Value::operator[](size_t index)
             {
+                if (parent == nullptr)
+                {
+                    throw std::logic_error("Cannot operate on root object");
+                }
+
                 // Indexing as an array means we want to access the current object as an array.
                 if (!cJSON_IsArray(data))
                 {
+                    // Remake the item into an array.
                     std::string name = data->string;
                     cJSON_DeleteItemFromObjectCaseSensitive(parent, name.c_str());
                     data = cJSON_CreateArray();
@@ -85,17 +91,16 @@ namespace smooth
 
             Value& Value::operator=(const std::string& s)
             {
+                if (parent == nullptr)
+                {
+                    throw std::logic_error("Cannot operate on root object");
+                }
+
                 auto new_data = cJSON_CreateString(s.c_str());
 
                 if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
-                }
-                else if (parent == nullptr)
-                {
-                    // We're the root, replace it all.
-                    cJSON_Delete(data);
-                    data = cJSON_CreateString(s.c_str());
                 }
                 else
                 {
@@ -108,17 +113,16 @@ namespace smooth
 
             Value& Value::operator=(int value)
             {
+                if (parent == nullptr)
+                {
+                    throw std::logic_error("Cannot operate on root object");
+                }
+
                 auto new_data = cJSON_CreateNumber(value);
 
                 if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
-                }
-                else if (parent == nullptr)
-                {
-                    // We're the root, replace it all.
-                    cJSON_Delete(data);
-                    data = new_data;
                 }
                 else
                 {
@@ -131,17 +135,16 @@ namespace smooth
 
             Value& Value::operator=(double value)
             {
+                if (parent == nullptr)
+                {
+                    throw std::logic_error("Cannot operate on root object");
+                }
+
                 auto new_data = cJSON_CreateNumber(value);
 
                 if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
-                }
-                else if (parent == nullptr)
-                {
-                    // We're the root, replace it all.
-                    cJSON_Delete(data);
-                    data = new_data;
                 }
                 else
                 {
@@ -154,17 +157,16 @@ namespace smooth
 
             Value& Value::set(bool value)
             {
+                if (parent == nullptr)
+                {
+                    throw std::logic_error("Cannot operate on root object");
+                }
+
                 auto new_data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
 
                 if (cJSON_IsArray(parent))
                 {
                     cJSON_ReplaceItemViaPointer(parent, data, new_data);
-                }
-                else if (parent == nullptr)
-                {
-                    // We're the root, replace it all.
-                    cJSON_Delete(data);
-                    data = new_data;
                 }
                 else
                 {
