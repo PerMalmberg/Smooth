@@ -55,11 +55,22 @@ namespace smooth
                 }
             }
 
-            Value Value::operator[](int index)
+            Value Value::operator[](size_t index)
             {
                 if (cJSON_IsArray(data))
                 {
-                    auto item = cJSON_GetArrayItem(data, index);
+                    auto size = cJSON_GetArraySize(data);
+                    if(index >= size)
+                    {
+                        // Add any missing items in the array
+                        size_t to_add = index - size + 1;
+                        for (int i = 0; i < to_add; ++i)
+                        {
+                            cJSON_AddItemToArray(data, cJSON_CreateObject());
+                        }
+                    }
+
+                    auto item = cJSON_GetArrayItem(data, static_cast<int>(index));
                     if (item)
                     {
                         return Value(data, item);

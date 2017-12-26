@@ -30,7 +30,7 @@ namespace smooth
                     // Object accessor
                     Value operator[](const std::string& key);
                     // Array accessor
-                    Value operator[](int index);
+                    Value operator[](size_t index);
 
                     Value& operator=(const std::string& s);
                     Value& operator=(int value);
