@@ -1,6 +1,7 @@
 #include <smooth/core/json/Value.h>
 #include <smooth/core/util/make_unique.h>
 #include <smooth/core/logging/log.h>
+#include <stdlib.h>
 
 using namespace smooth::core::util;
 using namespace smooth::core::logging;
@@ -281,6 +282,14 @@ namespace smooth
                     }
                 }
 
+            }
+
+            std::string Value::to_string()
+            {
+                auto* p = cJSON_Print(data);
+                std::string s{p};
+                free(p);
+                return s;
             }
         }
     }
