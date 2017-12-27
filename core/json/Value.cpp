@@ -162,7 +162,7 @@ namespace smooth
                     throw std::logic_error("Cannot operate on root object");
                 }
 
-                auto new_data = cJSON_CreateBool(value ? cJSON_True : cJSON_False);
+                auto new_data = cJSON_CreateBool(value);
 
                 if (cJSON_IsArray(parent))
                 {
@@ -227,7 +227,7 @@ namespace smooth
 
                 if (cJSON_IsBool(data))
                 {
-                    res = static_cast<bool>(cJSON_IsTrue(data));
+                    res = cJSON_IsTrue(data) != 0;
                 }
 
                 return res;
