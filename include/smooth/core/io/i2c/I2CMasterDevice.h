@@ -79,9 +79,6 @@ namespace smooth
                                   bool end_with_nack = true);
 
                         uint8_t address;
-
-                        const uint8_t ACK = 0x0;
-                        const uint8_t NACK = 0x1;
                     protected:
                         i2c_port_t port;
 

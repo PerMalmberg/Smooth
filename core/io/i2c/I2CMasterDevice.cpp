@@ -98,10 +98,10 @@ namespace smooth
 
                     if (data.size() > 1)
                     {
-                        res |= i2c_master_read(link, data.data(), data.size() - 1, ACK);
+                        res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
                     }
 
-                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, end_with_nack ? NACK : ACK);
+                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
 
                     // Complete the read with a stop condition.
                     res |= i2c_master_stop(link);
