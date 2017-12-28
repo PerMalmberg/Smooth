@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdlib>
 #include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;
@@ -41,7 +41,7 @@ namespace smooth
                     /// will have been destructed.
                     /// \param state
                     void set_state(BaseState* state);
-                    void* select_memory_area(int size);
+                    void* select_memory_area(size_t size);
                 protected:
 
                     /// Called as a notification to the subclassing FSM before a new state is entered.
@@ -80,15 +80,16 @@ namespace smooth
             }
 
             template<typename BaseState, int StateSize>
-            void* StaticFSM<BaseState, StateSize>::select_memory_area(int size)
+            void* StaticFSM<BaseState, StateSize>::select_memory_area(size_t size)
             {
-                int max = static_cast<int>( sizeof(state[0]));
+                auto max = sizeof(state[0]);
+
                 if (size > max)
                 {
                     Log::error("StaticFSM",
                                Format("Attempted to activate state that is larger ({1}) than the designated buffer ({2})",
-                                      Int32(size),
-                                      Int32(max)));
+                                      UInt64(size),
+                                      UInt64(max)));
                     abort();
                 }
 
