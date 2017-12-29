@@ -30,6 +30,11 @@ namespace smooth
                     : public BaseArg
             {
                 public:
+                    BaseArgWithData(const std::string& value)
+                            : data(value)
+                    {
+                    }
+
                     operator const char*() const override
                     {
                         return data.c_str();
@@ -81,10 +86,8 @@ namespace smooth
                 public:
 
                     explicit Int32(int32_t value)
+                            : BaseArgWithData(std::to_string(value))
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        data = ss.str();
                     }
             };
 
@@ -94,10 +97,8 @@ namespace smooth
             {
                 public:
                     explicit UInt32(uint32_t value)
+                            : BaseArgWithData(std::to_string(value))
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        data = ss.str();
                     }
             };
 
@@ -107,10 +108,8 @@ namespace smooth
             {
                 public:
                     explicit Int64(int64_t value)
+                            : BaseArgWithData(std::to_string(value))
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        data = ss.str();
                     }
             };
 
@@ -120,10 +119,8 @@ namespace smooth
             {
                 public:
                     explicit UInt64(uint64_t value)
+                            : BaseArgWithData(std::to_string(value))
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        data = ss.str();
                     }
             };
 
@@ -133,10 +130,8 @@ namespace smooth
             {
                 public:
                     explicit Bool(bool value)
+                            : BaseArgWithData(value ? "true" : "false")
                     {
-                        std::stringstream ss;
-                        ss << (value ? "true" : "false");
-                        data = ss.str();
                     }
             };
 
@@ -148,10 +143,8 @@ namespace smooth
             {
                 protected:
                     explicit Decimal(T value)
+                            : BaseArgWithData(std::to_string(value))
                     {
-                        std::stringstream ss;
-                        ss << value;
-                        data = ss.str();
                     }
 
                     explicit Decimal(T value, int decimals)
@@ -170,15 +163,17 @@ namespace smooth
                     /// Logs a float value
                     /// \tparam value Value to log
                     explicit Float(float value)
-                    : Decimal(value)
-                    {}
+                            : Decimal(value)
+                    {
+                    }
 
                     /// Logs a float value with the specified number of decimals
                     /// \tparam value Value to log
                     /// \tparam decimals Number of decimals
                     Float(float value, int decimals)
                             : Decimal(value, decimals)
-                    {}
+                    {
+                    }
             };
 
             /// Class to log a double
@@ -190,14 +185,16 @@ namespace smooth
                     /// \tparam value Value to log
                     explicit Double(double value)
                             : Decimal(value)
-                    {}
+                    {
+                    }
 
                     /// Logs a double value with the specified number of decimals
                     /// \tparam value Value to log
                     /// \tparam decimals Number of decimals
                     Double(double value, int decimals)
                             : Decimal(value, decimals)
-                    {}
+                    {
+                    }
             };
 
 
@@ -206,7 +203,7 @@ namespace smooth
                     : public BaseArgWithData
             {
                 public:
-                    Hex(uint32_t value)
+                    explicit Hex(uint32_t value)
                     {
                         std::stringstream ss;
                         ss << std::hex << value;
@@ -219,7 +216,7 @@ namespace smooth
                     : public BaseArgWithData
             {
                 public:
-                    Pointer(const void* value)
+                    explicit Pointer(const void* value)
                     {
                         std::stringstream ss;
                         ss << std::hex << value;
@@ -238,9 +235,9 @@ namespace smooth
                     Array(const std::vector<uint8_t>& src, bool treat_as_readable_text)
                     {
                         std::stringstream ss;
-                        for(auto& b : src)
+                        for (auto& b : src)
                         {
-                            if(treat_as_readable_text)
+                            if (treat_as_readable_text)
                             {
                                 ss << static_cast<char>(b);
                             }
