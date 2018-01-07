@@ -37,14 +37,15 @@ namespace smooth
                         Single_AIN3 = 7
                     };
 
-                    enum Range
+                    enum Range //FSR = Full Scale Range
                     {
-                        FSR_6_144 = 0,
-                        FSR_4_096 = 1,
-                        FSR_2_048 = 2,
-                        FSR_1_024 = 3,
-                        FSR_0_512 = 4,
-                        FSR_0_256 = 5
+                                        // MSB:
+                        FSR_6_144 = 0,  // 187.5uV
+                        FSR_4_096 = 1,  // 125uV
+                        FSR_2_048 = 2,  // 62.5uV
+                        FSR_1_024 = 3,  // 31.25uV
+                        FSR_0_512 = 4,  // 15.625uV
+                        FSR_0_256 = 5   // 7.8125uV
                     };
 
                     enum OperationalMode
