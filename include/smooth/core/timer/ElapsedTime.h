@@ -51,6 +51,10 @@ namespace smooth
                     std::chrono::microseconds get_running_time();
                     std::chrono::microseconds get_running_time() const;
 
+                    bool is_running() const
+                    {
+                        return active;
+                    }
                 private:
                     bool active = false;
                     timeval start_time;
