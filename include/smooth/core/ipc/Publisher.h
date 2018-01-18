@@ -20,12 +20,12 @@ namespace smooth
                 public:
                     /// Publishes a copy of the provided item to all subscribers that are registered for it
                     /// in a thread-safe manner.
-                    static void publish(T& item);
+                    static void publish(const T& item);
             };
 
 
             template<typename T>
-            void Publisher<T>::publish(T& item)
+            void Publisher<T>::publish(const T& item)
             {
                 Link<T>::publish(item);
             }

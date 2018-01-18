@@ -45,7 +45,7 @@ namespace smooth
                     /// Publishes a copy of the the provided item to each subscriber.
                     /// \param item The item to publish
                     /// \return true of all subscribers could receive the item, false if one or more queues were full.
-                    static bool publish(T& item)
+                    static bool publish(const T& item)
                     {
                         std::lock_guard<std::mutex> l(get_mutex());
                         bool res = false;
