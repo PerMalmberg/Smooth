@@ -36,6 +36,10 @@ namespace smooth
                     /// socket is connected or not (use the response method for ConnectionStatusEvent for that).
                     /// \return true or false, depending on status.
                     virtual bool is_active() = 0;
+
+                    /// Returns true of the last send attempt has expired
+                    /// \return true if the socket has not been able to send the data within the set limit.
+                    virtual bool has_send_expired() const = 0;
                 protected:
                     virtual int get_socket_id() = 0;
                 private:

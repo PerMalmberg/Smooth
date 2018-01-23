@@ -8,6 +8,7 @@
 #ifndef ESP_PLATFORM
 #include <unistd.h>
 #endif
+
 #include <sys/socket.h>
 
 using namespace smooth::core::logging;
@@ -40,7 +41,7 @@ namespace smooth
                       socket_guard(),
                       network_events(tag, 10, *this, *this),
                       socket_op("SocketOperations",
-                                // Note: If there are more than 20 sockets, this queue is too small.
+                              // Note: If there are more than 20 sockets, this queue is too small.
                                 20,
                                 *this,
                                 *this)
@@ -52,6 +53,7 @@ namespace smooth
             {
                 std::lock_guard<std::mutex> lock(socket_guard);
                 restart_inactive_sockets();
+                check_socket_send_timeout();
 
                 int max_file_descriptor = build_sets();
                 if (max_file_descriptor >= 0)
@@ -161,7 +163,7 @@ namespace smooth
                 remove_socket_from_collection(inactive_sockets, socket);
 
                 auto socket_id = socket->get_socket_id();
-                if(socket_id != -1)
+                if (socket_id != -1)
                 {
                     int res = shutdown(socket_id, SHUT_RDWR);
                     if (res < 0)
@@ -236,7 +238,7 @@ namespace smooth
                 bool shall_close_sockets = false;
 
                 std::lock_guard<std::mutex> lock(socket_guard);
-                if (event.event == NetworkEvent::GOT_IP )
+                if (event.event == NetworkEvent::GOT_IP)
                 {
                     has_ip = true;
                     shall_close_sockets = event.ip_changed;
@@ -263,19 +265,30 @@ namespace smooth
 
             void SocketDispatcher::event(const SocketOperation& event)
             {
-                if(event.get_op() == SocketOperation::Op::Start)
+                if (event.get_op() == SocketOperation::Op::Start)
                 {
                     start_socket(event.get_socket());
                 }
                 else
                 {
-                    shutdown_socket(event.get_socket());                    
+                    shutdown_socket(event.get_socket());
                 }
             }
 
             void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
             {
-                socket_op.push(SocketOperation(op, socket));
+                socket_op.push(SocketOperation(op, std::move(socket)));
+            }
+
+            void SocketDispatcher::check_socket_send_timeout()
+            {
+                for(auto& pair : active_sockets)
+                {
+                    if(pair.second->has_send_expired())
+                    {
+                        pair.second->stop();
+                    }
+                }
             }
         }
     }
