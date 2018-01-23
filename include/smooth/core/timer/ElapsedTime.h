@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <time.h>
+#include <ctime>
 #include <sys/time.h>
 #include <chrono>
 
@@ -46,6 +46,12 @@ namespace smooth
                         end_time = start_time;
                     }
 
+                    void stop_and_zero()
+                    {
+                        stop();
+                        zero();
+                    }
+
                     /// Gets the amount of time passed since start.
                     /// \return The amount of time.
                     std::chrono::microseconds get_running_time();
@@ -57,11 +63,11 @@ namespace smooth
                     }
                 private:
                     bool active = false;
-                    timeval start_time;
+                    timeval start_time{};
                     // Keep end_time as a member to get slightly more accurate values
                     // since it doesn't need to be constructed on the stack.
-                    timeval end_time;
-                    timeval elapsed;
+                    timeval end_time{};
+                    timeval elapsed{};
             };
         }
     }
