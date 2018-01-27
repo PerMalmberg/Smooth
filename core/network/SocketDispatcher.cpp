@@ -254,7 +254,7 @@ namespace smooth
 
                 if (shall_close_sockets)
                 {
-                    // shutdown_socket modifies active_sockets to we must work against a copy.
+                    // shutdown_socket modifies active_sockets so we must work against a copy.
                     auto copy = active_sockets;
                     for (auto& socket : copy)
                     {
@@ -286,6 +286,7 @@ namespace smooth
                 {
                     if(pair.second->has_send_expired())
                     {
+                        Log::verbose(tag, Format("Send timeout on socket {1}", Pointer(pair.second.get())));
                         pair.second->stop();
                     }
                 }
