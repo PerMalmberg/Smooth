@@ -95,6 +95,9 @@ namespace smooth
                 }
                 else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
                 {
+                    network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+                    core::ipc::Publisher<network::NetworkStatus>::publish(status);
+
                     connected_to_ap = false;
                     if (auto_connect_to_ap)
                     {
