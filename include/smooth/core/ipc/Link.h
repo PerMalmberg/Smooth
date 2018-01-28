@@ -50,7 +50,7 @@ namespace smooth
                         std::lock_guard<std::mutex> l(get_mutex());
                         bool res = false;
 
-                        for (auto* subscriber : get_subscribers())
+                        for (auto subscriber : get_subscribers())
                         {
                             res &= subscriber->receive_published_data(item);
                         }
