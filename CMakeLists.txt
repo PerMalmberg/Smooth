@@ -3,9 +3,11 @@ project(Smooth)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=bounds -fsanitize=leak -fsanitize=return -fsanitize=null")
+
 include_directories(include)
 
-add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512")
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
 add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
 
 set(SOURCE_FILES
