@@ -240,8 +240,9 @@ namespace smooth
                 std::lock_guard<std::mutex> lock(socket_guard);
                 if (event.event == NetworkEvent::GOT_IP)
                 {
+                    Log::info(tag, Format(Str("Station got IP, sockets will be restarted.")));
                     has_ip = true;
-                    shall_close_sockets = event.ip_changed;
+                    shall_close_sockets = true;
                 }
                 else if (event.event == NetworkEvent::DISCONNECTED)
                 {
@@ -254,12 +255,11 @@ namespace smooth
 
                 if (shall_close_sockets)
                 {
-                    // shutdown_socket modifies active_sockets so we must work against a copy.
-                    auto copy = active_sockets;
-                    for (auto& socket : copy)
-                    {
-                        shutdown_socket(socket.second);
-                    }
+                    std::for_each(active_sockets.begin(), active_sockets.end(),
+                                  [this](decltype(*active_sockets.begin()) &s)
+                                  {
+                                      this->perform_op(SocketOperation::Op::Stop, s.second);
+                                  });
                 }
             }
 
