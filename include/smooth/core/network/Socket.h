@@ -392,11 +392,14 @@ namespace smooth
                 }
                 else
                 {
-                    elapsed_send_time.start();
                     tx_buffer.data_has_been_sent(static_cast<size_t>(amount_sent));
 
                     // Was a complete packet sent?
-                    if (!tx_buffer.is_in_progress())
+                    if (tx_buffer.is_in_progress())
+                    {
+                        elapsed_send_time.start();
+                    }
+                    else
                     {
                         // Let the application know it may now send another packet.
                         smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
@@ -460,6 +463,7 @@ namespace smooth
                     connected = false;
                     tx_buffer.clear();
                     rx_buffer.clear();
+                    elapsed_send_time.stop_and_zero();
                 }
             }
 
