@@ -30,8 +30,8 @@ namespace smooth
                             // Move to QoS after string, add two for the length bits
                             if (core::util::advance(it, packet.end(), s.length() + 2))
                             {
-                                QoS qos = static_cast<QoS>(*it);
-                                topics.push_back(std::make_pair(s, qos));
+                                auto qos = static_cast<QoS>(*it);
+                                topics.emplace_back(s, qos);
                                 // Move past QoS to next string
                                 it++;
                             }

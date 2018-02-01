@@ -27,7 +27,7 @@ namespace smooth
                     ~QueueNotification() = default;
 
                     void notify(ITaskEventQueue* queue);
-                    ITaskEventQueue* wait_for_notification(Task* callee, std::chrono::milliseconds timeout);
+                    ITaskEventQueue* wait_for_notification(std::chrono::milliseconds timeout);
 
                     void clear()
                     {

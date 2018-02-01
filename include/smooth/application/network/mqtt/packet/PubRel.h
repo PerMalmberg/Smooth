@@ -22,11 +22,11 @@ namespace smooth
                         public:
                             PubRel() = default;
 
-                            PubRel(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit PubRel(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
-                            PubRel(uint16_t packet_id)
+                            explicit PubRel(uint16_t packet_id)
                             {
                                 // Set fixed header
                                 set_header(PUBREL, 0x2);
@@ -38,7 +38,7 @@ namespace smooth
 
                             void visit( IPacketReceiver& receiver ) override;
 
-                            uint16_t get_packet_identifier() const;
+                            uint16_t get_packet_identifier() const override;
                         protected:
 
                             bool has_packet_identifier() const override

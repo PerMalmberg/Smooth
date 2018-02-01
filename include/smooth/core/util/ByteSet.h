@@ -16,7 +16,7 @@ namespace smooth
                     : public std::bitset<8>
             {
                 public:
-                    ByteSet(uint8_t value)
+                    explicit ByteSet(uint8_t value)
                             : std::bitset<8>(value)
                     {
                     }

@@ -16,9 +16,7 @@ namespace smooth
             class IPacketSendBuffer
             {
                 public:
-                    virtual ~IPacketSendBuffer()
-                    {
-                    }
+                    virtual ~IPacketSendBuffer() = default;
 
                     /// Returns a value indicating if a packet is currently being sent.
                     /// \return true or false.

@@ -64,7 +64,7 @@ namespace smooth
                     }
 
                 private:
-                    uint8_t state[2][StateSize];
+                    uint8_t state[2][StateSize]{};
                     BaseState* current_state = nullptr;
             };
 

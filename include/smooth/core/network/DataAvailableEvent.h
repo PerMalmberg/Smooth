@@ -20,7 +20,7 @@ namespace smooth
                 public:
                     DataAvailableEvent() = default;
 
-                    DataAvailableEvent(IPacketReceiveBuffer <PacketType>* rx) : rx(rx)
+                    explicit DataAvailableEvent(IPacketReceiveBuffer <PacketType>* rx) : rx(rx)
                     {
                     }
 

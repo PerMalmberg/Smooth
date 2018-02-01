@@ -26,7 +26,7 @@ namespace smooth
                 cond.notify_one();
             }
 
-            ITaskEventQueue* QueueNotification::wait_for_notification(Task* callee,std::chrono::milliseconds timeout)
+            ITaskEventQueue* QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
             {
                 ITaskEventQueue* res = nullptr;
 

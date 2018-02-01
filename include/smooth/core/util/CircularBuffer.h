@@ -15,9 +15,7 @@ namespace smooth
             class ICircularBuffer
             {
                 public:
-                    virtual ~ICircularBuffer()
-                    {
-                    }
+                    virtual ~ICircularBuffer() = default;
 
                     /// Puts data onto the buffer
                     virtual void put(const T& data) = 0;

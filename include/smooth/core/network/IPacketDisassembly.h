@@ -21,9 +21,7 @@ namespace smooth
                     /// \return The read position
                     virtual const uint8_t* get_data() = 0;
 
-                    virtual ~IPacketDisassembly()
-                    {
-                    }
+                    virtual ~IPacketDisassembly() = default;
             };
         }
     }

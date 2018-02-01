@@ -17,9 +17,7 @@ namespace smooth
             class ITimer
             {
                 public:
-                    virtual ~ITimer()
-                    {
-                    }
+                    virtual ~ITimer() = default;
 
                     /// Starts the timer with the already set interval.
                     virtual void start() = 0;

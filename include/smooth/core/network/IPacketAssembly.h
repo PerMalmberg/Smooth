@@ -43,9 +43,7 @@ namespace smooth
                     /// \return true or false
                     virtual bool is_error() = 0;
 
-                    virtual ~IPacketAssembly()
-                    {
-                    }
+                    virtual ~IPacketAssembly() = default;
             };
         }
     }

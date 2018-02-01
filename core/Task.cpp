@@ -115,7 +115,7 @@ namespace smooth
                     }
 
                     // Wait for data to become available, or a timeout to occur.
-                    auto* queue = notification.wait_for_notification(this, tick_interval);
+                    auto* queue = notification.wait_for_notification(tick_interval);
 
                     if (queue == nullptr)
                     {

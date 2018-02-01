@@ -20,7 +20,7 @@ namespace smooth
                         public:
                             Unsubscribe() = default;
 
-                            Unsubscribe(const std::string& topic)
+                            explicit Unsubscribe(const std::string& topic)
                             {
                                 set_header(UNSUBSCRIBE, 0x2);
                                 std::vector<uint8_t> data;
@@ -30,7 +30,7 @@ namespace smooth
                             }
 
 
-                            Unsubscribe(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Unsubscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

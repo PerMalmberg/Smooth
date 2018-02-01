@@ -21,8 +21,8 @@ namespace smooth
                     /// Constructor
                     /// \param ip_as_string The IP in string form.
                     /// \param port The port.
-                    InetAddress(const std::string& ip_as_string, int port)
-                            : ip_as_string(ip_as_string), port(port)
+                    InetAddress(std::string ip_as_string, int port)
+                            : ip_as_string(std::move(ip_as_string)), port(port)
                     {
                     }
 

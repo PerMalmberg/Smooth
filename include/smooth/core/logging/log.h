@@ -30,8 +30,8 @@ namespace smooth
                     : public BaseArg
             {
                 public:
-                    BaseArgWithData(const std::string& value)
-                            : data(value)
+                    explicit BaseArgWithData(std::string value)
+                            : data(std::move(value))
                     {
                     }
 

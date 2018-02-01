@@ -17,6 +17,8 @@ namespace smooth
             class ITaskEventQueue
             {
                 public:
+                    virtual ~ITaskEventQueue() = default;
+
                     /// Forwards the next event to the event queue
                     virtual void forward_to_event_queue() = 0;
                     /// Returns the size of the event queue.

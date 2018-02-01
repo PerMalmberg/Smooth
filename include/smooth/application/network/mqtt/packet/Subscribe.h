@@ -23,7 +23,7 @@ namespace smooth
                         public:
                             Subscribe() = default;
 
-                            Subscribe(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Subscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
@@ -37,7 +37,7 @@ namespace smooth
                                 apply_constructed_data(data);
                             }
 
-                            virtual uint16_t get_packet_identifier() const
+                            uint16_t get_packet_identifier() const override
                             {
                                 return read_packet_identifier(get_variable_header_start());
                             }
@@ -46,7 +46,7 @@ namespace smooth
 
                             void visit(IPacketReceiver& receiver) override;
                         protected:
-                            virtual int get_variable_header_length() const
+                            int get_variable_header_length() const override
                             {
                                 return 2;
                             }

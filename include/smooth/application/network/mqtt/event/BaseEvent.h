@@ -25,7 +25,7 @@ namespace smooth
 
                             BaseEvent() = default;
 
-                            BaseEvent(EventType type)
+                            explicit BaseEvent(EventType type)
                                     : type(type)
                             {
                             }

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <netinet/in.h>
 #include "InetAddress.h"
 
 namespace smooth
@@ -27,7 +28,7 @@ namespace smooth
                     sockaddr* get_socket_address() override;
                     socklen_t get_socket_address_length() const override;
 
-                    int get_address_family() const
+                    int get_address_family() const override
                     {
                         return sock_address.sin6_family;
                     };

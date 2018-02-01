@@ -59,7 +59,7 @@ namespace smooth
 
                     /// Gets the size of the queue.
                     /// \return number of items the queue can hold.
-                    int size()
+                    int size() override
                     {
                         return queue.size();
                     }

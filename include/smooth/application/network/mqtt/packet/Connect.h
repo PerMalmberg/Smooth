@@ -33,7 +33,7 @@ namespace smooth
                             }
 
                         private:
-                            bool clean_session;
+                            bool clean_session = true;
                     };
                 }
             }
