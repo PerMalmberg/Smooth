@@ -222,12 +222,12 @@ namespace smooth
                     std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
                         uint16_t length = (*offset) << 8;
-                        offset++;
+                        ++offset;
                         length |= *offset;
-                        offset++;
+                        ++offset;
 
                         std::stringstream ss;
-                        for (int i = 0; offset != packet.cend() && i < length; offset++, i++)
+                        for (int i = 0; offset != packet.cend() && i < length; ++offset, ++i)
                         {
                             ss << *offset;
                         }
