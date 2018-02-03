@@ -279,7 +279,7 @@ namespace smooth
             {
                 auto* p = cJSON_Print(data);
                 std::string s{p};
-                free(p);
+                cJSON_free(p);
                 return s;
             }
         }
