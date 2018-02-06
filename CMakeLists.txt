@@ -135,7 +135,7 @@ set(SOURCE_FILES
         include/smooth/core/ipc/IPolledTaskQueue.h
         include/smooth/core/json/Value.h
         core/json/Value.cpp
-        ${IDF_PATH}/components/json/library/cJSON.c)
+        ${IDF_PATH}/components/json/cJSON/cJSON.c)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
@@ -153,7 +153,7 @@ set(COMPONENTS
         storage
         wear_levelling
         nvs_flash
-        json
+        json/cJSON
         spi_flash
         )
 

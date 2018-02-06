@@ -70,6 +70,11 @@ namespace smooth
                     std::string get_name() const;
                     void get_member_names(std::vector<std::string>& names) const;
                     std::string to_string();
+
+                    // Deletes named object
+                    void erase(const std::string& name);
+                    // Delete item at index in array
+                    void erase(int index);
                 private:
                     cJSON* parent = nullptr;
                     cJSON* data = nullptr;

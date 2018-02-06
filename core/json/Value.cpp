@@ -279,8 +279,32 @@ namespace smooth
             {
                 auto* p = cJSON_Print(data);
                 std::string s{p};
-                free(p);
+                cJSON_free(p);
                 return s;
+            }
+
+            void Value::erase(const std::string& name)
+            {
+                if (data)
+                {
+                    auto item = cJSON_HasObjectItem(data, name.c_str());
+                    if (item)
+                    {
+                        cJSON_DeleteItemFromObject(data, name.c_str());
+                    }
+                }
+            }
+
+            void Value::erase(int index)
+            {
+                if (data && cJSON_IsArray(data))
+                {
+                    auto size = cJSON_GetArraySize(data);
+                    if (index >= 0 && index < size)
+                    {
+                        cJSON_DeleteItemFromArray(data, index);
+                    }
+                }
             }
         }
     }
