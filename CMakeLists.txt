@@ -134,8 +134,7 @@ set(SOURCE_FILES
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
         include/smooth/core/json/Value.h
-        core/json/Value.cpp
-        ${IDF_PATH}/components/json/cJSON/cJSON.c)
+        core/json/Value.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
