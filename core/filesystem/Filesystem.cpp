@@ -28,7 +28,8 @@ namespace smooth
                 esp_vfs_fat_mount_config_t mount_config
                         {
                                 format_on_mount_failure,
-                                max_file_count
+                                max_file_count,
+                                0
                         };
 
                 {
