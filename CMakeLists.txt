@@ -133,6 +133,9 @@ set(SOURCE_FILES
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
+
+        ${IDF_PATH}/components/json/cJSON/cJSON.c
+        ${IDF_PATH}/components/json/cJSON/cJSON.h
         include/smooth/core/json/Value.h
         core/json/Value.cpp)
 
