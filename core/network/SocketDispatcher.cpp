@@ -2,6 +2,7 @@
 // Created by permal on 7/1/17.
 //
 
+#include <functional>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/task_priorities.h>
 
