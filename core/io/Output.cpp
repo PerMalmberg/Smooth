@@ -37,6 +37,18 @@ namespace smooth
                 gpio_set_level(io, 1);
             }
 
+            void Output::set(bool active)
+            {
+                if(active)
+                {
+                    set();
+                }
+                else
+                {
+                    clr();
+                }
+            }
+
             void Output::clr()
             {
                 gpio_set_level(io, 0);
