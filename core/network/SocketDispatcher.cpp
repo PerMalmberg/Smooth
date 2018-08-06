@@ -92,8 +92,20 @@ namespace smooth
                 }
                 else
                 {
-                    // Nothing to do, yield processing time.
-                    std::this_thread::yield();
+                    // Nothing to do, wait for work.
+                    // Note: We cannot block, waiting for a notification from a socket since we're the ones polling
+                    // the sockets to determine if there are work to be done. And since ESP-IDF does not guarantee
+                    // round-robin scheduling, std::this_thread::yield() is not an option as that results in this
+                    // thread hogging the CPU, starving other threads. As such, we must spend some time sleeping to
+                    // guarantee other tasks gets a chance to run.
+                    //
+                    // https://esp32.com/viewtopic.php?p=28594#p28589
+                    // https://docs.espressif.com/projects/esp-idf/en/v3.0.2/api-guides/freertos-smp.html#round-robin-scheduling
+                    //
+                    // Sleep times less than 1ms hogs the CPU due to the FreeRTOS tick interval.
+                    // In practice, this delay means that there is up to an additional 1ms delay for any socket
+                    // operation, but only when there was no socket read/write to do prior to that operation being queued.
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
 
