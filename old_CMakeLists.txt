@@ -1,8 +1,16 @@
-include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
+cmake_minimum_required(VERSION 3.8)
+project(Smooth)
 
-verify_idf_path()
+set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCES
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=bounds -fsanitize=leak -fsanitize=return -fsanitize=null")
+
+include_directories(include)
+
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
+
+set(SOURCE_FILES
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -39,7 +47,6 @@ set(SOURCES
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
         core/Application.cpp
-        core/json/Value.cpp
         core/Task.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
@@ -126,41 +133,42 @@ set(SOURCES
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
+
+        ${IDF_PATH}/components/json/cJSON/cJSON.c
+        ${IDF_PATH}/components/json/cJSON/cJSON.h
         include/smooth/core/json/Value.h
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
+        core/json/Value.cpp)
+
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
+
+set(COMPONENTS
+        freertos
+        cxx
+        esp32
+        driver
+        log
+        tcpip_adapter
+        lwip
+        openssl
+        fatfs/src
+        vfs
+        storage
+        wear_levelling
+        nvs_flash
+        json/cJSON
+        spi_flash
         )
 
-add_library(smooth STATIC ${SOURCES})
+set(COMPONENT_INCLUDE_DIRS "")
 
-if (${ESP_PLATFORM})
-    target_compile_definitions(smooth PRIVATE _GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
-    add_idf_include(smooth newlib)
-    add_idf_include(smooth newlib/platform_include)
-    add_idf_include(smooth log)
-    add_idf_include(smooth heap)
-    add_idf_include(smooth freertos)
-    add_idf_include(smooth soc)
-    add_idf_include(smooth soc/esp32)
-    add_idf_include(smooth driver)
-    add_idf_include(smooth esp32)
-    add_idf_include(smooth lwip/lwip/src)
-    add_idf_include(smooth lwip/include/apps)
-    add_idf_include(smooth lwip/port/esp32)
-    add_idf_include(smooth vfs)
-    add_idf_include(smooth nvs_flash)
-    add_idf_include(smooth spi_flash)
-    add_idf_include(smooth tcpip_adapter)
-    add_idf_include(smooth json/cJSON)
-else ()
-    project(smooth)
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
-endif ()
+foreach (COMP ${COMPONENTS})
+    if(EXISTS ${IDF_PATH}/components/${COMP}/include)
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP}/include)
+    else()
+        list(APPEND COMPONENT_INCLUDE_DIRS ${IDF_PATH}/components/${COMP})
+    endif()
+endforeach ()
 
-target_include_directories(
-        smooth
-        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-        PRIVATE $ENV{IDF_PATH}/components/json/cJSON
-        )
+include_directories(${COMPONENT_INCLUDE_DIRS})
 
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${COMPONENT_INCLUDE_DIRS})

@@ -18,7 +18,7 @@ namespace smooth
             class ElapsedTime
             {
                 public:
-                    /// Starts and the performance timer.
+                    /// Starts the performance timer.
                     void start()
                     {
                         active = true;
@@ -33,19 +33,21 @@ namespace smooth
                         timersub(&end_time, &start_time, &elapsed);
                     }
 
-                    /// Semantically the same as start(), but provided for syntactical reasons.
+                    /// Functionally the same as start(), but provided for syntactical reasons.
                     void reset()
                     {
                         // Simply restart the timer.
                         start();
                     }
 
+                    /// Zeroes the time, but lets it keep running.
                     void zero()
                     {
                         gettimeofday(&start_time, nullptr);
                         end_time = start_time;
                     }
 
+                    /// Stops the timer and zeroes it.
                     void stop_and_zero()
                     {
                         stop();
