@@ -131,11 +131,18 @@ set(SOURCES
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
-add_library(smooth STATIC ${SOURCES})
+if (${ESP_PLATFORM})
+    list(APPEND SOURCES
+            include/smooth/core/network/Wifi.h
+            core/network/Wifi.cpp)
+endif ()
+
 
 if (${ESP_PLATFORM})
-    target_compile_definitions(smooth PRIVATE _GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
-    add_idf_include(smooth newlib)
+    set(COMPONENT_SRCS ${SOURCES})
+    set(COMPONENT_ADD_INCLUDEDIRS ${CMAKE_CURRENT_LIST_DIR}/include)
+    set(COMPONENT_REQUIRES nvs_flash json)
+    #[[add_idf_include(smooth newlib)
     add_idf_include(smooth newlib/platform_include)
     add_idf_include(smooth log)
     add_idf_include(smooth heap)
@@ -152,15 +159,22 @@ if (${ESP_PLATFORM})
     add_idf_include(smooth spi_flash)
     add_idf_include(smooth tcpip_adapter)
     add_idf_include(smooth json/cJSON)
+    add_library(smooth STATIC ${SOURCES})]]
+
+    register_component()
 else ()
     project(smooth)
     add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
     add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
+
+    add_library(smooth STATIC ${SOURCES})
+
+    target_include_directories(
+            smooth
+            PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
+            PRIVATE $ENV{IDF_PATH}/components/json/cJSON
+    )
 endif ()
 
-target_include_directories(
-        smooth
-        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-        PRIVATE $ENV{IDF_PATH}/components/json/cJSON
-        )
+
 
