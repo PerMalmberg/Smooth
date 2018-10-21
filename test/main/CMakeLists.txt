@@ -1,0 +1,8 @@
+if (${ESP_PLATFORM})
+    set(COMPONENT_SRCS test.cpp test.h)
+    register_component()
+else ()
+    project(main)
+    add_executable(${PROJECT_NAME} test.cpp test.h)
+    target_link_libraries(${PROJECT_NAME} ${ACTIVE_TEST})
+endif ()
