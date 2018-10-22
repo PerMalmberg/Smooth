@@ -1,5 +1,5 @@
 if (${ESP_PLATFORM})
-    set(COMPONENT_SRCS hello_world.h hello_world.cpp)
+    set(COMPONENT_SRCS hello_world.cpp hello_world.h)
     set(COMPONENT_REQUIRES smooth)
     set(COMPONENT_ADD_INCLUDEDIRS ${COMPONENT_PATH})
     register_component()

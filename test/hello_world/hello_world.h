@@ -9,13 +9,9 @@ namespace hello_world
     class App : public smooth::core::Application
     {
     public:
-        App() : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
-        {
-        }
+        App();
 
-        void tick() override
-        {
-            std::cout << "Hello world!" << std::endl;
-        }
+        void init() override;
+        void tick() override;
     };
 }
