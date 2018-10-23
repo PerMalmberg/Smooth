@@ -199,14 +199,16 @@ namespace smooth
 
 
             /// Class to log a uint32 in hex format
+            template<typename T>
             class Hex
                     : public BaseArgWithData
             {
                 public:
-                    explicit Hex(uint32_t value)
+                    explicit Hex(const T&& value, bool show_base = false)
                     {
                         std::stringstream ss;
-                        ss << std::hex << value;
+                        // We cast to an uint64_t to get the formatting we want
+                        ss << std::hex << (show_base ? std::showbase : std::noshowbase) << static_cast<uint64_t>(value);
                         data = ss.str();
                     }
             };

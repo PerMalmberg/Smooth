@@ -2,20 +2,20 @@
 // Created by permal on 2018-10-21.
 //
 
-#include <${ACTIVE_TEST}.h>
+#include <${CURRENT_PROJECT_NAME}.h>
 
 extern "C"
 {
 #ifdef ESP_PLATFORM
 void app_main()
 {
-    ${ACTIVE_TEST}::App app;
+    ${CURRENT_PROJECT_NAME}::App app;
     app.start();
 }
 #else
 int main(int argc, char** argv)
 {
-    ${ACTIVE_TEST}::App app;
+    ${CURRENT_PROJECT_NAME}::App app;
     app.start();
     return 0;
 }
