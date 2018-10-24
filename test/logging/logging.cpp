@@ -3,6 +3,7 @@
 //
 
 #include <limits>
+#include <vector>
 
 #include "logging.h"
 #include <smooth/core/logging/log.h>
@@ -25,14 +26,17 @@ namespace logging
     void App::tick()
     {
 
+        std::vector<int> arr{1, 2, 3, 4};
+
         Log::info("Tag", Format("Log a 32-bit int: {1}", Int32(numeric_limits<int32_t>::min())));
         Log::info("Tag", Format("Log a 64-bit int: {1}", Int64(numeric_limits<int64_t>::max())));
-        Log::info("Tag", Format("Log {1} {2} {3} {4} {5}",
+        Log::info("Tag", Format("Log {1} {2} {3} {4} {5} vector: {6}",
                                 Str("multiple"),
                                 Str("hex values of different types:"),
                                 Hex<uint32_t>(numeric_limits<uint32_t>::max()),
                                 Hex<uint64_t>(numeric_limits<uint64_t>::max()),
-                                Hex<uint8_t>(numeric_limits<uint8_t>::max(), true))
-                                );
+                                Hex<uint8_t>(numeric_limits<uint8_t>::max(), true),
+                                Vector<int>(arr,false))
+        );
     }
 }
