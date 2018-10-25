@@ -10,7 +10,7 @@
 #include <smooth/core/io/Output.h>
 #endif
 
-namespace network
+namespace mqtt
 {
 
     class App

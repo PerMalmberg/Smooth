@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Select the test project, then build target "main"
 
-set(CURRENT_PROJECT_NAME network)
+set(CURRENT_PROJECT_NAME mqtt)
 
 
 
@@ -26,6 +26,6 @@ else ()
     add_subdirectory(test/hello_world)
     add_subdirectory(test/logging)
     add_subdirectory(test/json_test)
-    add_subdirectory(test/network)
+    add_subdirectory(test/mqtt)
     add_subdirectory(test/main)
 endif ()

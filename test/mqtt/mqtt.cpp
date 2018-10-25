@@ -2,15 +2,12 @@
 // Created by permal on 2018-10-25.
 //
 
-#include "network.h"
-
-
-#include "network.h"
+#include "mqtt.h"
 #include <smooth/core/task_priorities.h>
 
 #ifdef ESP_PLATFORM
 #include <smooth/core/network/Wifi.h>
-#include "wifi-creds.h"
+#include "wifi_creds.h"
 #endif
 
 using namespace smooth;
@@ -19,7 +16,7 @@ using namespace smooth::core::logging;
 using namespace std::chrono;
 using namespace smooth::application::network::mqtt;
 
-namespace network
+namespace mqtt
 {
     static const char* broker = "192.168.10.245";
 #ifdef ESP_PLATFORM
@@ -39,6 +36,7 @@ namespace network
     {
         Application::init();
 #ifdef ESP_PLATFORM
+        Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);
