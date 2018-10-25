@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <cJSON.h>
+#include <json/cJSON/cJSON.h>
 
 namespace smooth
 {
