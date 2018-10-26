@@ -2,6 +2,7 @@
 // Created by permal on 2018-10-26.
 //
 
+#pragma once
 #include <smooth/core/ipc/IEventListener.h>
 #include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/ipc/TaskEventQueue.h>

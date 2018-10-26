@@ -2,6 +2,7 @@
 // Created by permal on 2018-10-26.
 //
 
+#pragma once
 #include <smooth/core/Application.h>
 #include <smooth/core/timer/ElapsedTime.h>
 

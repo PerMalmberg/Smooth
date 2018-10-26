@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Select the test project, then build target "main"
 
-set(CURRENT_PROJECT_NAME queue)
+set(CURRENT_PROJECT_NAME timer)
 
 
 
@@ -29,5 +29,6 @@ else ()
     add_subdirectory(test/mqtt)
     add_subdirectory(test/publish)
     add_subdirectory(test/queue)
+    add_subdirectory(test/timer)
     add_subdirectory(test/main)
 endif ()
