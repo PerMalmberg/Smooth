@@ -198,15 +198,17 @@ namespace smooth
             };
 
 
-            /// Class to log a uint32 in hex format
+            /// Class to log a value in hex format
+            template<typename T>
             class Hex
                     : public BaseArgWithData
             {
                 public:
-                    explicit Hex(uint32_t value)
+                    explicit Hex(const T& value, bool show_base = false)
                     {
                         std::stringstream ss;
-                        ss << std::hex << value;
+                        // We cast to an uint64_t to get the formatting we want
+                        ss << std::hex << (show_base ? std::showbase : std::noshowbase) << static_cast<uint64_t>(value);
                         data = ss.str();
                     }
             };
@@ -216,26 +218,27 @@ namespace smooth
                     : public BaseArgWithData
             {
                 public:
-                    explicit Pointer(const void* value)
+                    explicit Pointer(const void* value, bool show_base = false)
                     {
                         std::stringstream ss;
-                        ss << std::hex << value;
+                        ss << std::hex << (show_base ? std::showbase : std::noshowbase) << value;
                         data = ss.str();
                     }
             };
 
             // Class to log a array of (possibly) binary data
-            class Array
+            template<typename T>
+            class Vector
                     : public BaseArgWithData
             {
                 public:
                     /// Log the array
                     /// \param src The source
                     /// \param treat_as_readable_text If true, treat the data as readable text.
-                    Array(const std::vector<uint8_t>& src, bool treat_as_readable_text)
+                    Vector(const std::vector<T>& src, bool treat_as_readable_text)
                     {
                         std::stringstream ss;
-                        for (auto& b : src)
+                        for (const auto& b : src)
                         {
                             if (treat_as_readable_text)
                             {
@@ -243,7 +246,7 @@ namespace smooth
                             }
                             else
                             {
-                                ss << "0x" << std::hex << b;
+                                ss << "0x" << std::hex <<  static_cast<uint64_t>(b);
                             }
                         }
                         data = ss.str();
