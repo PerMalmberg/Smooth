@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Select the test project, then build target "main"
 
-set(CURRENT_PROJECT_NAME timer)
+set(CURRENT_PROJECT_NAME wrover_kit_blinky)
 
 
 
@@ -30,5 +30,6 @@ else ()
     add_subdirectory(test/publish)
     add_subdirectory(test/queue)
     add_subdirectory(test/timer)
+    add_subdirectory(test/wrover_kit_blinky)
     add_subdirectory(test/main)
 endif ()

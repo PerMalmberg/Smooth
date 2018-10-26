@@ -134,14 +134,30 @@ set(SOURCES
 if (${ESP_PLATFORM})
     list(APPEND SOURCES
             include/smooth/core/network/Wifi.h
-            core/network/Wifi.cpp)
+            core/network/Wifi.cpp
+            core/io/Input.cpp
+            core/io/Output.cpp
+            core/io/InterruptInput.cpp
+            core/io/i2c/I2CCommandLink.cpp
+            core/io/i2c/I2CMasterDevice.cpp
+            core/io/i2c/Master.cpp
+            core/filesystem/File.cpp
+            core/filesystem/Filesystem.cpp
+            core/
+            include/smooth/core/io/Input.h
+            include/smooth/core/io/Output.h
+            include/smooth/core/io/i2c/I2CCommandLink.h
+            include/smooth/core/io/InterruptInput.h
+            include/smooth/core/io/i2c/I2CMasterDevice.h
+            include/smooth/core/io/i2c/Master.h
+            )
 endif ()
 
 
 if (${ESP_PLATFORM})
     set(COMPONENT_SRCS ${SOURCES})
     set(COMPONENT_ADD_INCLUDEDIRS ${CMAKE_CURRENT_LIST_DIR}/include)
-    set(COMPONENT_REQUIRES nvs_flash json)
+    set(COMPONENT_REQUIRES nvs_flash fatfs json )
     #[[add_idf_include(smooth newlib)
     add_idf_include(smooth newlib/platform_include)
     add_idf_include(smooth log)
