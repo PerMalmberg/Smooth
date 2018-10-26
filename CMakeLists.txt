@@ -1,13 +1,13 @@
-# This CMakeLists.txt is meant for use when developing the smooth framework.
-# If you are attepmting to build smooth as a library, you'll want to use the
-# the one in the lib/smooth-folder instead.
+# This CMakeLists.txt is meant for use when developing the smooth framework and running the tests.
+# If you are attepmting to build smooth as a library, you'll want to use the one in the lib/smooth-folder instead.
 
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 14)
 
-# Select the test project, then build target "main"
+# Select the test project, then build target "main". The available projects are the names of the
+# folders under "test", e.g. hello_world, mqtt etc.
 
-set(CURRENT_PROJECT_NAME wrover_kit_blinky)
+set(CURRENT_PROJECT_NAME hello_world)
 
 
 
