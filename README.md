@@ -53,4 +53,4 @@ git submodule add https://github.com/PerMalmberg/Smooth.git components/smooth
 ### Sample applications
 
 Please see the the different test projects under the test folder. When compiling these, open the
-root of the projects as a CMake project.
+root of the repo as a CMake project.
