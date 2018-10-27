@@ -1,4 +1,4 @@
-#include "sdcard.h"
+#include "sdcard_spi.h"
 #include <smooth/core/filesystem/SPISDCard.h>
 
 #include <smooth/core/logging/log.h>
@@ -11,7 +11,7 @@ using namespace smooth::core::ipc;
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
-namespace sdcard
+namespace sdcard_spi
 {
 
     App::App()

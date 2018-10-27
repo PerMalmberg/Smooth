@@ -168,8 +168,11 @@ endif ()
 
 if (${ESP_PLATFORM})
     set(COMPONENT_SRCS ${SOURCES})
-    set(COMPONENT_ADD_INCLUDEDIRS ${CMAKE_CURRENT_LIST_DIR}/include)
-    set(COMPONENT_REQUIRES nvs_flash fatfs json )
+    set(COMPONENT_ADD_INCLUDEDIRS
+            ${CMAKE_CURRENT_LIST_DIR}/include
+            ${CMAKE_CURRENT_LIST_DIR}/include
+            $ENV{IDF_PATH}/components)
+    set(COMPONENT_REQUIRES nvs_flash fatfs)
     #[[add_idf_include(smooth newlib)
     add_idf_include(smooth newlib/platform_include)
     add_idf_include(smooth log)
