@@ -2,6 +2,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
 verify_idf_path()
 
+set(CMAKE_CXX_STANDARD 14)
+
 set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
@@ -145,7 +147,12 @@ if (${ESP_PLATFORM})
             include/smooth/core/filesystem/SPIFlash.h
             core/filesystem/SPIFlash.cpp
             include/smooth/core/filesystem/SDCard.h
+            include/smooth/core/filesystem/SDCard.h
             core/filesystem/SDCard.cpp
+            core/filesystem/SPISDCard.cpp
+            include/smooth/core/filesystem/SPISDCard.h
+            core/filesystem/MMCSDCard.cpp
+            include/smooth/core/filesystem/MMCSDCard.h
             core/
             include/smooth/core/io/Input.h
             include/smooth/core/io/Output.h
@@ -153,6 +160,8 @@ if (${ESP_PLATFORM})
             include/smooth/core/io/InterruptInput.h
             include/smooth/core/io/i2c/I2CMasterDevice.h
             include/smooth/core/io/i2c/Master.h
+
+            application/io/MCP23017.cpp
             )
 endif ()
 
