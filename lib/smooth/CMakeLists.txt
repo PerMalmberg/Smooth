@@ -188,7 +188,7 @@ else ()
     target_include_directories(
             smooth
             PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-            PRIVATE $ENV{IDF_PATH}/components/json/cJSON
+            PRIVATE $ENV{IDF_PATH}/components
     )
 
     target_link_libraries(${PROJECT_NAME} pthread)
