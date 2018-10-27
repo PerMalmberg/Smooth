@@ -9,8 +9,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CURRENT_PROJECT_NAME hello_world)
 
-
-
 set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${CURRENT_PROJECT_NAME})
 
 if (${ESP_PLATFORM})
@@ -31,5 +29,6 @@ else ()
     add_subdirectory(test/queue)
     add_subdirectory(test/timer)
     add_subdirectory(test/wrover_kit_blinky)
+    add_subdirectory(test/spiflash)
     add_subdirectory(test/main)
 endif ()

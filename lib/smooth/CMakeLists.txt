@@ -142,7 +142,10 @@ if (${ESP_PLATFORM})
             core/io/i2c/I2CMasterDevice.cpp
             core/io/i2c/Master.cpp
             core/filesystem/File.cpp
-            core/filesystem/Filesystem.cpp
+            include/smooth/core/filesystem/SPIFlash.h
+            core/filesystem/SPIFlash.cpp
+            include/smooth/core/filesystem/SDCard.h
+            core/filesystem/SDCard.cpp
             core/
             include/smooth/core/io/Input.h
             include/smooth/core/io/Output.h
