@@ -6,7 +6,7 @@
 #include <smooth/core/io/i2c/Master.h>
 #include <smooth/application/io/MCP23017.h>
 
-namespace sdcard_mmc
+namespace sdcard_test
 {
     class App
             : public smooth::core::Application

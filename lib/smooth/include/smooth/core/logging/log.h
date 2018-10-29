@@ -259,6 +259,12 @@ namespace smooth
             {
                 public:
                     /// Logs the single argument as-is, without additional formatting.
+                    Format(const char* arg)
+                    {
+                        data = arg;
+                    }
+
+                    /// Logs the single argument as-is, without additional formatting.
                     explicit Format(const BaseArg& arg)
                     {
                         data = arg;
