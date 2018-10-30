@@ -11,7 +11,6 @@ namespace smooth
     {
         namespace filesystem
         {
-
             bool SDCard::do_common_initialization(const char* mount_point, int max_file_count, bool format_on_mount_failure, void* slot_config)
             {
                 esp_vfs_fat_sdmmc_mount_config_t mount_config{};
@@ -40,6 +39,18 @@ namespace smooth
                 }
 
                 return initialized;
+            }
+
+            bool SDCard::deinit()
+            {
+                auto res = ESP_OK;
+                if(is_initialized())
+                {
+                    res = esp_vfs_fat_sdmmc_unmount();
+                    initialized = false;
+                }
+
+                return res == ESP_OK;
             }
         }
     }

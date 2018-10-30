@@ -56,6 +56,8 @@ namespace sdcard_test
 
     }
 
+    static bool test_done = false;
+
     void App::tick()
     {
         ElapsedTime wait;
@@ -71,7 +73,7 @@ namespace sdcard_test
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(1, 10000);
 
-        if (!card->is_initialized())
+        if (!test_done && !card->is_initialized())
         {
             if (card->init("/sdcard", false, 5))
             {
@@ -81,7 +83,7 @@ namespace sdcard_test
                 bool error = false;
 
                 // Note: Too large chunk_size and you'll run into out of memory issues. I've seen them at 16k.
-                for (size_t chunk_size = 1024 / sizeof(int); !error && chunk_size <= 1024 * 12; chunk_size += 1024)
+                for (size_t chunk_size = 1024 / sizeof(int); !error && chunk_size <= 1024 / sizeof(int) * 12; chunk_size += 1024)
                 {
                     std::string path = "/sdcard/";
                     path.append(std::to_string(chunk_size));
@@ -184,6 +186,9 @@ namespace sdcard_test
                         Log::error(tag, "Could not open file");
                     }
                 }
+
+                card->deinit();
+                test_done = true;
             }
         }
     }
