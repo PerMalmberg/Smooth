@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 # Select the test project, then build target "main". The available projects are the names of the
 # folders under "test", e.g. hello_world, mqtt etc.
 
-set(CURRENT_PROJECT_NAME sdcard_test)
+set(CURRENT_PROJECT_NAME hello_world)
 
 set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${CURRENT_PROJECT_NAME})
 
