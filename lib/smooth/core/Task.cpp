@@ -8,6 +8,10 @@
 #include <smooth/core/TaskStatus.h>
 #include <smooth/core/ipc/Publisher.h>
 
+#ifdef ESP_PLATFORM
+#include "esp_pthread.h"
+#endif
+
 using namespace smooth::core::logging;
 
 namespace smooth
@@ -57,10 +61,23 @@ namespace smooth
                 }
                 else
                 {
+
+
+
+#ifdef ESP_PLATFORM
+                    // Since std::thread is implemented using pthread, setting the config before
+                    // creating the std::thread we get the desired effect, even if we're not calling
+                    // pthread_create() as per the IDF documentation.
+                    esp_pthread_cfg_t worker_config{};
+                    worker_config.stack_size = stack_size;
+                    worker_config.prio = priority;
+                    esp_pthread_set_cfg(&worker_config);
+#endif
                     worker = std::thread([this]()
                                          {
                                              this->exec();
                                          });
+
 
                     // To avoid race conditions between tasks during start up,
                     // always wait for the new task to start.
@@ -75,11 +92,6 @@ namespace smooth
 
         void Task::exec()
         {
-#ifdef ESP_PLATFORM
-            freertos_task = xTaskGetCurrentTaskHandle();
-            vTaskPrioritySet(nullptr, priority);
-#endif
-
             Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
 
             init();
