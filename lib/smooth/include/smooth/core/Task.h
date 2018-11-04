@@ -44,12 +44,8 @@ namespace smooth
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
                 void register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue);
 
-#ifdef ESP_PLATFORM
-                TaskHandle_t get_freertos_task() const
-                {
-                    return freertos_task;
-                }
-#endif
+                Task(const Task&) = delete;
+                Task& operator=(const Task&) = delete;
 
             protected:
 
@@ -82,6 +78,8 @@ namespace smooth
                 {
                 }
 
+                void print_stack_status();
+
             private:
                 void exec();
 
@@ -91,15 +89,12 @@ namespace smooth
                 uint32_t priority;
                 std::chrono::milliseconds tick_interval;
                 smooth::core::ipc::QueueNotification notification{};
-                bool is_attached = false;
+                bool is_attached;
                 bool started = false;
                 std::mutex start_mutex{};
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
                 std::vector<smooth::core::ipc::IPolledTaskQueue*> polled_queues{};
-#ifdef ESP_PLATFORM
-                TaskHandle_t freertos_task;
-#endif
         };
     }
 }

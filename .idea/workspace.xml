@@ -2,92 +2,154 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
-      <config projectName="Smooth" targetName="Smooth" />
+      <config projectName="smooth" targetName="logging" />
+      <config projectName="smooth" targetName="wrover_kit_blinky" />
+      <config projectName="smooth" targetName="timer" />
+      <config projectName="smooth" targetName="json_test" />
+      <config projectName="smooth" targetName="sdcard_test" />
+      <config projectName="smooth" targetName="publish" />
+      <config projectName="smooth" targetName="main" />
+      <config projectName="smooth" targetName="smooth" />
+      <config projectName="smooth" targetName="hello_world" />
+      <config projectName="smooth" targetName="mqtt" />
+      <config projectName="smooth" targetName="spiflash" />
+      <config projectName="smooth" targetName="queue" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="IDF_PATH" value="$USER_HOME$/esp/esp-idf" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c6acc715-b863-4d85-9a9a-c784b554946c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/smooth/core/timer/TimerService.h" afterPath="$PROJECT_DIR$/include/smooth/core/timer/TimerService.h" />
+    <list default="true" id="c6acc715-b863-4d85-9a9a-c784b554946c" name="Default" comment="Removed the TaskStatus class for a more lightweight solution.&#10;Also the main Task now also displays its stack size.&#10;Fixed Task startup sequence.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/lib/smooth/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/core/Application.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lib/smooth/core/Application.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/core/Task.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lib/smooth/core/Task.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/include/smooth/core/Application.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/smooth/include/smooth/core/Application.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/include/smooth/core/Task.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/smooth/include/smooth/core/Task.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/smooth/include/smooth/core/TaskStatus.h" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FUSProjectUsageTrigger">
+    <session id="-752554825">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="3" />
+          <entry key="project.open.time.0" value="2" />
+          <entry key="project.open.time.4" value="1" />
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.opened" value="4" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="cpp" value="7" />
+          <entry key="h" value="8" />
+          <entry key="txt" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="CMakeLists.txt" value="1" />
+          <entry key="ObjectiveC" value="15" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="cpp" value="2012" />
+          <entry key="h" value="350" />
+          <entry key="txt" value="325" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="CMakeLists.txt" value="38" />
+          <entry key="Doxygen file" value="1" />
+          <entry key="ObjectiveC" value="2361" />
+          <entry key="PLAIN_TEXT" value="287" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/smooth/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="559">
+              <caret line="172" column="50" selection-start-line="172" selection-start-column="50" selection-end-line="172" selection-end-column="50" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Application.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/Application.cpp">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/Task.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="33" column="18" lean-forward="false" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+            <state relative-caret-position="597">
+              <caret line="90" column="53" selection-start-line="90" selection-start-column="53" selection-end-line="90" selection-end-column="53" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/smooth/core/network/Wifi.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/smooth/core/Task.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="355">
+              <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
               <folding>
                 <element signature="e#40#60#0" expanded="true" />
-                <element signature="e#158#319#0" expanded="true" />
-                <element signature="e#883#4597#0" expanded="true" />
+                <element signature="e#224#275#0" expanded="true" />
+                <element signature="e#1166#1210#0" expanded="true" />
+                <element signature="e#1795#2264#0" expanded="true" />
+                <element signature="e#5631#6063#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TimerService.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/TimerService.h">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/esp/esp-idf/components/esp32/include/esp_event.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="666">
-              <caret line="69" column="24" lean-forward="false" selection-start-line="69" selection-start-column="24" selection-end-line="69" selection-end-column="24" />
+            <state relative-caret-position="585">
+              <caret line="54" column="4" selection-start-line="54" selection-start-column="4" selection-end-line="54" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/Application.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="402">
+              <caret line="43" selection-start-line="43" selection-end-line="43" />
               <folding>
-                <element signature="e#55#84#0" expanded="true" />
+                <element signature="e#267#310#0" expanded="true" />
+                <element signature="e#3754#3775#0" expanded="true" />
+                <element signature="e#4319#4358#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TimerService.cpp" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/timer/TimerService.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="30" column="13" lean-forward="false" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
-              <folding>
-                <element signature="e#41#84#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Timer.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/Timer.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Timer.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/timer/Timer.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="535">
-              <caret line="108" column="70" lean-forward="false" selection-start-line="108" selection-start-column="70" selection-end-line="108" selection-end-column="70" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -115,6 +177,10 @@
       <find>expires_at</find>
       <find>auto_reload</find>
       <find>prepare_queues</find>
+      <find>priority</find>
+      <find>TaskStatus</find>
+      <find>start_mutex</find>
+      <find>freertos_task</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/../..</dir>
@@ -151,6 +217,12 @@
         <option value="$PROJECT_DIR$/include/smooth/core/Task.h" />
         <option value="$PROJECT_DIR$/include/smooth/core/timer/TimerService.h" />
         <option value="$PROJECT_DIR$/core/timer/TimerService.cpp" />
+        <option value="$PROJECT_DIR$/lib/smooth/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/lib/smooth/core/Application.cpp" />
+        <option value="$PROJECT_DIR$/lib/smooth/include/smooth/core/Application.h" />
+        <option value="$PROJECT_DIR$/test/hello_world/hello_world.cpp" />
+        <option value="$PROJECT_DIR$/lib/smooth/include/smooth/core/Task.h" />
+        <option value="$PROJECT_DIR$/lib/smooth/core/Task.cpp" />
       </list>
     </option>
   </component>
@@ -162,23 +234,13 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="85" />
-    <option name="y" value="39" />
-    <option name="width" value="1835" />
-    <option name="height" value="927" />
+    <option name="x" value="1680" />
+    <option name="y" value="24" />
+    <option name="width" value="1920" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
@@ -186,61 +248,59 @@
         <subPane>
           <expand>
             <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
             </path>
             <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="network" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="timer" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="include" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
               <item name="smooth" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="smooth" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="smooth" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="smooth" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="smooth" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
               <item name="smooth" type="462c0819:PsiDirectoryNode" />
               <item name="core" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="Smooth" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
-              <item name="Smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
               <item name="smooth" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="timer" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smooth" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smooth" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="smooth" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="hello_world" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../.." />
+    <property name="last_opened_file_path" value="$USER_HOME$/esp/esp-idf/components/esp32/include/esp_event.h" />
+    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -259,20 +319,87 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Smooth">
+  <component name="RunManager" selected="Application.main">
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
-      <envs />
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
     </configuration>
-    <configuration name="Smooth" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Smooth" TARGET_NAME="Smooth" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Smooth" RUN_TARGET_NAME="Smooth">
-      <envs />
+    <configuration name="hello_world" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="hello_world" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="hello_world">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
     </configuration>
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
-      <item index="1" class="java.lang.String" itemvalue="Application.Smooth" />
+    <configuration name="json_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="json_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="json_test">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="logging" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="logging" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="logging">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="main" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="main" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="main">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="mqtt" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="mqtt" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="mqtt">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="publish" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="publish" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="publish">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="queue" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="queue" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="queue">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sdcard_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="sdcard_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="sdcard_test">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="smooth" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="smooth" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="smooth">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spiflash" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="spiflash" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="spiflash">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="timer" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="timer" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="timer">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="wrover_kit_blinky" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="smooth" TARGET_NAME="wrover_kit_blinky" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="smooth" RUN_TARGET_NAME="wrover_kit_blinky">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Build All" />
+      <item itemvalue="Application.smooth" />
+      <item itemvalue="Application.hello_world" />
+      <item itemvalue="Application.json_test" />
+      <item itemvalue="Application.logging" />
+      <item itemvalue="Application.main" />
+      <item itemvalue="Application.mqtt" />
+      <item itemvalue="Application.publish" />
+      <item itemvalue="Application.queue" />
+      <item itemvalue="Application.sdcard_test" />
+      <item itemvalue="Application.spiflash" />
+      <item itemvalue="Application.timer" />
+      <item itemvalue="Application.wrover_kit_blinky" />
     </list>
-  </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -282,36 +409,57 @@
       <option name="presentableId" value="Default" />
       <updated>1508663127582</updated>
       <workItem from="1508663129385" duration="17960000" />
+      <workItem from="1541014838688" duration="4449000" />
+      <workItem from="1541022489006" duration="2628000" />
+      <workItem from="1541334912119" duration="1227000" />
+      <workItem from="1541336392257" duration="15109000" />
     </task>
+    <task id="LOCAL-00001" summary="Added ability to set stack size of Task.">
+      <created>1541025099490</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1541025099490</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Clarified comment regarding reading items from receiver queues.">
+      <created>1541341796068</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1541341796068</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17960000" />
+    <option name="totallyTimeSpent" value="41373000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <frame x="1680" y="24" width="1920" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20858896" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17586912" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1400818" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26040554" />
+      <window_info id="Structure" order="1" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.37540805" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3297062" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="CMake" order="7" weight="0.17519042" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="10" weight="0.34276387" />
+      <window_info active="true" anchor="bottom" id="Messages" order="11" visible="true" weight="0.39717084" />
+      <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Data View" order="3" />
+      <window_info anchor="right" id="LuaJ" order="4" />
+      <window_info anchor="right" id="Database" order="5" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -320,307 +468,140 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager />
-    <watches-manager />
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added ability to set stack size of Task." />
+    <MESSAGE value="Clarified comment regarding reading items from receiver queues." />
+    <option name="LAST_COMMIT_MESSAGE" value="Clarified comment regarding reading items from receiver queues." />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/util/ByteSet.h">
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/util/ByteSet.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/Logging.h" />
+    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/Connect.cpp" />
+    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/PingReq.cpp" />
+    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/MQTTPacket.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/ConnectionStatusEvent.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/ConnectedState.h" />
+    <entry file="file://$PROJECT_DIR$/application/network/mqtt/state/ConnectToBrokerState.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/Socket.h" />
+    <entry file="file:///usr/include/c++/5/chrono" />
+    <entry file="file://$PROJECT_DIR$/core/Task.cpp" />
+    <entry file="file:///usr/include/c++/5/bits/shared_ptr.h" />
+    <entry file="file://$PROJECT_DIR$/application/network/mqtt/state/ConnectedState.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/RecursiveMutex.h" />
+    <entry file="file://$PROJECT_DIR$/core/network/SocketDispatcher.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/DisconnectedState.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/DisconnectState.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/IdleState.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/MqttClient.h" />
+    <entry file="file://$PROJECT_DIR$/core/network/IPv4.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/IPv6.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/Wifi.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/Application.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/SocketDispatcher.h" />
+    <entry file="file://$PROJECT_DIR$/core/Application.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/Queue.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/TaskEventQueue.h" />
+    <entry file="file://$PROJECT_DIR$/core/timer/Timer.cpp" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/ITimer.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/Timer.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/Task.h" />
+    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/TimerService.h" />
+    <entry file="file://$PROJECT_DIR$/core/timer/TimerService.cpp" />
+    <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/task_priorities.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="240">
+          <caret line="16" column="44" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="44" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/Logging.h">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/core/network/Wifi.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="300">
+          <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/Connect.cpp">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/TaskStatus.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="52" column="98" lean-forward="false" selection-start-line="52" selection-start-column="98" selection-end-line="52" selection-end-column="98" />
+        <state relative-caret-position="-450">
+          <caret line="7" selection-start-line="7" selection-end-line="7" selection-end-column="26" />
           <folding>
-            <element signature="e#40#57#0" expanded="false" />
+            <element signature="e#601#880#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/PingReq.cpp">
+    <entry file="file://$USER_HOME$/esp/esp-idf/components/esp32/include/esp_event.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding>
-            <element signature="e#40#57#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="585">
+          <caret line="54" column="4" selection-start-line="54" selection-start-column="4" selection-end-line="54" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/network/mqtt/packet/MQTTPacket.cpp">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/core/Application.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="13" column="26" lean-forward="false" selection-start-line="13" selection-start-column="26" selection-end-line="13" selection-end-column="26" />
-          <folding>
-            <element signature="e#40#57#0" expanded="false" />
-            <element signature="e#291#313#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/ConnectionStatusEvent.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/ConnectedState.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/network/mqtt/state/ConnectToBrokerState.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding>
-            <element signature="e#40#111#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/Socket.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="97">
-          <caret line="6" column="9" lean-forward="true" selection-start-line="6" selection-start-column="9" selection-end-line="6" selection-end-column="9" />
-          <folding>
-            <element signature="e#54#77#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/5/chrono">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="535" column="40" lean-forward="false" selection-start-line="535" selection-start-column="40" selection-end-line="535" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/Task.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="68" column="45" lean-forward="false" selection-start-line="68" selection-start-column="41" selection-end-line="68" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/5/bits/shared_ptr.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="556" column="10" lean-forward="false" selection-start-line="556" selection-start-column="10" selection-end-line="556" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/network/mqtt/state/ConnectedState.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding>
-            <element signature="e#40#105#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/RecursiveMutex.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/network/SocketDispatcher.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="217" column="53" lean-forward="false" selection-start-line="217" selection-start-column="53" selection-end-line="217" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/DisconnectedState.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/DisconnectState.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/state/IdleState.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/application/network/mqtt/MqttClient.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="22" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/network/IPv4.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding>
-            <element signature="e#39#76#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/IPv6.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="35" column="26" lean-forward="false" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/Wifi.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/Application.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="13" column="26" lean-forward="true" selection-start-line="13" selection-start-column="26" selection-end-line="13" selection-end-column="26" />
-          <folding>
-            <element signature="e#54#71#0" expanded="true" />
-            <element signature="e#200#237#0" expanded="true" />
-            <element signature="e#265#308#0" expanded="true" />
-            <element signature="e#1900#3175#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/network/SocketDispatcher.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="66" column="54" lean-forward="true" selection-start-line="66" selection-start-column="54" selection-end-line="66" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/Application.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="33" column="18" lean-forward="false" selection-start-line="33" selection-start-column="18" selection-end-line="33" selection-end-column="18" />
+        <state relative-caret-position="900">
+          <caret line="69" column="69" selection-start-line="69" selection-start-column="69" selection-end-line="69" selection-end-column="69" />
           <folding>
             <element signature="e#40#60#0" expanded="true" />
-            <element signature="e#158#319#0" expanded="true" />
-            <element signature="e#883#4597#0" expanded="true" />
+            <element signature="e#208#349#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/Queue.h">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/Application.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="67" column="25" lean-forward="false" selection-start-line="67" selection-start-column="25" selection-end-line="67" selection-end-column="25" />
-          <folding />
+        <state relative-caret-position="402">
+          <caret line="43" selection-start-line="43" selection-end-line="43" />
+          <folding>
+            <element signature="e#267#310#0" expanded="true" />
+            <element signature="e#3754#3775#0" expanded="true" />
+            <element signature="e#4319#4358#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/ipc/TaskEventQueue.h">
+    <entry file="file://$PROJECT_DIR$/test/hello_world/hello_world.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="51" column="42" lean-forward="true" selection-start-line="51" selection-start-column="42" selection-end-line="51" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/timer/Timer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="535">
-          <caret line="108" column="70" lean-forward="false" selection-start-line="108" selection-start-column="70" selection-end-line="108" selection-end-column="70" />
-          <folding />
+        <state relative-caret-position="510">
+          <caret line="34" column="27" selection-start-line="34" selection-start-column="27" selection-end-line="34" selection-end-column="27" />
+          <folding>
+            <element signature="e#43#67#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="90">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/ITimer.h">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="567">
-          <caret line="37" column="62" lean-forward="false" selection-start-line="37" selection-start-column="62" selection-end-line="37" selection-end-column="62" />
-          <folding />
+        <state relative-caret-position="559">
+          <caret line="172" column="50" selection-start-line="172" selection-start-column="50" selection-end-line="172" selection-end-column="50" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/Timer.h">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/include/smooth/core/Task.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
-          <folding />
+        <state relative-caret-position="597">
+          <caret line="90" column="53" selection-start-line="90" selection-start-column="53" selection-end-line="90" selection-end-column="53" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/Task.h">
+    <entry file="file://$PROJECT_DIR$/lib/smooth/core/Task.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/smooth/core/timer/TimerService.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="69" column="24" lean-forward="false" selection-start-line="69" selection-start-column="24" selection-end-line="69" selection-end-column="24" />
+        <state relative-caret-position="355">
+          <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
           <folding>
-            <element signature="e#55#84#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/timer/TimerService.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="30" column="13" lean-forward="false" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
-          <folding>
-            <element signature="e#41#84#0" expanded="true" />
+            <element signature="e#40#60#0" expanded="true" />
+            <element signature="e#224#275#0" expanded="true" />
+            <element signature="e#1166#1210#0" expanded="true" />
+            <element signature="e#1795#2264#0" expanded="true" />
+            <element signature="e#5631#6063#0" expanded="true" />
           </folding>
         </state>
       </provider>

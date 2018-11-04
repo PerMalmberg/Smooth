@@ -23,8 +23,7 @@ namespace smooth
     namespace core
     {
         POSIXApplication::POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
-                : Task(priority, tick_interval),
-                  task_status("task_status", 5, *this, *this)
+                : Task(priority, tick_interval)
         {
         }
 
@@ -38,34 +37,6 @@ namespace smooth
             network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
 #endif
-        }
-
-        void POSIXApplication::event(const TaskStatus& status)
-        {
-            // Note: Until the std::threads can be created with a desired stack size,
-            // the 'total' will not reflect the true total stack for the task - the true
-            // total is what is configured in menu config, common for all pthreads.
-
-#ifdef ESP_PLATFORM
-            Format msg("Remaining stack: {1}. Free heap: {2}, min free: {3}",
-                       UInt32(status.get_remaining_stack()),
-                       UInt32(xPortGetFreeHeapSize()),
-                       UInt32(xPortGetMinimumEverFreeHeapSize())
-            );
-#else
-
-            Format msg("Remaining stack: {1} of {2}",
-                       UInt32(status.get_remaining_stack()),
-                       UInt32(status.get_stack_size()));
-#endif
-            if (status.get_remaining_stack() <= 512)
-            {
-                Log::warning(status.get_name(), msg);
-            }
-            else
-            {
-                Log::info(status.get_name(), msg);
-            }
         }
 
 #ifdef ESP_PLATFORM
@@ -95,6 +66,8 @@ namespace smooth
                 {SYSTEM_EVENT_ETH_GOT_IP,          "ESP32 ethernet got IP from connected AP"},
                 {SYSTEM_EVENT_MAX,                 ""}
         };
+
+        static_assert(SYSTEM_EVENT_ETH_GOT_IP == SYSTEM_EVENT_MAX - 1, "System events have changed, id_to_system_event needs an update.");
 
         IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
                 : POSIXApplication(priority, tick_interval),

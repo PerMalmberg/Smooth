@@ -5,11 +5,11 @@
 #include <algorithm>
 #include <smooth/core/Task.h>
 #include <smooth/core/logging/log.h>
-#include <smooth/core/TaskStatus.h>
 #include <smooth/core/ipc/Publisher.h>
 
 #ifdef ESP_PLATFORM
 #include "esp_pthread.h"
+#include <freertos/task.h>
 #endif
 
 using namespace smooth::core::logging;
@@ -29,15 +29,18 @@ namespace smooth
         {
         }
 
-        /// Constructor use when attaching to an already running thread.
+        /// Constructor used when attaching to an already running thread.
         Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
                 stack_size(0),
                 priority(priority),
-                tick_interval(tick_interval)
+                tick_interval(tick_interval),
+                is_attached(true)
         {
-            is_attached = true;
+#ifdef ESP_PLATFORM
+            stack_size = CONFIG_MAIN_TASK_STACK_SIZE;
+#endif
         }
 
         Task::~Task()
@@ -48,7 +51,7 @@ namespace smooth
         void Task::start()
         {
             // Prevent multiple starts
-            std::unique_lock<std::mutex> lock(start_mutex);
+            std::unique_lock<std::mutex> lock{start_mutex};
 
             if (!started)
             {
@@ -61,9 +64,6 @@ namespace smooth
                 }
                 else
                 {
-
-
-
 #ifdef ESP_PLATFORM
                     // Since std::thread is implemented using pthread, setting the config before
                     // creating the std::thread we get the desired effect, even if we're not calling
@@ -73,11 +73,14 @@ namespace smooth
                     worker_config.prio = priority;
                     esp_pthread_set_cfg(&worker_config);
 #endif
+                    Log::debug(name, "Creating worker thread");
                     worker = std::thread([this]()
                                          {
                                              this->exec();
                                          });
 
+
+                    Log::debug(name, "Waiting for worker to start");
 
                     // To avoid race conditions between tasks during start up,
                     // always wait for the new task to start.
@@ -92,16 +95,16 @@ namespace smooth
 
         void Task::exec()
         {
-            Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
-
-            init();
-
             if(!is_attached)
             {
-                std::unique_lock<std::mutex>(start_mutex);
+                std::unique_lock<std::mutex> lock{start_mutex};
                 started = true;
                 start_condition.notify_all();
             }
+
+            Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
+
+            init();
 
             Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
 
@@ -148,9 +151,8 @@ namespace smooth
 
                 if (status_report_timer.get_running_time() > std::chrono::seconds(60))
                 {
+                    print_stack_status();
                     status_report_timer.reset();
-                    TaskStatus ts(name, stack_size);
-                    ipc::Publisher<TaskStatus>::publish(ts);
                 }
             }
         }
@@ -164,6 +166,26 @@ namespace smooth
         {
             polled_queue->register_notification(&notification);
             polled_queues.push_back(polled_queue);
+        }
+
+        void Task::print_stack_status()
+        {
+#ifdef ESP_PLATFORM
+            // https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/freertos.html?highlight=uxTaskGetStackHighWaterMark
+            auto minimum_free_stack_in_bytes = uxTaskGetStackHighWaterMark(nullptr);
+            Format msg("Minumum free stack: {1}/{2}",
+                       UInt32(minimum_free_stack_in_bytes),
+                       UInt32(stack_size));
+
+            if (minimum_free_stack_in_bytes <= 256)
+            {
+                Log::warning(name, msg);
+            }
+            else
+            {
+                Log::info(name, msg);
+            }
+#endif
         }
     }
 }

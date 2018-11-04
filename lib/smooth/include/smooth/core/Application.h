@@ -16,7 +16,6 @@
 
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-#include "TaskStatus.h"
 
 namespace smooth
 {
@@ -30,8 +29,7 @@ namespace smooth
         /// Be sure to adjust the stack size of the main task accordingly using 'make menuconfig'.
         /// Note: Unlike the version of start() in Task, when called on an Application instance start() never returns.
         class POSIXApplication
-                : public Task,
-                  public core::ipc::IEventListener<TaskStatus>
+                : public Task
         {
             public:
                 /// Constructor
@@ -40,19 +38,8 @@ namespace smooth
                 /// \param tick_interval The tick interval
                 POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval);
 
-                virtual ~POSIXApplication()
-                {
-                }
-
-                POSIXApplication(const POSIXApplication&) = delete;
-
-                void event(const TaskStatus& status);
-
                 /// Initialize the application.
                 void init() override;
-
-            private:
-                ipc::SubscribingTaskEventQueue<TaskStatus> task_status;
         };
 
 
@@ -112,12 +99,11 @@ namespace smooth
                 Application(uint32_t priority, std::chrono::milliseconds tick_interval)
                         :
 #ifdef ESP_PLATFORM
-                IDFApplication(priority, tick_interval)
+                        IDFApplication(priority, tick_interval)
 #else
                         POSIXApplication(priority, tick_interval)
 #endif
                 {
-
                 }
         };
 

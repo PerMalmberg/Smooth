@@ -124,7 +124,6 @@ set(SOURCES
         include/smooth/core/util/make_unique.h
         include/smooth/core/Application.h
         include/smooth/core/Task.h
-        include/smooth/core/TaskStatus.h
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
