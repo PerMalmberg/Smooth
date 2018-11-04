@@ -138,8 +138,10 @@ namespace smooth
                     else
                     {
                         // A queue has signaled an item is available.
-                        // Note: do not get tempted to retrieve all messages from
-                        // the queue - it would cause message ordering to get mixed up.
+                        // Note: Do not retrieve all messages from the the queue;
+                        // it will prevent messages to arrive in the same order
+                        // they were sent to the us, when there are more than one
+                        // receiver queue.
                         queue->forward_to_event_queue();
                     }
                 }
