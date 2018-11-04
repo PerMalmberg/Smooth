@@ -87,7 +87,7 @@ namespace smooth
                     start_condition.wait(lock,
                                          [this]
                                          {
-                                             return started;
+                                             return !!started;
                                          });
                 }
             }

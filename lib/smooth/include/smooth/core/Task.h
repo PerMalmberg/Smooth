@@ -18,6 +18,7 @@
 #include <smooth/core/ipc/QueueNotification.h>
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/timer/ElapsedTime.h>
+#include <atomic>
 
 #ifdef ESP_PLATFORM
 #include <freertos/FreeRTOS.h>
@@ -90,7 +91,7 @@ namespace smooth
                 std::chrono::milliseconds tick_interval;
                 smooth::core::ipc::QueueNotification notification{};
                 bool is_attached;
-                bool started = false;
+                std::atomic_bool started{false};
                 std::mutex start_mutex{};
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
