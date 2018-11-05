@@ -17,18 +17,19 @@ namespace smooth
         {
             TimerService::TimerService()
                     : Task("TimerService",
-                           2048,
-                           TIMER_SERVICE_PRIO,
-                           milliseconds(0)),
-                      cmp([](SharedTimer left, SharedTimer right)
-                          {
-                              // We want the timer with the least time left to be first in the list
-                              return left->expires_at() > right->expires_at();
-                          }),
-                      queue(cmp),
-                      guard(),
-                      processed()
+                            1024 * 3,
+                            TIMER_SERVICE_PRIO,
+                            milliseconds(0)),
+                            cmp([](SharedTimer left, SharedTimer right) {
+                                // We want the timer with the least time left to be first in the list
+                                return left->expires_at() > right->expires_at();
+                            }),
+                            queue(cmp),
+                            guard(),
+                            processed()
             {
+                // Disable status printing to conserve stack size.
+                disable_status_print();
             }
 
 
@@ -106,8 +107,7 @@ namespace smooth
 
                         cond.wait_until(lock,
                                         timer->expires_at(),
-                                        [current_queue_length, this]()
-                                        {
+                                        [current_queue_length, this]() {
                                             // Wake up if a timer has been added or removed.
                                             return current_queue_length != queue.size();
                                         });

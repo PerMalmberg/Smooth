@@ -87,7 +87,7 @@ namespace smooth
                     start_condition.wait(lock,
                                          [this]
                                          {
-                                             return !!started;
+                                             return started.load();
                                          });
                 }
             }
@@ -171,19 +171,23 @@ namespace smooth
         void Task::print_stack_status()
         {
 #ifdef ESP_PLATFORM
-            // https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/freertos.html?highlight=uxTaskGetStackHighWaterMark
-            auto minimum_free_stack_in_bytes = uxTaskGetStackHighWaterMark(nullptr);
-            Format msg("Minumum free stack: {1}/{2}",
-                       UInt32(minimum_free_stack_in_bytes),
-                       UInt32(stack_size));
+            if(status_print_enabled)
+            {
+                // https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/freertos.html?highlight=uxTaskGetStackHighWaterMark
+                auto minimum_free_stack_in_bytes = uxTaskGetStackHighWaterMark(nullptr);
+                Format msg("Minimum free stack: {1} of {2} => {3} used.",
+                           UInt32(minimum_free_stack_in_bytes),
+                           UInt32(stack_size),
+                           UInt32(stack_size - minimum_free_stack_in_bytes));
 
-            if (minimum_free_stack_in_bytes <= 256)
-            {
-                Log::warning(name, msg);
-            }
-            else
-            {
-                Log::info(name, msg);
+                if (minimum_free_stack_in_bytes <= 256)
+                {
+                    Log::warning(name, msg);
+                }
+                else
+                {
+                    Log::info(name, msg);
+                }
             }
 #endif
         }

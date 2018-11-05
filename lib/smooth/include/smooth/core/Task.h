@@ -80,6 +80,7 @@ namespace smooth
                 }
 
                 void print_stack_status();
+                void disable_status_print() { status_print_enabled = false; }
 
             private:
                 void exec();
@@ -96,6 +97,7 @@ namespace smooth
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
                 std::vector<smooth::core::ipc::IPolledTaskQueue*> polled_queues{};
+                bool status_print_enabled = true;
         };
     }
 }
