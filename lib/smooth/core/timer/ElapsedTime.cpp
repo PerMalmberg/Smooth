@@ -4,6 +4,8 @@
 
 #include <smooth/core/timer/ElapsedTime.h>
 
+using namespace std::chrono;
+
 namespace smooth
 {
     namespace core
@@ -15,30 +17,24 @@ namespace smooth
                 if (active)
                 {
                     // Calculate new elapsed time
-                    gettimeofday(&end_time, nullptr);
-                    timersub(&end_time, &start_time, &elapsed);
+                    end_time = std::chrono::steady_clock::now();
+                    elapsed = end_time - start_time;
                 }
 
-                std::chrono::microseconds us(elapsed.tv_usec);
-                us += std::chrono::seconds(elapsed.tv_sec);
-                return us;
+                return duration_cast<microseconds>(elapsed);
             }
 
             std::chrono::microseconds ElapsedTime::get_running_time() const
             {
-                timeval local_end_time;
-                timeval local_elapsed;
+                steady_clock::duration local_elapsed{};
 
                 if (active)
                 {
                     // Calculate new elapsed time
-                    gettimeofday(&local_end_time, nullptr);
-                    timersub(&local_end_time, &start_time, &local_elapsed);
+                    local_elapsed = steady_clock::now() - start_time;
                 }
 
-                std::chrono::microseconds us(local_elapsed.tv_usec);
-                us += std::chrono::seconds(local_elapsed.tv_sec);
-                return us;
+                return duration_cast<microseconds>(local_elapsed);
             }
         }
     }

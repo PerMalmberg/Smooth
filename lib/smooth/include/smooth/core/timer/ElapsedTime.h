@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <ctime>
-#include <sys/time.h>
 #include <chrono>
 
 namespace smooth
@@ -28,9 +26,9 @@ namespace smooth
                     /// Stops the performance timer
                     void stop()
                     {
-                        gettimeofday(&end_time, nullptr);
+                        end_time = std::chrono::steady_clock::now();
                         active = false;
-                        timersub(&end_time, &start_time, &elapsed);
+                        elapsed = end_time - start_time;
                     }
 
                     /// Functionally the same as start(), but provided for syntactical reasons.
@@ -43,7 +41,7 @@ namespace smooth
                     /// Zeroes the time, but lets it keep running.
                     void zero()
                     {
-                        gettimeofday(&start_time, nullptr);
+                        start_time = std::chrono::steady_clock::now();
                         end_time = start_time;
                     }
 
@@ -65,11 +63,9 @@ namespace smooth
                     }
                 private:
                     bool active = false;
-                    timeval start_time{};
-                    // Keep end_time as a member to get slightly more accurate values
-                    // since it doesn't need to be constructed on the stack.
-                    timeval end_time{};
-                    timeval elapsed{};
+                    std::chrono::steady_clock::time_point start_time{};
+                    std::chrono::steady_clock::time_point end_time{};
+                    std::chrono::steady_clock::duration elapsed{};
             };
         }
     }
