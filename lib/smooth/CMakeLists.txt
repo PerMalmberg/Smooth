@@ -43,6 +43,7 @@ set(SOURCES
         core/Application.cpp
         core/json/Value.cpp
         core/Task.cpp
+        core/sntp/Sntp.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
         include/smooth/application/io/MCP23017.h
@@ -111,6 +112,7 @@ set(SOURCES
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
         include/smooth/core/network/TransmitBufferEmptyEvent.h
+        include/smooth/core/sntp/Sntp.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h
         include/smooth/core/timer/Timer.h
