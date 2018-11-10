@@ -18,17 +18,17 @@ namespace smooth
                 const char* log_tag = "I2CMaster";
 
                 Master::Master(i2c_port_t port,
-                               gpio_num_t slc,
-                               bool slc_internal_pullup_enable,
+                               gpio_num_t scl,
+                               bool scl_internal_pullup_enable,
                                gpio_num_t sda,
                                bool sda_internal_pullup_enable,
                                int clock_frequency_hz)
                         : port(port)
                 {
                     config.mode = I2C_MODE_MASTER;
-                    config.scl_io_num = slc;
+                    config.scl_io_num = scl;
                     config.sda_io_num = sda;
-                    config.scl_pullup_en = slc_internal_pullup_enable ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
+                    config.scl_pullup_en = scl_internal_pullup_enable ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
                     config.sda_pullup_en = sda_internal_pullup_enable ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
                     config.master.clk_speed = clock_frequency_hz;
                 }

@@ -21,7 +21,7 @@ namespace smooth
                 {
                     public:
                         Master(i2c_port_t port,
-                               gpio_num_t slc,
+                               gpio_num_t scl,
                                bool slc_internal_pullup_enable,
                                gpio_num_t sda,
                                bool sda_internal_pullup_enable,
