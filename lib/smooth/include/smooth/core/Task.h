@@ -82,10 +82,10 @@ namespace smooth
                 void print_stack_status();
                 void disable_status_print() { status_print_enabled = false; }
 
+                const std::string name;
             private:
-                void exec();
 
-                std::string name;
+                void exec();
                 std::thread worker;
                 uint32_t stack_size;
                 uint32_t priority;

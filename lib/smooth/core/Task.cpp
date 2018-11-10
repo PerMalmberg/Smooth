@@ -25,7 +25,8 @@ namespace smooth
                   worker(),
                   stack_size(stack_size),
                   priority(priority),
-                  tick_interval(tick_interval)
+                  tick_interval(tick_interval),
+                  is_attached(false)
         {
         }
 
@@ -50,15 +51,16 @@ namespace smooth
 
         void Task::start()
         {
-            // Prevent multiple starts
             std::unique_lock<std::mutex> lock{start_mutex};
 
+            // Prevent multiple starts
             if (!started)
             {
                 status_report_timer.start();
 
                 if (is_attached)
                 {
+                    Log::debug(name, "Running as attached thread");
                     // Attaching to another task, just run execute.
                     exec();
                 }
@@ -95,18 +97,21 @@ namespace smooth
 
         void Task::exec()
         {
+            Log::debug(name, "Executing...");
+
             if(!is_attached)
             {
-                std::unique_lock<std::mutex> lock{start_mutex};
+                Log::debug(name, "Notify start_mutex");
                 started = true;
+                std::unique_lock<std::mutex> lock{start_mutex};
                 start_condition.notify_all();
             }
 
-            Log::verbose("Task", Format("Initializing task '{1}'", Str(name)));
+            Log::verbose(name, "Initializing...");
 
             init();
 
-            Log::verbose("Task", Format("Task '{1}' initialized", Str(name)));
+            Log::verbose(name, "Initialized");
 
             timer::ElapsedTime delayed{};
 
