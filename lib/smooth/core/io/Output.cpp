@@ -34,7 +34,7 @@ namespace smooth
 
             void Output::set()
             {
-                gpio_set_level(io, 1);
+                gpio_set_level(io, active_high ? 1 : 0);
             }
 
             void Output::set(bool active)
@@ -51,7 +51,7 @@ namespace smooth
 
             void Output::clr()
             {
-                gpio_set_level(io, 0);
+                gpio_set_level(io, active_high ? 0 : 1);
             }
         };
     }
