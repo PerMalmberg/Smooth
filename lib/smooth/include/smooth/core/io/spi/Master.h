@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <mutex>
-#include <smooth/core/util/make_unique.h>
 #include <driver/gpio.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
@@ -67,7 +66,7 @@ namespace smooth
                         std::unique_ptr<ISPIDevice> add_device(gpio_num_t chip_select, Args&& ...args)
                         {
                             std::lock_guard<std::mutex> lock(guard);
-                            auto device = core::util::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
+                            auto device = std::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
                             if (device->initialize(host, chip_select))
                             {
                                 Log::verbose(log_tag, Format("Device added"));

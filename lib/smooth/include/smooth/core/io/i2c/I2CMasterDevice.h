@@ -9,7 +9,6 @@
 #include <mutex>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/util/make_unique.h>
 #include <smooth/core/util/FixedBufferBase.h>
 
 namespace smooth

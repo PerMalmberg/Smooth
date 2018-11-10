@@ -8,7 +8,6 @@
 #include <mutex>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
-#include <smooth/core/util/make_unique.h>
 
 namespace smooth
 {
@@ -60,7 +59,7 @@ namespace smooth
                     if (initialize())
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        dev = core::util::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
+                        dev = std::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
                     }
                     return dev;
                 }

@@ -43,7 +43,6 @@ set(SOURCES
         core/Application.cpp
         core/json/Value.cpp
         core/Task.cpp
-        core/sntp/Sntp.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
         include/smooth/application/io/MCP23017.h
@@ -112,7 +111,6 @@ set(SOURCES
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
         include/smooth/core/network/TransmitBufferEmptyEvent.h
-        include/smooth/core/sntp/Sntp.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h
         include/smooth/core/timer/Timer.h
@@ -123,7 +121,6 @@ set(SOURCES
         include/smooth/core/util/CircularBuffer.h
         include/smooth/core/util/FixedBuffer.h
         include/smooth/core/util/FixedBufferBase.h
-        include/smooth/core/util/make_unique.h
         include/smooth/core/Application.h
         include/smooth/core/Task.h
         include/smooth/core/task_priorities.h
@@ -145,23 +142,24 @@ if (${ESP_PLATFORM})
             core/io/i2c/I2CMasterDevice.cpp
             core/io/i2c/Master.cpp
             core/filesystem/File.cpp
-            include/smooth/core/filesystem/SPIFlash.h
             core/filesystem/SPIFlash.cpp
-            include/smooth/core/filesystem/SDCard.h
-            include/smooth/core/filesystem/SDCard.h
             core/filesystem/SDCard.cpp
             core/filesystem/SPISDCard.cpp
+            include/smooth/core/filesystem/SPIFlash.h
+            include/smooth/core/filesystem/SDCard.h
             include/smooth/core/filesystem/SPISDCard.h
+            core/sntp/Sntp.cpp
+            include/smooth/core/sntp/Sntp.h
             core/filesystem/MMCSDCard.cpp
             include/smooth/core/filesystem/MMCSDCard.h
-            core/
             include/smooth/core/io/Input.h
             include/smooth/core/io/Output.h
             include/smooth/core/io/i2c/I2CCommandLink.h
             include/smooth/core/io/InterruptInput.h
             include/smooth/core/io/i2c/I2CMasterDevice.h
             include/smooth/core/io/i2c/Master.h
-
+            application/io/MCP23017.cpp
+            application/io/ADS1115.cpp
             application/io/MCP23017.cpp
             )
 endif ()
@@ -171,7 +169,7 @@ if (${ESP_PLATFORM})
     set(COMPONENT_SRCS ${SOURCES})
     set(COMPONENT_ADD_INCLUDEDIRS
             ${CMAKE_CURRENT_LIST_DIR}/include
-            $ENV{IDF_PATH}/components)
+            $ENV{IDF_PATH}/components            )
     set(COMPONENT_REQUIRES nvs_flash fatfs pthread)
     #[[add_idf_include(smooth newlib)
     add_idf_include(smooth newlib/platform_include)

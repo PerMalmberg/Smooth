@@ -2,6 +2,9 @@
 // Created by permal on 7/31/17.
 //
 
+#include <memory>
+#include <string>
+#include <smooth/core/logging/log.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/packet/ConnAck.h>
 #include <smooth/application/network/mqtt/packet/Publish.h>
@@ -12,11 +15,9 @@
 #include <smooth/application/network/mqtt/packet/SubAck.h>
 #include <smooth/application/network/mqtt/packet/UnsubAck.h>
 #include <smooth/application/network/mqtt/packet/PingResp.h>
-#include <smooth/core/util/make_unique.h>
 #include <smooth/application/network/mqtt/Logging.h>
-#include <smooth/core/logging/log.h>
-#include <string>
 
+using namespace std;
 using namespace smooth::core::logging;
 
 namespace smooth
