@@ -8,7 +8,6 @@
 #include <queue>
 #include <mutex>
 #include <algorithm>
-#include "QueueNotification.h"
 #include "ITaskEventQueue.h"
 #include <smooth/core/timer/ElapsedTime.h>
 
