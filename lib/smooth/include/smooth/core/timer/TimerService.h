@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include <algorithm>
+#include <condition_variable>
 #include <functional>
 #include <memory>
-#include <queue>
 #include <mutex>
-#include <condition_variable>
+#include <queue>
 #include <smooth/core/Task.h>
 
 namespace smooth

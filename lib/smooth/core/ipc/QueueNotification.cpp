@@ -3,10 +3,7 @@
 //
 
 #include <thread>
-#include <smooth/core/Task.h>
 #include <smooth/core/ipc/QueueNotification.h>
-#include <smooth/core/timer/ElapsedTime.h>
-#include <smooth/core/logging/log.h>
 
 
 namespace smooth
@@ -21,7 +18,7 @@ namespace smooth
                 // as TaskEventQueues only call this method when they have successfully added the
                 // data item to their internal queue. As such, the queue can only be as large as
                 // the sum of all queues within the same Task.
-                std::unique_lock<std::mutex> lock(guard);
+                std::unique_lock<std::mutex> lock{guard};
                 queues.push(queue);
                 cond.notify_one();
             }
@@ -30,7 +27,7 @@ namespace smooth
             {
                 ITaskEventQueue* res = nullptr;
 
-                std::unique_lock<std::mutex> lock(guard);
+                std::unique_lock<std::mutex> lock{guard};
 
                 if (queues.empty())
                 {

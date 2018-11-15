@@ -4,19 +4,15 @@
 
 #pragma once
 
-#include <chrono>
-#include <queue>
+#include <condition_variable>
 #include <mutex>
-#include <algorithm>
+#include <queue>
 #include "ITaskEventQueue.h"
-#include <smooth/core/timer/ElapsedTime.h>
 
 namespace smooth
 {
     namespace core
     {
-        class Task;
-
         namespace ipc
         {
             class QueueNotification
@@ -31,7 +27,7 @@ namespace smooth
                     void clear()
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        while(queues.size())
+                        while(!queues.empty())
                         {
                             queues.pop();
                         }

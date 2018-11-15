@@ -7,7 +7,6 @@
 #include <smooth/core/Task.h>
 #include "ITaskEventQueue.h"
 #include "IEventListener.h"
-#include "Link.h"
 #include "QueueNotification.h"
 
 namespace smooth

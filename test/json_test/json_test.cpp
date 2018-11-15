@@ -1,4 +1,6 @@
 #include "json_test.h"
+
+#include <algorithm>
 #include <fstream>
 #include <cassert>
 #include <json/cJSON/cJSON.h>

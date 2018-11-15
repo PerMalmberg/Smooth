@@ -32,5 +32,6 @@ else ()
     add_subdirectory(test/spiflash)
     add_subdirectory(test/sdcard_test)
     add_subdirectory(test/sntp)
+    #add_subdirectory(test/interrupt_queue) // Only compiles for ESP
     add_subdirectory(test/main)
 endif ()
