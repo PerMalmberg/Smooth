@@ -161,6 +161,7 @@ if (${ESP_PLATFORM})
             application/io/MCP23017.cpp
             application/io/ADS1115.cpp
             application/io/MCP23017.cpp
+            application/sensor/BME280.cpp
             )
 endif ()
 
