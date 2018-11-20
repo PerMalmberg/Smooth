@@ -131,7 +131,7 @@ namespace smooth
                             && read_8bit(DIG_H3_REG, trimming.dig_H3)
                             && read_8bit(DIG_H6_REG, trimming.dig_H6)
 
-                            // The following data is a bit tricky as it is not split over multiple bytes.
+                            // The following data is a bit tricky as it is split over multiple bytes.
                             // dig_H4: Bits 11:4 located in DIG_H4_REG, bits 3:0 located in DIG_H4_REG+1
                             // dig_H5: bits 3:0 located in DIG_H5_REG[7:4], bits 11:4 in DIG_H5_REG+1
 
