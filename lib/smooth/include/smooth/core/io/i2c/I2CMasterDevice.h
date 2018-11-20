@@ -33,9 +33,7 @@ namespace smooth
                         {
                         }
 
-                        virtual ~I2CMasterDevice()
-                        {
-                        }
+                        virtual ~I2CMasterDevice() = default;
 
                         /// Scans the bus for devices and reports each found device's address in the provided vector.
                         /// \param found_devices Where the address of found devices are placed
@@ -63,17 +61,19 @@ namespace smooth
                         /// \param address The slave address.
                         /// \param data The data to write
                         /// \param enable_ack if true, expect ACK from slave.
-                        /// \return true on success, false,
+                        /// \return true on success, false on failure
                         bool write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack);
 
                         /// Reads data from the register of the slave with the provided address.
                         /// \param address The slave address
                         /// \param slave_register The register to read from.
-                        /// \param data Where the data will be written to. The size of the buffer determines how many bytes to read.
+                        /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
                         /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave address.
                         /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
                         /// \return true on success, false on failure.
-                        bool read(uint8_t address, uint8_t slave_register, core::util::FixedBufferBase<uint8_t>& data,
+                        bool read(uint8_t address,
+                                  uint8_t slave_register,
+                                  core::util::FixedBufferBase<uint8_t>& dest,
                                   bool use_restart_signal = true,
                                   bool end_with_nack = true);
 

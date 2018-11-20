@@ -42,8 +42,16 @@ namespace smooth
                     if (res == ESP_OK)
                     {
                         res = i2c_master_cmd_begin(port, link, to_tick(timeout));
-                        log_error(res, "Error during write");
-                        write_result = res == ESP_OK;
+                        if(res == ESP_OK)
+                        {
+                            write_result = true;
+                        }
+                        else
+                        {
+                            std::stringstream ss;
+                            ss << "Error during write of address 0x" << std::hex << static_cast<int32_t>(address>>1);
+                            log_error(res, ss.str().c_str());
+                        }
                     }
                     else
                     {
@@ -109,7 +117,9 @@ namespace smooth
 
                     if (res != ESP_OK)
                     {
-                        log_error(res, "Error during read");
+                        std::stringstream ss;
+                        ss << "Error during read of address 0x" << std::hex << static_cast<int32_t>(address);
+                        log_error(res, ss.str().c_str());
                         i2c_reset_tx_fifo(port);
                         i2c_reset_rx_fifo(port);
                     }
