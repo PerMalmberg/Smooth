@@ -116,6 +116,20 @@ namespace smooth
                 return write(address, data, true);
             }
 
+            bool MCP23017::read_output(Port port, uint8_t& state)
+            {
+                // Read latches, not actual value on the outputs.
+                auto p = (port == Port::A) ? B0_OLATA : B0_OLATB;
+                core::util::FixedBuffer<uint8_t, 1> read_data{};
+                auto res = read(address, p, read_data);
+                if(res)
+                {
+                    state = read_data[0];
+                }
+
+                return res;
+            }
+
             bool MCP23017::read_input(Port port, uint8_t& state)
             {
                 auto p = (port == Port::A) ? B0_GPIOA : B0_GPIOB;

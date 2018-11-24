@@ -138,8 +138,14 @@ namespace smooth
                     /// Sets the output state.
                     /// \param port The port.
                     /// \param state The state, where 1 is on, 0 is off.
-                    /// \return tru on success, false on failure.
+                    /// \return true on success, false on failure.
                     bool set_output(Port port, uint8_t state);
+
+                    /// Reads the current output state
+                    /// \param port The port
+                    /// \param state The read state, where 1 is on, 0 is off
+                    /// \return true on success, false on failure
+                    bool read_output(Port port, uint8_t& state);
 
                     /// Reads the inputs.
                     /// \param port The port.
