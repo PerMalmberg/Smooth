@@ -131,7 +131,7 @@ set(SOURCES
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
-if (${ESP_PLATFORM})
+#if (${ESP_PLATFORM})
     list(APPEND SOURCES
             include/smooth/core/network/Wifi.h
             core/network/Wifi.cpp
@@ -163,50 +163,48 @@ if (${ESP_PLATFORM})
             application/io/MCP23017.cpp
             application/sensor/BME280.cpp
             )
-endif ()
+#endif ()
 
 
-if (${ESP_PLATFORM})
-    set(COMPONENT_SRCS ${SOURCES})
-    set(COMPONENT_ADD_INCLUDEDIRS
-            ${CMAKE_CURRENT_LIST_DIR}/include
-            $ENV{IDF_PATH}/components            )
-    set(COMPONENT_REQUIRES nvs_flash fatfs pthread)
-    #[[add_idf_include(smooth newlib)
-    add_idf_include(smooth newlib/platform_include)
-    add_idf_include(smooth log)
-    add_idf_include(smooth heap)
-    add_idf_include(smooth freertos)
-    add_idf_include(smooth soc)
-    add_idf_include(smooth soc/esp32)
-    add_idf_include(smooth driver)
-    add_idf_include(smooth esp32)
-    add_idf_include(smooth lwip/lwip/src)
-    add_idf_include(smooth lwip/include/apps)
-    add_idf_include(smooth lwip/port/esp32)
-    add_idf_include(smooth vfs)
-    add_idf_include(smooth nvs_flash)
-    add_idf_include(smooth spi_flash)
-    add_idf_include(smooth tcpip_adapter)
-    add_idf_include(smooth json/cJSON)
-    add_library(smooth STATIC ${SOURCES})]]
+project(smooth)
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
+add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
+add_definitions("-DCONFIG_SMOOTH_MQTT_LOGGING_LEVEL=0")
 
-    register_component()
-else ()
-    project(smooth)
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
+#[[
+include_directories(/home/permal/esp/esp-idf/components/lwip/port/esp32/include
+                    /home/permal/esp/esp-idf/components/lwip/lwip/src/include
+                    /home/permal/esp/esp-idf/components/vfs/include
+                    /home/permal/esp/esp-idf/components/newlib/platform_include
+                    /home/permal/esp/esp-idf/components/esp32/include
+        )
+} ]]
 
-    add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
-    target_include_directories(
-            smooth
-            PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-            PRIVATE $ENV{IDF_PATH}/components
-    )
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
+    PRIVATE $ENV{IDF_PATH}/components
+)
 
-    target_link_libraries(${PROJECT_NAME} pthread)
-endif ()
+#target_link_libraries(${PROJECT_NAME} pthread)
 
+include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
 
+# Create artifacts used for flashing the project to target chip
+set(IDF_BUILD_ARTIFACTS ON)
+set(IDF_PROJECT_EXECUTABLE ${PROJECT_NAME})
+set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
+
+# Trim down components included in the build. Although freertos and spi_flash are the ones needed by the application
+# itself, the bootloader and esptool_py components are also needed in order to create the artifacts to be used
+# for flashing to the target chip
+#set(IDF_COMPONENTS freertos spi_flash bootloader esptool_py soc vfs sdmmc vfs wear_leveling esp32 cxx heap pthread booloader driver spi_flash fatfs)
+
+# Wraps add_subdirectory() to create library targets for components, and then return them using the specified variable
+idf_import_components(components $ENV{IDF_PATH} esp-idf)
+
+# Wraps target_link_libraries() to link processed components by idf_import_components to target
+idf_link_components(${PROJECT_NAME} "${components}")
 
