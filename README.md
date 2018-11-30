@@ -1,6 +1,8 @@
 # Smooth
 C++ framework for writing applications based on Espressif's ESP-IDF.
 
+Please note: The current version of Smooth requires use of my fork of ESP_IDF which adds the ESP_PLATFORM define during generation and build steps.
+
 ## Overview
 
 Smooth provides a set of classes that makes life as a developer easier compared to working directly with ESP-IDF & FreeRTOS APIs.
