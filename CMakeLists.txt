@@ -3,10 +3,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-#project(smooth_test)
-
-#file(WRITE null.cpp "")
-#add_executable(${PROJECT_NAME} null.cpp)
+project(smooth_test)
 
 set(CMAKE_CXX_STANDARD 14)
 #[[SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wshadow -Wnon-virtual-dtor")
@@ -27,7 +24,7 @@ add_definitions(-D_GLIBCXX_USE_C99)
 
 #include_directories($ENV{IDF_PATH}/components)
 add_subdirectory(test/hello_world)
-#[[add_subdirectory(test/logging)
+add_subdirectory(test/logging)
 add_subdirectory(test/json_test)
 add_subdirectory(test/mqtt)
 add_subdirectory(test/publish)
@@ -37,14 +34,30 @@ add_subdirectory(test/wrover_kit_blinky)
 add_subdirectory(test/spiflash)
 add_subdirectory(test/sdcard_test)
 add_subdirectory(test/sntp)
-#add_subdirectory(test/interrupt_queue) // Only compiles for ESP
-]]
+add_subdirectory(test/interrupt_queue) # Only compiles for ESP
+
 
 include_directories(${CURRENT_PROJECT_DIR})
-add_subdirectory(test/main)
+#add_subdirectory(test/main)
 
-#target_link_libraries(${PROJECT_NAME} main ${CURRENT_PROJECT_NAME})
-include_directories(${CMAKE_CURRENT_LIST_DIR})
+# Use the test/main project to create an executable.
+configure_file(${CMAKE_CURRENT_LIST_DIR}/test/main/test.cpp.in ${CMAKE_CURRENT_LIST_DIR}/test/main/generated_test.cpp)
+set(SOURCES ${CMAKE_CURRENT_LIST_DIR}/test/main/generated_test.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} smooth ${CURRENT_PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} "-Wl,--gc-sections") # Workaround for IDF bug
+#[[set_target_properties(
+        ${PROJECT_NAME}
+        PROPERTIES
+        OUTPUT_NAME "${PROJECT_NAME}"
+        SUFFIX ".bin"
+)]]
 
-# Make sure to add smooth last since it (IDF actually) messes with the project() function.
+#include_directories(${CMAKE_CURRENT_LIST_DIR})
+
+# Create artifacts used for flashing the project to target chip
+set(IDF_BUILD_ARTIFACTS ON)
+set(IDF_PROJECT_EXECUTABLE ${PROJECT_NAME})
+set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
+# Finally add smooth (and thus IDF)
 add_subdirectory(lib/smooth)
