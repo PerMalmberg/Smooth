@@ -1,8 +1,11 @@
+project(smooth)
+
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
 verify_idf_path()
 
 set(CMAKE_CXX_STANDARD 14)
+add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
 
 set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp
@@ -166,19 +169,9 @@ set(SOURCES
 #endif ()
 
 
-project(smooth)
 add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
 add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
 add_definitions("-DCONFIG_SMOOTH_MQTT_LOGGING_LEVEL=0")
-
-#[[
-include_directories(/home/permal/esp/esp-idf/components/lwip/port/esp32/include
-                    /home/permal/esp/esp-idf/components/lwip/lwip/src/include
-                    /home/permal/esp/esp-idf/components/vfs/include
-                    /home/permal/esp/esp-idf/components/newlib/platform_include
-                    /home/permal/esp/esp-idf/components/esp32/include
-        )
-} ]]
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
@@ -188,13 +181,8 @@ target_include_directories(
     PRIVATE $ENV{IDF_PATH}/components
 )
 
-#target_link_libraries(${PROJECT_NAME} pthread)
-
+# IDF-specific things
 include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
-
-# Wraps add_subdirectory() to create library targets for components, and then return them using the specified variable
 idf_import_components(components $ENV{IDF_PATH} esp-idf)
-
-# Wraps target_link_libraries() to link processed components by idf_import_components to target
 idf_link_components(${PROJECT_NAME} "${components}")
 
