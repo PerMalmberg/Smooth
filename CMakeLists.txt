@@ -46,14 +46,7 @@ set(SOURCES ${CMAKE_CURRENT_LIST_DIR}/test/main/generated_test.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} smooth ${CURRENT_PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} "-Wl,--gc-sections") # Workaround for IDF bug
-#[[set_target_properties(
-        ${PROJECT_NAME}
-        PROPERTIES
-        OUTPUT_NAME "${PROJECT_NAME}"
-        SUFFIX ".bin"
-)]]
 
-#include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 # Create artifacts used for flashing the project to target chip
 set(IDF_BUILD_ARTIFACTS ON)
