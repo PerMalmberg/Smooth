@@ -3,8 +3,6 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-project(smooth_test)
-
 set(CMAKE_CXX_STANDARD 14)
 #[[SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wshadow -Wnon-virtual-dtor")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -Wunused -Woverloaded-virtual")
@@ -38,19 +36,16 @@ add_subdirectory(test/interrupt_queue) # Only compiles for ESP
 
 
 include_directories(${CURRENT_PROJECT_DIR})
-#add_subdirectory(test/main)
 
-# Use the test/main project to create an executable.
-configure_file(${CMAKE_CURRENT_LIST_DIR}/test/main/test.cpp.in ${CMAKE_CURRENT_LIST_DIR}/test/main/generated_test.cpp)
-set(SOURCES ${CMAKE_CURRENT_LIST_DIR}/test/main/generated_test.cpp)
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} smooth ${CURRENT_PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} "-Wl,--gc-sections") # Workaround for IDF bug
+add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
 
-
-# Create artifacts used for flashing the project to target chip
 set(IDF_BUILD_ARTIFACTS ON)
-set(IDF_PROJECT_EXECUTABLE ${PROJECT_NAME})
-set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
-# Finally add smooth (and thus IDF)
+set(IDF_PROJECT_EXECUTABLE main)
+set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
+
+add_subdirectory(test/main)
+
+# Must include this file so that targets for menuconfig etc are included.
+include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
+
 add_subdirectory(lib/smooth)
