@@ -34,6 +34,18 @@ namespace smooth
             {
             }
 
+            Value::Value(const Value& other)
+            {
+                *this = other;
+            }
+
+            Value& Value::operator=(const Value& other)
+            {
+                data = cJSON_Parse(other.to_string().c_str());
+                owns_data = true;
+                return *this;
+            }
+
             Value Value::operator[](const std::string& key)
             {
                 cJSON* item = nullptr;
@@ -253,7 +265,14 @@ namespace smooth
 
             std::string Value::get_name() const
             {
-                return data->string == nullptr ? "" : data->string;
+                std::string res;
+                
+                if(data)
+                {
+                    res = data->string == nullptr ? "" : data->string;
+                }
+
+                return res;
             }
 
             void Value::get_member_names(std::vector<std::string>& names) const
@@ -273,7 +292,7 @@ namespace smooth
 
             }
 
-            std::string Value::to_string()
+            std::string Value::to_string() const
             {
                 auto* p = cJSON_Print(data);
                 std::string s{p};

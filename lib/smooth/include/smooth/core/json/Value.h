@@ -19,6 +19,9 @@ namespace smooth
                     explicit Value(const std::string& src);
                     Value(cJSON* parent, cJSON* object);
 
+                    Value(const Value& other);
+                    Value& operator=(const Value& other);
+
                     ~Value()
                     {
                         if(owns_data && data)
@@ -69,7 +72,7 @@ namespace smooth
 
                     std::string get_name() const;
                     void get_member_names(std::vector<std::string>& names) const;
-                    std::string to_string();
+                    std::string to_string() const;
 
                     // Deletes named object
                     void erase(const std::string& name);
