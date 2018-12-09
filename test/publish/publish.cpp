@@ -35,7 +35,7 @@ namespace publish
 
     void PublisherTask::tick()
     {
-        smooth::core::ipc::Publisher<ItemToPublish>::publish(ItemToPublish(++curr));
+        smooth::core::ipc::Publisher<ItemToPublish>::publish(ItemToPublish(std::chrono::steady_clock::now()));
     }
 
 
@@ -49,21 +49,21 @@ namespace publish
     {
         POSIXApplication::init();
         p.start();
-        elapsed_time.start();
     }
 
     void App::tick()
     {
-
     }
 
     void App::event(const ItemToPublish& item)
     {
         // Although this task has tick of one second, this response method will be called approximately
         // every millisecond since that is the pace at which the publisher publishes items.
+        // With CONFIG_FREERTOS_HZ at 100, average time is ~150us compared to ~29500us with CONFIG_FREERTOS_HZ
+        // at 1000 so there is a noticeable difference in overhead with a higher tick rate.
 
-        Log::info("event", Format("Got value: {1}, interval us: {2}", Int32(item.val), Int64(elapsed_time.get_running_time().count())));
-        elapsed_time.zero();
+        auto duration = duration_cast<microseconds>(std::chrono::steady_clock::now() - item.get_start());
+        Log::info("event", Format("Time in queue: {1} us", Int64(duration.count())));
     }
 
 }

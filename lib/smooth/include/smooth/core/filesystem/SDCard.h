@@ -2,7 +2,7 @@
 
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
-#include <vfs/include/esp_vfs.h>
+#include <esp_vfs.h>
 
 namespace smooth
 {

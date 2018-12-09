@@ -26,6 +26,11 @@
 #endif
 
 
+#if CONFIG_FREERTOS_HZ < 1000
+#error "Smooth requires CONFIG_FREERTOS_HZ at 1000Hz for proper functionality (spec. timers)"
+#endif
+
+
 namespace smooth
 {
     namespace core
@@ -42,10 +47,12 @@ namespace smooth
                 /// Starts the task.
                 void start();
 
-                void register_queue_with_task(smooth::core::ipc::ITaskEventQueue* task_queue);
-                void register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue);
+                void register_queue_with_task(smooth::core::ipc::ITaskEventQueue *task_queue);
+
+                void register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue *polled_queue);
 
                 Task(const Task&) = delete;
+
                 Task& operator=(const Task&) = delete;
 
             protected:
@@ -80,12 +87,15 @@ namespace smooth
                 }
 
                 void print_stack_status();
-                void disable_status_print() { status_print_enabled = false; }
+
+                void disable_status_print()
+                { status_print_enabled = false; }
 
                 const std::string name;
             private:
 
                 void exec();
+
                 std::thread worker;
                 uint32_t stack_size;
                 uint32_t priority;
@@ -96,7 +106,7 @@ namespace smooth
                 std::mutex start_mutex{};
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
-                std::vector<smooth::core::ipc::IPolledTaskQueue*> polled_queues{};
+                std::vector<smooth::core::ipc::IPolledTaskQueue *> polled_queues{};
                 bool status_print_enabled = true;
         };
     }

@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include <smooth/core/Application.h>
 #include <smooth/core/timer/ElapsedTime.h>
 
@@ -11,29 +12,32 @@ namespace publish
 
     class ItemToPublish
     {
-    public:
-        ItemToPublish() = default;
+        public:
+            ItemToPublish() = default;
 
-        explicit ItemToPublish(int v)
-                : val(v)
-        {
-        }
+            explicit ItemToPublish(const std::chrono::steady_clock::time_point& start)
+                    : start(start)
+            {
+            }
 
-        int val = 0;
+            std::chrono::steady_clock::time_point get_start() const
+            {
+                return start;
+            }
+
+        private:
+            std::chrono::steady_clock::time_point start;
     };
 
     class PublisherTask
             : public smooth::core::Task
     {
-    public:
-        PublisherTask();
+        public:
+            PublisherTask();
 
-        void init() override;
+            void init() override;
 
-        void tick() override;
-
-    private:
-        int curr = 0;
+            void tick() override;
     };
 
 
@@ -41,19 +45,18 @@ namespace publish
             : public smooth::core::Application,
               smooth::core::ipc::IEventListener<ItemToPublish>
     {
-    public:
-        App();
+        public:
+            App();
 
-        void init() override;
+            void init() override;
 
-        void tick() override;
+            void tick() override;
 
-        void event(const ItemToPublish&) override;
+            void event(const ItemToPublish&) override;
 
-    private:
-        smooth::core::ipc::SubscribingTaskEventQueue<ItemToPublish> sub;
-        PublisherTask p{};
-        smooth::core::timer::ElapsedTime elapsed_time{};
+        private:
+            smooth::core::ipc::SubscribingTaskEventQueue<ItemToPublish> sub;
+            PublisherTask p{};
     };
 
 }

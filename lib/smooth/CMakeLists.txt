@@ -1,8 +1,11 @@
+project(smooth)
+
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
 verify_idf_path()
 
 set(CMAKE_CXX_STANDARD 14)
+add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
 
 set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp
@@ -131,7 +134,7 @@ set(SOURCES
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
-if (${ESP_PLATFORM})
+#if (${ESP_PLATFORM})
     list(APPEND SOURCES
             include/smooth/core/network/Wifi.h
             core/network/Wifi.cpp
@@ -163,50 +166,28 @@ if (${ESP_PLATFORM})
             application/io/MCP23017.cpp
             application/sensor/BME280.cpp
             )
-endif ()
+#endif ()
 
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
-if (${ESP_PLATFORM})
-    set(COMPONENT_SRCS ${SOURCES})
-    set(COMPONENT_ADD_INCLUDEDIRS
-            ${CMAKE_CURRENT_LIST_DIR}/include
-            $ENV{IDF_PATH}/components            )
-    set(COMPONENT_REQUIRES nvs_flash fatfs pthread)
-    #[[add_idf_include(smooth newlib)
-    add_idf_include(smooth newlib/platform_include)
-    add_idf_include(smooth log)
-    add_idf_include(smooth heap)
-    add_idf_include(smooth freertos)
-    add_idf_include(smooth soc)
-    add_idf_include(smooth soc/esp32)
-    add_idf_include(smooth driver)
-    add_idf_include(smooth esp32)
-    add_idf_include(smooth lwip/lwip/src)
-    add_idf_include(smooth lwip/include/apps)
-    add_idf_include(smooth lwip/port/esp32)
-    add_idf_include(smooth vfs)
-    add_idf_include(smooth nvs_flash)
-    add_idf_include(smooth spi_flash)
-    add_idf_include(smooth tcpip_adapter)
-    add_idf_include(smooth json/cJSON)
-    add_library(smooth STATIC ${SOURCES})]]
+target_include_directories(
+        ${PROJECT_NAME}
+        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
+        PRIVATE $ENV{IDF_PATH}/components
+)
 
-    register_component()
-else ()
-    project(smooth)
+if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
+    # IDF-specific things
+    set(IDF_EXTRA_COMPONENT_DIRS "${IDF_EXTRA_COMPONENT_DIRS} ${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
+    include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
+    idf_import_components(components $ENV{IDF_PATH} esp-idf)
+    idf_link_components(${PROJECT_NAME} "${components}")
+else()
+    message(STATUS "Compiling for native Linux: Using default values for Smooth-MQTT")
     add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
     add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
-
-    add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-    target_include_directories(
-            smooth
-            PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-            PRIVATE $ENV{IDF_PATH}/components
-    )
-
-    target_link_libraries(${PROJECT_NAME} pthread)
-endif ()
+    add_definitions("-DCONFIG_SMOOTH_MQTT_LOGGING_LEVEL=0")
+endif()
 
 
 
