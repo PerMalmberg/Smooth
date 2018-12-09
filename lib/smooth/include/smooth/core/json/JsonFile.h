@@ -22,7 +22,7 @@ namespace smooth
                     void load();
 
                     smooth::core::filesystem::File f;
-                    Value v{R"({"a":"b"})"};
+                    Value v{};
 
             };
         }
