@@ -26,7 +26,7 @@ namespace smooth
                     /// \return true on success, false on failure
                     bool write(const std::string& data) const;
 
-                    /// /// Writes the provided data to the file, overwriting any existing file.
+                    /// Writes the provided data to the file, overwriting any existing file.
                     /// \param data The data
                     /// \param length The length
                     /// \return true on success, false on failure

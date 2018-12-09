@@ -45,6 +45,7 @@ set(SOURCES
         core/timer/TimerService.cpp
         core/Application.cpp
         core/json/Value.cpp
+        core/json/JsonFile.cpp
         core/Task.cpp
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/ADS1115.h
@@ -130,6 +131,7 @@ set(SOURCES
         include/smooth/core/ipc/ILinkSubscriber.h
         include/smooth/core/ipc/IPolledTaskQueue.h
         include/smooth/core/json/Value.h
+        include/smooth/core/json/JsonFile.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )

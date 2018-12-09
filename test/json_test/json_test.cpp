@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
+#include <unistd.h>
 #include <json/cJSON/cJSON.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/json/Value.h>
+#include <smooth/core/json/JsonFile.h>
+#include <smooth/core/filesystem/SPIFlash.h>
 #include "test_example.json.h"
 
 using namespace smooth;
@@ -13,6 +16,7 @@ using namespace smooth::core;
 using namespace smooth::core::json;
 using namespace smooth::core::timer;
 using namespace smooth::core::ipc;
+using namespace smooth::core::filesystem;
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
@@ -31,7 +35,10 @@ namespace json_test
 
     void App::tick()
     {
-        auto* json = cJSON_Parse(json_data);
+        SPIFlash flash{"/flash", "app_storage", 10, true};
+        assert(flash.mount());
+
+        auto *json = cJSON_Parse(json_data);
         Value root{json};
         assert(root["key_with_string"] == "value");
         root["key_with_string"] = "new_value";
@@ -137,7 +144,6 @@ namespace json_test
 
         cJSON_Delete(json);
 
-
         {
             Value v{};
             v["foo"] = 123;
@@ -176,6 +182,30 @@ namespace json_test
             assert(v["a"][0] == 0);
             assert(v["a"][1] == 2);
         }
+
+        {
+            Value v = Value{R"({"a":123})"};
+            Log::info("aa", v.to_string().c_str());
+            assert(v["a"].get_int(0) == 123);
+        }
+
+        {
+            unlink("/flash/file.jsn");
+            JsonFile jf{"/flash/file.jsn"};
+            auto& v = jf.value();
+            assert(v["Foo"].get_string("") == "");
+            v["Foo"] = "Bar";
+            assert(jf.save());
+        }
+        {
+            JsonFile jf{"/flash/file.jsn"};
+            auto& v = jf.value();
+            assert(v["Foo"].get_string("") == "Bar");
+            unlink("/flash/file.json");
+        }
+
+
+        flash.unmount();
     }
 
 }
