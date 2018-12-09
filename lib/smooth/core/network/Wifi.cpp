@@ -4,6 +4,7 @@
 
 #include <smooth/core/network/Wifi.h>
 #include <cstring>
+#include <sstream>
 #include <esp_log.h>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
@@ -95,7 +96,8 @@ namespace smooth
                 }
                 else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
                 {
-                    network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+                    network::NetworkStatus status(network::NetworkEvent::DISCONNECTED,
+                    true);
                     core::ipc::Publisher<network::NetworkStatus>::publish(status);
 
                     connected_to_ap = false;
@@ -105,6 +107,26 @@ namespace smooth
                         connect();
                     }
                 }
+            }
+
+            std::string Wifi::get_mac_address()
+            {
+                std::stringstream mac;
+
+                uint8_t m[6];
+                if (esp_wifi_get_mac(WIFI_IF_STA, m) == ESP_OK)
+                {
+                    for(const auto& v : m)
+                    {
+                        if(mac.tellp() > 0)
+                        {
+                            mac << "_";
+                        }
+                        mac << std::hex << static_cast<int>(v);
+                    }
+                }
+
+                return mac.str();
             }
         }
     }

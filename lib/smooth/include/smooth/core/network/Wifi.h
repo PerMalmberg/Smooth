@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <array>
 #include <esp_wifi.h>
 #include <smooth/core/ipc/IEventListener.h>
 
@@ -51,6 +52,8 @@ namespace smooth
                     /// Event response method
                     /// \param event The event
                     void event(const system_event_t& event) override;
+
+                    std::string get_mac_address();
 
                 private:
                     void connect();
