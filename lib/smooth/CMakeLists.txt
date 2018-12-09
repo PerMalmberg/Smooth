@@ -2,7 +2,7 @@ project(smooth)
 
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
-verify_idf_path()
+smooth_verify_idf_path()
 
 set(CMAKE_CXX_STANDARD 14)
 add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
@@ -176,18 +176,6 @@ target_include_directories(
         PRIVATE $ENV{IDF_PATH}/components
 )
 
-if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
-    # IDF-specific things
-    set(IDF_EXTRA_COMPONENT_DIRS "${IDF_EXTRA_COMPONENT_DIRS} ${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
-    include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
-    idf_import_components(components $ENV{IDF_PATH} esp-idf)
-    idf_link_components(${PROJECT_NAME} "${components}")
-else()
-    message(STATUS "Compiling for native Linux: Using default values for Smooth-MQTT")
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")
-    add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10")
-    add_definitions("-DCONFIG_SMOOTH_MQTT_LOGGING_LEVEL=0")
-endif()
-
+smooth_configure_link()
 
 
