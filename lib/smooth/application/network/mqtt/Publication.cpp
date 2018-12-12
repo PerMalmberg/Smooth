@@ -180,7 +180,7 @@ namespace smooth
                         else
                         {
                             // Still waiting for a reply...
-                            if (flight.get_elapsed_time() > seconds(5))
+                            if (flight.get_elapsed_time() > seconds{5})
                             {
                                 // Waited too long, force a disconnect.
                                 Log::error(mqtt_log_tag,
@@ -193,7 +193,7 @@ namespace smooth
                             else
                             {
                                 Log::debug(mqtt_log_tag,
-                                           Format("Waiting to send: {1}, QoS {1}, waiting for: {3}, timer: {4}s",
+                                           Format("Waiting to send: {1}, QoS {1}, waiting for: {3}, timer: {4}ms",
                                                   Str(packet.get_mqtt_type_as_string()),
                                                   Int32(packet.get_qos()),
                                                   Int32(flight.get_waiting_for()),

@@ -73,7 +73,7 @@ namespace smooth
 
                             if (flight.get_waiting_for() == PacketType::PUBREL)
                             {
-                                if (flight.get_elapsed_time() > std::chrono::seconds(5))
+                                if (flight.get_elapsed_time() > std::chrono::seconds{5})
                                 {
                                     // Send a PubRec message.
                                     auto& packet = flight.get_packet();
