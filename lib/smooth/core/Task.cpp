@@ -20,13 +20,14 @@ namespace smooth
     {
         /// Constructor used when creating a new task running on a new thread.
         Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
-                   std::chrono::milliseconds tick_interval)
+                   std::chrono::milliseconds tick_interval, int core)
                 : name(task_name),
                   worker(),
                   stack_size(stack_size),
                   priority(priority),
                   tick_interval(tick_interval),
-                  is_attached(false)
+                  is_attached(false),
+                  affinity(core)
         {
         }
 
@@ -37,7 +38,8 @@ namespace smooth
                 stack_size(0),
                 priority(priority),
                 tick_interval(tick_interval),
-                is_attached(true)
+                is_attached(true),
+                affinity(tskNO_AFFINITY)
         {
 #ifdef ESP_PLATFORM
             stack_size = CONFIG_MAIN_TASK_STACK_SIZE;
@@ -70,9 +72,17 @@ namespace smooth
                     // Since std::thread is implemented using pthread, setting the config before
                     // creating the std::thread we get the desired effect, even if we're not calling
                     // pthread_create() as per the IDF documentation.
-                    esp_pthread_cfg_t worker_config{};
+                    auto worker_config = esp_pthread_get_default_config();
                     worker_config.stack_size = stack_size;
                     worker_config.prio = priority;
+                    worker_config.thread_name = name.c_str();
+
+                    // Set to desired core, otherwise use default (as per config).
+                    if(affinity != tskNO_AFFINITY)
+                    {                        
+                        worker_config.pin_to_core = affinity;
+                    }
+
                     esp_pthread_set_cfg(&worker_config);
 #endif
                     Log::debug(name, "Creating worker thread");
@@ -80,7 +90,6 @@ namespace smooth
                                          {
                                              this->exec();
                                          });
-
 
                     Log::debug(name, "Waiting for worker to start");
 

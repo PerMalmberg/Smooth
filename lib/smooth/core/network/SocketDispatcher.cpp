@@ -252,13 +252,13 @@ namespace smooth
                 bool shall_close_sockets = false;
 
                 std::lock_guard<std::mutex> lock(socket_guard);
-                if (event.event == NetworkEvent::GOT_IP)
+                if (event.get_event() == NetworkEvent::GOT_IP)
                 {
                     Log::info(tag, Format(Str("Station got IP, sockets will be restarted.")));
                     has_ip = true;
                     shall_close_sockets = true;
                 }
-                else if (event.event == NetworkEvent::DISCONNECTED)
+                else if (event.get_event() == NetworkEvent::DISCONNECTED)
                 {
                     Log::warning(tag, Format(Str("Station disconnected or IP lost, closing all sockets.")));
 

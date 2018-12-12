@@ -236,7 +236,7 @@ namespace smooth
 
                 void MqttClient::event(const smooth::core::network::NetworkStatus& event)
                 {
-                    if (event.event == smooth::core::network::NetworkEvent::GOT_IP)
+                    if (event.get_event() == smooth::core::network::NetworkEvent::GOT_IP)
                     {
                         reconnect();
                     }

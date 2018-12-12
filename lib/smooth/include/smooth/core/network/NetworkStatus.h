@@ -15,18 +15,21 @@ namespace smooth
             class NetworkStatus
             {
                 public:
-                    NetworkStatus() = default;
-
-                    NetworkStatus(NetworkEvent event, bool ip_changed)
+                    NetworkStatus(const NetworkEvent event, const bool ip_changed)
                             : event(event), ip_changed(ip_changed)
                     {
                     }
 
+                    NetworkStatus() = default;
                     NetworkStatus(const NetworkStatus&) = default;
                     NetworkStatus& operator=(const NetworkStatus&) = default;
 
-                    NetworkEvent event;
-                    bool ip_changed;
+                    NetworkEvent get_event() const { return event; }
+                    bool get_ip_changed() const { return ip_changed; }
+
+                private:
+                    NetworkEvent event{NetworkEvent::DISCONNECTED};
+                    bool ip_changed{false};
             };
         }
     }

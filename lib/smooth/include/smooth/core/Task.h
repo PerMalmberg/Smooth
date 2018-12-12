@@ -68,10 +68,12 @@ namespace smooth
                 /// \param stack_size Tack size, in bytes.
                 /// \param priority Task priority
                 /// \param tick_interval Tick interval
+                /// \param core Core affinity, defaults to no affinity
                 Task(const std::string& task_name,
                      uint32_t stack_size,
                      uint32_t priority,
-                     std::chrono::milliseconds tick_interval);
+                     std::chrono::milliseconds tick_interval,
+                     int core = tskNO_AFFINITY);
 
                 /// The tick() method is where the task shall perform its work.
                 /// It is called every 'tick_interval' when there no events available.
@@ -102,6 +104,7 @@ namespace smooth
                 std::chrono::milliseconds tick_interval;
                 smooth::core::ipc::QueueNotification notification{};
                 bool is_attached;
+                int affinity;
                 std::atomic_bool started{false};
                 std::mutex start_mutex{};
                 std::condition_variable start_condition{};
