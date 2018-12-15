@@ -32,7 +32,6 @@ namespace smooth
                     /// Constructor
                     /// \param name The name of the queue, mainly used for debugging and logging.
                     /// \param size The size of the queue, i.e. the number of items it can hold.
-                    /// The total number of bytes allocated is size * sizeof(T) + size * sizeof(uint8_t).
                     Queue(const std::string& name, int size)
                             : name(name),
                               queue_size(size),
@@ -72,7 +71,7 @@ namespace smooth
                         bool res = items.size() < queue_size;
                         if (res)
                         {
-                            items.push_back(item);
+                            items.emplace_back(item);
                         }
 
                         return res;
