@@ -2,7 +2,7 @@
 // Created by permal on 2018-10-26.
 //
 
-#include "queue.h"
+#include "task_event_queue.h"
 
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
@@ -13,7 +13,7 @@ using namespace smooth::core::ipc;
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
-namespace queue
+namespace task_event_queue
 {
 
     App::App()

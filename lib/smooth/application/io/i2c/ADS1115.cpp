@@ -3,7 +3,7 @@
 //
 
 
-#include <smooth/application/io/ADS1115.h>
+#include <smooth/application/io/i2c/ADS1115.h>
 #include <smooth/core/util/FixedBuffer.h>
 #include <bitset>
 #include "esp_log.h"

@@ -48,8 +48,8 @@ set(SOURCES
         core/json/JsonFile.cpp
         core/Task.cpp
         include/smooth/application/display/ST7735.h
-        include/smooth/application/io/ADS1115.h
-        include/smooth/application/io/MCP23017.h
+        include/smooth/application/io/i2c/ADS1115.h
+        include/smooth/application/io/i2c/MCP23017.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
@@ -163,10 +163,10 @@ set(SOURCES
             include/smooth/core/io/InterruptInput.h
             include/smooth/core/io/i2c/I2CMasterDevice.h
             include/smooth/core/io/i2c/Master.h
-            application/io/MCP23017.cpp
-            application/io/ADS1115.cpp
-            application/io/MCP23017.cpp
-            application/sensor/BME280.cpp
+            application/io/i2c/MCP23017.cpp
+            application/io/i2c/ADS1115.cpp
+            application/io/i2c/MCP23017.cpp
+            application/io/i2c/BME280.cpp
             )
 #endif ()
 

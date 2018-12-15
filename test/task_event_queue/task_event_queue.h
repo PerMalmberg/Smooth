@@ -8,7 +8,7 @@
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/Application.h>
 
-namespace queue
+namespace task_event_queue
 {
     class SenderTask
             : public smooth::core::Task
