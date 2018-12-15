@@ -270,7 +270,7 @@ namespace smooth
                         data = arg;
                     }
 
-                    explicit Format(const std::string& arg)
+                    /*non explicit*/ Format(const std::string& arg)
                     {
                         data = arg;
                     }

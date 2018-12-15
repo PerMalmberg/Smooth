@@ -16,6 +16,10 @@ namespace smooth
                     JsonFile(std::string full_path);
                     
                     bool save() const;
+                    bool exists() const 
+                    {
+                         return f.exists();
+                    }
                     Value& value() { return v; }
 
                 private:

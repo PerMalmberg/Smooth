@@ -1,5 +1,8 @@
 #include <fstream>
 #include <utility>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/core/logging/log.h>
 
@@ -65,6 +68,16 @@ namespace smooth
                 return res;
             }
 
+            bool File::exists() const
+            {
+                return exists(name.c_str());
+            }
+
+            bool File::exists(const char* full_path)
+            {
+                struct stat s;
+                return stat(full_path, &s) == 0;                
+            }
         }
     }
 }

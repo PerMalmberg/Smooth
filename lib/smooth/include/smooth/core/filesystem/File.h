@@ -30,7 +30,13 @@ namespace smooth
                     /// \param data The data
                     /// \param length The length
                     /// \return true on success, false on failure
-                    bool write(const uint8_t* data, size_t length) const ;
+                    bool write(const uint8_t* data, size_t length) const;
+
+                    /// Determines if the file exists
+                    bool exists() const;
+
+                    /// Determines if the file exists
+                    static bool exists(const char* name);
                 private:
                     std::string name;
             };

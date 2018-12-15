@@ -19,14 +19,17 @@ namespace smooth
 
             void JsonFile::load()
             {
-                std::vector<uint8_t> data;
-                f.read(data);
-
-                if(!data.empty())
+                if(exists())
                 {
-                    // Append terminating zero.
-                    data.push_back(0);
-                    v = Value{cJSON_Parse(reinterpret_cast<const char*>(data.data())), true};
+                    std::vector<uint8_t> data;
+                    f.read(data);
+
+                    if(!data.empty())
+                    {
+                        // Append terminating zero.
+                        data.push_back(0);
+                        v = Value{cJSON_Parse(reinterpret_cast<const char*>(data.data())), true};
+                    }
                 }
             }
 
