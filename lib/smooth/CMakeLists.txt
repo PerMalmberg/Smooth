@@ -35,6 +35,7 @@ set(SOURCES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
+        application/security/PasswordHash.cpp
         core/ipc/QueueNotification.cpp
         core/logging/posix/posix_log.cpp
         core/network/IPv4.cpp
@@ -88,6 +89,7 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
+        include/smooth/application/security/PasswordHash.h
         include/smooth/core/fsm/StaticFSM.h
         include/smooth/core/ipc/IEventListener.h
         include/smooth/core/ipc/ITaskEventQueue.h
