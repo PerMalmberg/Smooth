@@ -22,12 +22,11 @@ namespace smooth
                     }
                     Value& value() { return v; }
 
-                private:
                     void load();
+                private:
 
                     smooth::core::filesystem::File f;
                     Value v{};
-
             };
         }
     }
