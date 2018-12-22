@@ -26,7 +26,7 @@ namespace smooth
                 return std::make_tuple(result, std::move(s));
             }
 
-            bool PasswordHash::verify_password_to_hash(const std::string& password, const std::string& hash)
+            bool PasswordHash::verify_password_against_hash(const std::string& password, const std::string& hash)
             {
                 char hashed_pwd[crypto_pwhash_STRBYTES];
                 std::copy_n(hash.begin(), crypto_pwhash_STRBYTES, std::begin(hashed_pwd));
