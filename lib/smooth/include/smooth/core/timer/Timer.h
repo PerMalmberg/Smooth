@@ -65,8 +65,10 @@ namespace smooth
                 private:
 
                     friend class smooth::core::timer::TimerService;
+                    
                     void expired();
                     void calculate_next_execution();
+
                     ipc::TaskEventQueue<TimerExpiredEvent>& event_queue;
                     std::chrono::steady_clock::time_point expire_time;
             };

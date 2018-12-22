@@ -74,7 +74,6 @@ namespace smooth
                     TimerQueue queue;
                     std::mutex guard;
                     std::condition_variable cond{};
-                    std::vector<SharedTimer> processed;
             };
         }
     }

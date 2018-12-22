@@ -35,7 +35,7 @@ namespace timer
         create_timer(milliseconds(5000));
         create_timer(milliseconds(10000));
 
-        for (auto& t:timers)
+        for (auto& t : timers)
         {
             t.timer->start();
         }

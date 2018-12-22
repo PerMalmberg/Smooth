@@ -25,13 +25,11 @@ namespace smooth
                                 return left->expires_at() > right->expires_at();
                             }),
                             queue(cmp),
-                            guard(),
-                            processed()
+                            guard()
             {
                 // Disable status printing to conserve stack size.
                 disable_status_print();
             }
-
 
             TimerService& TimerService::get()
             {
@@ -62,7 +60,6 @@ namespace smooth
             void TimerService::tick()
             {
                 std::unique_lock<std::mutex> lock(guard);
-                processed.clear();
 
                 if (queue.empty())
                 {
@@ -73,6 +70,8 @@ namespace smooth
                 {
                     // Get a fixed 'now'
                     auto now = steady_clock::now();
+
+                    std::vector<SharedTimer> processed{};
 
                     // Process any expired timers
                     while (!queue.empty() && now >= queue.top()->expires_at())

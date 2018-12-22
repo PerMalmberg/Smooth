@@ -19,13 +19,22 @@ namespace smooth
                     : name(name), id(id), repeating(repeating), interval(interval), event_queue(event_queue),
                       expire_time(steady_clock::now())
             {
-                // Start the timer service when a timer is used.
+                // Start the timer service when a timer is fist used.
                 TimerService::start_service();
             }
 
             Timer::~Timer()
             {
-                stop();
+                // When the destructor runs for a Timer, it means the TimerService cannot be holding any shared_ptr<>
+                // to the current instance (if it did, the destructor wouldn't be running)
+                // Thus, we do not need to do anything to remove the instance from the TimerService. In fact, we MUST NOT call
+                // shared_from_this() from within the destructor as that will result in a std::bad_weak_ptr exception being thrown.
+
+                // If you're looking at this text trying to figure out why your timers are still running even though
+                // you no longer have any references to them (i.e. your shared_ptr<Timer> have been reset() or re-assinged)
+                // you should be aware that timers that are recurring always are held via a shared_ptr<> by the TimerService
+                // until they are stopped.
+                // Likewise, non-recurring timers are held by the TimerService until they expire or stopped.
             }
 
             void Timer::start()
