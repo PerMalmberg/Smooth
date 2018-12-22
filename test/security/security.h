@@ -17,7 +17,7 @@ namespace security
             void tick() override;
 
         private:
-            void time(const std::string& password, size_t ops, size_t mem);
+            void time(const std::string& password, size_t ops);
             smooth::application::security::PasswordHash ph{};
     };
 }

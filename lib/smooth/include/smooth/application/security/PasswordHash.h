@@ -25,6 +25,7 @@ namespace smooth
                     }
 
                     std::tuple<bool, std::string> hash(const std::string& password, size_t computation_count = crypto_pwhash_OPSLIMIT_SENSITIVE) const;
+                    bool verify_password_to_hash(const std::string& password, const std::string& hash);
 
                 private:                    
                     size_t mem_limit;

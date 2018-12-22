@@ -23,8 +23,8 @@ namespace security
     void App::init()
     {
         Application::init();
-        constexpr char* short_string = "Password";
-        constexpr char* long_string = "A freaking long string of a password. Its so loooooong I can't remember what I wote at the begining of the string";
+        const std::string short_string{"Password"};
+        const std::string long_string{"A freaking long string of a password. Its so loooooong I can't remember what I wote at the begining of the string"};
 
         time(short_string, 3);
         time(short_string, 4);
@@ -51,9 +51,11 @@ namespace security
     {
         ElapsedTime t;
         t.start();
-        auto res = ph.hash_to_storage(password, ops);
+        auto res = ph.hash(password, ops);
         auto elapsed = duration_cast<milliseconds>(t.get_running_time()).count();
-        std::cout << ops << "\t" << elapsed << "ms\t" << std::get<0>(res) << " " << std::get<1>(res) << std::endl;
+        auto verified = ph.verify_password_to_hash(password, std::get<1>(res));
+        auto not_verified = ph.verify_password_to_hash("Wrong pass", std::get<1>(res));
+        std::cout << ops << "\t" << elapsed << "ms\t" << std::get<0>(res) << " " << std::get<1>(res) << " verified: " << verified << " not verified: " << !not_verified << std::endl;
     }
 
 }

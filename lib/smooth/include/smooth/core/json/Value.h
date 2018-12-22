@@ -19,6 +19,9 @@ namespace smooth
                     explicit Value(const std::string& src);
                     Value(cJSON* parent, cJSON* object);
 
+                    // Note: The assignment operator and copy constructor both
+                    // decouples the from the original JSON structure, creating a new
+                    // independent memory structure.
                     Value(const Value& other);
                     Value& operator=(const Value& other);
 

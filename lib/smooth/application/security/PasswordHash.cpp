@@ -25,6 +25,14 @@ namespace smooth
                 }
                 return std::make_tuple(result, std::move(s));
             }
+
+            bool PasswordHash::verify_password_to_hash(const std::string& password, const std::string& hash)
+            {
+                char hashed_pwd[crypto_pwhash_STRBYTES];
+                std::copy_n(hash.begin(), crypto_pwhash_STRBYTES, std::begin(hashed_pwd));
+
+                return crypto_pwhash_str_verify(hashed_pwd, password.c_str(), password.size()) == 0;
+            }
         }
     }
 }
