@@ -107,7 +107,7 @@ namespace json_test
         assert(root["array"][7] == "seventh index");
 
         // Change object value in array
-        root["array"][5]["value2"].set(true);
+        root["array"][5]["value2"] = true;
         assert(root["array"][5]["value2"].get_bool(false));
 
         // Non existing key -> new item of object type so not equal to any string or number.
@@ -160,9 +160,9 @@ namespace json_test
 
         {
             Value v{};
-            v["bool"].set(false);
+            v["bool"] = false;
             assert(!v["bool"].get_bool(true));
-            v["bool"].set(true);
+            v["bool"] = true;
             assert(v["bool"].get_bool(false));
 
             v["value"] = "asdf";

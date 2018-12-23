@@ -38,10 +38,11 @@ namespace smooth
                     // Array accessor
                     Value operator[](size_t index);
 
-                    Value& operator=(const std::string& s);
+                    Value& operator=(const std::string& s) { return operator=(s.c_str()); }
+                    Value& operator=(const char* s);
                     Value& operator=(int value);
+                    Value& operator=(bool value);
                     Value& operator=(double value);
-                    Value& set(bool value);
 
                     bool operator==(const std::string& s) const;
 

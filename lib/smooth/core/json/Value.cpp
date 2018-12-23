@@ -99,14 +99,14 @@ namespace smooth
                 return Value(data, item);
             }
 
-            Value& Value::operator=(const std::string& s)
+            Value& Value::operator=(const char* s)
             {
                 if (parent == nullptr)
                 {
                     throw std::logic_error("Cannot operate on root object");
                 }
 
-                auto new_data = cJSON_CreateString(s.c_str());
+                auto new_data = cJSON_CreateString(s);
 
                 if (cJSON_IsArray(parent))
                 {
@@ -165,7 +165,7 @@ namespace smooth
                 return *this;
             }
 
-            Value& Value::set(bool value)
+            Value& Value::operator=(bool value)
             {
                 if (parent == nullptr)
                 {
