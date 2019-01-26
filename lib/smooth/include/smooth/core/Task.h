@@ -21,15 +21,15 @@
 #include <atomic>
 
 #ifdef ESP_PLATFORM
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
+    #include <freertos/FreeRTOS.h>
+    #include <freertos/task.h>
+
+    #if CONFIG_FREERTOS_HZ < 1000
+        #error "Smooth requires CONFIG_FREERTOS_HZ at 1000Hz for proper functionality (spec. timers)"
+    #endif
+#else
+    const int tskNO_AFFINITY = std::numeric_limits<int>::max();
 #endif
-
-
-#if CONFIG_FREERTOS_HZ < 1000
-#error "Smooth requires CONFIG_FREERTOS_HZ at 1000Hz for proper functionality (spec. timers)"
-#endif
-
 
 namespace smooth
 {
