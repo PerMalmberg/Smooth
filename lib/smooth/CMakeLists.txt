@@ -37,7 +37,6 @@ set(SOURCES
         application/network/mqtt/Subscription.cpp
         application/security/PasswordHash.cpp
         core/ipc/QueueNotification.cpp
-        core/logging/posix/posix_log.cpp
         core/network/IPv4.cpp
         #core/network/IPv6.cpp
         core/network/SocketDispatcher.cpp
@@ -138,9 +137,10 @@ set(SOURCES
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
-#if (${ESP_PLATFORM})
+if (${ESP_PLATFORM})
     list(APPEND SOURCES
             include/smooth/core/network/Wifi.h
+            core/logging/idf/idf_log.cpp
             core/network/Wifi.cpp
             core/io/Input.cpp
             core/io/Output.cpp
@@ -170,7 +170,11 @@ set(SOURCES
             application/io/i2c/MCP23017.cpp
             application/io/i2c/BME280.cpp
             )
-#endif ()
+else()
+        list(APPEND SOURCES
+                core/logging/posix/posix_log.cpp
+        )
+endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
