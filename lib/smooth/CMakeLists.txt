@@ -169,6 +169,7 @@ if (${ESP_PLATFORM})
             application/io/i2c/ADS1115.cpp
             application/io/i2c/MCP23017.cpp
             application/io/i2c/BME280.cpp
+            application/io/wiegand/Wiegand.cpp
             )
 else()
         list(APPEND SOURCES
