@@ -25,7 +25,7 @@ namespace smooth
                 static constexpr const char* log_tag = "I2CMasterDevice";
                 static constexpr const std::chrono::milliseconds timeout(1000);
 
-                bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack)
+                bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack)
                 {
                     I2CCommandLink link(*this);
 
@@ -33,8 +33,8 @@ namespace smooth
                     address = address << 1;
 
                     auto res = i2c_master_start(link);
-                    res |= i2c_master_write_byte(link, address, enable_ack);
-                    res |= i2c_master_write(link, data.data(), data.size(), enable_ack);
+                    res |= i2c_master_write_byte(link, address, expect_ack);
+                    res |= i2c_master_write(link, data.data(), data.size(), expect_ack);
                     res |= i2c_master_stop(link);
 
                     bool write_result = false;

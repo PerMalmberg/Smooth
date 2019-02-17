@@ -3,10 +3,16 @@
 //
 
 
-#include <smooth/application/io/i2c/ADS1115.h>
-#include <smooth/core/util/FixedBuffer.h>
 #include <bitset>
-#include "esp_log.h"
+#include <thread>
+#include <unordered_map>
+#include <smooth/application/io/i2c/ADS1115.h>
+#include <smooth/core/util/ByteSet.h>
+#include <smooth/core/util/FixedBuffer.h>
+#include <smooth/core/logging/log.h>
+
+using namespace std::chrono;
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -65,11 +71,11 @@ namespace smooth
                 std::vector<uint8_t> data{Register::Config};
                 data.push_back(static_cast<uint8_t>(config >> 8));
                 data.push_back(static_cast<uint8_t>(config & 0xFF));
-                bool res = write(address, data, true);
+                bool res = write(address, data);
 
                 // Read back value to confirm write.
                 core::util::FixedBuffer<uint8_t, 2> read_data;
-                res = res && read(address, Register::Config, read_data, false, false);
+                res = res && read(address, Register::Config, read_data);
 
                 res = res && (read_data[0] = (config >> 8));
                 res = res && (read_data[1] == (config & 0xFF));
@@ -78,13 +84,13 @@ namespace smooth
                 data.push_back(Register::LowThresh);
                 data.push_back(low_thresh_hold >> 8);
                 data.push_back(low_thresh_hold & 0xFF);
-                res = res && write(address, data, true);
+                res = res && write(address, data);
 
                 data.clear();
                 data.push_back(Register::HighThresh);
                 data.push_back(high_thresh_hold >> 8);
                 data.push_back(high_thresh_hold & 0xFF);
-                res = res && write(address, data, true);
+                res = res && write(address, data);
 
                 if (res)
                 {
@@ -92,6 +98,8 @@ namespace smooth
                     current_low_thresh_hold = low_thresh_hold;
                     current_high_thresh_hold = high_thresh_hold;
                 }
+
+                change_mark = steady_clock::now();
 
                 return res;
             }
@@ -105,13 +113,19 @@ namespace smooth
 
             bool ADS1115::read_conversion(uint16_t& result)
             {
+                // Ensure that the device has had enough time to perform a conversion.
+                auto delay = minimum_delay_after_reconfigure();
+                if(steady_clock::now() <= change_mark + delay)
+                {
+                    std::this_thread::sleep_until(change_mark + delay);
+                }
+
                 core::util::FixedBuffer<uint8_t, 2> data;
-                bool res = read(address, Register::Conversion, data, false, false);
+                bool res = read(address, Register::Conversion, data);
 
                 if (res)
                 {
-                    result = 0;
-                    result |= data[0] << 8;
+                    result = data[0] << 8;
                     result |= data[1];
                 }
 
@@ -123,6 +137,37 @@ namespace smooth
                 uint16_t new_config = current_config | 1 << 15;
 
                 return configure(new_config, current_low_thresh_hold, current_low_thresh_hold);
+            }
+
+            std::chrono::milliseconds ADS1115::minimum_delay_after_reconfigure() const
+            {                
+                constexpr std::array<std::pair<DataRate, milliseconds>, 8> delays = {
+                    std::make_pair(DataRate::SPS_8, milliseconds{static_cast<int>(0.5 + 1000.0 / 8)}),
+                    std::make_pair(DataRate::SPS_16, milliseconds{static_cast<int>(0.5 + 1000.0 / 16)}),
+                    std::make_pair(DataRate::SPS_32, milliseconds{static_cast<int>(0.5 + 1000.0 / 32)}),
+                    std::make_pair(DataRate::SPS_64, milliseconds{static_cast<int>(0.5 + 1000.0 / 64)}),
+                    std::make_pair(DataRate::SPS_128, milliseconds{static_cast<int>(0.5 + 1000.0 / 128)}),
+                    std::make_pair(DataRate::SPS_250, milliseconds{static_cast<int>(0.5 + 1000.0 / 250)}),
+                    std::make_pair(DataRate::SPS_475, milliseconds{static_cast<int>(0.5 + 1000.0 / 475)}),
+                    std::make_pair(DataRate::SPS_860, milliseconds{static_cast<int>(0.5 + 1000.0 / 860)}),
+                };
+
+                DataRate sps = static_cast<DataRate>((current_config & 0x0070) >> 4);
+
+                milliseconds delay{};
+
+                auto found = std::find_if(std::begin(delays), std::end(delays), [sps](auto& pair){ return pair.first == sps; });
+
+                if(found != std::end(delays))
+                {
+                    delay = (*found).second;
+                }
+                else
+                {
+                    delay = milliseconds{130};
+                }
+
+                return delay;
             }
         }
     }

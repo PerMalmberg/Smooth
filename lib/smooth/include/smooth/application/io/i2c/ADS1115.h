@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <smooth/core/io/i2c/I2CMasterDevice.h>
 
 namespace smooth
@@ -54,16 +55,16 @@ namespace smooth
                         SingleShot = 1
                     };
 
-                    enum DataRate
+                    enum DataRate : uint8_t
                     {
                         SPS_8 = 0,
                         SPS_16 = 1,
                         SPS_32 = 2,
                         SPS_64 = 3,
-                        SPS_128S = 4,
-                        SPS_250S = 5,
-                        SPS_475S = 6,
-                        SPS_860S = 7
+                        SPS_128 = 4,
+                        SPS_250 = 5,
+                        SPS_475 = 6,
+                        SPS_860 = 7
                     };
 
                     enum ComparatorMode
@@ -111,15 +112,18 @@ namespace smooth
                     bool read_conversion(uint16_t& result);
 
                     bool trigger_single_read();
-                private:
 
+                private:
                     bool configure(const uint16_t config,
                                    uint16_t low_thresh_hold,
                                    uint16_t high_thresh_hold);
 
+                    std::chrono::milliseconds minimum_delay_after_reconfigure() const;
+
                     uint16_t current_config;
                     uint16_t current_low_thresh_hold;
                     uint16_t current_high_thresh_hold;
+                    std::chrono::steady_clock::time_point change_mark{std::chrono::steady_clock::time_point::min()};
             };
         }
     }

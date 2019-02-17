@@ -60,9 +60,9 @@ namespace smooth
                         /// Usually the data consists of one or more pairs of register and data bytes.
                         /// \param address The slave address.
                         /// \param data The data to write
-                        /// \param enable_ack if true, expect ACK from slave.
+                        /// \param expect_ack if true, expect ACK from slave.
                         /// \return true on success, false on failure
-                        bool write(uint8_t address, std::vector<uint8_t>& data, bool enable_ack);
+                        bool write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack = true);
 
                         /// Reads data from the register of the slave with the provided address.
                         /// \param address The slave address
