@@ -38,15 +38,15 @@ namespace smooth
                         return it == packet_type_as_string.end() ? "Unknown packet" : it->second;
                     }
 
-                    int MQTTPacket::get_wanted_amount()
+                    size_t MQTTPacket::get_wanted_amount()
                     {
                         // If we're just reading data to get rid of a too large packet
                         // then we read the maximum allowed amount, but it will just be overwritten
                         // by the next time we read data.
-                        int wanted;
+                        size_t wanted;
                         if (is_too_big())
                         {
-                            wanted = std::min(remaining_bytes_to_read, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
+                            wanted = std::min(remaining_bytes_to_read, static_cast<decltype(remaining_bytes_to_read)>(CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE));
                         }
                         else
                         {
@@ -56,7 +56,7 @@ namespace smooth
                         return wanted;
                     }
 
-                    void MQTTPacket::data_received(int length)
+                    void MQTTPacket::data_received(size_t length)
                     {
                         bytes_received += length;
 
@@ -84,7 +84,7 @@ namespace smooth
                                 if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                                 {
                                     Log::verbose(mqtt_log_tag, Format("Too big packet detected: {1} > {2}",
-                                                                      Int32(remaining_bytes_to_read),
+                                                                      SizeT(remaining_bytes_to_read),
                                                                       Int32(CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)));
                                     state = DATA;
                                     too_big = true;
@@ -105,9 +105,9 @@ namespace smooth
                         }
                     }
 
-                    int MQTTPacket::calculate_remaining_length_and_variable_header_offset() const
+                    size_t MQTTPacket::calculate_remaining_length_and_variable_header_offset() const
                     {
-                        int res = 0;
+                        size_t res = 0;
 
                         bool done = false;
                         int multiplier = 1;
@@ -116,7 +116,7 @@ namespace smooth
 
                         for (int i = 0; curr != packet.cend() && !done && !error; ++curr, ++i)
                         {
-                            res += (*curr & 0x7F) * multiplier;
+                            res += static_cast<size_t>((*curr & 0x7F) * multiplier);
                             multiplier *= 128;
                             core::util::ByteSet b(*curr);
                             done = !b.test(7);
@@ -176,9 +176,9 @@ namespace smooth
                         target.push_back(static_cast<uint8_t&&>(value & 0xFF));
                     }
 
-                    void MQTTPacket::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)
+                    void MQTTPacket::append_data(const uint8_t* data, size_t length, std::vector<uint8_t>& target)
                     {
-                        for (int i = 0; i < length; ++i)
+                        for (size_t i = 0; i < length; ++i)
                         {
                             target.push_back(data[i]);
                         }
@@ -208,7 +208,7 @@ namespace smooth
 
                     void MQTTPacket::set_header(PacketType type, uint8_t flags)
                     {
-                        uint8_t value = (type << 4) | flags;
+                        auto value = static_cast<uint8_t>((type << 4) | flags);
                         packet.push_back(value);
                     }
 
@@ -221,7 +221,7 @@ namespace smooth
 
                     std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
-                        uint16_t length = (*offset) << 8;
+                        auto length = static_cast<uint16_t>(*offset) << 8;
                         ++offset;
                         length |= *offset;
                         ++offset;
@@ -316,11 +316,11 @@ namespace smooth
                         {
                             // Ensure that data lengths add up.
                             calculate_remaining_length_and_variable_header_offset();
-                            long left_over = packet.size()
+                            auto left_over = static_cast<long>(packet.size())
                                              // Fixed header
                                              - std::distance(packet.cbegin(), get_variable_header_start())
                                              // Variable header
-                                             - get_variable_header_length()
+                                             - static_cast<long>(get_variable_header_length())
                                              // Payload
                                              - get_payload_length();
 
@@ -347,7 +347,7 @@ namespace smooth
                                 bytes_received + get_wanted_amount();
 
                         // Make sure there is room to do direct memory writes by reserving space.
-                        packet.resize(static_cast<unsigned long>(required_size), 0);
+                        packet.resize(required_size, 0);
 
                         if (is_too_big())
                         {
@@ -376,9 +376,9 @@ namespace smooth
                     }
 
 
-                    int MQTTPacket::get_send_length()
+                    size_t MQTTPacket::get_send_length()
                     {
-                        return static_cast<int>(packet.size());
+                        return packet.size();
                     }
 
                     const uint8_t* MQTTPacket::get_data()

@@ -17,8 +17,8 @@ namespace smooth
             {
                 namespace state
                 {
-                    MQTTBaseState::MQTTBaseState(MqttFSM<MQTTBaseState>& fsm, const char* name)
-                            : fsm(fsm)
+                    MQTTBaseState::MQTTBaseState(MqttFSM<MQTTBaseState>& owner, const char* name)
+                            : fsm(owner)
                     {
                         std::fill(&state_name[0], &state_name[0] + sizeof(state_name), 0);
                         strncpy(state_name, name, sizeof(state_name) - 1);
@@ -26,51 +26,51 @@ namespace smooth
 
                     MQTTBaseState::~MQTTBaseState() = default;
 
-                    void MQTTBaseState::receive(packet::MQTTPacket& raw_packet)
+                    void MQTTBaseState::receive(packet::MQTTPacket&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::ConnAck& conn_ack)
+                    void MQTTBaseState::receive(packet::ConnAck&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::Publish& publish)
+                    void MQTTBaseState::receive(packet::Publish&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::PubAck& pub_ack)
+                    void MQTTBaseState::receive(packet::PubAck&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::PubRec& pub_rec)
+                    void MQTTBaseState::receive(packet::PubRec&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::PubRel& pub_rel)
+                    void MQTTBaseState::receive(packet::PubRel&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::PubComp& pub_comp)
+                    void MQTTBaseState::receive(packet::PubComp&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::SubAck& sub_ack)
+                    void MQTTBaseState::receive(packet::SubAck&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::Subscribe& sub)
+                    void MQTTBaseState::receive(packet::Subscribe&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::Unsubscribe& unsub)
+                    void MQTTBaseState::receive(packet::Unsubscribe&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::UnsubAck& unsub_ack)
+                    void MQTTBaseState::receive(packet::UnsubAck&)
                     {
                     }
 
-                    void MQTTBaseState::receive(packet::PingResp& ping_resp)
+                    void MQTTBaseState::receive(packet::PingResp&)
                     {
                     }
                 }

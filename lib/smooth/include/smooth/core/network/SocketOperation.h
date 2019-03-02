@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by permal on 10/29/17.
 //
@@ -20,8 +22,8 @@ namespace smooth
                     };
 
                     SocketOperation() = default;
-                    SocketOperation(Op op, std::shared_ptr<core::network::ISocket> sock)
-                            : op(op), sock(sock)
+                    SocketOperation(Op operation, std::shared_ptr<core::network::ISocket> socket)
+                            : op(operation), sock(std::move(socket))
                     {
 
                     }

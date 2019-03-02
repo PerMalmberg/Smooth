@@ -22,7 +22,7 @@ namespace smooth
                     /// Forwards the next event to the event queue
                     virtual void forward_to_event_queue() = 0;
                     /// Returns the size of the event queue.
-                    virtual int size() = 0;
+                    virtual size_t size() = 0;
                     virtual void register_notification(QueueNotification* notification) = 0;
             };
         }

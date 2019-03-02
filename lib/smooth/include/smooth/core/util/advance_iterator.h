@@ -13,16 +13,20 @@ namespace smooth
         namespace util
         {
             // Advances an iterator with the specified amount
-            // unless it would put the iterator past the end.
+            // unless it would put the iterator past the end or the increment is < 0.
             template<typename T, typename Increment>
             bool advance(T& iterator, const T& end, Increment inc)
             {
-                Increment dist = std::distance(iterator, end);
-                Increment to_move = std::min(dist, inc);
-                bool res = inc == to_move;
-                if (res)
+                bool res = false;
+                if(inc >= 0)
                 {
-                    std::advance(iterator, to_move);
+                    Increment dist = static_cast<decltype(inc)>(std::distance(iterator, end));
+                    Increment to_move = std::min(dist, inc);
+                    res = inc == to_move;
+                    if (res)
+                    {
+                        std::advance(iterator, to_move);
+                    }
                 }
                 return res;
             };

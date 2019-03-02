@@ -13,7 +13,7 @@ namespace smooth
             class JsonFile
             {
                 public:
-                    JsonFile(std::string full_path);
+                    explicit JsonFile(std::string full_path);
                     
                     bool save() const;
                     bool exists() const 

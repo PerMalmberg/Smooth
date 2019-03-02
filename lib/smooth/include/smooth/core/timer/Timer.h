@@ -32,25 +32,35 @@ namespace smooth
                     /// \param auto_reload If true, the timer will restart itself when it expires.
                     /// \param interval The interval between the start time and when the timer expiers.
                     static std::shared_ptr<Timer> create(const std::string& name,
-                                                  uint32_t id,
+                                                  int16_t id,
                                                   ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
                                                   bool auto_reload,
                                                   std::chrono::milliseconds interval);
 
-                    virtual ~Timer();
+                    // When the destructor runs for a Timer, it means the TimerService cannot be holding any shared_ptr<>
+                    // to the current instance (if it did, the destructor wouldn't be running)
+                    // Thus, we do not need to do anything to remove the instance from the TimerService. In fact, we MUST NOT call
+                    // shared_from_this() from within the destructor as that will result in a std::bad_weak_ptr exception being thrown.
+
+                    // If you're looking at this text trying to figure out why your timers are still running even though
+                    // you no longer have any references to them (i.e. your shared_ptr<Timer> have been reset() or re-assinged)
+                    // you should be aware that timers that are recurring always are held via a shared_ptr<> by the TimerService
+                    // until they are stopped.
+                    // Likewise, non-recurring timers are held by the TimerService until they expire or stopped.
+                    ~Timer() override = default;
 
                     void start() override;
                     void start(std::chrono::milliseconds interval) override;
                     void stop() override;
                     void reset() override;
-                    int get_id() const override;
+                    int16_t get_id() const override;
                     const std::string& get_name() override;
                     bool is_repeating() const { return repeating;}
                     std::chrono::steady_clock::time_point expires_at() const;
                 protected:
 
                     const std::string name;
-                    uint32_t id;
+                    int16_t id;
                     bool repeating;
                     std::chrono::milliseconds interval;
                     /// Constructor
@@ -59,7 +69,7 @@ namespace smooth
                     /// \param event_queue The vent queue to send events on.
                     /// \param auto_reload If true, the timer will restart itself when it expires.
                     /// \param interval The interval between the start time and when the timer expiers.
-                    Timer(const std::string& name, uint32_t id, ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                    Timer(const std::string& name, int16_t id, ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
                           bool auto_reload, std::chrono::milliseconds interval);
 
                 private:

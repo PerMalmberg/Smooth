@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace smooth
 {
     namespace core
@@ -18,14 +20,14 @@ namespace smooth
                     /// its internal buffer, e.g. header, checksum etc. Returned
                     /// value will differ depending on how much data already has been provided.
                     /// \return Number of bytes wanted
-                    virtual int get_wanted_amount() = 0;
+                    virtual size_t get_wanted_amount() = 0;
 
                     /// Used by the underlying framework to notify the packet that {length} bytes
                     /// has been written to the buffer pointed to by get_write_pos().
                     /// During the call to this method the packet should do whatever it needs to
                     /// evaluate if it needs more data or if it is complete.
                     /// \param length Number of bytes received
-                    virtual void data_received(int length) = 0;
+                    virtual void data_received(size_t length) = 0;
 
                     /// Must return the current write position of the internal buffer.
                     /// Must point to a buffer than can accept the number of bytes returned by

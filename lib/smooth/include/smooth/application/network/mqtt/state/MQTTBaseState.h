@@ -53,15 +53,15 @@ namespace smooth
                             {
                             }
 
-                            void event(const core::network::TransmitBufferEmptyEvent& event) override
+                            void event(const core::network::TransmitBufferEmptyEvent&) override
                             {
                             }
 
-                            void event(const core::network::ConnectionStatusEvent& event) override
+                            void event(const core::network::ConnectionStatusEvent&) override
                             {
                             }
 
-                            void event(const core::timer::TimerExpiredEvent& event) override
+                            void event(const core::timer::TimerExpiredEvent&) override
                             {
                             }
 

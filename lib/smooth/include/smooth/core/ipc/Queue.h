@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by permal on 6/25/17.
 //
@@ -30,10 +32,10 @@ namespace smooth
             {
                 public:
                     /// Constructor
-                    /// \param name The name of the queue, mainly used for debugging and logging.
+                    /// \param queue_name The name of the queue, mainly used for debugging and logging.
                     /// \param size The size of the queue, i.e. the number of items it can hold.
-                    Queue(const std::string& name, int size)
-                            : name(name),
+                    Queue(std::string queue_name, size_t size)
+                            : name(std::move(queue_name)),
                               queue_size(size),
                               items(),
                               guard()
@@ -41,7 +43,7 @@ namespace smooth
                         Log::verbose("Queue",
                                      Format("Creating queue '{1}', with {2} items of size {3}.",
                                             Str(name),
-                                            Int32(size),
+                                            SizeT(size),
                                             UInt32(sizeof(T))));
                         items.reserve(size);
                     }
@@ -55,7 +57,7 @@ namespace smooth
 
                     /// Gets the size of the queue.
                     /// \return number of items the queue can hold.
-                    int size()
+                    size_t size()
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         return queue_size;
@@ -103,7 +105,7 @@ namespace smooth
 
                     /// Returns the number of items waiting to be popped.
                     /// \return The number of items in the queue.
-                    int count()
+                    size_t count()
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         return items.size();
@@ -111,7 +113,7 @@ namespace smooth
 
                 private:
                     const std::string name;
-                    const int queue_size;
+                    const size_t queue_size;
                     std::vector<T> items;
                     std::mutex guard;
             };

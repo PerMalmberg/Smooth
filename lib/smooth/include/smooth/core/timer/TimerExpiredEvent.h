@@ -18,8 +18,8 @@ namespace smooth
                 public:
                     TimerExpiredEvent() = default;
 
-                    explicit TimerExpiredEvent(int id)
-                            : id(id)
+                    explicit TimerExpiredEvent(int timer_id)
+                            : id(timer_id)
                     {
                     }
 

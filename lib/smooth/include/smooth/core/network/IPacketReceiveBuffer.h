@@ -15,18 +15,20 @@ namespace smooth
             class IPacketReceiveBuffer
             {
                 public:
+                    virtual ~IPacketReceiveBuffer() = default;
+
                     /// Returns a value stating if the buffer is full.
                     /// \return true or false
                     virtual bool is_full() = 0;
                     /// Returns the amount of data the buffer wants in order to build its current package.
                     /// \return The number of bytes wanted.
-                    virtual int amount_wanted() = 0;
+                    virtual size_t amount_wanted() = 0;
                     /// Gets the write position in the packet to which data should be written.
                     /// \return
                     virtual uint8_t* get_write_pos() = 0;
                     /// This method is called to notify the buffer that the specified amount of data has been written.
                     /// \param length The number of bytes written.
-                    virtual void data_received(int length) = 0;
+                    virtual void data_received(size_t length) = 0;
                     /// Returns a value indicating if the current packet has been completed.
                     /// \return true of false.
                     virtual bool is_packet_complete() = 0;

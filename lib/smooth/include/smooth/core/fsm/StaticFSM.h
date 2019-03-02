@@ -27,7 +27,7 @@ namespace smooth
             /// \tparam StateSize The maximum size, in bytes, of the largest state used by the FSM.
             /// i.e. sizeof(LargestState). The reason that this has to be specified is that states are
             /// created using placement new in a pre-allocated memory area.
-            template<typename BaseState, int StateSize>
+            template<typename BaseState, size_t StateSize>
             class StaticFSM
             {
                 public:
@@ -46,13 +46,13 @@ namespace smooth
 
                     /// Called as a notification to the subclassing FSM before a new state is entered.
                     /// \param state The new state
-                    virtual void entering_state(BaseState* state)
+                    virtual void entering_state(BaseState*)
                     {
                     }
 
                     /// Called as a notification to the subclassing FSM before the current state is left.
                     /// \param state The current state
-                    virtual void leaving_state(BaseState* state)
+                    virtual void leaving_state(BaseState*)
                     {
                     }
 
@@ -69,7 +69,7 @@ namespace smooth
             };
 
 
-            template<typename BaseState, int StateSize>
+            template<typename BaseState, size_t StateSize>
             StaticFSM<BaseState, StateSize>::~StaticFSM()
             {
                 // Destroy any currently active state
@@ -79,7 +79,7 @@ namespace smooth
                 }
             }
 
-            template<typename BaseState, int StateSize>
+            template<typename BaseState, size_t StateSize>
             void* StaticFSM<BaseState, StateSize>::select_memory_area(size_t size)
             {
                 auto max = sizeof(state[0]);
@@ -100,8 +100,8 @@ namespace smooth
                 return reclaimed;
             }
 
-            template<typename BaseState, int StateSize>
-            void StaticFSM<BaseState, StateSize>::set_state(BaseState* state)
+            template<typename BaseState, size_t StateSize>
+            void StaticFSM<BaseState, StateSize>::set_state(BaseState* new_state)
             {
                 if (current_state != nullptr)
                 {
@@ -110,7 +110,7 @@ namespace smooth
                     current_state->~BaseState();
                 }
 
-                current_state = state;
+                current_state = new_state;
                 entering_state(current_state);
                 current_state->enter_state();
             }
@@ -118,7 +118,7 @@ namespace smooth
     }
 }
 
-template<typename BaseState, int StateSize>
+template<typename BaseState, size_t StateSize>
 void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
     // Return the memory area to use for placement new.
@@ -126,7 +126,7 @@ void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSiz
 }
 
 
-template<typename BaseState, int StateSize>
+template<typename BaseState, size_t StateSize>
 void operator delete(void*, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
     fsm.select_memory_area(0);

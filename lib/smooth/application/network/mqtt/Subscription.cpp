@@ -113,7 +113,7 @@ namespace smooth
                     reset_control_packet(unsubscribing);
                 }
 
-                void Subscription::receive(packet::SubAck& sub_ack, IMqttClient& mqtt)
+                void Subscription::receive(packet::SubAck& sub_ack, IMqttClient&)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     auto first = subscribing.begin();
@@ -191,7 +191,7 @@ namespace smooth
                     }
                 }
 
-                void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient& mqtt)
+                void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient&)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     if (!unsubscribing.empty())

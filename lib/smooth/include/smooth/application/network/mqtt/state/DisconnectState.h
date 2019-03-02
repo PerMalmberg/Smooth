@@ -21,8 +21,8 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            explicit DisconnectState(MqttFSM<MQTTBaseState>& fsm)
-                                    : ConnectedState(fsm, "DisconnectState")
+                            explicit DisconnectState(MqttFSM<MQTTBaseState>& owner)
+                                    : ConnectedState(owner, "DisconnectState")
                             {
                             }
 

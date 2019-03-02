@@ -22,7 +22,7 @@ namespace smooth
             /// * Must be copyable
             /// \tparam Packet The type of packet to assemble
             /// \tparam Size  The Number of items to hold in the buffer.
-            template<typename Packet, int Size>
+            template<typename Packet, size_t Size>
             class PacketReceiveBuffer
                     : public IPacketReceiveBuffer<Packet>
             {
@@ -38,7 +38,7 @@ namespace smooth
                         return buffer.is_full();
                     }
 
-                    int amount_wanted() override
+                    size_t amount_wanted() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_wanted_amount();
@@ -50,7 +50,7 @@ namespace smooth
                         return current_item.get_write_pos();
                     }
 
-                    void data_received(int length) override
+                    void data_received(size_t length) override
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         current_item.data_received(length);

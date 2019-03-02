@@ -2,7 +2,7 @@
 
 #include <smooth/core/Application.h>
 
-namespace json_test
+namespace jsonfile_test
 {
     class App
             : public smooth::core::Application

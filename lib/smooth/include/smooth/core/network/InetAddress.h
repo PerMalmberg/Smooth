@@ -21,10 +21,12 @@ namespace smooth
                     /// Constructor
                     /// \param ip_as_string The IP in string form.
                     /// \param port The port.
-                    InetAddress(std::string ip_as_string, int port)
-                            : ip_as_string(std::move(ip_as_string)), port(port)
+                    InetAddress(std::string ip_as_string, uint16_t connect_port)
+                            : ip(std::move(ip_as_string)), port(connect_port)
                     {
                     }
+
+                    virtual ~InetAddress() = default;
 
                     /// Gets the address family, e.g. AF_INET or AF_INET6
                     /// \return The adress family
@@ -49,7 +51,7 @@ namespace smooth
                     /// \return The IP in string form
                     const std::string& get_ip_as_string() const
                     {
-                        return ip_as_string;
+                        return ip;
                     }
 
                     /// Gets the port
@@ -68,8 +70,8 @@ namespace smooth
 
                 protected:
                     bool valid = false;
-                    std::string ip_as_string;
-                    int port;
+                    std::string ip;
+                    uint16_t port;
             };
         }
     }

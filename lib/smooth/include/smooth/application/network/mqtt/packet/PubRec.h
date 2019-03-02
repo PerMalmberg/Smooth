@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit PubRec(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
                             {
                             }
 
@@ -45,7 +45,7 @@ namespace smooth
                             }
 
 
-                            int get_variable_header_length() const override
+                            uint32_t get_variable_header_length() const override
                             {
                                 // Only packet identifier in this variable header
                                 return 2;

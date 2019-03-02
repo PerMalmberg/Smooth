@@ -14,7 +14,7 @@ namespace smooth
             {
                 namespace packet
                 {
-                    Publish::Publish(const std::string& topic, const uint8_t* data, int length, QoS qos, bool retain)
+                    Publish::Publish(const std::string& topic, const uint8_t* data, size_t length, QoS qos, bool retain)
                     {
                         core::util::ByteSet flags(0);
                         flags.set(0, retain);
@@ -44,13 +44,14 @@ namespace smooth
                         return get_string(get_variable_header_start());
                     }
 
-                    int Publish::get_variable_header_length() const
+                    uint32_t Publish::get_variable_header_length() const
                     {
-                        return get_topic().length()
+                        auto res = get_topic().length()
                                // Add two for length bytes for string
                                + 2
                                // Add two more for optional packet identifier
                                + (has_packet_identifier() ? 2 : 0);
+                        return static_cast<uint32_t>(res);
                     }
 
                     void Publish::visit(IPacketReceiver& receiver)

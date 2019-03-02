@@ -34,13 +34,13 @@ namespace smooth
                             // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned
                             // value will differ depending on how much data already has been provided.
-                            int get_wanted_amount() override;
+                            size_t get_wanted_amount() override;
 
                             // Used by the underlying framework to notify the packet that {length} bytes
                             // has been written to the buffer pointed to by get_write_pos().
                             // During the call to this method the packet should do whatever it needs to
                             // evaluate if it needs more data or if it is complete.
-                            void data_received(int length) override;
+                            void data_received(size_t length) override;
 
                             // Must return the current write position of the internal buffer.
                             // Must point to a buffer than can accept the number of bytes returned by
@@ -56,7 +56,7 @@ namespace smooth
                             bool is_error() override;
 
                             // Must return the total amount of bytes to send
-                            int get_send_length() override;
+                            size_t get_send_length() override;
                             // Must return a pointer to the data to be sent.
                             const uint8_t* get_data() override;
 
@@ -97,7 +97,7 @@ namespace smooth
                                 return false;
                             }
 
-                            virtual int get_variable_header_length() const
+                            virtual uint32_t get_variable_header_length() const
                             {
                                 return 0;
                             }
@@ -106,7 +106,7 @@ namespace smooth
 
                             uint16_t read_packet_identifier(std::vector<uint8_t>::const_iterator pos) const
                             {
-                                return *pos << 8 | *(pos + 1);
+                                return static_cast<uint16_t>(*pos << 8 | *(pos + 1));
                             }
 
                             void set_header(PacketType type, QoS qos, bool dup, bool retain);
@@ -116,11 +116,11 @@ namespace smooth
 
                             void append_string(const std::string& str, std::vector<uint8_t>& target);
                             void append_msb_lsb(uint16_t value, std::vector<uint8_t>& target);
-                            void append_data(const uint8_t* data, int length, std::vector<uint8_t>& target);
+                            void append_data(const uint8_t* data, size_t length, std::vector<uint8_t>& target);
                             void apply_constructed_data(const std::vector<uint8_t>& variable);
 
                             std::vector<uint8_t> packet{};
-                            int calculate_remaining_length_and_variable_header_offset() const;
+                            size_t calculate_remaining_length_and_variable_header_offset() const;
                             std::string get_string(std::vector<uint8_t>::const_iterator offset) const;
 
                             std::vector<uint8_t>::const_iterator get_variable_header_start() const
@@ -138,9 +138,9 @@ namespace smooth
                             };
                             mutable long variable_header_start_ix = 0;
                             ReadingHeaderSection state = ReadingHeaderSection::START;
-                            int bytes_received = 0;
-                            int remaining_bytes_to_read = 1;
-                            int received_header_length = 0;
+                            size_t bytes_received = 0;
+                            size_t remaining_bytes_to_read = 1;
+                            size_t received_header_length = 0;
                             mutable bool error = false;
                             bool too_big = false;
                     };

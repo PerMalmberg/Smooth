@@ -47,7 +47,7 @@ namespace smooth
         /// The IDFApplication extends Application with things needed to run under the IDF framework
         class IDFApplication
                 : public POSIXApplication,
-                public smooth::core::ipc::IEventListener<system_event_t>
+                  public smooth::core::ipc::IEventListener<system_event_t>
         {
             public:
                 /// Constructor
@@ -55,10 +55,6 @@ namespace smooth
                 /// but should be lower than the priority of the ESP-IDFs task such as the Wifi driver.
                 /// \param tick_interval The tick interval
                 IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval);
-
-                virtual ~IDFApplication()
-                {
-                }
 
                 /// Event method for system events.
                 /// \param event The event.
@@ -86,22 +82,22 @@ namespace smooth
         class Application
                 :
 #ifdef ESP_PLATFORM
-                        public IDFApplication
+                public IDFApplication
 #else
-                        public POSIXApplication
+                public POSIXApplication
 #endif
         {
             public:
                 /// Constructor
                 /// \param priority The priority to run at. Usually tskIDLE_PRIORITY + an arbitrary value,
                 /// but should be lower than the priority of the ESP-IDFs task such as the Wifi driver.
-                /// \param tick_interval The tick interval
-                Application(uint32_t priority, std::chrono::milliseconds tick_interval)
+                /// \param interval The tick interval
+                Application(uint32_t application_priority, std::chrono::milliseconds interval)
                         :
 #ifdef ESP_PLATFORM
-                        IDFApplication(priority, tick_interval)
+                        IDFApplication(application_priority, interval)
 #else
-                        POSIXApplication(priority, tick_interval)
+                        POSIXApplication(application_priority, interval)
 #endif
                 {
                 }

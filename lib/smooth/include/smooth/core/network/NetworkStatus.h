@@ -15,8 +15,8 @@ namespace smooth
             class NetworkStatus
             {
                 public:
-                    NetworkStatus(const NetworkEvent event, const bool ip_changed)
-                            : event(event), ip_changed(ip_changed)
+                    NetworkStatus(const NetworkEvent net_event, const bool ip_has_changed)
+                            : event(net_event), ip_changed(ip_has_changed)
                     {
                     }
 

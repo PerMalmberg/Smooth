@@ -20,7 +20,7 @@ namespace smooth
                         public:
                             UnsubAck() = default;
 
-                            explicit UnsubAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit UnsubAck(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
                             {
                             }
 

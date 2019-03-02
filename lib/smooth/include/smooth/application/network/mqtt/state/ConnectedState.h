@@ -20,8 +20,8 @@ namespace smooth
                             : public MQTTBaseState
                     {
                         public:
-                            ConnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name)
-                                    : MQTTBaseState(fsm, name)
+                            ConnectedState(MqttFSM<MQTTBaseState>& owner, const char* name)
+                                    : MQTTBaseState(owner, name)
                             {
                             }
 

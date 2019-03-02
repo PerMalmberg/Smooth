@@ -30,6 +30,7 @@ namespace smooth
                     class IPacketReceiver
                     {
                         public:
+                            virtual ~IPacketReceiver() = default;
                             virtual void receive(packet::MQTTPacket& raw_packet) = 0;
                             virtual void receive(packet::ConnAck& conn_ack) = 0;
                             virtual void receive(packet::Publish& publish) = 0;

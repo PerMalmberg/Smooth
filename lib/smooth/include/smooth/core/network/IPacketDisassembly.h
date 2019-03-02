@@ -16,7 +16,7 @@ namespace smooth
                 public:
                     /// Must return the total amount of bytes to send
                     /// \return Number of bytes to send
-                    virtual int get_send_length() = 0;
+                    virtual size_t get_send_length() = 0;
                     /// Must return a pointer to the data to be sent.
                     /// \return The read position
                     virtual const uint8_t* get_data() = 0;

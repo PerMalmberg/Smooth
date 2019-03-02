@@ -28,7 +28,7 @@ namespace smooth
                     in_progress.reserve(CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES);
                 }
 
-                bool Publication::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
+                bool Publication::publish(const std::string& topic, const uint8_t* data, size_t length, mqtt::QoS qos,
                                           bool retain)
                 {
                     std::lock_guard<std::mutex> lock(guard);
@@ -203,7 +203,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::receive(packet::PubAck& pub_ack, IMqttClient& mqtt)
+                void Publication::receive(packet::PubAck& pub_ack, IMqttClient&)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();
@@ -246,7 +246,7 @@ namespace smooth
                     }
                 }
 
-                void Publication::receive(packet::PubComp& pub_rec, IMqttClient& mqtt)
+                void Publication::receive(packet::PubComp& pub_rec, IMqttClient&)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     auto first = in_progress.begin();

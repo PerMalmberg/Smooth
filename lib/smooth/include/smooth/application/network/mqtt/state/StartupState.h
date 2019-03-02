@@ -20,8 +20,8 @@ namespace smooth
                             : public DisconnectedState
                     {
                         public:
-                            explicit StartupState(MqttFSM<MQTTBaseState>& fsm)
-                                    : DisconnectedState(fsm, "StartupState")
+                            explicit StartupState(MqttFSM<MQTTBaseState>& owner)
+                                    : DisconnectedState(owner, "StartupState")
                             {
                             }
 

@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit PubAck(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
                             {
                             }
 

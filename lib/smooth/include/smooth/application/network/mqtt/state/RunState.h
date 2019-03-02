@@ -20,10 +20,10 @@ namespace smooth
                             : public ConnectedState
                     {
                         public:
-                            RunState(MqttFSM<MQTTBaseState>& fsm, bool clean_session)
-                                    : ConnectedState(fsm, "RunState"),
+                            RunState(MqttFSM<MQTTBaseState>& owner, bool clean_session_on_connect)
+                                    : ConnectedState(owner, "RunState"),
                                       reconnect_handled(false),
-                                      clean_session(clean_session)
+                                      clean_session(clean_session_on_connect)
                             {
                             }
 

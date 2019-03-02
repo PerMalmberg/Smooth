@@ -22,7 +22,7 @@ namespace smooth
             /// * Must be copyable
             /// \tparam Packet The packet type
             /// \tparam Size Number of items to hold in the buffer
-            template<typename Packet, int Size>
+            template<typename Packet, size_t Size>
             class PacketSendBuffer
                     : public IPacketSendBuffer<Packet>
             {
@@ -58,7 +58,7 @@ namespace smooth
                     size_t get_remaining_data_length() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return current_item.get_send_length() - bytes_sent;
+                        return  current_item.get_send_length() - bytes_sent;
                     }
 
                     void data_has_been_sent(size_t length) override

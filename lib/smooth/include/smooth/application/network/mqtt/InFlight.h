@@ -25,8 +25,8 @@ namespace smooth
                 class InFlight
                 {
                     public:
-                        explicit InFlight(T& p)
-                                : p(p)
+                        explicit InFlight(T& t)
+                                : p(t)
                         {
                         }
 
