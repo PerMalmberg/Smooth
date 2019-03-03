@@ -26,6 +26,8 @@ namespace smooth
                     {
                     }
 
+                    virtual ~InetAddress() = default;
+
                     /// Gets the address family, e.g. AF_INET or AF_INET6
                     /// \return The adress family
                     virtual int get_address_family() const = 0;

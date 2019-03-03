@@ -14,6 +14,7 @@ namespace smooth
             class ILinkSubscriber
             {
                 public:
+                    virtual ~ILinkSubscriber() = default;
                     virtual bool receive_published_data(const T& data) = 0;
             };
         }

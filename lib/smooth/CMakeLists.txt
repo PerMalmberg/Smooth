@@ -35,7 +35,6 @@ set(SOURCES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
-        application/security/PasswordHash.cpp
         core/ipc/QueueNotification.cpp
         core/network/IPv4.cpp
         #core/network/IPv6.cpp
@@ -88,7 +87,6 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
-        include/smooth/application/security/PasswordHash.h
         include/smooth/core/fsm/StaticFSM.h
         include/smooth/core/ipc/IEventListener.h
         include/smooth/core/ipc/ITaskEventQueue.h
@@ -170,6 +168,8 @@ if (${ESP_PLATFORM})
             application/io/i2c/MCP23017.cpp
             application/io/i2c/BME280.cpp
             application/io/wiegand/Wiegand.cpp
+            application/security/PasswordHash.cpp
+            include/smooth/application/security/PasswordHash.h
             )
 else()
         list(APPEND SOURCES
@@ -179,11 +179,17 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
+if (NOT ESP_PLATFORM)
+    target_link_libraries(${PROJECT_NAME} pthread)
+endif()
+
+include(compiler_options.cmake)
+set_compile_options(${PROJECT_NAME})
+
 target_include_directories(
         ${PROJECT_NAME}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
         PUBLIC $ENV{IDF_PATH}/components
-        PRIVATE $ENV{IDF_PATH}/components
 )
 
 smooth_configure_link()

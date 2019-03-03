@@ -15,6 +15,7 @@ namespace smooth
             class IPacketReceiveBuffer
             {
                 public:
+                    virtual ~IPacketReceiveBuffer() = default;
                     /// Returns a value stating if the buffer is full.
                     /// \return true or false
                     virtual bool is_full() = 0;

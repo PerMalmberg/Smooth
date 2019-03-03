@@ -14,6 +14,7 @@ namespace smooth
             class FixedBufferBase
             {
                 public:
+                    virtual ~FixedBufferBase() = default;
                     virtual size_t size() const = 0;
                     virtual T* data() = 0;
                 private:
