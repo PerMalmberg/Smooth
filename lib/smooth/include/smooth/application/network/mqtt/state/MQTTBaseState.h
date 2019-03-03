@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <array>
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>

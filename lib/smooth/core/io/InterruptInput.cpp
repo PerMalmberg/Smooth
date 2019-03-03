@@ -14,7 +14,7 @@ namespace smooth
         {
             static void input_interrupt_handler(void* arg)
             {
-                InterruptInput* ev_input = static_cast<InterruptInput*>(arg);
+                auto ev_input = static_cast<InterruptInput*>(arg);
                 if (ev_input != nullptr)
                 {
                     ev_input->update();

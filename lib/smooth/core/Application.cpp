@@ -2,7 +2,6 @@
 // Created by permal on 6/24/17.
 //
 
-#include <algorithm>
 #include <smooth/core/Application.h>
 #include <smooth/core/ipc/Publisher.h>
 #include <smooth/core/network/SocketDispatcher.h>

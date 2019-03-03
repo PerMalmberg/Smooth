@@ -43,6 +43,10 @@ namespace smooth
                         task.register_queue_with_task(this);
                     }
 
+                    // Not unregistrering queue with task?! - Nope, we're only hold a QueueNotification*,
+                    // and since we're destructing, there's no need to clear that pointer.
+                    ~TaskEventQueue() override = default;
+
                     /// Pushes an item into the queue
                     /// \param item The item of which a copy will be placed on the queue.
                     /// \return true if the queue could accept the item, otherwise false.

@@ -91,7 +91,7 @@ namespace smooth
                         return (current + 1) % Size;
                     }
 
-                    T data[Size];
+                    T buffer[Size];
                     int read_pos;
                     int write_pos;
                     int count;
@@ -100,7 +100,7 @@ namespace smooth
 
             template<typename T, int Size>
             CircularBuffer<T, Size>::CircularBuffer()
-                    :    data(),
+                    :    buffer(),
                          read_pos(0),
                          write_pos(0),
                          count(0)
@@ -110,7 +110,7 @@ namespace smooth
             template<typename T, int Size>
             void CircularBuffer<T, Size>::put(const T& data)
             {
-                this->data[write_pos] = data;
+                buffer[write_pos] = data;
 
                 if (!is_full())
                 {
@@ -133,7 +133,7 @@ namespace smooth
 
                 if (!is_empty())
                 {
-                    d = data[read_pos];
+                    d = buffer[read_pos];
                     read_pos = next_pos(read_pos);
                     --count;
 

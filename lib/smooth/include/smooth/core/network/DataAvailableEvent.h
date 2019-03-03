@@ -38,7 +38,7 @@ namespace smooth
                     }
 
                 private:
-                    IPacketReceiveBuffer <PacketType>* rx = nullptr;
+                    IPacketReceiveBuffer<PacketType>* rx = nullptr;
             };
         }
     }
