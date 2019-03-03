@@ -222,6 +222,8 @@ namespace smooth
                 return (BME280_U32_t) p;
             }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuseless-cast"
             BME280::BME280_U32_t BME280::BME280_compensate_H_int32(BME280_S32_t adc_H)
             {
                 BME280_S32_t v_x1_u32r;
@@ -245,6 +247,7 @@ namespace smooth
                 return (BME280_U32_t) (v_x1_u32r >> 12);
             }
         }
+#pragma GCC diagnostic pop
     }
 }
 

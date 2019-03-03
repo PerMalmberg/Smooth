@@ -22,15 +22,15 @@ namespace smooth
                 // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
                 // I2C specification: http://www.nxp.com/docs/en/user-guide/UM10204.pdf
 
-                static constexpr const char* log_tag = "I2CMasterDevice";
-                static constexpr const std::chrono::milliseconds timeout(1000);
+                constexpr const char* log_tag = "I2CMasterDevice";
+                constexpr const std::chrono::milliseconds timeout(1000);
 
                 bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack)
                 {
                     I2CCommandLink link(*this);
 
                     // Set R/W bit to 0 for write.
-                    address = address << 1;
+                    address <<= 1;
 
                     auto res = i2c_master_start(link);
                     res |= i2c_master_write_byte(link, address, expect_ack);
@@ -49,7 +49,7 @@ namespace smooth
                         else
                         {
                             std::stringstream ss;
-                            ss << "Error during write of address 0x" << std::hex << static_cast<int32_t>(address>>1);
+                            ss << "Error during write of address 0x" << std::hex << (address>>1);
                             log_error(res, ss.str().c_str());
                         }
                     }
@@ -77,7 +77,7 @@ namespace smooth
                     // Set R/W bit to 0 for write.
                     uint8_t write_address = address << 1;
                     // Set R/W bit to 1 for read.
-                    uint8_t read_address = (address << 1) | 0x1;
+                    auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
 
                     // Generate start condition
                     auto res = i2c_master_start(link);

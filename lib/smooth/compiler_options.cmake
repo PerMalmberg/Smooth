@@ -4,7 +4,7 @@ function(set_compile_options target)
 
     target_compile_options(${target} PRIVATE -Werror)
     target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wnon-virtual-dtor>)
-#    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wuseless-cast>)
+    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wuseless-cast>)
 #    target_compile_options(${target} PRIVATE -Wall -Wextra -Wshadow)
 #    target_compile_options(${target} PRIVATE -Wcast-align -Wunused )
 #    target_compile_options(${target} PRIVATE -Wconversion -Wsign-conversion)
