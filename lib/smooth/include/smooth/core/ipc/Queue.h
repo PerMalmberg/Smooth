@@ -68,7 +68,7 @@ namespace smooth
                     {
                         std::lock_guard<std::mutex> lock(guard);
 
-                        bool res = items.size() < queue_size;
+                        bool res = items.size() < static_cast<size_t>(queue_size);
                         if (res)
                         {
                             items.emplace_back(item);

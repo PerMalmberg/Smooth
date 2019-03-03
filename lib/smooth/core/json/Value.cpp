@@ -67,7 +67,7 @@ namespace smooth
                 }
             }
 
-            Value Value::operator[](size_t index)
+            Value Value::operator[](int index)
             {
                 if (parent == nullptr)
                 {
@@ -88,14 +88,14 @@ namespace smooth
                 auto size = cJSON_GetArraySize(data);
                 if (index >= size)
                 {
-                    size_t to_add = index - size + 1;
+                    auto to_add = index - size + 1;
                     for (int i = 0; i < to_add; ++i)
                     {
                         cJSON_AddItemToArray(data, cJSON_CreateObject());
                     }
                 }
 
-                auto item = cJSON_GetArrayItem(data, static_cast<int>(index));
+                auto item = cJSON_GetArrayItem(data, index);
                 return Value(data, item);
             }
 

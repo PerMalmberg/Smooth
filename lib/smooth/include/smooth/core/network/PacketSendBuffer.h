@@ -97,7 +97,7 @@ namespace smooth
                     smooth::core::util::CircularBuffer<Packet, Size> buffer;
                     Packet current_item;
                     std::mutex guard;
-                    size_t bytes_sent = 0;
+                    int bytes_sent = 0;
                     bool in_progress = false;
 
 
