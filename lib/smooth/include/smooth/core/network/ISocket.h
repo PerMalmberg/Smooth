@@ -22,8 +22,6 @@ namespace smooth
                     friend class smooth::core::network::SocketDispatcher;
 
                 public:
-                    virtual ~ISocket() = default;
-
                     /// Initiates the connection to the provided IP. After this call events will arrive
                     /// via the response methods for data available, TX buffer empty, connection status etc.
                     /// \param ip The address to connect to (an instance of either IPv4 or IPv6).

@@ -28,11 +28,11 @@ namespace smooth
             namespace mqtt
             {
                 MqttClient::MqttClient(const std::string& mqtt_client_id,
-                                       std::chrono::seconds keep_alive_time,
-                                       uint32_t task_stack_size,
-                                       uint32_t task_priority, TaskEventQueue<MQTTData>& queue)
-                        : Task(mqtt_client_id, task_stack_size, task_priority, std::chrono::milliseconds(50)),
-                          application_queue(queue),
+                                       std::chrono::seconds keep_alive,
+                                       uint32_t stack_size,
+                                       uint32_t priority, TaskEventQueue<MQTTData>& application_queue)
+                        : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
+                          application_queue(application_queue),
                           tx_empty("TX_empty", 5, *this, *this),
                           data_available("data_available", 5, *this, *this),
                           connection_status("connection_status", 5, *this, *this),
@@ -41,7 +41,7 @@ namespace smooth
                           system_event("system_event", 5, *this, *this),
                           guard(),
                           client_id(mqtt_client_id),
-                          keep_alive(keep_alive_time),
+                          keep_alive(keep_alive),
                           mqtt_socket(),
                           reconnect_timer(
                                   Timer::create("reconnect_timer",
@@ -75,21 +75,21 @@ namespace smooth
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
-                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> destination,
-                                            bool automatic_reconnect)
+                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address,
+                                            bool auto_reconnect)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     // Must start the task before pushing an event, otherwise the task will not
                     // have run its exec() far enough to initialize the FreeRTOS pointer
                     start();
 
-                    if(destination)
+                    if(address)
                     {
                         {
                             std::lock_guard<std::mutex> l(address_guard);
-                            this->address = destination;
+                            this->address = address;
                         }
-                        this->auto_reconnect = automatic_reconnect;
+                        this->auto_reconnect = auto_reconnect;
                         control_event.push(event::ConnectEvent());
                     }
                 }
@@ -103,7 +103,7 @@ namespace smooth
                                    retain);
                 }
 
-                bool MqttClient::publish(const std::string& topic, const uint8_t* data, size_t length, mqtt::QoS qos,
+                bool MqttClient::publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos,
                                          bool retain)
                 {
                     std::lock_guard<std::mutex> lock(guard);

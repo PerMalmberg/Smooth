@@ -19,25 +19,25 @@ namespace smooth
     namespace core
     {
         /// Constructor used when creating a new task running on a new thread.
-        Task::Task(const std::string& task_name, uint32_t task_stack_size, uint32_t task_priority,
-                   std::chrono::milliseconds task_tick_interval, int core)
+        Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
+                   std::chrono::milliseconds tick_interval, int core)
                 : name(task_name),
                   worker(),
-                  stack_size(task_stack_size),
-                  priority(task_priority),
-                  tick_interval(task_tick_interval),
+                  stack_size(stack_size),
+                  priority(priority),
+                  tick_interval(tick_interval),
                   is_attached(false),
                   affinity(core)
         {
         }
 
         /// Constructor used when attaching to an already running thread.
-        Task::Task(uint32_t task_priority, std::chrono::milliseconds task_tick_interval)
+        Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
                 :
                 name("MainTask"),
                 stack_size(0),
-                priority(task_priority),
-                tick_interval(task_tick_interval),
+                priority(priority),
+                tick_interval(tick_interval),
                 is_attached(true),
                 affinity(tskNO_AFFINITY)
         {

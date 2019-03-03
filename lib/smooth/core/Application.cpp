@@ -22,9 +22,8 @@ namespace smooth
 {
     namespace core
     {
-        POSIXApplication::POSIXApplication(uint32_t task_priority,
-                                           std::chrono::milliseconds task_tick_interval)
-                : Task(task_priority, task_tick_interval)
+        POSIXApplication::POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
+                : Task(priority, tick_interval)
         {
         }
 
@@ -33,13 +32,15 @@ namespace smooth
             // Start socket dispatcher first of all so that it is
             // ready to receive network status events.
             network::SocketDispatcher::instance();
+#ifndef ESP_PLATFORM
             // Assume network is available when running under POSIX system.
             network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
         }
 
 #ifdef ESP_PLATFORM
-        const std::unordered_map<int, const char*> IDFApplication::id_to_system_event {
+        const std::unordered_map<int, const char*> IDFApplication::id_to_system_event = {
                 {SYSTEM_EVENT_WIFI_READY,          "ESP32 WiFi ready"},
                 {SYSTEM_EVENT_SCAN_DONE,           "ESP32 finish scanning AP"},
                 {SYSTEM_EVENT_STA_START,           "ESP32 station start"},

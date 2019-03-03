@@ -27,11 +27,11 @@ namespace smooth
                     /// \param name The name of the event queue, mainly used for debugging and logging.
                     /// \param size The size of the queue, i.e. the number of items it can hold.
                     /// \param task The Task to which to signal when an event is available.
-                    /// \param event_listener The receiver of the events. Normally this is the same as the task, but it can be
+                    /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
                     /// any object instance.
-                    SubscribingTaskEventQueue(const std::string& name, size_t size, Task& receive_task, IEventListener<T>& event_listener)
+                    SubscribingTaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                             :
-                            TaskEventQueue<T>(name, size, receive_task, event_listener),
+                            TaskEventQueue<T>(name, size, task, listener),
                             link()
                     {
                         link.subscribe(this);

@@ -102,7 +102,7 @@ namespace smooth
                         /// \return true if the message could be queued for delivery, otherwise false. A true value
                         /// does not mean it has been delivered.
                         bool
-                        publish(const std::string& topic, const uint8_t* data, size_t length, mqtt::QoS qos, bool retain);
+                        publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
                         /// Subscribes to a topic.
                         /// \param topic The topic

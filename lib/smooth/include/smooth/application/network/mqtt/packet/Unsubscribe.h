@@ -30,7 +30,7 @@ namespace smooth
                             }
 
 
-                            explicit Unsubscribe(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
+                            explicit Unsubscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
@@ -43,7 +43,7 @@ namespace smooth
 
                             void visit(IPacketReceiver& receiver) override;
                         protected:
-                            uint32_t get_variable_header_length() const override
+                            int get_variable_header_length() const override
                             {
                                 return 2;
                             }

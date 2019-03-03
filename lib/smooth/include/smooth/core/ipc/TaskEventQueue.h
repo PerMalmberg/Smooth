@@ -32,13 +32,13 @@ namespace smooth
                     /// \param name The name of the event queue, mainly used for debugging and logging.
                     /// \param size The size of the queue, i.e. the number of items it can hold.
                     /// \param task The Task to which to signal when an event is available.
-                    /// \param event_listener The receiver of the events. Normally this is the same as the task, but it can be
+                    /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
                     /// any object instance.
-                    TaskEventQueue(const std::string& name, size_t size, Task& receiving_task, IEventListener<T>& event_listener)
+                    TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                             :
                             queue(name + std::string("-TaskEventQueue"), size),
-                            task(receiving_task),
-                            listener(event_listener)
+                            task(task),
+                            listener(listener)
                     {
                         task.register_queue_with_task(this);
                     }
@@ -58,21 +58,21 @@ namespace smooth
 
                     /// Gets the size of the queue.
                     /// \return number of items the queue can hold.
-                    size_t size() override
+                    int size() override
                     {
                         return queue.size();
                     }
 
                     /// Returns the number of items waiting to be popped.
                     /// \return The number of items in the queue.
-                    size_t count()
+                    int count()
                     {
                         return queue.count();
                     }
 
-                    void register_notification(QueueNotification* queue_notification) override
+                    void register_notification(QueueNotification* notification) override
                     {
-                        notification = queue_notification;
+                        this->notification = notification;
                     }
 
                 protected:

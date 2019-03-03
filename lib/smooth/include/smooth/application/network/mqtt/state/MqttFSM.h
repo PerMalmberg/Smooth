@@ -37,7 +37,7 @@ namespace smooth
                               public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                     {
                         public:
-                            explicit MqttFSM(mqtt::IMqttClient& mqtt_client) : mqtt(mqtt_client)
+                            explicit MqttFSM(mqtt::IMqttClient& mqtt) : mqtt(mqtt)
                             {
                             }
 
@@ -63,15 +63,15 @@ namespace smooth
                     };
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::entering_state(BaseState* new_state)
+                    void MqttFSM<BaseState>::entering_state(BaseState* state)
                     {
-                        Log::debug(mqtt_log_tag, Format("Entering {1}", Str(new_state->get_name())));
+                        Log::debug(mqtt_log_tag, Format("Entering {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::leaving_state(BaseState* old_state)
+                    void MqttFSM<BaseState>::leaving_state(BaseState* state)
                     {
-                        Log::debug(mqtt_log_tag, Format("Leaving {1}", Str(old_state->get_name())));
+                        Log::debug(mqtt_log_tag, Format("Leaving {1}", Str(state->get_name())));
                     }
 
                     template<typename BaseState>

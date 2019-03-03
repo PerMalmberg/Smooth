@@ -31,10 +31,10 @@ namespace smooth
                     virtual bool is_full() = 0;
                     /// Returns a value indicating number of available items.
                     /// \return Number of items in the buffer.
-                    virtual size_t available_items() = 0;
+                    virtual int available_items() = 0;
                     /// Returns a value indicating number of available empty slots.
                     /// \return Number of items that can be put into the buffer.
-                    virtual size_t available_slots() = 0;
+                    virtual int available_slots() = 0;
                     /// Clears the buffer
                     virtual void clear() = 0;
 
@@ -43,7 +43,7 @@ namespace smooth
             /// A circular buffer. Not thread-safe.
             /// \tparam T The type of item to hold
             /// \tparam Size Number of items to hold.
-            template<typename T, size_t Size>
+            template<typename T, int Size>
             class CircularBuffer
                     : public ICircularBuffer<T>
             {
@@ -52,7 +52,7 @@ namespace smooth
 
                     virtual ~CircularBuffer() = default;
 
-                    void put(const T& new_data) override;
+                    void put(const T& data) override;
                     bool get(T& d) override;
 
                     bool is_empty() override
@@ -65,12 +65,12 @@ namespace smooth
                         return count == Size;
                     }
 
-                    size_t available_items() override
+                    int available_items() override
                     {
                         return count;
                     }
 
-                    size_t available_slots() override
+                    int available_slots() override
                     {
                         return Size - count;
                     }
@@ -86,19 +86,19 @@ namespace smooth
                     CircularBuffer& operator=(const CircularBuffer&) = delete;
 
                 private:
-                    size_t next_pos(size_t current)
+                    int next_pos(int current)
                     {
                         return (current + 1) % Size;
                     }
 
                     T data[Size];
-                    size_t read_pos;
-                    size_t write_pos;
-                    size_t count;
+                    int read_pos;
+                    int write_pos;
+                    int count;
             };
 
 
-            template<typename T, size_t Size>
+            template<typename T, int Size>
             CircularBuffer<T, Size>::CircularBuffer()
                     :    data(),
                          read_pos(0),
@@ -107,10 +107,10 @@ namespace smooth
             {
             }
 
-            template<typename T, size_t Size>
-            void CircularBuffer<T, Size>::put(const T& new_data)
+            template<typename T, int Size>
+            void CircularBuffer<T, Size>::put(const T& data)
             {
-                this->data[write_pos] = new_data;
+                this->data[write_pos] = data;
 
                 if (!is_full())
                 {
@@ -126,7 +126,7 @@ namespace smooth
                 write_pos = next_pos(write_pos);
             }
 
-            template<typename T, size_t Size>
+            template<typename T, int Size>
             bool CircularBuffer<T, Size>::get(T& d)
             {
                 bool res = false;

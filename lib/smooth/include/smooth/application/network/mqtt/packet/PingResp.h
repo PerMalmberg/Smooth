@@ -22,7 +22,7 @@ namespace smooth
                         public:
                             PingResp() = default;
 
-                            explicit PingResp(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
+                            explicit PingResp(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

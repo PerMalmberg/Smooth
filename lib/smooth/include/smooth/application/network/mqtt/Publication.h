@@ -29,7 +29,7 @@ namespace smooth
                         Publication();
 
                         bool
-                        publish(const std::string& topic, const uint8_t* data, size_t length, mqtt::QoS qos, bool retain);
+                        publish(const std::string& topic, const uint8_t* data, int length, mqtt::QoS qos, bool retain);
 
                         void publish_next(IMqttClient& mqtt);
 

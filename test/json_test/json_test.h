@@ -10,6 +10,8 @@ namespace json_test
     public:
         App();
 
+        void init() override;
+
         void tick() override;
 
     private:

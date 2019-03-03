@@ -29,8 +29,8 @@ namespace smooth
             {
             }
 
-            Value::Value(cJSON* parent_node, cJSON* object)
-                    : parent(parent_node), data(object)
+            Value::Value(cJSON* parent, cJSON* object)
+                    : parent(parent), data(object)
             {
             }
 
@@ -85,11 +85,11 @@ namespace smooth
                 }
 
                 // Add any missing items in the array
-                auto size = static_cast<size_t>(cJSON_GetArraySize(data));
+                auto size = cJSON_GetArraySize(data);
                 if (index >= size)
                 {
                     size_t to_add = index - size + 1;
-                    for (size_t i = 0; i < to_add; ++i)
+                    for (int i = 0; i < to_add; ++i)
                     {
                         cJSON_AddItemToArray(data, cJSON_CreateObject());
                     }

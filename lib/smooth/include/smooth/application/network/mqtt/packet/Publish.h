@@ -24,11 +24,11 @@ namespace smooth
                         public:
                             Publish() = default;
 
-                            explicit Publish(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
+                            explicit Publish(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
-                            Publish(const std::string& topic, const uint8_t* data, size_t length, QoS qos, bool retain);
+                            Publish(const std::string& topic, const uint8_t* data, int length, QoS qos, bool retain);
 
                             void visit(IPacketReceiver& receiver) override;
 
@@ -69,7 +69,7 @@ namespace smooth
                                 return get_payload_length() > 0;
                             }
 
-                            uint32_t get_variable_header_length() const override;
+                            int get_variable_header_length() const override;
                     };
                 }
             }

@@ -23,7 +23,7 @@ namespace smooth
                         elapsed_time.start();
                     }
 
-                    void DisconnectState::event(const core::network::TransmitBufferEmptyEvent&)
+                    void DisconnectState::event(const core::network::TransmitBufferEmptyEvent& event)
                     {
                         // Disconnect sent, we're done
                         fsm.set_state(new(fsm) IdleState(fsm));

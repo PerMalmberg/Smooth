@@ -1,11 +1,11 @@
 project(smooth)
 
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
+
 smooth_verify_idf_path()
 
 set(CMAKE_CXX_STANDARD 14)
-
-# -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference
+add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
 
 set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp
@@ -35,6 +35,7 @@ set(SOURCES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
+        application/security/PasswordHash.cpp
         core/ipc/QueueNotification.cpp
         core/network/IPv4.cpp
         #core/network/IPv6.cpp
@@ -87,6 +88,7 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
+        include/smooth/application/security/PasswordHash.h
         include/smooth/core/fsm/StaticFSM.h
         include/smooth/core/ipc/IEventListener.h
         include/smooth/core/ipc/ITaskEventQueue.h
@@ -168,8 +170,6 @@ if (${ESP_PLATFORM})
             application/io/i2c/MCP23017.cpp
             application/io/i2c/BME280.cpp
             application/io/wiegand/Wiegand.cpp
-            application/security/PasswordHash.cpp
-            include/smooth/application/security/PasswordHash.h
             )
 else()
         list(APPEND SOURCES
@@ -178,20 +178,6 @@ else()
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
-if( NOT ESP_PLATFORM )
-    target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wnon-virtual-dtor -Wuseless-cast>)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Wshadow)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wcast-align -Wunused ) # -Woverloaded-virtual
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wconversion -Wsign-conversion)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wlogical-op -Wdouble-promotion -Wformat=2)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
-endif()
-
-if ( NOT ESP_PLATFORM )
-    target_link_libraries(${PROJECT_NAME} pthread)
-endif()
 
 target_include_directories(
         ${PROJECT_NAME}

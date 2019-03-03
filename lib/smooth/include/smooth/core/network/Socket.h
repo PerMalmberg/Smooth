@@ -88,11 +88,11 @@ namespace smooth
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
-                           std::chrono::milliseconds sending_timeout);
+                           std::chrono::milliseconds send_timeout);
 
                     virtual bool create_socket();
 
-                    virtual void read_data(uint8_t* target, size_t max_length);
+                    virtual void read_data(uint8_t* target, int max_length);
 
                     virtual void write_data();
 
@@ -167,18 +167,14 @@ namespace smooth
                         : public Socket<Packet>
                 {
                     public:
-                        MakeSharedActivator(IPacketSendBuffer<Packet>& tx_packet_buffer,
-                                            IPacketReceiveBuffer<Packet>& rx_packet_buffer,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty_queue,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available_queue,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status_queue,
-                                            std::chrono::milliseconds timeout)
-                                : Socket<Packet>(tx_packet_buffer,
-                                                 rx_packet_buffer,
-                                                 tx_empty_queue,
-                                                 data_available_queue,
-                                                 connection_status_queue,
-                                                 timeout)
+                        MakeSharedActivator(IPacketSendBuffer<Packet>& tx_buffer,
+                                            IPacketReceiveBuffer<Packet>& rx_buffer,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                                            std::chrono::milliseconds send_timeout)
+                                : Socket<Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status,
+                                                 send_timeout)
                         {
                         }
 
@@ -194,30 +190,30 @@ namespace smooth
             }
 
             template<typename Packet>
-            Socket<Packet>::Socket(IPacketSendBuffer<Packet>& tx_packet_buffer, IPacketReceiveBuffer<Packet>& rx_packet_buffer,
-                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty_queue,
-                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available_queue,
-                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status_queue,
-                                   std::chrono::milliseconds sending_timeout
+            Socket<Packet>::Socket(IPacketSendBuffer<Packet>& tx_buffer, IPacketReceiveBuffer<Packet>& rx_buffer,
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
+                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                                   std::chrono::milliseconds send_timeout
             )
                     :
-                    tx_buffer(tx_packet_buffer),
-                    rx_buffer(rx_packet_buffer),
-                    data_available(data_available_queue),
-                    tx_empty(tx_empty_queue),
-                    connection_status(connection_status_queue),
-                    send_timeout(sending_timeout)
+                    tx_buffer(tx_buffer),
+                    rx_buffer(rx_buffer),
+                    data_available(data_available),
+                    tx_empty(tx_empty),
+                    connection_status(connection_status),
+                    send_timeout(send_timeout)
             {
             }
 
             template<typename Packet>
-            bool Socket<Packet>::start(std::shared_ptr<InetAddress> destination)
+            bool Socket<Packet>::start(std::shared_ptr<InetAddress> ip)
             {
                 bool res = false;
                 if (!started)
                 {
                     elapsed_send_time.stop_and_zero();
-                    ip = destination;
+                    this->ip = ip;
                     res = ip->is_valid();
                     if (res)
                     {
@@ -297,7 +293,7 @@ namespace smooth
                 if (started && !rx_buffer.is_full())
                 {
                     // How much data to assemble the current packet?
-                    auto wanted_length = rx_buffer.amount_wanted();
+                    int wanted_length = rx_buffer.amount_wanted();
 
                     // Try to read the desired amount
                     read_data(rx_buffer.get_write_pos(), wanted_length);
@@ -344,11 +340,11 @@ namespace smooth
             }
 
             template<typename Packet>
-            void Socket<Packet>::read_data(uint8_t* target, size_t max_length)
+            void Socket<Packet>::read_data(uint8_t* target, int max_length)
             {
                 errno = 0;
                 // Try to read the desired amount
-                auto read_count = recv(socket_id, target, max_length, 0);
+                int read_count = recv(socket_id, target, max_length, 0);
 
                 if (read_count == -1)
                 {
@@ -360,7 +356,7 @@ namespace smooth
                 }
                 else if (read_count > 0)
                 {
-                    rx_buffer.data_received(static_cast<size_t>(read_count));
+                    rx_buffer.data_received(read_count);
                     if (rx_buffer.is_error())
                     {
                         log("Assembly error");

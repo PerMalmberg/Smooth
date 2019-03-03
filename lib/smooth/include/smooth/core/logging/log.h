@@ -124,16 +124,6 @@ namespace smooth
                     }
             };
 
-            class SizeT
-                    : public BaseArgWithData
-            {
-                public:
-                    explicit SizeT(size_t value)
-                            : BaseArgWithData(std::to_string(value))
-                    {
-                    }
-            };
-
             /// Class to log a bool
             class Bool
                     : public BaseArgWithData

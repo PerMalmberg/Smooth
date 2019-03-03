@@ -30,7 +30,7 @@ namespace smooth
                     virtual void reset() = 0;
                     /// Gets the ID of the timer.
                     /// \return The id.
-                    virtual int16_t get_id() const = 0;
+                    virtual int get_id() const = 0;
                     /// Gets the name of the timer
                     /// \return The name.
                     virtual const std::string& get_name() = 0;

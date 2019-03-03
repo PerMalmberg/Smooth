@@ -21,7 +21,7 @@ namespace smooth
             /// - It does *not* support complex C++ objects to be enqueued, i.e. DataType must be a trivial type.
             /// \tparam DataType The type of data to carry on the queue.
             /// \tparam Size The size of the queue.
-            template<typename DataType, size_t Size>
+            template<typename DataType, int Size>
             class ISRTaskEventQueue
                     : public IISRTaskEventQueue<DataType>,
                       public IPolledTaskQueue
@@ -34,7 +34,7 @@ namespace smooth
 
                     IRAM_ATTR void signal(const DataType& data) override;
 
-                    size_t size() override
+                    int size() override
                     {
                         return Size;
                     }
@@ -66,7 +66,7 @@ namespace smooth
                     bool read_since_poll = true;
             };
 
-            template<typename DataType, size_t Size>
+            template<typename DataType, int Size>
             ISRTaskEventQueue<DataType, Size>::ISRTaskEventQueue(Task& task, IEventListener<DataType>& listener)
                     :task(task), listener(listener)
             {
@@ -75,7 +75,7 @@ namespace smooth
             }
 
             /// \note This method runs in ISR context
-            template<typename DataType, size_t Size>
+            template<typename DataType, int Size>
             void ISRTaskEventQueue<DataType, Size>::signal(const DataType& data)
             {
                 // There is a possibility that we loose signals here if the queue is full.
@@ -87,7 +87,7 @@ namespace smooth
                 }
             }
 
-            template<typename DataType, size_t Size>
+            template<typename DataType, int Size>
             void ISRTaskEventQueue<DataType, Size>::forward_to_event_queue()
             {
                 // All messages passed via a queue needs a default constructor

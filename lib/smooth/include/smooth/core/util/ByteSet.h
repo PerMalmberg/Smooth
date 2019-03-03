@@ -39,7 +39,7 @@ namespace smooth
                         {
                             if (test(i))
                             {
-                                res |= static_cast<uint8_t>(1 << ix);
+                                res |= 1 << ix;
                             }
                             ++ix;
                         }

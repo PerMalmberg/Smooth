@@ -22,7 +22,7 @@ namespace smooth
                         public:
                             PubRel() = default;
 
-                            explicit PubRel(const MQTTPacket& other_packet) : MQTTPacket(other_packet)
+                            explicit PubRel(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
@@ -46,7 +46,7 @@ namespace smooth
                                 return true;
                             }
 
-                            uint32_t get_variable_header_length() const override
+                            int get_variable_header_length() const override
                             {
                                 // Only packet identifier in this variable header
                                 return 2;

@@ -18,11 +18,8 @@ namespace smooth
                 namespace packet
                 {
                     // Minimum connect packet
-                    Connect::Connect(const std::string& client_id,
-                                     std::chrono::seconds keep_alive,
-                                     bool clean_session_on_connect)
-                            : MQTTPacket(),
-                            clean_session(clean_session_on_connect)
+                    Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive, bool clean_session)
+                            : MQTTPacket(), clean_session(clean_session)
                     {
                         set_header(PacketType::CONNECT, 0);
 
