@@ -34,7 +34,7 @@ namespace smooth
                         public:
                             MQTTBaseState(MqttFSM <MQTTBaseState>& fsm, const char* name);
 
-                            virtual ~MQTTBaseState();
+                            ~MQTTBaseState() override;
 
                             virtual void enter_state()
                             {
@@ -53,15 +53,15 @@ namespace smooth
                             {
                             }
 
-                            void event(const core::network::TransmitBufferEmptyEvent& event) override
+                            void event(const core::network::TransmitBufferEmptyEvent&) override
                             {
                             }
 
-                            void event(const core::network::ConnectionStatusEvent& event) override
+                            void event(const core::network::ConnectionStatusEvent&) override
                             {
                             }
 
-                            void event(const core::timer::TimerExpiredEvent& event) override
+                            void event(const core::timer::TimerExpiredEvent&) override
                             {
                             }
 

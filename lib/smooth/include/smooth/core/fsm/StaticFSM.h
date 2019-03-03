@@ -46,13 +46,13 @@ namespace smooth
 
                     /// Called as a notification to the subclassing FSM before a new state is entered.
                     /// \param state The new state
-                    virtual void entering_state(BaseState* state)
+                    virtual void entering_state(BaseState*)
                     {
                     }
 
                     /// Called as a notification to the subclassing FSM before the current state is left.
                     /// \param state The current state
-                    virtual void leaving_state(BaseState* state)
+                    virtual void leaving_state(BaseState*)
                     {
                     }
 
