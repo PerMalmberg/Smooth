@@ -25,7 +25,7 @@ namespace smooth
                                bool slc_internal_pullup_enable,
                                gpio_num_t sda,
                                bool sda_internal_pullup_enable,
-                               int clock_frequency_hz);
+                               uint32_t clock_frequency_hz);
 
                         ~Master();
 

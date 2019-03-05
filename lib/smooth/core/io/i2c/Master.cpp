@@ -22,7 +22,7 @@ namespace smooth
                                bool scl_internal_pullup_enable,
                                gpio_num_t sda,
                                bool sda_internal_pullup_enable,
-                               int clock_frequency_hz)
+                               uint32_t clock_frequency_hz)
                         : port(port)
                 {
                     config.mode = I2C_MODE_MASTER;

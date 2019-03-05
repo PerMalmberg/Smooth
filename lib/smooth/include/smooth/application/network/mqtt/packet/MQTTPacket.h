@@ -106,7 +106,7 @@ namespace smooth
 
                             uint16_t read_packet_identifier(std::vector<uint8_t>::const_iterator pos) const
                             {
-                                return *pos << 8 | *(pos + 1);
+                                return static_cast<uint16_t>(*pos << 8 | *(pos + 1));
                             }
 
                             void set_header(PacketType type, QoS qos, bool dup, bool retain);

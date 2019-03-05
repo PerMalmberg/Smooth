@@ -1,7 +1,10 @@
 #pragma once
 
 #include "esp_vfs.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include "esp_vfs_fat.h"
+#pragma GCC diagnostic pop
 #include "esp_system.h"
 #include <string>
 

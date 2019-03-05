@@ -136,7 +136,7 @@ namespace smooth
                         if (res)
                         {
                             target = buff[0];
-                            target |= buff[1] << 8;
+                            target = static_cast<T>(target | (buff[1] << 8));
                         }
 
                         return res;
@@ -149,7 +149,7 @@ namespace smooth
                         bool res = read(address, start_reg, buff);
                         if (res)
                         {
-                            target = buff[0];
+                            target = static_cast<T>(buff[0]);
                         }
 
                         return res;

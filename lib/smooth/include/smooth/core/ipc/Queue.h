@@ -43,7 +43,7 @@ namespace smooth
                                             Str(name),
                                             Int32(size),
                                             UInt32(sizeof(T))));
-                        items.reserve(size);
+                        items.reserve(static_cast<size_t>(size));
                     }
 
                     /// Destructor

@@ -71,7 +71,7 @@ namespace smooth
                     {
                         for (int i = 0; i <= max_file_descriptor; ++i)
                         {
-                            if (FD_ISSET(i, &read_set))
+                            if (FD_ISSET(static_cast<size_t>(i), &read_set))
                             {
                                 auto it = active_sockets.find(i);
                                 if (it != active_sockets.end())
@@ -80,7 +80,7 @@ namespace smooth
                                 }
                             }
 
-                            if (FD_ISSET(i, &write_set))
+                            if (FD_ISSET(static_cast<size_t>(i), &write_set))
                             {
                                 auto it = active_sockets.find(i);
                                 if (it != active_sockets.end())
@@ -126,7 +126,7 @@ namespace smooth
             {
                 clear_sets();
 
-                int max = -1;
+                int max = ISocket::INVALID_SOCKET;
 
                 for (auto& pair : active_sockets)
                 {
@@ -137,12 +137,14 @@ namespace smooth
                     {
                         if (s->has_data_to_transmit() || !s->is_connected())
                         {
-                            FD_SET(s->get_socket_id(), &write_set);
+                            // A valid socket id is >= 0 so casting to unsigned is safe
+                            FD_SET(static_cast<size_t >(s->get_socket_id()), &write_set);
                         }
 
                         if (s->is_connected())
                         {
-                            FD_SET(s->get_socket_id(), &read_set);
+                            // A valid socket id is >= 0 so casting to unsigned is safe
+                            FD_SET(static_cast<size_t>(s->get_socket_id()), &read_set);
                         }
                     }
                 }
@@ -177,7 +179,7 @@ namespace smooth
                 remove_socket_from_collection(inactive_sockets, socket);
 
                 auto socket_id = socket->get_socket_id();
-                if (socket_id != -1)
+                if (socket_id != ISocket::INVALID_SOCKET)
                 {
                     int res = shutdown(socket_id, SHUT_RDWR);
                     if (res < 0)

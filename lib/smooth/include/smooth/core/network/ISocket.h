@@ -22,6 +22,8 @@ namespace smooth
                     friend class smooth::core::network::SocketDispatcher;
 
                 public:
+                    static const int INVALID_SOCKET = -1;
+
                     virtual ~ISocket() = default;
 
                     /// Initiates the connection to the provided IP. After this call events will arrive

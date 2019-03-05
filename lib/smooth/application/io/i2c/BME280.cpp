@@ -61,14 +61,13 @@ namespace smooth
                 data.push_back(humidity);
 
                 data.push_back(CTRL_MEAS_REG);
-                uint8_t meas_data = (temperature << 5);
-                meas_data |= (pressure << 2);
-                meas_data |= mode;
+                auto meas_data = static_cast<uint8_t>(temperature << 5);
+                meas_data = static_cast<uint8_t>(meas_data | (pressure << 2));
+                meas_data = static_cast<uint8_t>(meas_data | mode);
                 data.push_back(meas_data);
 
                 data.push_back(CONFIG_REG);
-                uint8_t config_data = standby << 5;
-                config_data |= filter_coeff << 2;
+                auto config_data = static_cast<uint8_t>((standby << 5) | (filter_coeff << 2));
                 data.push_back(config_data);
 
                 return write(address, data, true);
@@ -135,13 +134,13 @@ namespace smooth
                             // dig_H5: bits 3:0 located in DIG_H5_REG[7:4], bits 11:4 in DIG_H5_REG+1
 
                             && read_8bit(DIG_H4_REG, h4)
-                            && read_8bit(DIG_H4_REG + 1, h4_1)
+                            && read_8bit(static_cast<uint8_t>(DIG_H4_REG + 1), h4_1)
                             && read_8bit(DIG_H5_REG, h5)
-                            && read_8bit(DIG_H5_REG + 1, h5_1);
+                            && read_8bit(static_cast<uint8_t>(DIG_H5_REG + 1), h5_1);
 
                     // Adjust values so they are directly usable.
-                    trimming.dig_H4 = (h4 << 4) | (h4_1 & 0xF);
-                    trimming.dig_H5 = (h5 >> 4) | (h5_1 << 4);
+                    trimming.dig_H4 = static_cast<int16_t>((h4 << 4) | (h4_1 & 0xF));
+                    trimming.dig_H5 = static_cast<int16_t>((h5 >> 4) | (h5_1 << 4));
                 }
 
                 return trimming_read;
@@ -162,25 +161,25 @@ namespace smooth
                 if (res)
                 {
                     // Temperature data is at index: MSB: 3, LSB: 4, XLSB: 5
-                    uint32_t temp = measurement[5] & 0x0F;
+                    auto temp = measurement[5] & 0x0F;
                     temp |= measurement[4] << 4;
                     temp |= measurement[3] << (4 + 8);
 
-                    temperature = BME280_compensate_T_int32(temp) / 100.0;
+                    temperature = static_cast<float>(BME280_compensate_T_int32(temp) / 100.0);
 
                     // Pressure data is at index: MSB: 0, LSB: 1, XLSB: 2
                     int32_t press = measurement[2] & 0xF;
                     press |= measurement[1] << 4;
                     press |= measurement[0] << (4 + 8);
 
-                    pressure = BME280_compensate_P_int64(press) / 256.0;
+                    pressure = static_cast<float>(BME280_compensate_P_int64(press) / 256.0);
 
                     // Humidity data is at index: MSB: 6, LSB: 7
 
                     int32_t hum = measurement[7];
                     hum |= measurement[6] << 8;
 
-                    humidity = BME280_compensate_H_int32(hum) / 1024;
+                    humidity = static_cast<float>(BME280_compensate_H_int32(hum) / 1024);
                 }
 
                 return res;

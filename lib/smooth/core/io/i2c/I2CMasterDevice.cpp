@@ -30,7 +30,7 @@ namespace smooth
                     I2CCommandLink link(*this);
 
                     // Set R/W bit to 0 for write.
-                    address <<= 1;
+                    address = static_cast<uint8_t>(address << 1);
 
                     auto res = i2c_master_start(link);
                     res |= i2c_master_write_byte(link, address, expect_ack);
@@ -75,7 +75,7 @@ namespace smooth
                     I2CCommandLink link(*this);
 
                     // Set R/W bit to 0 for write.
-                    uint8_t write_address = address << 1;
+                    auto write_address = static_cast<uint8_t>(address << 1);
                     // Set R/W bit to 1 for read.
                     auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
 
@@ -141,7 +141,7 @@ namespace smooth
                     for (uint8_t address = 2; address <= 127; ++address)
                     {
                         I2CCommandLink link(*this);
-                        auto read_address = address << 1;
+                        auto read_address = static_cast<uint8_t>(address << 1);
 
                         auto res = i2c_master_start(link);
                         res |= i2c_master_write_byte(link, read_address, true);

@@ -48,10 +48,10 @@ namespace smooth
 
             bool File::write(const std::string& data) const
             {
-                return write(reinterpret_cast<const uint8_t*>(data.data()), data.size());
+                return write(reinterpret_cast<const uint8_t*>(data.data()), static_cast<int>(data.size()));
             }
 
-            bool File::write(const uint8_t* data, size_t length) const
+            bool File::write(const uint8_t* data, int length) const
             {
                 bool res = false;
 

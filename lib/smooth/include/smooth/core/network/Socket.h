@@ -134,7 +134,7 @@ namespace smooth
                     void loge(const char* message);
 
                     void publish_connected_status() override;
-                    int socket_id = -1;
+                    int socket_id = INVALID_SOCKET;
                     std::shared_ptr<InetAddress> ip;
                     bool started = false;
                     bool connected = false;
@@ -240,7 +240,7 @@ namespace smooth
                 {
                     socket_id = socket(ip->get_protocol_family(), SOCK_STREAM, 0);
 
-                    if (socket_id == -1)
+                    if (socket_id == INVALID_SOCKET)
                     {
                         loge("Failed to create socket");
                     }
@@ -344,9 +344,9 @@ namespace smooth
             {
                 errno = 0;
                 // Try to read the desired amount
-                int read_count = recv(socket_id, target, max_length, 0);
+                auto read_count = recv(socket_id, target, static_cast<size_t>(max_length), 0);
 
-                if (read_count == -1)
+                if (read_count == INVALID_SOCKET)
                 {
                     if (errno != EWOULDBLOCK)
                     {
@@ -356,7 +356,7 @@ namespace smooth
                 }
                 else if (read_count > 0)
                 {
-                    rx_buffer.data_received(read_count);
+                    rx_buffer.data_received(static_cast<int>(read_count));
                     if (rx_buffer.is_error())
                     {
                         log("Assembly error");
@@ -382,7 +382,7 @@ namespace smooth
                 auto length = tx_buffer.get_remaining_data_length();
                 auto amount_sent = send(socket_id,
                                         data_to_send,
-                                        length,
+                                        static_cast<size_t>(length),
                                         SEND_FLAGS);
 
                 if (amount_sent == -1)
@@ -392,7 +392,7 @@ namespace smooth
                 }
                 else
                 {
-                    tx_buffer.data_has_been_sent(static_cast<size_t>(amount_sent));
+                    tx_buffer.data_has_been_sent(static_cast<int>(amount_sent));
 
                     // Was a complete packet sent?
                     if (tx_buffer.is_in_progress())
@@ -487,7 +487,7 @@ namespace smooth
             template<typename Packet>
             void Socket<Packet>::clear_socket_id()
             {
-                socket_id = -1;
+                socket_id = INVALID_SOCKET;
             }
 
             template<typename Packet>

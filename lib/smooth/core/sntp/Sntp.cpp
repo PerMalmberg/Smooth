@@ -1,7 +1,7 @@
 #include <smooth/core/sntp/Sntp.h>
 
 #include <lwip/apps/sntp.h>
-#include <time.h>
+#include <ctime>
 #include <iostream>
 
 namespace smooth
@@ -21,7 +21,7 @@ namespace smooth
                 {
                     sntp_setoperatingmode(SNTP_OPMODE_POLL);
 
-                    int i = 0;
+                    uint8_t i = 0;
                     for (auto& s : servers)
                     {
                         // Only a pointer to the string is stored in the underlying structs.

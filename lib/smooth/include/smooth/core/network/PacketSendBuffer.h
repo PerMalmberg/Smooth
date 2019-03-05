@@ -55,13 +55,13 @@ namespace smooth
                         return current_item.get_data() + bytes_sent;
                     }
 
-                    size_t get_remaining_data_length() override
+                    int get_remaining_data_length() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         return current_item.get_send_length() - bytes_sent;
                     }
 
-                    void data_has_been_sent(size_t length) override
+                    void data_has_been_sent(int length) override
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         bytes_sent += length;

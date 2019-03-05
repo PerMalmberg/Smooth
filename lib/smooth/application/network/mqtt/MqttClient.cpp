@@ -98,7 +98,7 @@ namespace smooth
                 {
                     return publish(topic,
                                    reinterpret_cast<const uint8_t*>(msg.c_str()),
-                                   msg.size(),
+                                   static_cast<int>(msg.size()),
                                    qos,
                                    retain);
                 }

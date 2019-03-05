@@ -68,7 +68,7 @@ namespace smooth
                         else if (state == REMAINING_LENGTH)
                         {
                             // Second and optionally 3rd to 5th bytes
-                            core::util::ByteSet b(packet[bytes_received - 1]);
+                            core::util::ByteSet b(packet[static_cast<size_t>(bytes_received - 1)]);
                             if (b.test(7))
                             {
                                 // Not yet received all length bytes
@@ -208,7 +208,7 @@ namespace smooth
 
                     void MQTTPacket::set_header(PacketType type, uint8_t flags)
                     {
-                        uint8_t value = (type << 4) | flags;
+                        auto value = static_cast<uint8_t>((type << 4) | flags);
                         packet.push_back(value);
                     }
 
@@ -221,9 +221,9 @@ namespace smooth
 
                     std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
-                        uint16_t length = (*offset) << 8;
+                        auto length = static_cast<uint16_t>((*offset) << 8);
                         ++offset;
-                        length |= *offset;
+                        length = static_cast<uint16_t>(length | *offset);
                         ++offset;
 
                         std::stringstream ss;
@@ -316,11 +316,11 @@ namespace smooth
                         {
                             // Ensure that data lengths add up.
                             calculate_remaining_length_and_variable_header_offset();
-                            long left_over = packet.size()
+                            auto left_over = static_cast<long>(packet.size())
                                              // Fixed header
                                              - std::distance(packet.cbegin(), get_variable_header_start())
                                              // Variable header
-                                             - get_variable_header_length()
+                                             - static_cast<long>(get_variable_header_length())
                                              // Payload
                                              - get_payload_length();
 
@@ -352,12 +352,12 @@ namespace smooth
                         if (is_too_big())
                         {
                             // Always write to the byte after the header
-                            pos = &packet[received_header_length];
+                            pos = &packet[static_cast<size_t>(received_header_length)];
                         }
                         else
                         {
                             // Append to the already received data.
-                            pos = &packet[bytes_received];
+                            pos = &packet[static_cast<size_t>(bytes_received)];
                         }
 
                         return pos;
