@@ -5,7 +5,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 smooth_verify_idf_path()
 
 set(CMAKE_CXX_STANDARD 14)
-add_definitions(-D_GLIBCXX_USE_C99) # for std::to_string (until using xtensa-gcc 8)
 
 set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp

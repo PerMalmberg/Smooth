@@ -91,7 +91,7 @@ namespace smooth
                         return (current + 1) % Size;
                     }
 
-                    T buffer[Size];
+                    T buffer[static_cast<size_t>(Size)];
                     int read_pos;
                     int write_pos;
                     int count;

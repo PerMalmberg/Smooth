@@ -65,7 +65,7 @@ namespace smooth
 
                 private:
 #pragma pack(push, 1)
-                    uint8_t state[2][StateSize]{};
+                    uint8_t state[2][static_cast<size_t>(StateSize)]{};
 #pragma pack(pop)
                     BaseState* current_state = nullptr;
             };
