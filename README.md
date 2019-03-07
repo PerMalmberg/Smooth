@@ -1,10 +1,6 @@
 # Smooth
 C++ framework for writing applications based on Espressif's ESP-IDF.
 
-**Please note: Due to the current state of IDF there is no reliable way to determine if Smooth is being compiled for ESP32 or Linux. 
-As such the support to compile against Linux is not currently functional. Once IDF stabilizes this support will be brought back. 
-There is a [pull request](https://github.com/espressif/esp-idf/pull/2601) addressing this issue.**
-
 ## Overview
 
 Smooth provides a set of classes that makes life as a developer easier compared to working directly with ESP-IDF & FreeRTOS APIs.
