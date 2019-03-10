@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
+#include <netinet/in.h>
 
 #endif
 
@@ -68,13 +69,15 @@ namespace smooth
                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
 
-                    virtual ~Socket()
+                    ~Socket() override
                     {
                         log("Destructing");
                     }
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
+
                     void stop() override;
+
                     bool restart() override;
 
                     bool is_active() override;
@@ -92,7 +95,7 @@ namespace smooth
 
                     virtual bool create_socket();
 
-                    virtual void read_data(uint8_t* target, int max_length);
+                    virtual void read_data();
 
                     virtual void write_data();
 
@@ -112,8 +115,6 @@ namespace smooth
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty;
 
-                private:
-
                     bool internal_start() override;
 
                     bool is_connected() override
@@ -131,16 +132,21 @@ namespace smooth
                     }
 
                     void log(const char* message);
+
                     void loge(const char* message);
 
                     void publish_connected_status() override;
+
                     int socket_id = INVALID_SOCKET;
                     std::shared_ptr<InetAddress> ip;
                     bool started = false;
                     bool connected = false;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
+
                     void stop_internal() override;
+
                     void clear_socket_id() override;
+
 #ifdef ESP_PLATFORM
                     // lwip doesn't signal SIGPIPE
                     const int SEND_FLAGS = 0;
@@ -292,11 +298,7 @@ namespace smooth
             {
                 if (started && !rx_buffer.is_full())
                 {
-                    // How much data to assemble the current packet?
-                    int wanted_length = rx_buffer.amount_wanted();
-
-                    // Try to read the desired amount
-                    read_data(rx_buffer.get_write_pos(), wanted_length);
+                    read_data();
                 }
             }
 
@@ -340,11 +342,15 @@ namespace smooth
             }
 
             template<typename Packet>
-            void Socket<Packet>::read_data(uint8_t* target, int max_length)
+            void Socket<Packet>::read_data()
             {
                 errno = 0;
+
+                // How much data to assemble the current packet?
+                int wanted_length = rx_buffer.amount_wanted();
+
                 // Try to read the desired amount
-                auto read_count = recv(socket_id, target, static_cast<size_t>(max_length), 0);
+                auto read_count = recv(socket_id, rx_buffer.get_write_pos(), static_cast<size_t>(wanted_length), 0);
 
                 if (read_count == INVALID_SOCKET)
                 {
