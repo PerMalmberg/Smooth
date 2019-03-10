@@ -100,6 +100,8 @@ namespace smooth
                                          {
                                              return started.load();
                                          });
+
+                    Log::debug(name, "Worker started");
                 }
             }
         }

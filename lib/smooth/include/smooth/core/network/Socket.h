@@ -8,7 +8,6 @@
 #include "InetAddress.h"
 #include "ISocket.h"
 #include <cstring>
-#include <array>
 #include <memory>
 #include <chrono>
 #include <smooth/core/util/CircularBuffer.h>
@@ -147,13 +146,6 @@ namespace smooth
 
                     void clear_socket_id() override;
 
-#ifdef ESP_PLATFORM
-                    // lwip doesn't signal SIGPIPE
-                    const int SEND_FLAGS = 0;
-#else
-                    // Disable SIGPIPE during send()-calls.
-                    const int SEND_FLAGS = MSG_NOSIGNAL;
-#endif
                     std::chrono::milliseconds send_timeout;
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
             };
@@ -352,7 +344,7 @@ namespace smooth
                 // Try to read the desired amount
                 auto read_count = recv(socket_id, rx_buffer.get_write_pos(), static_cast<size_t>(wanted_length), 0);
 
-                if (read_count == INVALID_SOCKET)
+                if (read_count == -1)
                 {
                     if (errno != EWOULDBLOCK)
                     {

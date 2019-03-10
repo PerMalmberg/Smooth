@@ -37,6 +37,7 @@ set(SOURCES
         core/ipc/QueueNotification.cpp
         core/network/IPv4.cpp
         #core/network/IPv6.cpp
+        core/network/MbedTLSContext.cpp
         core/network/SocketDispatcher.cpp
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
@@ -106,6 +107,7 @@ set(SOURCES
         include/smooth/core/network/IPv4.h
         include/smooth/core/network/IPv6.h
         include/smooth/core/network/ISocket.h
+        include/smooth/core/network/MbedTLSContext.h
         include/smooth/core/network/NetworkStatus.h
         include/smooth/core/network/SocketOperation.h
         include/smooth/core/network/PacketReceiveBuffer.h
@@ -179,7 +181,7 @@ endif()
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 if (NOT ESP_PLATFORM)
-    target_link_libraries(${PROJECT_NAME} pthread ssl)
+    target_link_libraries(${PROJECT_NAME} pthread mbedtls mbedx509 mbedcrypto)
 endif()
 
 include(compiler_options.cmake)

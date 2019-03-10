@@ -23,6 +23,7 @@ namespace secure_socket_test
         public:
             App();
 
+            void init() override;
             void tick() override;
 
             void event(const smooth::core::network::TransmitBufferEmptyEvent&) override;

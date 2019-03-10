@@ -24,6 +24,14 @@ namespace smooth
                 public:
                     static const int INVALID_SOCKET = -1;
 
+#ifdef ESP_PLATFORM
+                    // lwip doesn't signal SIGPIPE
+                    static const int SEND_FLAGS = 0;
+#else
+                    // Disable SIGPIPE during send()-calls.
+                    static const int SEND_FLAGS = MSG_NOSIGNAL;
+#endif
+
                     virtual ~ISocket() = default;
 
                     /// Initiates the connection to the provided IP. After this call events will arrive
@@ -44,8 +52,11 @@ namespace smooth
                     /// Returns true if the last send attempt has expired
                     /// \return true if the socket has not been able to send the data within the set limit.
                     virtual bool has_send_expired() const = 0;
-                protected:
+
+                    /// Returns the socket id.
+                    /// \return The socket id, possibly INVALID_SOCKET.
                     virtual int get_socket_id() = 0;
+                protected:
                 private:
                     virtual bool is_connected() = 0;
                     virtual void readable() = 0;

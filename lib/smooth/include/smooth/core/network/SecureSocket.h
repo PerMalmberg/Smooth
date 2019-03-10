@@ -1,6 +1,10 @@
 #pragma once
 
+#include <sys/socket.h>
 #include "Socket.h"
+#include "MbedTLSContext.h"
+#include <mbedtls/error.h>
+
 
 namespace smooth
 {
@@ -8,6 +12,49 @@ namespace smooth
     {
         namespace network
         {
+            static int ssl_recv(void* ctx, uint8_t* buf, size_t len)
+            {
+                auto socket = reinterpret_cast<ISocket*>(ctx);
+                errno = 0;
+
+                auto res = recv(socket->get_socket_id(), buf, len, 0);
+
+                if (res < 0)
+                {
+                    if (errno == EWOULDBLOCK)
+                    {
+                        res = MBEDTLS_ERR_SSL_WANT_READ;
+                    }
+                    else
+                    {
+                        res = -1;
+                    }
+                }
+
+                return static_cast<int>(res);
+            }
+
+            static int ssl_send(void* ctx, const uint8_t* buff, size_t len)
+            {
+                auto socket = reinterpret_cast<ISocket*>(ctx);
+                errno = 0;
+
+                auto amount_sent = send(socket->get_socket_id(), buff, len, ISocket::SEND_FLAGS);
+
+                if (amount_sent < 0)
+                {
+                    // Error
+                }
+                else if (amount_sent < len)
+                {
+                    // More data to send
+                    amount_sent = MBEDTLS_ERR_SSL_WANT_WRITE;
+                }
+
+                return static_cast<int>(amount_sent);
+            }
+
+
             template<typename Packet>
             class SecureSocket
                     : public Socket<Packet>
@@ -52,12 +99,16 @@ namespace smooth
 
                     bool internal_start() override;
 
-                    void read_data() override;
+                    void readable() override;
 
+                    void writable() override;
+
+                    void read_data() override;
                     void write_data() override;
 
                 private:
-
+                    static constexpr const char* tag = "SecureSocket";
+                    MBedTLSContext secure_context{};
 
 
             };
@@ -102,8 +153,11 @@ namespace smooth
             template<typename Packet>
             bool SecureSocket<Packet>::create_socket()
             {
-                auto res = Socket<Packet>::create_socket();
-
+                auto res = secure_context.init();
+                if (res)
+                {
+                    res = Socket<Packet>::create_socket();
+                }
 
                 return res;
             }
@@ -115,6 +169,8 @@ namespace smooth
 
                 if (res)
                 {
+                    // At this point we have a connected socket
+                    mbedtls_ssl_set_bio(secure_context.get_context(), this, ssl_send, ssl_recv, nullptr);
 
                 }
 
@@ -122,18 +178,138 @@ namespace smooth
             }
 
             template<typename Packet>
+            void SecureSocket<Packet>::readable()
+            {
+                auto res = mbedtls_ssl_handshake(secure_context.get_context());
+
+                if (res == MBEDTLS_ERR_SSL_WANT_READ || res == MBEDTLS_ERR_SSL_WANT_WRITE)
+                {
+                    // Handshake not yet complete
+                }
+                else if (res == 0)
+                {
+                    // Handshake is complete, read application data.
+                    Socket<Packet>::readable();
+                }
+                else
+                {
+                    // Handshake failed
+                    char buf[128];
+                    mbedtls_strerror(res, buf, sizeof(buf));
+                    Log::error(tag, Format("mbedtls_ssl_handshake failed: {1}", Str(buf)));
+                    this->stop();
+                }
+            }
+
+            template<typename Packet>
+            void SecureSocket<Packet>::writable()
+            {
+                auto res = mbedtls_ssl_handshake(secure_context.get_context());
+
+                if (res == MBEDTLS_ERR_SSL_WANT_READ || res == MBEDTLS_ERR_SSL_WANT_WRITE)
+                {
+                    // Handshake not yet complete
+                }
+                else if (res == 0)
+                {
+                    // Handshake is complete, write application data.
+                    Socket<Packet>::writable();
+                }
+                else
+                {
+                    // Handshake failed
+                    char buf[128];
+                    mbedtls_strerror(res, buf, sizeof(buf));
+                    Log::error(tag, Format("mbedtls_ssl_handshake failed: {1}", Str(buf)));
+                    this->stop();
+                }
+            }
+
+            template<typename Packet>
             void SecureSocket<Packet>::read_data()
             {
-                Socket<Packet>::read_data();
-                // Read decrypted bytes from from 'incoming' and write then to the target
+                // How much data to assemble the current packet?
+                int wanted_length = this->rx_buffer.amount_wanted();
+
+
+                int read_amount;
+                do
+                {
+                    read_amount = mbedtls_ssl_read(secure_context.get_context(),
+                                                   this->rx_buffer.get_write_pos(),
+                                                   static_cast<size_t>(wanted_length));
+
+                    if (read_amount > 0)
+                    {
+                        this->rx_buffer.data_received(static_cast<int>(read_amount));
+                        if (this->rx_buffer.is_error())
+                        {
+                            Log::error(tag, "Assembly error");
+                            this->stop();
+                        }
+                        else if (this->rx_buffer.is_packet_complete())
+                        {
+                            DataAvailableEvent<Packet> d(&this->rx_buffer);
+                            this->data_available.push(d);
+                            this->rx_buffer.prepare_new_packet();
+                        }
+                    }
+
+                }
+                while (read_amount > 0 || read_amount == MBEDTLS_ERR_SSL_WANT_READ);
+
+                if (read_amount < 0)
+                {
+                    char buf[128];
+                    mbedtls_strerror(read_amount, buf, sizeof(buf));
+                    Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
+                    this->stop();
+                }
             }
 
             template<typename Packet>
             void SecureSocket<Packet>::write_data()
             {
-                Socket<Packet>::write_data();
-            }
+                int amount_sent = 0;
 
+                do
+                {
+                    auto data_to_send = this->tx_buffer.get_data_to_send();
+                    auto length = this->tx_buffer.get_remaining_data_length();
+
+                    amount_sent = mbedtls_ssl_write(secure_context.get_context(),
+                                                    data_to_send,
+                                                    static_cast<size_t>(length));
+
+                    if (amount_sent > 0)
+                    {
+                        this->tx_buffer.data_has_been_sent(amount_sent);
+
+                        // Was a complete packet sent?
+                        if (this->tx_buffer.is_in_progress())
+                        {
+                            this->elapsed_send_time.start();
+                        }
+                        else
+                        {
+                            // Let the application know it may now send another packet.
+                            smooth::core::network::TransmitBufferEmptyEvent event(this->shared_from_this());
+                            this->tx_empty.push(event);
+                        }
+                    }
+                }
+                while (amount_sent > 0
+                       || amount_sent == MBEDTLS_ERR_SSL_WANT_READ
+                       || amount_sent == MBEDTLS_ERR_SSL_WANT_WRITE);
+
+                if (amount_sent < 0)
+                {
+                    char buf[128];
+                    mbedtls_strerror(amount_sent, buf, sizeof(buf));
+                    Log::error(tag, Format("mbedtls_ssl_write failed: {1}", Str(buf)));
+                    this->stop();
+                }
+            }
         }
     }
 }

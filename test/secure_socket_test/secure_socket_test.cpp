@@ -8,6 +8,7 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/Application.h>
 #include <smooth/core/logging/log.h>
+#include "wifi_creds.h"
 
 using namespace std::chrono;
 using namespace smooth::core;
@@ -23,6 +24,18 @@ namespace secure_socket_test
             data_available("data_available", 3, *this, *this),
             connection_status("connection_status", 3, *this, *this)
     {
+    }
+
+    void App::init()
+    {
+#ifdef ESP_PLATFORM
+        Log::info("App::Init", Format("Starting wifi..."));
+        network::Wifi& wifi = get_wifi();
+        wifi.set_host_name("Smooth-ESP");
+        wifi.set_auto_connect(true);
+        wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
+        wifi.connect_to_ap();
+#endif
     }
 
     void App::tick()
@@ -43,8 +56,10 @@ namespace secure_socket_test
     {
         HTTPPacket p;
         packet.get(p);
-        std::cout << p.get_status_line() << std::endl;
+        Log::debug("Status:", p.get_status_line());
         sock->stop();
+
+        // TODO: Test re-use of socket (handling mbedtls context/setup etc.
     }
 
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
