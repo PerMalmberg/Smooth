@@ -14,7 +14,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op -Wuseless-cast -Wdouble-pro
 
 # Select the test project, then build target "main". The available projects are the names of the
 # folders under "test", e.g. hello_world, mqtt etc.
-set(CURRENT_PROJECT_NAME hello_world)
+set(CURRENT_PROJECT_NAME secure_socket_test)
 set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${CURRENT_PROJECT_NAME})
 
 # for std::to_string (until using xtensa-gcc 8)
@@ -28,6 +28,7 @@ add_subdirectory(test/mqtt)
 add_subdirectory(test/publish)
 add_subdirectory(test/task_event_queue)
 add_subdirectory(test/timer)
+add_subdirectory(test/secure_socket_test)
 
 # These needs actual hardware to run
 if( ESP_PLATFORM )
