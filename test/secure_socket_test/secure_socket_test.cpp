@@ -50,7 +50,7 @@ namespace secure_socket_test
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
-        tx_buffer.put(HTTPPacket("GET / HTTP 1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
+        tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
 
     }
 

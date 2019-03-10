@@ -27,7 +27,7 @@ namespace secure_socket_test
                 state = State::reading_content;
                 bytes_received = 0;
                 data.clear();
-                content_length = std::stoi(headers["Content-Length"]);
+                content_length = headers["Content-Length"].empty() ? 0 : std::stoi(headers["Content-Length"]);
                 data.reserve(static_cast<size_t>(content_length));
             }
             else
