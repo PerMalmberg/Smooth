@@ -104,6 +104,7 @@ namespace smooth
                     void writable() override;
 
                     void read_data() override;
+
                     void write_data() override;
 
                 private:
@@ -169,9 +170,8 @@ namespace smooth
 
                 if (res)
                 {
-                    // At this point we have a connected socket
+                    // At this point we *may* have a connected socket
                     mbedtls_ssl_set_bio(secure_context.get_context(), this, ssl_send, ssl_recv, nullptr);
-
                 }
 
                 return res;
@@ -241,7 +241,7 @@ namespace smooth
 
                     if (read_amount > 0)
                     {
-                        this->rx_buffer.data_received(static_cast<int>(read_amount));
+                        this->rx_buffer.data_received(read_amount);
                         if (this->rx_buffer.is_error())
                         {
                             Log::error(tag, "Assembly error");

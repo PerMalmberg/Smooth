@@ -28,6 +28,7 @@ namespace secure_socket_test
 
     void App::init()
     {
+        Application::init();
 #ifdef ESP_PLATFORM
         Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
@@ -43,7 +44,8 @@ namespace secure_socket_test
         if (!sock)
         {
             sock = SecureSocket<HTTPPacket>::create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status);
-            sock->start(std::make_shared<IPv4>("216.58.211.142" /*google.com*/, 443));
+            //sock->start(std::make_shared<IPv4>("www.google.com", 443));
+            sock->start(std::make_shared<IPv4>("cdimage.debian.org", 443));
         }
     }
 
@@ -65,8 +67,12 @@ namespace secure_socket_test
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
-        tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
+        //"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso"
+        //tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
 
+
+         //"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso"
+        tx_buffer.put(HTTPPacket("GET /debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso HTTP/1.0\r\nHost: cdimage.debian.org\r\n\r\n\r\n"));
     }
 
 
