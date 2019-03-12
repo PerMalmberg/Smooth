@@ -35,7 +35,7 @@ namespace smooth
                 mbedtls_ctr_drbg_init(&ctr_drbg);
 #ifndef ESP_PLATFORM
                 mbedtls_ssl_conf_dbg(&conf, mbedtls_debug, stdout);
-                mbedtls_debug_set_threshold(1);
+                mbedtls_debug_set_threshold(0);
 #endif
                 auto res = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, nullptr, 0);
 

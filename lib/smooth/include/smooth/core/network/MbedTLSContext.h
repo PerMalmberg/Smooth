@@ -21,6 +21,7 @@ namespace smooth
                     bool init();
 
                     mbedtls_ssl_context* get_context() { return &ssl; }
+                    const mbedtls_ssl_context* get_context() const { return &ssl; }
 
                 private:
 

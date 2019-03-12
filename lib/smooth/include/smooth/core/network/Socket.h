@@ -98,6 +98,10 @@ namespace smooth
 
                     virtual void write_data();
 
+                    void send_next_packet();
+
+                    bool signal_new_connection();
+
                     int get_socket_id() override
                     {
                         return socket_id;
@@ -138,8 +142,6 @@ namespace smooth
 
                     int socket_id = INVALID_SOCKET;
                     std::shared_ptr<InetAddress> ip;
-                    bool started = false;
-                    bool connected = false;
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
 
                     void stop_internal() override;
@@ -147,7 +149,12 @@ namespace smooth
                     void clear_socket_id() override;
 
                     std::chrono::milliseconds send_timeout;
+
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
+
+                private:
+                    bool started = false;
+                    bool connected = false;
             };
 
 
@@ -301,33 +308,48 @@ namespace smooth
                 {
                     elapsed_send_time.stop_and_zero();
 
-                    if (!connected && socket_id >= 0)
+                    if (signal_new_connection())
                     {
-                        // Just connected
-                        connected = true;
-                        publish_connected_status();
+                        send_next_packet();
                     }
+                }
+            }
 
-                    if (connected)
+            template<typename Packet>
+            bool Socket<Packet>::signal_new_connection()
+            {
+                if (!connected && socket_id >= 0)
+                {
+                    // Just connected
+                    connected = true;
+                    publish_connected_status();
+                }
+
+                return connected;
+            }
+
+            template<typename Packet>
+            void Socket<Packet>::send_next_packet()
+            {
+                if (connected)
+                {
+                    // Any data to send?
+                    if (tx_buffer.is_empty())
                     {
-                        // Any data to send?
-                        if (tx_buffer.is_empty())
+                        // Let the application know it may send a packet.
+                        smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
+                        tx_empty.push(event);
+                    }
+                    else
+                    {
+                        if (!tx_buffer.is_in_progress())
                         {
-                            // Let the application know it may send a packet.
-                            smooth::core::network::TransmitBufferEmptyEvent event(shared_from_this());
-                            tx_empty.push(event);
+                            tx_buffer.prepare_next_packet();
                         }
-                        else
-                        {
-                            if (!tx_buffer.is_in_progress())
-                            {
-                                tx_buffer.prepare_next_packet();
-                            }
 
-                            if (tx_buffer.is_in_progress())
-                            {
-                                write_data();
-                            }
+                        if (tx_buffer.is_in_progress())
+                        {
+                            write_data();
                         }
                     }
                 }
