@@ -200,7 +200,7 @@ namespace smooth
             template<typename Packet>
             void SecureSocket<Packet>::writable()
             {
-                if(this->is_active() && this->signal_new_connection())
+                if (this->is_active() && this->signal_new_connection())
                 {
                     if (is_handshake_comlete(*secure_context))
                     {
@@ -224,17 +224,20 @@ namespace smooth
                                                     this->rx_buffer.get_write_pos(),
                                                     static_cast<size_t>(wanted_length));
 
-                this->rx_buffer.data_received(read_amount);
-                if (this->rx_buffer.is_error())
+                if (read_amount > 0)
                 {
-                    Log::error(tag, "Assembly error");
-                    this->stop();
-                }
-                else if (this->rx_buffer.is_packet_complete())
-                {
-                    DataAvailableEvent<Packet> d(&this->rx_buffer);
-                    this->data_available.push(d);
-                    this->rx_buffer.prepare_new_packet();
+                    this->rx_buffer.data_received(read_amount);
+                    if (this->rx_buffer.is_error())
+                    {
+                        Log::error(tag, "Assembly error");
+                        this->stop();
+                    }
+                    else if (this->rx_buffer.is_packet_complete())
+                    {
+                        DataAvailableEvent<Packet> d(&this->rx_buffer);
+                        this->data_available.push(d);
+                        this->rx_buffer.prepare_new_packet();
+                    }
                 }
 
                 if (read_amount < 0
@@ -290,7 +293,7 @@ namespace smooth
             bool SecureSocket<Packet>::is_handshake_comlete(const MBedTLSContext& ctx) const
             {
                 auto res = ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
-                if(res)
+                if (res)
                 {
                     int foo = 0;
                     ++foo;
