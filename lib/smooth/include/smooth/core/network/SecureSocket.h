@@ -5,6 +5,11 @@
 #include "MbedTLSContext.h"
 #include <mbedtls/error.h>
 
+#ifdef ESP_PLATFORM
+    #define socket_cast(x) (x)
+#else
+    #define socket_cast(x) static_cast<int>(x);
+#endif
 
 namespace smooth
 {
@@ -17,7 +22,7 @@ namespace smooth
                 auto socket = reinterpret_cast<ISocket*>(ctx);
                 errno = 0;
 
-                auto amount_received = recv(socket->get_socket_id(), buf, len, 0);
+                auto amount_received = socket_cast(recv(socket->get_socket_id(), buf, len, 0));
 
                 if (amount_received < 0)
                 {
@@ -27,7 +32,7 @@ namespace smooth
                     }
                 }
 
-                return static_cast<int>(amount_received);
+                return amount_received;
             }
 
             static int ssl_send(void* ctx, const uint8_t* buff, size_t len)
@@ -35,7 +40,7 @@ namespace smooth
                 auto socket = reinterpret_cast<ISocket*>(ctx);
                 errno = 0;
 
-                auto amount_sent = send(socket->get_socket_id(), buff, len, ISocket::SEND_FLAGS);
+                int amount_sent = socket_cast(send(socket->get_socket_id(), buff, len, ISocket::SEND_FLAGS));
 
                 if (amount_sent < 0)
                 {
@@ -50,7 +55,7 @@ namespace smooth
                     amount_sent = MBEDTLS_ERR_SSL_WANT_WRITE;
                 }
 
-                return static_cast<int>(amount_sent);
+                return amount_sent;
             }
 
 
