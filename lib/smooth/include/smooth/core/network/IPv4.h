@@ -6,6 +6,7 @@
 
 #include "InetAddress.h"
 #include <arpa/inet.h>
+#include <regex>
 
 namespace smooth
 {
@@ -26,16 +27,18 @@ namespace smooth
 
                     IPv4(const std::string& hostname, uint16_t port);
 
+                    bool resolve_ip() override;
                     sockaddr* get_socket_address() override;
                     socklen_t get_socket_address_length() const override;
 
-                    int get_address_family() const
+                    int get_address_family() const override
                     {
                         return sock_address.sin_family;
                     };
 
                 private:
                     sockaddr_in sock_address;
+                    static std::regex const numeric_ip;
             };
         }
     }

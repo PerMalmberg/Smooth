@@ -219,7 +219,10 @@ namespace smooth
                 {
                     elapsed_send_time.stop_and_zero();
                     this->ip = ip;
-                    res = ip->is_valid();
+
+                    // Always do resolve ip to ensure that we are update-to-date.
+                    res = ip->resolve_ip() && ip->is_valid();
+
                     if (res)
                     {
                         SocketDispatcher::instance().perform_op(SocketOperation::Op::Start, shared_from_this());
@@ -515,7 +518,7 @@ namespace smooth
             {
                 Log::verbose("Socket",
                              Format("[{1}, {2}, {3}, {4}]: {5}",
-                                    Str(ip->get_ip_as_string()),
+                                    Str(ip->get_host()),
                                     Int32(ip->get_port()),
                                     Int32(socket_id),
                                     Pointer(this),
@@ -527,7 +530,7 @@ namespace smooth
             {
                 Log::error("Socket",
                            Format("[{1}, {2}, {3} {4}]: {5}: {6} ({7})",
-                                  Str(ip->get_ip_as_string()),
+                                  Str(ip->get_host()),
                                   Int32(ip->get_port()),
                                   Int32(socket_id),
                                   Pointer(this),
