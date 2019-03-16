@@ -32,7 +32,7 @@ namespace smooth
                         virtual void disconnect() = 0;
                         virtual void force_disconnect() = 0;
                         virtual void set_keep_alive_timer(std::chrono::seconds interval) = 0;
-                        virtual bool send_packet(packet::MQTTPacket& packet) = 0;
+                        virtual bool send_packet(packet::MQTTProtocol& packet) = 0;
                         virtual Publication& get_publication() = 0;
                         virtual Subscription& get_subscription() = 0;
                         virtual core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>&

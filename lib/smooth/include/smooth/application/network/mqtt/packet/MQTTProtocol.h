@@ -22,14 +22,16 @@ namespace smooth
             {
                 namespace packet
                 {
-                    class MQTTPacket
+                    class MQTTProtocol
                             : public smooth::core::network::IPacketAssembly,
                               public smooth::core::network::IPacketDisassembly
                     {
                         public:
-                            MQTTPacket() = default;
-                            MQTTPacket& operator=(const MQTTPacket&) = default;
-                            MQTTPacket(const MQTTPacket& other) = default;
+                            using packet_type = MQTTProtocol;
+
+                            MQTTProtocol() = default;
+                            MQTTProtocol& operator=(const MQTTProtocol&) = default;
+                            MQTTProtocol(const MQTTProtocol& other) = default;
 
                             // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned

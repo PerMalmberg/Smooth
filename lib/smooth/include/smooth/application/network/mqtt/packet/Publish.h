@@ -6,7 +6,7 @@
 
 #include <string>
 #include <algorithm>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -19,12 +19,12 @@ namespace smooth
                 namespace packet
                 {
                     class Publish
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             Publish() = default;
 
-                            explicit Publish(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Publish(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class Disconnect
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             Disconnect();

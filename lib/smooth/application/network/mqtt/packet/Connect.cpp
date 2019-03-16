@@ -19,7 +19,7 @@ namespace smooth
                 {
                     // Minimum connect packet
                     Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive, bool clean_session)
-                            : MQTTPacket(), clean_session(clean_session)
+                            : MQTTProtocol(), clean_session(clean_session)
                     {
                         set_header(PacketType::CONNECT, 0);
 

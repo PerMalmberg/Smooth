@@ -18,7 +18,7 @@ namespace smooth
                 namespace packet
                 {
                     PingReq::PingReq()
-                            : MQTTPacket()
+                            : MQTTProtocol()
                     {
                         set_header(PacketType::PINGREQ, 0);
                         encode_remaining_length(0);

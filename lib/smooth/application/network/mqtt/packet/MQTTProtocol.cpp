@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
 
@@ -27,18 +27,18 @@ namespace smooth
             {
                 namespace packet
                 {
-                    PacketType MQTTPacket::get_mqtt_type() const
+                    PacketType MQTTProtocol::get_mqtt_type() const
                     {
                         return static_cast<PacketType>((packet[0] & 0xFF) >> 4);
                     }
 
-                    const char* MQTTPacket::get_mqtt_type_as_string() const
+                    const char* MQTTProtocol::get_mqtt_type_as_string() const
                     {
                         auto it = packet_type_as_string.find(get_mqtt_type());
                         return it == packet_type_as_string.end() ? "Unknown packet" : it->second;
                     }
 
-                    int MQTTPacket::get_wanted_amount()
+                    int MQTTProtocol::get_wanted_amount()
                     {
                         // If we're just reading data to get rid of a too large packet
                         // then we read the maximum allowed amount, but it will just be overwritten
@@ -56,7 +56,7 @@ namespace smooth
                         return wanted;
                     }
 
-                    void MQTTPacket::data_received(int length)
+                    void MQTTProtocol::data_received(int length)
                     {
                         bytes_received += length;
 
@@ -105,7 +105,7 @@ namespace smooth
                         }
                     }
 
-                    int MQTTPacket::calculate_remaining_length_and_variable_header_offset() const
+                    int MQTTProtocol::calculate_remaining_length_and_variable_header_offset() const
                     {
                         int res = 0;
 
@@ -137,7 +137,7 @@ namespace smooth
                         return res;
                     }
 
-                    void MQTTPacket::encode_remaining_length(int length)
+                    void MQTTProtocol::encode_remaining_length(int length)
                     {
                         if (length > 0)
                         {
@@ -158,7 +158,7 @@ namespace smooth
                         }
                     }
 
-                    void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
+                    void MQTTProtocol::append_string(const std::string& str, std::vector<uint8_t>& target)
                     {
                         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
                         auto length = static_cast<uint16_t>(str.length());
@@ -170,13 +170,13 @@ namespace smooth
                         }
                     }
 
-                    void MQTTPacket::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
+                    void MQTTProtocol::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
                     {
                         target.push_back(static_cast<uint8_t&&>(value >> 8));
                         target.push_back(static_cast<uint8_t&&>(value & 0xFF));
                     }
 
-                    void MQTTPacket::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)
+                    void MQTTProtocol::append_data(const uint8_t* data, int length, std::vector<uint8_t>& target)
                     {
                         for (int i = 0; i < length; ++i)
                         {
@@ -184,7 +184,7 @@ namespace smooth
                         }
                     }
 
-                    void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
+                    void MQTTProtocol::apply_constructed_data(const std::vector<uint8_t>& variable)
                     {
                         encode_remaining_length(static_cast<int>(variable.size()));
                         // Using move_iterator we reduce the memory foot print by actually moving
@@ -195,7 +195,7 @@ namespace smooth
                         calculate_remaining_length_and_variable_header_offset();
                     }
 
-                    void MQTTPacket::set_header(PacketType type, QoS qos, bool dup, bool retain)
+                    void MQTTProtocol::set_header(PacketType type, QoS qos, bool dup, bool retain)
                     {
                         core::util::ByteSet flags(0);
                         flags.set(0, retain);
@@ -206,20 +206,20 @@ namespace smooth
                         set_header(type, flags);
                     }
 
-                    void MQTTPacket::set_header(PacketType type, uint8_t flags)
+                    void MQTTProtocol::set_header(PacketType type, uint8_t flags)
                     {
                         auto value = static_cast<uint8_t>((type << 4) | flags);
                         packet.push_back(value);
                     }
 
-                    void MQTTPacket::set_dup_flag()
+                    void MQTTProtocol::set_dup_flag()
                     {
                         core::util::ByteSet b(packet[0]);
                         b.set(3, true);
                         packet[0] = b;
                     }
 
-                    std::string MQTTPacket::get_string(std::vector<uint8_t>::const_iterator offset) const
+                    std::string MQTTProtocol::get_string(std::vector<uint8_t>::const_iterator offset) const
                     {
                         auto length = static_cast<uint16_t>((*offset) << 8);
                         ++offset;
@@ -235,7 +235,7 @@ namespace smooth
                         return ss.str();
                     }
 
-                    QoS MQTTPacket::get_qos() const
+                    QoS MQTTProtocol::get_qos() const
                     {
                         // QoS is always located in the first byte but not all packets
                         // actually use the bits as QoS (e.g. PubRel)
@@ -244,7 +244,7 @@ namespace smooth
                         return static_cast<QoS>( value );
                     }
 
-                    long MQTTPacket::get_payload_length() const
+                    long MQTTProtocol::get_payload_length() const
                     {
                         calculate_remaining_length_and_variable_header_offset();
 
@@ -255,7 +255,7 @@ namespace smooth
                         return payload_length;
                     }
 
-                    void MQTTPacket::dump(const char* header) const
+                    void MQTTProtocol::dump(const char* header) const
                     {
                         std::stringstream ss;
                         calculate_remaining_length_and_variable_header_offset();
@@ -298,7 +298,7 @@ namespace smooth
                         }
                     }
 
-                    bool MQTTPacket::validate_packet() const
+                    bool MQTTProtocol::validate_packet() const
                     {
                         // Must first check if the pack was deemed to big. If that is the
                         // case, then the data held by the packet is invalid and must not
@@ -335,7 +335,7 @@ namespace smooth
                         return res;
                     }
 
-                    uint8_t* MQTTPacket::get_write_pos()
+                    uint8_t* MQTTProtocol::get_write_pos()
                     {
                         uint8_t* pos;
 
@@ -364,34 +364,34 @@ namespace smooth
                     }
 
 
-                    bool MQTTPacket::is_complete()
+                    bool MQTTProtocol::is_complete()
                     {
                         return remaining_bytes_to_read == 0;
                     }
 
 
-                    bool MQTTPacket::is_error()
+                    bool MQTTProtocol::is_error()
                     {
                         return error;
                     }
 
 
-                    int MQTTPacket::get_send_length()
+                    int MQTTProtocol::get_send_length()
                     {
                         return static_cast<int>(packet.size());
                     }
 
-                    const uint8_t* MQTTPacket::get_data()
+                    const uint8_t* MQTTProtocol::get_data()
                     {
                         return &packet[0];
                     }
 
-                    bool MQTTPacket::is_too_big() const
+                    bool MQTTProtocol::is_too_big() const
                     {
                         return too_big;
                     }
 
-                    void MQTTPacket::visit(IPacketReceiver& receiver)
+                    void MQTTProtocol::visit(IPacketReceiver& receiver)
                     {
                         receiver.receive(*this);
                     }

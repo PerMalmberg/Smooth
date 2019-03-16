@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class PubRec
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             PubRec() = default;
@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit PubRec(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

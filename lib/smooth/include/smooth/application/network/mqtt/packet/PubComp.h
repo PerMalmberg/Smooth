@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class PubComp
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             PubComp() = default;
@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubComp(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit PubComp(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

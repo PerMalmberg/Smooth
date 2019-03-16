@@ -59,9 +59,9 @@ namespace smooth
             }
 
 
-            template<typename Packet>
+            template<typename Protocol, typename Packet = typename Protocol::packet_type>
             class SecureSocket
-                    : public Socket<Packet>
+                    : public Socket<Protocol, Packet>
             {
                 public:
                     friend class smooth::core::network::SocketDispatcher;
@@ -93,7 +93,7 @@ namespace smooth
                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
                                  std::chrono::milliseconds send_timeout)
-                            : Socket<Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status,
+                            : Socket<Protocol, Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status,
                                              send_timeout)
                     {
 
@@ -121,8 +121,8 @@ namespace smooth
                     void do_handshake_step();
             };
 
-            template<typename Packet>
-            std::shared_ptr<ISocket> SecureSocket<Packet>::create(IPacketSendBuffer<Packet>& tx_buffer,
+            template<typename Protocol, typename Packet>
+            std::shared_ptr<ISocket> SecureSocket<Protocol, Packet>::create(IPacketSendBuffer<Packet>& tx_buffer,
                                                                   IPacketReceiveBuffer<Packet>& rx_buffer,
                                                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
                                                                   smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
@@ -130,9 +130,9 @@ namespace smooth
                                                                   std::chrono::milliseconds send_timeout)
             {
 
-                // This class is solely used to enabled access to the protected SecureSocket<Packet> constructor from std::make_shared<>
+                // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
                 class MakeSharedActivator
-                        : public SecureSocket<Packet>
+                        : public SecureSocket<Protocol, Packet>
                 {
                     public:
                         MakeSharedActivator(IPacketSendBuffer<Packet>& tx_buffer,
@@ -141,7 +141,7 @@ namespace smooth
                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Packet>>& data_available,
                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
                                             std::chrono::milliseconds send_timeout)
-                                : SecureSocket<Packet>(tx_buffer, rx_buffer, tx_empty, data_available,
+                                : SecureSocket<Protocol, Packet>(tx_buffer, rx_buffer, tx_empty, data_available,
                                                        connection_status,
                                                        send_timeout)
                         {
@@ -158,24 +158,24 @@ namespace smooth
                 return s;
             }
 
-            template<typename Packet>
-            bool SecureSocket<Packet>::create_socket()
+            template<typename Protocol, typename Packet>
+            bool SecureSocket<Protocol, Packet>::create_socket()
             {
                 secure_context = std::make_unique<MBedTLSContext>();
                 auto res = secure_context->init();
 
                 if (res)
                 {
-                    res = Socket<Packet>::create_socket();
+                    res = Socket<Protocol, Packet>::create_socket();
                 }
 
                 return res;
             }
 
-            template<typename Packet>
-            bool SecureSocket<Packet>::internal_start()
+            template<typename Protocol, typename Packet>
+            bool SecureSocket<Protocol, Packet>::internal_start()
             {
-                auto res = Socket<Packet>::internal_start();
+                auto res = Socket<Protocol, Packet>::internal_start();
 
                 if (res)
                 {
@@ -186,14 +186,14 @@ namespace smooth
                 return res;
             }
 
-            template<typename Packet>
-            void SecureSocket<Packet>::readable()
+            template<typename Protocol, typename Packet>
+            void SecureSocket<Protocol, Packet>::readable()
             {
                 if (this->is_active() && this->is_connected())
                 {
                     if (is_handshake_comlete(*secure_context))
                     {
-                        Socket<Packet>::readable();
+                        Socket<Protocol, Packet>::readable();
                     }
                     else
                     {
@@ -202,14 +202,14 @@ namespace smooth
                 }
             }
 
-            template<typename Packet>
-            void SecureSocket<Packet>::writable()
+            template<typename Protocol, typename Packet>
+            void SecureSocket<Protocol, Packet>::writable()
             {
                 if (this->is_active() && this->signal_new_connection())
                 {
                     if (is_handshake_comlete(*secure_context))
                     {
-                        Socket<Packet>::writable();
+                        Socket<Protocol, Packet>::writable();
                     }
                     else
                     {
@@ -218,8 +218,8 @@ namespace smooth
                 }
             }
 
-            template<typename Packet>
-            void SecureSocket<Packet>::read_data()
+            template<typename Protocol, typename Packet>
+            void SecureSocket<Protocol, Packet>::read_data()
             {
                 // How much data to assemble the current packet?
                 int wanted_length = this->rx_buffer.amount_wanted();
@@ -256,8 +256,8 @@ namespace smooth
                 }
             }
 
-            template<typename Packet>
-            void SecureSocket<Packet>::write_data()
+            template<typename Protocol, typename Packet>
+            void SecureSocket<Protocol, Packet>::write_data()
             {
                 auto data_to_send = this->tx_buffer.get_data_to_send();
                 auto length = this->tx_buffer.get_remaining_data_length();
@@ -294,14 +294,14 @@ namespace smooth
                 }
             }
 
-            template<typename Packet>
-            bool SecureSocket<Packet>::is_handshake_comlete(const MBedTLSContext& ctx) const
+            template<typename Protocol, typename Packet>
+            bool SecureSocket<Protocol, Packet>::is_handshake_comlete(const MBedTLSContext& ctx) const
             {
                 return ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
             }
 
-            template<typename Packet>
-            void SecureSocket<Packet>::do_handshake_step()
+            template<typename Protocol, typename Packet>
+            void SecureSocket<Protocol, Packet>::do_handshake_step()
             {
                 auto res = mbedtls_ssl_handshake_step(secure_context->get_context());
 

@@ -11,7 +11,7 @@
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/Logging.h>
@@ -50,7 +50,7 @@ namespace smooth
                             void event(const core::network::ConnectionStatusEvent& event) override;
                             void event(const core::timer::TimerExpiredEvent& event) override;
 
-                            void packet_received(const packet::MQTTPacket& packet);
+                            void packet_received(const packet::MQTTProtocol& packet);
 
                             mqtt::IMqttClient& get_mqtt() const
                             {
@@ -93,7 +93,7 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::packet_received(const packet::MQTTPacket& packet)
+                    void MqttFSM<BaseState>::packet_received(const packet::MQTTProtocol& packet)
                     {
                         if (this->get_state() != nullptr)
                         {

@@ -2,7 +2,7 @@
 // Created by permal on 7/22/17.
 //
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -15,12 +15,12 @@ namespace smooth
                 namespace packet
                 {
                     class UnsubAck
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             UnsubAck() = default;
 
-                            explicit UnsubAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit UnsubAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

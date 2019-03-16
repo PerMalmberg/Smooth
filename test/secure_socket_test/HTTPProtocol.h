@@ -8,18 +8,39 @@
 
 namespace secure_socket_test
 {
-    class HTTPPacket
+    class HTTPProtocol
             : public smooth::core::network::IPacketAssembly,
               public smooth::core::network::IPacketDisassembly
     {
         public:
-            HTTPPacket()
+            HTTPProtocol()
                     : data(1)
             {}
 
-            ~HTTPPacket() override = default;
+            ~HTTPProtocol() override = default;
 
-            explicit HTTPPacket(const std::string& data);
+            explicit HTTPProtocol(const std::string& data);
+
+            class HTTPPacket
+            {
+                public:
+                    HTTPPacket() = default;
+
+                    HTTPPacket(const HTTPPacket&) = default;
+
+                    HTTPPacket& operator=(const HTTPPacket&) = default;
+
+                    explicit HTTPPacket(const std::string& data)
+                    {
+                            std::copy(data.begin(), data.end(), std::back_inserter(content));
+                    }
+
+                public:
+                    std::unordered_map<std::string, std::string> headers;
+                    std::vector<uint8_t> content{};
+            };
+
+            using packet_type = HTTPProtocol;
 
             /// Must return the number of bytes the packet wants to fill
             /// its internal buffer, e.g. header, checksum etc. Returned
@@ -38,7 +59,7 @@ namespace secure_socket_test
             /// Must point to a buffer than can accept the number of bytes returned by
             /// get_wanted_amount().
             /// \return Write position
-            uint8_t *get_write_pos() override;
+            uint8_t* get_write_pos() override;
 
             /// Must return true when the packet has received all data it needs
             /// to fully assemble.
@@ -56,7 +77,7 @@ namespace secure_socket_test
 
             /// Must return a pointer to the data to be sent.
             /// \return The read position
-            const uint8_t *get_data() override;
+            const uint8_t* get_data() override;
 
             const std::unordered_map<std::string, std::string> get_headers() const { return headers; }
             const std::string get_status_line() const { return status_line; }

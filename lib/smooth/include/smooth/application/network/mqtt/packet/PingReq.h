@@ -5,7 +5,7 @@
 #pragma once
 
 #include <chrono>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -18,7 +18,7 @@ namespace smooth
                 namespace packet
                 {
                     class PingReq
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             PingReq();

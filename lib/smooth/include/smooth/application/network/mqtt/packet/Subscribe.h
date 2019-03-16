@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/packet/PacketIdentifierFactory.h>
 
 namespace smooth
@@ -18,12 +18,12 @@ namespace smooth
                 namespace packet
                 {
                     class Subscribe
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             Subscribe() = default;
 
-                            explicit Subscribe(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit Subscribe(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

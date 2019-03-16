@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     Disconnect::Disconnect()
-                            : MQTTPacket()
+                            : MQTTProtocol()
                     {
                         set_header(PacketType::DISCONNECT, 0);
                         encode_remaining_length(0);

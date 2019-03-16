@@ -2,7 +2,7 @@
 // Created by permal on 7/22/17.
 //
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -15,7 +15,7 @@ namespace smooth
                 namespace packet
                 {
                     class ConnAck
-                            : public MQTTPacket
+                            : public MQTTProtocol
                     {
                         public:
                             enum ReturnCode
@@ -30,7 +30,7 @@ namespace smooth
 
                             ConnAck() = default;
 
-                            explicit ConnAck(const MQTTPacket& packet) : MQTTPacket(packet)
+                            explicit ConnAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
                             {
                             }
 

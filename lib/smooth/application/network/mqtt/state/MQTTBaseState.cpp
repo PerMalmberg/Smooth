@@ -26,7 +26,7 @@ namespace smooth
 
                     MQTTBaseState::~MQTTBaseState() = default;
 
-                    void MQTTBaseState::receive(packet::MQTTPacket&)
+                    void MQTTBaseState::receive(packet::MQTTProtocol&)
                     {
                     }
 
