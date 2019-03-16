@@ -25,7 +25,6 @@ namespace smooth
 
                 private:
 
-                    mbedtls_net_context connection_identifier{};
                     mbedtls_entropy_context entropy{};
                     mbedtls_ctr_drbg_context ctr_drbg{};
                     mbedtls_ssl_context ssl{};
