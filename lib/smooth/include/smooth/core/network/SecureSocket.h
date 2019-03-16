@@ -297,13 +297,7 @@ namespace smooth
             template<typename Packet>
             bool SecureSocket<Packet>::is_handshake_comlete(const MBedTLSContext& ctx) const
             {
-                auto res = ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
-                if (res)
-                {
-                    int foo = 0;
-                    ++foo;
-                }
-                return res;
+                return ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
             }
 
             template<typename Packet>
@@ -315,8 +309,6 @@ namespace smooth
                     || res == MBEDTLS_ERR_SSL_WANT_WRITE)
                 {
                     // Handshake not yet complete
-                    int i = 0;
-                    i++;
                 }
                 else if (res < 0)
                 {
