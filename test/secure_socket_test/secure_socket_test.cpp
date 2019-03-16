@@ -44,8 +44,7 @@ namespace secure_socket_test
         if (!sock)
         {
             sock = SecureSocket<HTTPPacket>::create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status);
-            //sock->start(std::make_shared<IPv4>("www.google.com", 443));
-            sock->start(std::make_shared<IPv4>("cdimage.debian.org", 443));
+            sock->start(std::make_shared<IPv4>("www.google.com", 443));
         }
     }
 
@@ -60,21 +59,11 @@ namespace secure_socket_test
         packet.get(p);
         Log::debug("Status:", p.get_status_line());
         sock->stop();
-
-        // TODO: Test re-use of socket (handling mbedtls context/setup etc.
     }
 
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
-        //"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso"
-        //tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
-
-
-         //"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso"
-        tx_buffer.put(HTTPPacket("GET /debian-cd/current/amd64/iso-cd/debian-9.8.0-amd64-netinst.iso HTTP/1.0\r\nHost: cdimage.debian.org\r\n\r\n\r\n"));
+        tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
     }
-
-
-
 }
