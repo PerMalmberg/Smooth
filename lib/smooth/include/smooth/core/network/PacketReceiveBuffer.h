@@ -22,9 +22,9 @@ namespace smooth
             /// * Must be copyable
             /// \tparam Packet The type of packet to assemble
             /// \tparam Size  The Number of items to hold in the buffer.
-            template<typename Packet, int Size>
+            template<typename Protocol, int Size, typename Packet = typename Protocol::packet_type>
             class PacketReceiveBuffer
-                    : public IPacketReceiveBuffer<Packet>
+                    : public IPacketReceiveBuffer<Protocol>
             {
                 public:
                     PacketReceiveBuffer()

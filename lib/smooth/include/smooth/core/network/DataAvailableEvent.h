@@ -14,20 +14,21 @@ namespace smooth
         {
             /// Event sent when data is available to the application
             /// \tparam PacketType The type of packet that is available.
-            template<typename PacketType>
+            template<typename Protocol, typename Packet = typename Protocol::packet_type>
             class DataAvailableEvent
             {
                 public:
                     DataAvailableEvent() = default;
 
-                    explicit DataAvailableEvent(IPacketReceiveBuffer <PacketType>* rx) : rx(rx)
+                    explicit DataAvailableEvent(IPacketReceiveBuffer<Protocol>* rx)
+                            : rx(rx)
                     {
                     }
 
                     /// Gets the available data
                     /// \param target The instance that will be assigned the data.
                     /// \return True if the data could be retrieved, otherwise false.
-                    bool get(PacketType& target) const
+                    bool get(Packet& target) const
                     {
                         bool res = false;
                         if (rx)
@@ -38,7 +39,7 @@ namespace smooth
                     }
 
                 private:
-                    IPacketReceiveBuffer<PacketType>* rx = nullptr;
+                    IPacketReceiveBuffer<Protocol>* rx = nullptr;
             };
         }
     }

@@ -22,9 +22,9 @@ namespace smooth
             /// * Must be copyable
             /// \tparam Packet The packet type
             /// \tparam Size Number of items to hold in the buffer
-            template<typename Packet, int Size>
+            template<typename Protocol, int Size, typename Packet = typename Protocol::packet_type>
             class PacketSendBuffer
-                    : public IPacketSendBuffer<Packet>
+                    : public IPacketSendBuffer<Protocol>
             {
                 public:
                     PacketSendBuffer()
@@ -99,11 +99,7 @@ namespace smooth
                     std::mutex guard;
                     int bytes_sent = 0;
                     bool in_progress = false;
-
-
             };
-
-
         }
     }
 }

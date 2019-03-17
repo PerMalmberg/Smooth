@@ -11,8 +11,8 @@ namespace smooth
         namespace network
         {
             /// Interface for packet send buffers
-            /// \tparam PacketType
-            template<typename PacketType>
+            /// \tparam Packet
+            template<typename Protocol, typename Packet = typename Protocol::packet_type>
             class IPacketSendBuffer
             {
                 public:
@@ -34,7 +34,7 @@ namespace smooth
                     virtual void prepare_next_packet() = 0;
                     /// Puts an item into the buffer to be sent.
                     /// \return true if the item could be queued, otherwise false.
-                    virtual bool put(const PacketType& item) = 0;
+                    virtual bool put(const Packet& item) = 0;
                     /// Clears the buffer.
                     virtual void clear() = 0;
                     /// Returns an item indicating if the buffer is empty.

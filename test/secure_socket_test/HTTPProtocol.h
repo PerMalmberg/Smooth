@@ -32,7 +32,7 @@ namespace secure_socket_test
 
                     explicit HTTPPacket(const std::string& data)
                     {
-                            std::copy(data.begin(), data.end(), std::back_inserter(content));
+                        std::copy(data.begin(), data.end(), std::back_inserter(content));
                     }
 
                 public:
@@ -79,8 +79,11 @@ namespace secure_socket_test
             /// \return The read position
             const uint8_t* get_data() override;
 
-            const std::unordered_map<std::string, std::string> get_headers() const { return headers; }
-            const std::string get_status_line() const { return status_line; }
+            const std::unordered_map<std::string, std::string> get_headers() const
+            { return headers; }
+
+            const std::string get_status_line() const
+            { return status_line; }
 
         private:
             bool ends_with_crlf() const;

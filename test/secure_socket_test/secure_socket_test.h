@@ -15,7 +15,7 @@ namespace secure_socket_test
     class App
             : public smooth::core::Application,
               public smooth::core::ipc::IEventListener<smooth::core::network::TransmitBufferEmptyEvent>,
-              public smooth::core::ipc::IEventListener<smooth::core::network::DataAvailableEvent<HTTPProtocol::packet_type>>,
+              public smooth::core::ipc::IEventListener<smooth::core::network::DataAvailableEvent<HTTPProtocol>>,
               public smooth::core::ipc::IEventListener<smooth::core::network::ConnectionStatusEvent>
 
 
@@ -27,15 +27,15 @@ namespace secure_socket_test
             void tick() override;
 
             void event(const smooth::core::network::TransmitBufferEmptyEvent&) override;
-            void event(const smooth::core::network::DataAvailableEvent<HTTPProtocol::packet_type>&) override;
+            void event(const smooth::core::network::DataAvailableEvent<HTTPProtocol>&) override;
             void event(const smooth::core::network::ConnectionStatusEvent&) override;
 
         private:
             smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent> tx_empty;
-            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<HTTPProtocol::packet_type>> data_available;
+            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<HTTPProtocol>> data_available;
             smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
-            smooth::core::network::PacketSendBuffer<HTTPProtocol::packet_type, 5> tx_buffer{};
-            smooth::core::network::PacketReceiveBuffer<HTTPProtocol::packet_type, 5> rx_buffer{};
+            smooth::core::network::PacketSendBuffer<HTTPProtocol, 5> tx_buffer{};
+            smooth::core::network::PacketReceiveBuffer<HTTPProtocol, 5> rx_buffer{};
             std::shared_ptr<smooth::core::network::ISocket> sock{};
     };
 }

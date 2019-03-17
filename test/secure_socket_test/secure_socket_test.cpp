@@ -53,7 +53,7 @@ namespace secure_socket_test
 
     }
 
-    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol::packet_type>& packet)
+    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol>& packet)
     {
         HTTPProtocol::packet_type p;
         packet.get(p);
