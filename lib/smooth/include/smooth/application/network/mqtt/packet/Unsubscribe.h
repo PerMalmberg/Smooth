@@ -15,7 +15,7 @@ namespace smooth
                 namespace packet
                 {
                     class Unsubscribe
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             Unsubscribe() = default;
@@ -30,7 +30,7 @@ namespace smooth
                             }
 
 
-                            explicit Unsubscribe(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit Unsubscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

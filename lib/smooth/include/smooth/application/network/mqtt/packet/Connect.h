@@ -5,7 +5,8 @@
 #pragma once
 
 #include <chrono>
-#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
+#include <string>
+#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 
 namespace smooth
 {
@@ -18,7 +19,7 @@ namespace smooth
                 namespace packet
                 {
                     class Connect
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             Connect() = default;
@@ -33,7 +34,7 @@ namespace smooth
                             }
 
                         private:
-                            bool clean_session = true;
+                            bool clean_session;
                     };
                 }
             }

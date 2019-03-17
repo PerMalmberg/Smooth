@@ -4,6 +4,9 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/Connect.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
+#include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
+#include <smooth/core/util/ByteSet.h>
 
 using namespace std;
 
@@ -19,7 +22,7 @@ namespace smooth
                 {
                     // Minimum connect packet
                     Connect::Connect(const std::string& client_id, std::chrono::seconds keep_alive, bool clean_session)
-                            : MQTTProtocol(), clean_session(clean_session)
+                            : MQTTPacket(), clean_session(clean_session)
                     {
                         set_header(PacketType::CONNECT, 0);
 

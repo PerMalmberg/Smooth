@@ -3,6 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/packet/Disconnect.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 using namespace std;
 
@@ -17,7 +18,7 @@ namespace smooth
                 namespace packet
                 {
                     Disconnect::Disconnect()
-                            : MQTTProtocol()
+                            : MQTTPacket()
                     {
                         set_header(PacketType::DISCONNECT, 0);
                         encode_remaining_length(0);

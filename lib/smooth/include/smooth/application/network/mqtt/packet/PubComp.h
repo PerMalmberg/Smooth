@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class PubComp
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PubComp() = default;
@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubComp(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit PubComp(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

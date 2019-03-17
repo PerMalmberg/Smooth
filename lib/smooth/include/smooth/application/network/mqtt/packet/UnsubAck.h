@@ -15,12 +15,12 @@ namespace smooth
                 namespace packet
                 {
                     class UnsubAck
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             UnsubAck() = default;
 
-                            explicit UnsubAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit UnsubAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

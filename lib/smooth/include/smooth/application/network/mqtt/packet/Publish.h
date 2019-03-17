@@ -19,12 +19,12 @@ namespace smooth
                 namespace packet
                 {
                     class Publish
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             Publish() = default;
 
-                            explicit Publish(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit Publish(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 
@@ -53,7 +53,7 @@ namespace smooth
 
                             std::vector<uint8_t>::const_iterator get_payload_cend() const
                             {
-                                return packet.cend();
+                                return data.cend();
                             }
 
                         protected:

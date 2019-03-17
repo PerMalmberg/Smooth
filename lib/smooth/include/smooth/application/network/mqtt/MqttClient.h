@@ -160,7 +160,7 @@ namespace smooth
                         void init() override;
                         void tick() override;
 
-                        bool send_packet(packet::MQTTProtocol& packet) override;
+                        bool send_packet(packet::MQTTProtocol::packet_type& packet) override;
                         void force_disconnect() override;
 
                         core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;

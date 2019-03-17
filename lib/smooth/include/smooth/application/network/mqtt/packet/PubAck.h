@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class PubAck
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PubAck() = default;
@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit PubAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

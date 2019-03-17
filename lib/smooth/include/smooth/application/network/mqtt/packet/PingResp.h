@@ -17,12 +17,12 @@ namespace smooth
                 namespace packet
                 {
                     class PingResp
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PingResp() = default;
 
-                            explicit PingResp(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit PingResp(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

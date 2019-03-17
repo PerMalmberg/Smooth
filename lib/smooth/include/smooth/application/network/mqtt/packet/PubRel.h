@@ -17,12 +17,12 @@ namespace smooth
                 namespace packet
                 {
                     class PubRel
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PubRel() = default;
 
-                            explicit PubRel(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit PubRel(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

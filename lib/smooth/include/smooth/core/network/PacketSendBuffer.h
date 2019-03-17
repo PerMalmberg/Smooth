@@ -27,11 +27,6 @@ namespace smooth
                     : public IPacketSendBuffer<Protocol>
             {
                 public:
-                    PacketSendBuffer()
-                            : buffer(), current_item(), guard()
-                    {
-                    }
-
                     bool put(const Packet& item)
                     {
                         std::lock_guard<std::mutex> lock(guard);
@@ -94,11 +89,11 @@ namespace smooth
 
 
                 private:
-                    smooth::core::util::CircularBuffer<Packet, Size> buffer;
-                    Packet current_item;
-                    std::mutex guard;
+                    Packet current_item{};
+                    std::mutex guard{};
                     int bytes_sent = 0;
                     bool in_progress = false;
+                    smooth::core::util::CircularBuffer<Packet, Size> buffer{};
             };
         }
     }

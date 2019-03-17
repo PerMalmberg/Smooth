@@ -17,12 +17,12 @@ namespace smooth
                 namespace packet
                 {
                     class SubAck
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             SubAck() = default;
 
-                            explicit SubAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit SubAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

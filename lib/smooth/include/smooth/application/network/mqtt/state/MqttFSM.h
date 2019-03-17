@@ -50,7 +50,7 @@ namespace smooth
                             void event(const core::network::ConnectionStatusEvent& event) override;
                             void event(const core::timer::TimerExpiredEvent& event) override;
 
-                            void packet_received(const packet::MQTTProtocol& packet);
+                            void packet_received(const packet::MQTTPacket& packet);
 
                             mqtt::IMqttClient& get_mqtt() const
                             {
@@ -93,7 +93,7 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::packet_received(const packet::MQTTProtocol& packet)
+                    void MqttFSM<BaseState>::packet_received(const packet::MQTTPacket& packet)
                     {
                         if (this->get_state() != nullptr)
                         {

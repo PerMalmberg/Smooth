@@ -5,61 +5,43 @@
 #include <unordered_map>
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/network/IPacketDisassembly.h>
+#include "HTTPPacket.h"
 
 namespace secure_socket_test
 {
     class HTTPProtocol
-            : public smooth::core::network::IPacketAssembly,
-              public smooth::core::network::IPacketDisassembly
+            : public smooth::core::network::IPacketAssembly<HTTPProtocol, HTTPPacket>
     {
         public:
-            HTTPProtocol()
-                    : data(1)
-            {}
+            using packet_type = HTTPPacket;
 
-            ~HTTPProtocol() override = default;
-
-            explicit HTTPProtocol(const std::string& data);
-
-            class HTTPPacket
+            explicit HTTPProtocol(HTTPPacket& working_packet)
+            : packet(working_packet)
             {
-                public:
-                    HTTPPacket() = default;
+            }
 
-                    HTTPPacket(const HTTPPacket&) = default;
-
-                    HTTPPacket& operator=(const HTTPPacket&) = default;
-
-                    explicit HTTPPacket(const std::string& data)
-                    {
-                        std::copy(data.begin(), data.end(), std::back_inserter(content));
-                    }
-
-                public:
-                    std::unordered_map<std::string, std::string> headers;
-                    std::vector<uint8_t> content{};
-            };
-
-            using packet_type = HTTPProtocol;
 
             /// Must return the number of bytes the packet wants to fill
             /// its internal buffer, e.g. header, checksum etc. Returned
             /// value will differ depending on how much data already has been provided.
+            /// \param packet The packet being assembled
             /// \return Number of bytes wanted
-            int get_wanted_amount() override;
+            int get_wanted_amount(HTTPPacket& packet) override;
 
             /// Used by the underlying framework to notify the packet that {length} bytes
             /// has been written to the buffer pointed to by get_write_pos().
             /// During the call to this method the packet should do whatever it needs to
             /// evaluate if it needs more data or if it is complete.
+            /// \param packet The packet being assembled
             /// \param length Number of bytes received
-            void data_received(int length) override;
+            void data_received(HTTPPacket& packet, int length) override;
 
             /// Must return the current write position of the internal buffer.
             /// Must point to a buffer than can accept the number of bytes returned by
             /// get_wanted_amount().
+            /// \param packet The packet being assembled
             /// \return Write position
-            uint8_t* get_write_pos() override;
+            uint8_t* get_write_pos(HTTPPacket& packet) override;
 
             /// Must return true when the packet has received all data it needs
             /// to fully assemble.
@@ -71,44 +53,26 @@ namespace secure_socket_test
             /// \return true or false
             bool is_error() override;
 
-            /// Must return the total amount of bytes to send
-            /// \return Number of bytes to send
-            int get_send_length() override;
-
-            /// Must return a pointer to the data to be sent.
-            /// \return The read position
-            const uint8_t* get_data() override;
-
-            const std::unordered_map<std::string, std::string> get_headers() const
-            { return headers; }
-
-            const std::string get_status_line() const
-            { return status_line; }
+            void packet_consumed() override;
 
         private:
-            bool ends_with_crlf() const;
+            bool ends_with_two_crlf(const HTTPPacket& packet) const;
 
-            bool ends_with_two_crlf() const;
+            void prepare_for_one_more_byte(HTTPPacket& packet);
 
-            void prepare_for_one_byte();
-
-            void prepare_for_one_more_byte();
-
-            void parse_headers();
+            void parse_headers(HTTPPacket& packet);
 
             enum class State
             {
                     reading_headers,
                     reading_content
             };
-            std::vector<uint8_t> data;
-            std::string status_line{};
+
             int bytes_received = 0;
             int content_length = 0;
+            HTTPPacket& packet;
 
             State state = State::reading_headers;
-
-            std::unordered_map<std::string, std::string> headers{};
     };
 
 }

@@ -14,7 +14,7 @@ namespace smooth
             {
                 namespace packet
                 {
-                    class MQTTProtocol;
+                    class MQTTPacket;
                     class ConnAck;
                     class Publish;
                     class PubAck;
@@ -31,7 +31,7 @@ namespace smooth
                     {
                         public:
                             virtual ~IPacketReceiver() = default;
-                            virtual void receive(packet::MQTTProtocol& raw_packet) = 0;
+                            virtual void receive(packet::MQTTPacket& raw_packet) = 0;
                             virtual void receive(packet::ConnAck& conn_ack) = 0;
                             virtual void receive(packet::Publish& publish) = 0;
                             virtual void receive(packet::PubAck& pub_ack) = 0;

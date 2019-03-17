@@ -132,7 +132,7 @@ namespace smooth
                     fsm.set_state(new(fsm) state::DisconnectState(fsm));
                 }
 
-                bool MqttClient::send_packet(packet::MQTTProtocol& packet)
+                bool MqttClient::send_packet(packet::MQTTPacket& packet)
                 {
                     packet.dump("Outgoing");
 
@@ -188,7 +188,7 @@ namespace smooth
 
                 void MqttClient::event(const core::network::DataAvailableEvent<packet::MQTTProtocol>& event)
                 {
-                    packet::MQTTProtocol p;
+                    packet::MQTTPacket p;
                     if (event.get(p))
                     {
                         fsm.packet_received(p);

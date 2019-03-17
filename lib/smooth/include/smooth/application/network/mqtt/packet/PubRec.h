@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class PubRec
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PubRec() = default;
@@ -30,7 +30,7 @@ namespace smooth
                                 apply_constructed_data(variable_header);
                             }
 
-                            explicit PubRec(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit PubRec(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

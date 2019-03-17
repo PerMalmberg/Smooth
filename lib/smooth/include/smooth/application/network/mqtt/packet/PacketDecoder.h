@@ -20,7 +20,7 @@ namespace smooth
                     class PacketDecoder
                     {
                         public:
-                            std::unique_ptr<MQTTProtocol> decode_packet(const MQTTProtocol& packet);
+                            std::unique_ptr<MQTTPacket> decode_packet(const MQTTPacket& packet);
                     };
                 }
             }

@@ -64,7 +64,7 @@ namespace smooth
                             {
                             }
 
-                            void receive(packet::MQTTProtocol& raw_packet) override;
+                            void receive(packet::MQTTPacket& raw_packet) override;
 
                             void receive(packet::ConnAck& conn_ack) override;
 

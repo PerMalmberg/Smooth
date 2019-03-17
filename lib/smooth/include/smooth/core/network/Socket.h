@@ -387,7 +387,7 @@ namespace smooth
                     }
                     else if (rx_buffer.is_packet_complete())
                     {
-                        DataAvailableEvent<Packet> d(&rx_buffer);
+                        DataAvailableEvent<Protocol> d(&rx_buffer);
                         data_available.push(d);
                         rx_buffer.prepare_new_packet();
                     }

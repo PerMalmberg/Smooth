@@ -18,7 +18,7 @@ namespace smooth
                 namespace packet
                 {
                     class PingReq
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             PingReq();

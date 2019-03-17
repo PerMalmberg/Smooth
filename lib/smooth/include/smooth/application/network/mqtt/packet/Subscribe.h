@@ -18,12 +18,12 @@ namespace smooth
                 namespace packet
                 {
                     class Subscribe
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             Subscribe() = default;
 
-                            explicit Subscribe(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit Subscribe(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

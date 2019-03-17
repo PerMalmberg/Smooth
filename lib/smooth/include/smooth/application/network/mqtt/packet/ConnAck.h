@@ -15,7 +15,7 @@ namespace smooth
                 namespace packet
                 {
                     class ConnAck
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             enum ReturnCode
@@ -30,7 +30,7 @@ namespace smooth
 
                             ConnAck() = default;
 
-                            explicit ConnAck(const MQTTProtocol& packet) : MQTTProtocol(packet)
+                            explicit ConnAck(const MQTTPacket& packet) : MQTTPacket(packet)
                             {
                             }
 

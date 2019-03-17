@@ -31,9 +31,9 @@ namespace smooth
                 namespace packet
                 {
                     // Decode messages from server to client
-                    std::unique_ptr<MQTTProtocol> PacketDecoder::decode_packet(const MQTTProtocol& packet)
+                    std::unique_ptr<MQTTPacket> PacketDecoder::decode_packet(const MQTTPacket& packet)
                     {
-                        std::unique_ptr<MQTTProtocol> res;
+                        std::unique_ptr<MQTTPacket> res;
                         using namespace core::util;
 
                         if (packet.is_too_big())

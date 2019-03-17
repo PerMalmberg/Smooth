@@ -17,7 +17,7 @@ namespace smooth
                 namespace packet
                 {
                     class Disconnect
-                            : public MQTTProtocol
+                            : public MQTTPacket
                     {
                         public:
                             Disconnect();

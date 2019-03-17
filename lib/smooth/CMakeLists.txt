@@ -10,6 +10,7 @@ set(SOURCES
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
+        application/network/mqtt/packet/MQTTPacket.cpp
         application/network/mqtt/packet/MQTTProtocol.cpp
         application/network/mqtt/packet/MQTTProtocolDefinitions.cpp
         application/network/mqtt/packet/PacketDecoder.cpp
@@ -70,6 +71,7 @@ set(SOURCES
         include/smooth/application/network/mqtt/packet/Subscribe.h
         include/smooth/application/network/mqtt/packet/UnsubAck.h
         include/smooth/application/network/mqtt/packet/Unsubscribe.h
+        include/smooth/application/network/mqtt/packet/MQTTPacket.h
         include/smooth/application/network/mqtt/state/ConnectedState.h
         include/smooth/application/network/mqtt/state/ConnectToBrokerState.h
         include/smooth/application/network/mqtt/state/DisconnectedState.h

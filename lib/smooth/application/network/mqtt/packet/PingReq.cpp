@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/PingReq.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ namespace smooth
                 namespace packet
                 {
                     PingReq::PingReq()
-                            : MQTTProtocol()
+                            : MQTTPacket()
                     {
                         set_header(PacketType::PINGREQ, 0);
                         encode_remaining_length(0);
