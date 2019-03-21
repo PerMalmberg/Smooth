@@ -44,7 +44,7 @@ namespace secure_socket_test
     {
         if (!sock)
         {
-            sock = SecureSocket<HTTPProtocol>::create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status);
+            sock = SecureSocket<HTTPProtocol<>>::create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status);
             sock->start(std::make_shared<IPv4>("www.google.com", 443));
         }
     }
@@ -54,12 +54,16 @@ namespace secure_socket_test
 
     }
 
-    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol>& packet)
+    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol<>>& packet)
     {
-        HTTPProtocol::packet_type p;
+        HTTPProtocol<>::packet_type p;
         packet.get(p);
-        Log::debug("Status:", p.get_status_line());
-        sock->stop();
+
+        if(!p.is_continued())
+        {
+            sock->stop();
+        }
+        //Log::debug("Status:", p.get_status_line());
     }
 
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)

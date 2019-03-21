@@ -24,6 +24,7 @@ namespace smooth
                 {
                     class IPacketReceiver;
 
+
                     class MQTTProtocol
                             : public smooth::core::network::IPacketAssembly<MQTTProtocol, MQTTPacket>
                     {
