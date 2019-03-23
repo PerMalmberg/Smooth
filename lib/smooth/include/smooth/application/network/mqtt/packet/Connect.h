@@ -5,6 +5,7 @@
 #pragma once
 
 #include <chrono>
+#include <string>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 
 namespace smooth
@@ -33,7 +34,7 @@ namespace smooth
                             }
 
                         private:
-                            bool clean_session = true;
+                            bool clean_session;
                     };
                 }
             }

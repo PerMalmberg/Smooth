@@ -1,90 +1,145 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
-#include <string>
-#include <unordered_map>
-#include <smooth/core/network/IPacketAssembly.h>
+#include <iostream>
 #include <smooth/core/network/IPacketDisassembly.h>
 
 namespace secure_socket_test
 {
+
     class HTTPPacket
-            : public smooth::core::network::IPacketAssembly,
-              public smooth::core::network::IPacketDisassembly
+            : public smooth::core::network::IPacketDisassembly
     {
         public:
-            HTTPPacket()
-                    : data(1)
-            {}
 
-            ~HTTPPacket() override = default;
+            enum class Method
+            {
+                    GET,
+                    POST
+            };
 
-            explicit HTTPPacket(const std::string& data);
+            HTTPPacket() = default;
 
-            /// Must return the number of bytes the packet wants to fill
-            /// its internal buffer, e.g. header, checksum etc. Returned
-            /// value will differ depending on how much data already has been provided.
-            /// \return Number of bytes wanted
-            int get_wanted_amount() override;
+            HTTPPacket(const HTTPPacket&) = default;
 
-            /// Used by the underlying framework to notify the packet that {length} bytes
-            /// has been written to the buffer pointed to by get_write_pos().
-            /// During the call to this method the packet should do whatever it needs to
-            /// evaluate if it needs more data or if it is complete.
-            /// \param length Number of bytes received
-            void data_received(int length) override;
+            HTTPPacket& operator=(const HTTPPacket&) = default;
 
-            /// Must return the current write position of the internal buffer.
-            /// Must point to a buffer than can accept the number of bytes returned by
-            /// get_wanted_amount().
-            /// \return Write position
-            uint8_t *get_write_pos() override;
+            explicit HTTPPacket(Method method, const std::string& path, const std::unordered_map<std::string, std::string>& headers);
 
-            /// Must return true when the packet has received all data it needs
-            /// to fully assemble.
-            /// \return true or false
-            bool is_complete() override;
+            // Must return the total amount of bytes to send
+            int get_send_length() override
+            {
+                return static_cast<int>(content.size());
+            }
 
-            /// Must return true whenever the packet is unable to correctly assemble
-            /// based on received data.
-            /// \return true or false
-            bool is_error() override;
+            // Must return a pointer to the data to be sent.
+            const uint8_t* get_data() override
+            {
+                return content.data();
+            }
 
-            /// Must return the total amount of bytes to send
-            /// \return Number of bytes to send
-            int get_send_length() override;
+            void set_continued()
+            {
+                continued = true;
+            }
 
-            /// Must return a pointer to the data to be sent.
-            /// \return The read position
-            const uint8_t *get_data() override;
+            bool is_continued() const
+            {
+                return continued;
+            }
 
-            const std::unordered_map<std::string, std::string> get_headers() const { return headers; }
-            const std::string get_status_line() const { return status_line; }
+            void set_continuation()
+            {
+                continuation = true;
+            }
+
+            bool is_continuation() const
+            {
+                return continuation;
+            }
+
+            void set_status(int code)
+            {
+                status_code = code;
+            }
+
+            int status() const
+            {
+                return status_code;
+            }
+
+            std::vector<uint8_t>& data()
+            {
+                return content;
+            }
+
+            void set_size(int size)
+            {
+                if (content.size() != size)
+                {
+                    content.reserve(static_cast<unsigned long>(size));
+                    if(content.size() < size)
+                    {
+                        content.assign(size - content.size(), 0);
+                    }
+                }
+            }
+
+            int empty_space() const
+            {
+                return static_cast<int>(content.size() - bytes_received);
+            }
+
+            void increase_size(int increase)
+            {
+                content.resize(content.size() + increase);
+            }
+
+            std::unordered_map<std::string, std::string>& headers()
+            {
+                return header;
+            }
+
+            void data_received(int length)
+            {
+                bytes_received += length;
+            }
+
+            int get_bytes_received() const
+            {
+                return bytes_received;
+            }
+
+            void clear()
+            {
+                content.clear();
+                bytes_received = 0;
+            }
+
+            bool ends_with_two_crlf() const
+            {
+                // At least one character and \r\n\r\n
+                return content.size() > 4
+                       && content[content.size() - 4] == '\r'
+                       && content[content.size() - 3] == '\n'
+                       && content[content.size() - 2] == '\r'
+                       && content[content.size() - 1] == '\n';
+            }
 
         private:
-            bool ends_with_crlf() const;
+            void append(const std::string& s);
 
-            bool ends_with_two_crlf() const;
-
-            void prepare_for_one_byte();
-
-            void prepare_for_one_more_byte();
-
-            void parse_headers();
-
-            enum class State
-            {
-                    reading_headers,
-                    reading_content
-            };
-            std::vector<uint8_t> data;
-            std::string status_line{};
+            std::unordered_map<std::string, std::string> header{};
+            std::vector<uint8_t> content{};
+            int status_code = 0;
             int bytes_received = 0;
-            int content_length = 0;
+            bool continuation = false;
+            bool continued = false;
 
-            State state = State::reading_headers;
-
-            std::unordered_map<std::string, std::string> headers{};
+            static constexpr const char* const http_get = "GET";
+            static constexpr const char* const http_post = "POST";
+            static constexpr const char* const http_1_0 = "HTTP/1.0";
     };
 
 }

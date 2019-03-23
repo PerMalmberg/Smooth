@@ -186,7 +186,7 @@ namespace smooth
                     fsm.event(event);
                 }
 
-                void MqttClient::event(const core::network::DataAvailableEvent<packet::MQTTPacket>& event)
+                void MqttClient::event(const core::network::DataAvailableEvent<packet::MQTTProtocol>& event)
                 {
                     packet::MQTTPacket p;
                     if (event.get(p))
@@ -225,7 +225,7 @@ namespace smooth
                         tx_buffer.clear();
                         rx_buffer.clear();
 
-                        mqtt_socket = core::network::Socket<packet::MQTTPacket>::create(tx_buffer,
+                        mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(tx_buffer,
                                                                                         rx_buffer,
                                                                                         tx_empty,
                                                                                         data_available,

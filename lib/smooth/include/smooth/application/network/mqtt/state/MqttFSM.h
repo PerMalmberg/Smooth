@@ -11,7 +11,7 @@
 #include <smooth/core/network/DataAvailableEvent.h>
 #include <smooth/core/network/ConnectionStatusEvent.h>
 #include <smooth/core/network/TransmitBufferEmptyEvent.h>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
 #include <smooth/application/network/mqtt/Logging.h>

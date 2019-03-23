@@ -6,7 +6,7 @@
 
 #include <string>
 #include <algorithm>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
@@ -53,7 +53,7 @@ namespace smooth
 
                             std::vector<uint8_t>::const_iterator get_payload_cend() const
                             {
-                                return packet.cend();
+                                return data.cend();
                             }
 
                         protected:

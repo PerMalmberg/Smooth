@@ -4,6 +4,7 @@
 
 #include <smooth/application/network/mqtt/packet/Unsubscribe.h>
 #include <smooth/core/util/advance_iterator.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 namespace smooth
 {
@@ -32,9 +33,9 @@ namespace smooth
                             auto s = get_string(it);
                             topics.push_back(s);
                             // Move to next string, add two for the length bits
-                            end_reached = !core::util::advance(it, packet.end(), s.length() + 2);
+                            end_reached = !core::util::advance(it, data.end(), s.length() + 2);
                         }
-                        while (!end_reached && it != packet.end());
+                        while (!end_reached && it != data.end());
                     }
                 }
             }

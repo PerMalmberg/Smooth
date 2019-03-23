@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/PingReq.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 using namespace std;
 

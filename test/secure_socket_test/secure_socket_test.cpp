@@ -8,6 +8,8 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/Application.h>
 #include <smooth/core/logging/log.h>
+#include <cassert>
+#include "HTTPPacket.h"
 #include "wifi_creds.h"
 
 using namespace std::chrono;
@@ -20,14 +22,15 @@ namespace secure_socket_test
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-            tx_empty("tx_emtpy", 3, *this, *this),
-            data_available("data_available", 3, *this, *this),
-            connection_status("connection_status", 3, *this, *this)
+              tx_empty("tx_emtpy", 3, *this, *this),
+              data_available("data_available", 3, *this, *this),
+              connection_status("connection_status", 3, *this, *this)
     {
     }
 
     void App::init()
     {
+        Application::init();
 #ifdef ESP_PLATFORM
         Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
@@ -42,8 +45,12 @@ namespace secure_socket_test
     {
         if (!sock)
         {
-            sock = SecureSocket<HTTPPacket>::create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status);
-            sock->start(std::make_shared<IPv4>("216.58.211.142" /*google.com*/, 443));
+            sock = SecureSocket<HTTPProtocol<>>::create(tx_buffer,
+                                                        rx_buffer,
+                                                        tx_empty,
+                                                        data_available,
+                                                        connection_status);
+            sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
         }
     }
 
@@ -52,23 +59,53 @@ namespace secure_socket_test
 
     }
 
-    void App::event(const smooth::core::network::DataAvailableEvent<HTTPPacket>& packet)
+    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol<>>& packet)
     {
-        HTTPPacket p;
+        HTTPProtocol<>::packet_type p;
         packet.get(p);
-        Log::debug("Status:", p.get_status_line());
-        sock->stop();
 
-        // TODO: Test re-use of socket (handling mbedtls context/setup etc.
+        if (!p.is_continuation())
+        {
+            // First packet
+            assert(p.status() == 200);
+        }
+        else
+        {
+            // Seconds and onwards
+            received_content.insert(received_content.end(), p.data().begin(), p.data().end());
+        }
+
+
+        if (!p.is_continued())
+        {
+            // Last packet
+            sock->stop();
+
+            std::stringstream ss;
+            for(char c : received_content)
+            {
+                ss << c;
+            }
+            std::string s{ss.str()};
+
+            // Don't compare the actual signature as it changes when Debian releases a new version.
+            bool has_begining = s.find("-----BEGIN PGP SIGNATURE-----") != std::string::npos;
+            bool has_ending = s.find("-----END PGP SIGNATURE-----") != std::string::npos;
+            assert(has_begining);
+            assert(has_ending);
+        }
     }
 
     void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
-        tx_buffer.put(HTTPPacket("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n\r\n"));
 
+        tx_buffer.put(
+                HTTPPacket(HTTPPacket::Method::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
+                           {
+                                   {"UserAgent", "Mozilla/4.0"},
+                                   {"Host",      "tp.sunet.se"}
+                           }));
     }
-
-
-
 }
+

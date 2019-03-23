@@ -22,13 +22,13 @@ namespace smooth
             /// * Must be copyable
             /// \tparam Packet The type of packet to assemble
             /// \tparam Size  The Number of items to hold in the buffer.
-            template<typename Packet, int Size>
+            template<typename Protocol, int Size, typename Packet = typename Protocol::packet_type>
             class PacketReceiveBuffer
-                    : public IPacketReceiveBuffer<Packet>
+                    : public IPacketReceiveBuffer<Protocol>
             {
                 public:
                     PacketReceiveBuffer()
-                            : guard(), current_item(), buffer()
+                            : proto(current_item)
                     {
                     }
 
@@ -41,20 +41,20 @@ namespace smooth
                     int amount_wanted() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return current_item.get_wanted_amount();
+                        return proto.get_wanted_amount(current_item);
                     }
 
                     uint8_t* get_write_pos() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return current_item.get_write_pos();
+                        return proto.get_write_pos(current_item);
                     }
 
                     void data_received(int length) override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        current_item.data_received(length);
-                        if (current_item.is_complete())
+                        proto.data_received(current_item, length);
+                        if (proto.is_complete())
                         {
                             buffer.put(current_item);
                             in_progress = false;
@@ -64,7 +64,7 @@ namespace smooth
                     bool is_packet_complete() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return current_item.is_complete();
+                        return proto.is_complete();
                     }
 
                     bool get(Packet& target) override
@@ -91,9 +91,9 @@ namespace smooth
                     void prepare_new_packet() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        // Use placement new to prepare a new instance, but first destroy the current one.
                         ReplacePacketWithDefault();
                         in_progress = true;
+                        proto.packet_consumed();
                     }
 
                     void ReplacePacketWithDefault()
@@ -105,14 +105,15 @@ namespace smooth
                     bool is_error() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return current_item.is_error();
+                        return proto.is_error();
                     }
 
                 private:
-                    std::mutex guard;
+                    std::mutex guard{};
                     bool in_progress = false;
-                    Packet current_item;
-                    smooth::core::util::CircularBuffer<Packet, Size> buffer;
+                    Packet current_item{};
+                    Protocol proto;
+                    smooth::core::util::CircularBuffer<Packet, Size> buffer{};
             };
         }
     }

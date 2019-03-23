@@ -3,6 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/packet/ConnAck.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 namespace smooth
 {

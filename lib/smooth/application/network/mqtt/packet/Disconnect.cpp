@@ -3,6 +3,7 @@
 //
 
 #include <smooth/application/network/mqtt/packet/Disconnect.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
 
 using namespace std;
 

@@ -21,12 +21,15 @@ namespace smooth
                     /// Constructor
                     /// \param ip_as_string The IP in string form.
                     /// \param port The port.
-                    InetAddress(std::string ip_as_string, int port)
-                            : ip_as_string(std::move(ip_as_string)), port(port)
+                    InetAddress(std::string host, int port)
+                            : host(std::move(host)), port(port)
                     {
                     }
 
                     virtual ~InetAddress() = default;
+
+                    // Performs name resolution
+                    virtual bool resolve_ip() = 0;
 
                     /// Gets the address family, e.g. AF_INET or AF_INET6
                     /// \return The adress family
@@ -47,18 +50,23 @@ namespace smooth
                     /// \return Socket address length
                     virtual socklen_t get_socket_address_length() const = 0;
 
-                    /// Gets the IP as a string
-                    /// \return The IP in string form
-                    const std::string& get_ip_as_string() const
-                    {
-                        return ip_as_string;
-                    }
-
                     /// Gets the port
                     /// \return The port
                     int get_port() const
                     {
                         return port;
+                    }
+
+                    /// Gets the host
+                    /// \return The host
+                    std::string get_host() const
+                    {
+                        return host;
+                    }
+
+                    std::string get_resolved_ip() const
+                    {
+                        return resolved_ip;
                     }
 
                     /// Returns a value indicating if the IP address is valid.
@@ -70,7 +78,8 @@ namespace smooth
 
                 protected:
                     bool valid = false;
-                    std::string ip_as_string;
+                    std::string host;
+                    std::string resolved_ip;
                     int port;
             };
         }

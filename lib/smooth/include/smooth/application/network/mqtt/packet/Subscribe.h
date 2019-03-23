@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/packet/PacketIdentifierFactory.h>
 
 namespace smooth

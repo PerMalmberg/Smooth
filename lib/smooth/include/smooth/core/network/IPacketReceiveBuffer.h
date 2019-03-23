@@ -11,7 +11,7 @@ namespace smooth
         namespace network
         {
             /// Interface for packet receive buffers
-            template<typename PacketType>
+            template<typename Protocol, typename Packet = typename Protocol::packet_type>
             class IPacketReceiveBuffer
             {
                 public:
@@ -34,7 +34,7 @@ namespace smooth
                     /// Gets the current packet. Don't call before is_packet_complete() returns true.
                     /// \param target The instance which will be assigned the data.
                     /// \return True if the packet could be received.
-                    virtual bool get(PacketType& target) = 0;
+                    virtual bool get(Packet& target) = 0;
                     /// Clears the buffer
                     virtual void clear() = 0;
                     /// Returns a value indicating if a packet is being assembled.

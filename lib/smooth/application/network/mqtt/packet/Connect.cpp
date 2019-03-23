@@ -4,6 +4,9 @@
 
 #include <limits>
 #include <smooth/application/network/mqtt/packet/Connect.h>
+#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
+#include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
+#include <smooth/core/util/ByteSet.h>
 
 using namespace std;
 

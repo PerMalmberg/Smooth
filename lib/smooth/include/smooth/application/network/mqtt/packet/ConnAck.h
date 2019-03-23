@@ -2,7 +2,7 @@
 // Created by permal on 7/22/17.
 //
 
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 
 namespace smooth
 {
