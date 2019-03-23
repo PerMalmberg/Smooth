@@ -37,5 +37,6 @@ namespace secure_socket_test
             smooth::core::network::PacketSendBuffer<HTTPProtocol<>, 5> tx_buffer{};
             smooth::core::network::PacketReceiveBuffer<HTTPProtocol<>, 5> rx_buffer{};
             std::shared_ptr<smooth::core::network::ISocket> sock{};
+            std::vector<uint8_t> received_content{};
     };
 }

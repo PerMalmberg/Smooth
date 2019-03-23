@@ -7,6 +7,10 @@
 #include <smooth/core/network/IPacketDisassembly.h>
 #include "HTTPPacket.h"
 
+// Please note that this implementation is rather naive. It does only the the minimum required things to
+// successfully download a file. Further, it is susceptible to DoS attacks in the form of large headers
+// since it does not do any size checking on them.
+
 namespace secure_socket_test
 {
     template<int MaxPacketSize = 100>
@@ -20,7 +24,6 @@ namespace secure_socket_test
                     : packet(working_packet)
             {
             }
-
 
             /// Must return the number of bytes the packet wants to fill
             /// its internal buffer, e.g. header, checksum etc. Returned
@@ -66,6 +69,8 @@ namespace secure_socket_test
             };
 
             int content_length = 0;
+            int content_bytes_received = 0;
+            const std::regex response_line{"(.+) (\\d+) (.+)"};
             HTTPPacket& packet;
 
             State state = State::reading_headers;
@@ -89,7 +94,7 @@ namespace secure_socket_test
         }
         else
         {
-            res = std::min(MaxPacketSize, content_length - packet.get_bytes_received());
+            res = content_length - packet.get_bytes_received();
             packet.set_size(res);
         }
 
@@ -107,9 +112,6 @@ namespace secure_socket_test
             {
                 // End of header
 
-                // Pretend we got another byte and write a terminating 0.
-                packet.append_null();
-
                 parse_headers(packet);
                 state = State::reading_content;
 
@@ -117,6 +119,7 @@ namespace secure_socket_test
                 {
                     content_length = packet.headers()["Content-Length"].empty() ? 0 : std::stoi(
                             packet.headers()["Content-Length"]);
+                    content_bytes_received = 0;
                 }
                 catch(...)
                 {
@@ -125,17 +128,18 @@ namespace secure_socket_test
 
                 if(content_length > 0)
                 {
-                    // More data to receive so this packet will be followed by at least one more.
                     packet.set_continued();
                 }
             }
         }
         else
         {
+            content_bytes_received += length;
+
             if(packet.empty_space() == 0)
             {
                 packet.set_continuation();
-                if(packet.get_bytes_received() < content_length)
+                if(content_bytes_received < content_length)
                 {
                     packet.set_continued();
                 }
@@ -177,14 +181,17 @@ namespace secure_socket_test
         std::string s;
         while (std::getline(ss, s, '\r'))
         {
-            s.erase(std::remove_if(s.begin(), s.end(), [](const char c) { return c == '\r' || c == 0; }), s.end());
             if (!s.empty())
             {
                 auto colon = std::find(s.begin(), s.end(), ':');
                 if (colon == s.end() && !s.empty())
                 {
-                    auto a = s;
-
+                    std::smatch m;
+                    if(std::regex_match(s, m, response_line))
+                    {
+                        auto status = stoi(m[2].str());
+                        packet.set_status(status);
+                    }
                 }
                 else
                 {
@@ -203,6 +210,7 @@ namespace secure_socket_test
     void HTTPProtocol<MaxPacketSize>::packet_consumed()
     {
         packet.clear();
+        packet.set_size(get_wanted_amount(packet));
     }
 
 }

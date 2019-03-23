@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cstdint>
+#include <vector>
+#include <iostream>
+#include <smooth/core/network/IPacketDisassembly.h>
+
 namespace secure_socket_test
 {
 
@@ -7,20 +12,20 @@ namespace secure_socket_test
             : public smooth::core::network::IPacketDisassembly
     {
         public:
-            HTTPPacket()
-                    : content()
-            {
 
-            }
+            enum class Method
+            {
+                    GET,
+                    POST
+            };
+
+            HTTPPacket() = default;
 
             HTTPPacket(const HTTPPacket&) = default;
 
             HTTPPacket& operator=(const HTTPPacket&) = default;
 
-            explicit HTTPPacket(const std::string& data)
-            {
-                std::copy(data.begin(), data.end(), std::back_inserter(content));
-            }
+            explicit HTTPPacket(Method method, const std::string& path, const std::unordered_map<std::string, std::string>& headers);
 
             // Must return the total amount of bytes to send
             int get_send_length() override
@@ -64,11 +69,6 @@ namespace secure_socket_test
                 return status_code;
             }
 
-            int content_length() const
-            {
-                return static_cast<int>(content.size());
-            }
-
             std::vector<uint8_t>& data()
             {
                 return content;
@@ -76,9 +76,13 @@ namespace secure_socket_test
 
             void set_size(int size)
             {
-                if(content.size()!=size)
+                if (content.size() != size)
                 {
                     content.reserve(static_cast<unsigned long>(size));
+                    if(content.size() < size)
+                    {
+                        content.assign(size - content.size(), 0);
+                    }
                 }
             }
 
@@ -89,7 +93,7 @@ namespace secure_socket_test
 
             void increase_size(int increase)
             {
-                content.resize(content.size()+increase);
+                content.resize(content.size() + increase);
             }
 
             std::unordered_map<std::string, std::string>& headers()
@@ -105,11 +109,6 @@ namespace secure_socket_test
             int get_bytes_received() const
             {
                 return bytes_received;
-            }
-
-            void append_null()
-            {
-                content.push_back(0);
             }
 
             void clear()
@@ -129,12 +128,18 @@ namespace secure_socket_test
             }
 
         private:
+            void append(const std::string& s);
+
             std::unordered_map<std::string, std::string> header{};
             std::vector<uint8_t> content{};
             int status_code = 0;
             int bytes_received = 0;
             bool continuation = false;
             bool continued = false;
+
+            static constexpr const char* const http_get = "GET";
+            static constexpr const char* const http_post = "POST";
+            static constexpr const char* const http_1_0 = "HTTP/1.0";
     };
 
 }
