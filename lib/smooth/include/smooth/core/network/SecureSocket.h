@@ -234,7 +234,7 @@ namespace smooth
                     // Underlying socket closed
                     this->stop();
                 }
-                if (read_amount < 0
+                else if (read_amount < 0
                     && read_amount != MBEDTLS_ERR_SSL_WANT_READ
                     && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
                 {
