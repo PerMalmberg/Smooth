@@ -229,7 +229,21 @@ namespace smooth
                                                     this->rx_buffer.get_write_pos(),
                                                     static_cast<size_t>(wanted_length));
 
-                if (read_amount > 0)
+                if(read_amount == 0)
+                {
+                    // Underlying socket closed
+                    this->stop();
+                }
+                if (read_amount < 0
+                    && read_amount != MBEDTLS_ERR_SSL_WANT_READ
+                    && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
+                {
+                    char buf[128];
+                    mbedtls_strerror(read_amount, buf, sizeof(buf));
+                    Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
+                    this->stop();
+                }
+                else
                 {
                     this->rx_buffer.data_received(read_amount);
                     if (this->rx_buffer.is_error())
@@ -243,16 +257,6 @@ namespace smooth
                         this->data_available.push(d);
                         this->rx_buffer.prepare_new_packet();
                     }
-                }
-
-                if (read_amount < 0
-                    && read_amount != MBEDTLS_ERR_SSL_WANT_READ
-                    && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
-                {
-                    char buf[128];
-                    mbedtls_strerror(read_amount, buf, sizeof(buf));
-                    Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
-                    this->stop();
                 }
             }
 
