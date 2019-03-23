@@ -24,7 +24,7 @@ without any special considerations.
 - Tasks
 - Queues with support for proper C++ objects, not just plain data structures
 - Timer Events
-- Event-driven TCP Sockets
+- Event-driven TCP Sockets, including TLS support.
 - System events
 
 #### Hardware level
