@@ -27,8 +27,12 @@ namespace smooth
 
                     IPv4(const std::string& hostname, uint16_t port);
 
+                    explicit IPv4(const sockaddr_in& addr);
+
                     bool resolve_ip() override;
+
                     sockaddr* get_socket_address() override;
+
                     socklen_t get_socket_address_length() const override;
 
                     int get_address_family() const override

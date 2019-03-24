@@ -1,9 +1,4 @@
-//
-// Created by permal on 2018-10-21.
-//
-
 #include "secure_socket_test.h"
-#include <iostream>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/Application.h>

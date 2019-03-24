@@ -25,6 +25,8 @@ namespace smooth
                     /// \param port The port to connect to.
                     IPv6(const std::string& ip_number_as_string, uint16_t port);
 
+                    explicit IPv6(const sockaddr_in6& address);
+
                     sockaddr* get_socket_address() override;
                     socklen_t get_socket_address_length() const override;
 
@@ -32,6 +34,8 @@ namespace smooth
                     {
                         return sock_address.sin6_family;
                     };
+
+                    bool resolve_ip() override;
 
                 private:
                     sockaddr_in6 sock_address;

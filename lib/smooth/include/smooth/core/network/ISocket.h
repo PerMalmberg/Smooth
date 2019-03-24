@@ -5,7 +5,6 @@
 #pragma once
 
 #include <memory>
-
 #include "InetAddress.h"
 
 namespace smooth
@@ -23,7 +22,6 @@ namespace smooth
 
                 public:
                     static const int INVALID_SOCKET = -1;
-
 #ifdef ESP_PLATFORM
                     // lwip doesn't signal SIGPIPE
                     static const int SEND_FLAGS = 0;
@@ -47,7 +45,7 @@ namespace smooth
                     /// Returns a value static if the socket is active (true) or not (false). Says nothing about if the
                     /// socket is connected or not (use the response method for ConnectionStatusEvent for that).
                     /// \return true or false, depending on status.
-                    virtual bool is_active() = 0;
+                    virtual bool is_active() const = 0;
 
                     /// Returns true if the last send attempt has expired
                     /// \return true if the socket has not been able to send the data within the set limit.
@@ -55,10 +53,10 @@ namespace smooth
 
                     /// Returns the socket id.
                     /// \return The socket id, possibly INVALID_SOCKET.
-                    virtual int get_socket_id() = 0;
+                    virtual int get_socket_id() const = 0;
+
                 protected:
-                private:
-                    virtual bool is_connected() = 0;
+                    virtual bool is_connected() const = 0;
                     virtual void readable() = 0;
                     virtual void writable() = 0;
                     virtual bool has_data_to_transmit() = 0;

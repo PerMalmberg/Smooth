@@ -37,9 +37,10 @@ set(SOURCES
         application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
         core/network/IPv4.cpp
-        #core/network/IPv6.cpp
+        core/network/IPv6.cpp
         core/network/MbedTLSContext.cpp
         core/network/SocketDispatcher.cpp
+        core/network/CommonSocket.cpp
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
@@ -114,8 +115,11 @@ set(SOURCES
         include/smooth/core/network/SocketOperation.h
         include/smooth/core/network/PacketReceiveBuffer.h
         include/smooth/core/network/PacketSendBuffer.h
+        include/smooth/core/network/CommonSocket.h
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
+        include/smooth/core/network/ClientConnectedEvent.h
+        include/smooth/core/network/ServerSocket.h
         include/smooth/core/network/TransmitBufferEmptyEvent.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h

@@ -1,7 +1,3 @@
-//
-// Created by permal on 7/9/17.
-//
-
 #pragma once
 
 #include <smooth/core/network/ISocket.h>
