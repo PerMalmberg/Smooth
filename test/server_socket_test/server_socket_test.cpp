@@ -58,6 +58,7 @@ namespace server_socket_test
     void App::event(const smooth::core::network::ClientConnectedEvent<StreamingProtocol>& ev)
     {
         auto client = ev.get_socket();
+        tx_buffer.put(StreamPacket{'a'});
 
 
     }

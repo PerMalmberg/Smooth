@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by permal on 10/29/17.
 //
@@ -16,12 +18,13 @@ namespace smooth
                     enum class Op
                     {
                             Start,
-                            Stop
+                            Stop,
+                            AddActiveSocket
                     };
 
                     SocketOperation() = default;
                     SocketOperation(Op op, std::shared_ptr<core::network::ISocket> sock)
-                            : op(op), sock(sock)
+                            : op(op), sock(std::move(sock))
                     {
 
                     }

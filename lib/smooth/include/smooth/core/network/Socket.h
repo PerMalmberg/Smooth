@@ -328,7 +328,12 @@ namespace smooth
                 // Try to read the desired amount
                 auto read_count = recv(socket_id, rx_buffer.get_write_pos(), static_cast<size_t>(wanted_length), 0);
 
-                if (read_count == -1)
+                if(read_count == 0)
+                {
+                    log("Socket closed");
+                    stop();
+                }
+                else if (read_count < 0)
                 {
                     if (errno != EWOULDBLOCK)
                     {
@@ -336,7 +341,7 @@ namespace smooth
                         stop();
                     }
                 }
-                else if (read_count > 0)
+                else
                 {
                     rx_buffer.data_received(static_cast<int>(read_count));
                     if (rx_buffer.is_error())
@@ -460,6 +465,7 @@ namespace smooth
                 this->socket_id = socket_id;
                 started = true;
                 connected = true;
+                SocketDispatcher::instance().perform_op(SocketOperation::Op::AddActiveSocket, shared_from_this());
             }
         }
     }

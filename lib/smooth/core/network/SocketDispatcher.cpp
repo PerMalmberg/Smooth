@@ -285,6 +285,11 @@ namespace smooth
                 {
                     start_socket(event.get_socket());
                 }
+                else if(event.get_op() == SocketOperation::Op::AddActiveSocket)
+                {
+                    auto socket = event.get_socket();
+                    active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
+                }
                 else
                 {
                     shutdown_socket(event.get_socket());
