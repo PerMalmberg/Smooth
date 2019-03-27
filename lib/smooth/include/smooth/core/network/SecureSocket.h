@@ -82,16 +82,16 @@ namespace smooth
                     /// created.
                     static std::shared_ptr<ISocket>
                     create(IPacketSendBuffer<Protocol>& tx_buffer, IPacketReceiveBuffer<Protocol>& rx_buffer,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& data_available,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
+                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
 
                 protected:
                     SecureSocket(IPacketSendBuffer<Protocol>& tx_buffer, IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& data_available,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
+                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
+                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
                                  std::chrono::milliseconds send_timeout)
                             : Socket<Protocol, Packet>(tx_buffer, rx_buffer, tx_empty, data_available, connection_status,
                                              send_timeout)
@@ -124,9 +124,9 @@ namespace smooth
             template<typename Protocol, typename Packet>
             std::shared_ptr<ISocket> SecureSocket<Protocol, Packet>::create(IPacketSendBuffer<Protocol>& tx_buffer,
                                                                   IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& data_available,
-                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
+                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
+                                                                  smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
                                                                   std::chrono::milliseconds send_timeout)
             {
 
@@ -137,9 +137,9 @@ namespace smooth
                     public:
                         MakeSharedActivator(IPacketSendBuffer<Protocol>& tx_buffer,
                                             IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& data_available,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
+                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
                                             std::chrono::milliseconds send_timeout)
                                 : SecureSocket<Protocol, Packet>(tx_buffer, rx_buffer, tx_empty, data_available,
                                                        connection_status,
@@ -253,7 +253,7 @@ namespace smooth
                     }
                     else if (this->rx_buffer.is_packet_complete())
                     {
-                        DataAvailableEvent<Protocol> d(&this->rx_buffer);
+                        event::DataAvailableEvent<Protocol> d(&this->rx_buffer);
                         this->data_available.push(d);
                         this->rx_buffer.prepare_new_packet();
                     }
@@ -282,7 +282,7 @@ namespace smooth
                     else
                     {
                         // Let the application know it may now send another packet.
-                        smooth::core::network::TransmitBufferEmptyEvent event(this->shared_from_this());
+                        event::TransmitBufferEmptyEvent event(this->shared_from_this());
                         this->tx_empty.push(event);
                     }
                 }

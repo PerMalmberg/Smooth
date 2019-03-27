@@ -10,8 +10,8 @@
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/network/ConnectionStatusEvent.h>
-#include <smooth/core/network/ClientConnectedEvent.h>
+#include <smooth/core/network/event/ConnectionStatusEvent.h>
+#include <smooth/core/network/event/ClientConnectedEvent.h>
 #include <smooth/core/network/CommonSocket.h>
 
 #ifndef ESP_PLATFORM
@@ -37,12 +37,12 @@ namespace smooth
             {
                 public:
                     static std::shared_ptr<ISocket> create(
-                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ClientConnectedEvent<Protocol>>& client_connected,
+                            smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<Protocol>>& client_connected,
                             IPacketSendBuffer<Protocol>& client_tx_buffer,
                             IPacketReceiveBuffer<Protocol>& client_rx_buffer,
-                            smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& client_tx_empty,
-                            smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& client_data_available,
-                            smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& client_connection_status,
+                            smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>& client_tx_empty,
+                            smooth::core::ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& client_data_available,
+                            smooth::core::ipc::TaskEventQueue<event::ConnectionStatusEvent>& client_connection_status,
                             std::chrono::milliseconds client_send_timeout);
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
@@ -75,12 +75,12 @@ namespace smooth
                     void clear_socket_id() override;
 
 
-                    ServerSocket(smooth::core::ipc::TaskEventQueue<ClientConnectedEvent<Protocol>>& client_connected,
+                    ServerSocket(smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<Protocol>>& client_connected,
                                  IPacketSendBuffer<Protocol>& client_tx_buffer,
                                  IPacketReceiveBuffer<Protocol>& client_rx_buffer,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& client_tx_empty,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& client_data_available,
-                                 smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& client_connection_status,
+                                 smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>& client_tx_empty,
+                                 smooth::core::ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& client_data_available,
+                                 smooth::core::ipc::TaskEventQueue<event::ConnectionStatusEvent>& client_connection_status,
                                  std::chrono::milliseconds client_send_timeout)
                             : connected_receiver(client_connected),
                               tx_buffer(client_tx_buffer),
@@ -93,12 +93,12 @@ namespace smooth
                     }
 
                 private:
-                    smooth::core::ipc::TaskEventQueue<ClientConnectedEvent<Protocol>>& connected_receiver;
+                    smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<Protocol>>& connected_receiver;
                     IPacketSendBuffer<Protocol>& tx_buffer;
                     IPacketReceiveBuffer<Protocol>& rx_buffer;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& tx_empty;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& data_available;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& connection_status;
+                    smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>& tx_empty;
+                    smooth::core::ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& data_available;
+                    smooth::core::ipc::TaskEventQueue<event::ConnectionStatusEvent>& connection_status;
                     std::chrono::milliseconds send_timeout;
             };
 
@@ -149,8 +149,16 @@ namespace smooth
                         ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
                     }
 
-                    auto client = Socket<Protocol>::create(ip, accept_id, tx_buffer, rx_buffer, tx_empty, data_available, connection_status, send_timeout);
-                    connected_receiver.push(ClientConnectedEvent<Protocol>(client));
+                    auto client = Socket<Protocol>::create(ip,
+                                                           accept_id,
+                                                           tx_buffer,
+                                                           rx_buffer,
+                                                           tx_empty,
+                                                           data_available,
+                                                           connection_status,
+                                                           send_timeout);
+
+                    connected_receiver.push(event::ClientConnectedEvent<Protocol>(client));
                 }
             }
 
@@ -222,12 +230,12 @@ namespace smooth
 
             template<typename Protocol>
             std::shared_ptr<ISocket> ServerSocket<Protocol>::create(
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::ClientConnectedEvent<Protocol>>& client_connected,
+                    smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<Protocol>>& client_connected,
                     IPacketSendBuffer<Protocol>& client_tx_buffer,
                     IPacketReceiveBuffer<Protocol>& client_rx_buffer,
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& client_tx_empty,
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& client_data_available,
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& client_connection_status,
+                    smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>& client_tx_empty,
+                    smooth::core::ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& client_data_available,
+                    smooth::core::ipc::TaskEventQueue<event::ConnectionStatusEvent>& client_connection_status,
                     std::chrono::milliseconds client_send_timeout)
             {
                 // This class is solely used to enabled access to the protected ServerSocket<Protocol> constructor from std::make_shared<>
@@ -236,12 +244,12 @@ namespace smooth
                 {
                     public:
                         explicit MakeSharedActivator(
-                                smooth::core::ipc::TaskEventQueue<smooth::core::network::ClientConnectedEvent<Protocol>>& client_connected,
+                                smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<Protocol>>& client_connected,
                                 IPacketSendBuffer<Protocol>& client_tx_buffer,
                                 IPacketReceiveBuffer<Protocol>& client_rx_buffer,
-                                smooth::core::ipc::TaskEventQueue<smooth::core::network::TransmitBufferEmptyEvent>& client_tx_empty,
-                                smooth::core::ipc::TaskEventQueue<smooth::core::network::DataAvailableEvent<Protocol>>& client_data_available,
-                                smooth::core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent>& client_connection_status,
+                                smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>& client_tx_empty,
+                                smooth::core::ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& client_data_available,
+                                smooth::core::ipc::TaskEventQueue<event::ConnectionStatusEvent>& client_connection_status,
                                 std::chrono::milliseconds client_send_timeout)
                                 : ServerSocket<Protocol>(client_connected,
                                                          client_tx_buffer,

@@ -173,12 +173,12 @@ namespace smooth
                     }
                 }
 
-                void MqttClient::event(const core::network::TransmitBufferEmptyEvent& event)
+                void MqttClient::event(const core::network::event::TransmitBufferEmptyEvent& event)
                 {
                     fsm.event(event);
                 }
 
-                void MqttClient::event(const core::network::ConnectionStatusEvent& event)
+                void MqttClient::event(const core::network::event::ConnectionStatusEvent& event)
                 {
                     Log::info(mqtt_log_tag, Format("MQTT {1} server",
                                                    Str(event.is_connected() ? "connected to" : "disconnected from")));
@@ -186,7 +186,7 @@ namespace smooth
                     fsm.event(event);
                 }
 
-                void MqttClient::event(const core::network::DataAvailableEvent<packet::MQTTProtocol>& event)
+                void MqttClient::event(const core::network::event::DataAvailableEvent<packet::MQTTProtocol>& event)
                 {
                     packet::MQTTPacket p;
                     if (event.get(p))

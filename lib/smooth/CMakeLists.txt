@@ -100,8 +100,10 @@ set(SOURCES
         include/smooth/core/ipc/SubscribingTaskEventQueue.h
         include/smooth/core/ipc/TaskEventQueue.h
         include/smooth/core/logging/log.h
-        include/smooth/core/network/ConnectionStatusEvent.h
-        include/smooth/core/network/DataAvailableEvent.h
+        include/smooth/core/network/event/ConnectionStatusEvent.h
+        include/smooth/core/network/event/ClientConnectedEvent.h
+        include/smooth/core/network/event/DataAvailableEvent.h
+        include/smooth/core/network/event/TransmitBufferEmptyEvent.h
         include/smooth/core/network/InetAddress.h
         include/smooth/core/network/IPacketAssembly.h
         include/smooth/core/network/IPacketDisassembly.h
@@ -118,9 +120,7 @@ set(SOURCES
         include/smooth/core/network/CommonSocket.h
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
-        include/smooth/core/network/ClientConnectedEvent.h
         include/smooth/core/network/ServerSocket.h
-        include/smooth/core/network/TransmitBufferEmptyEvent.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h
         include/smooth/core/timer/Timer.h

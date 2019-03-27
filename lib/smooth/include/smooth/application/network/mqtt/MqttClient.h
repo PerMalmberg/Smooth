@@ -11,9 +11,9 @@
 #include <unordered_map>
 #include <smooth/core/Task.h>
 #include <smooth/core/network/IPv4.h>
-#include <smooth/core/network/DataAvailableEvent.h>
-#include <smooth/core/network/ConnectionStatusEvent.h>
-#include <smooth/core/network/TransmitBufferEmptyEvent.h>
+#include <smooth/core/network/event/DataAvailableEvent.h>
+#include <smooth/core/network/event/ConnectionStatusEvent.h>
+#include <smooth/core/network/event/TransmitBufferEmptyEvent.h>
 #include <smooth/core/network/Socket.h>
 #include <smooth/core/network/PacketSendBuffer.h>
 #include <smooth/core/network/PacketReceiveBuffer.h>
@@ -44,9 +44,9 @@ namespace smooth
                 class MqttClient
                         : private smooth::core::Task,
                           private IMqttClient,
-                          private core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
-                          private core::ipc::IEventListener<core::network::DataAvailableEvent<packet::MQTTProtocol>>,
-                          private core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
+                          private core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+                          private core::ipc::IEventListener<core::network::event::DataAvailableEvent<packet::MQTTProtocol>>,
+                          private core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
                           private core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
                           private core::ipc::IEventListener<event::BaseEvent>,
                           private core::ipc::IEventListener<smooth::core::network::NetworkStatus>
@@ -122,9 +122,9 @@ namespace smooth
                         static std::string get_payload(const MQTTData& data);
 
                     private:
-                        void event(const core::network::TransmitBufferEmptyEvent& event) override;
-                        void event(const core::network::ConnectionStatusEvent& event) override;
-                        void event(const core::network::DataAvailableEvent<packet::MQTTProtocol>& event) override;
+                        void event(const core::network::event::TransmitBufferEmptyEvent& event) override;
+                        void event(const core::network::event::ConnectionStatusEvent& event) override;
+                        void event(const core::network::event::DataAvailableEvent<packet::MQTTProtocol>& event) override;
 
                         void event(const core::timer::TimerExpiredEvent& event) override;
 
@@ -166,9 +166,9 @@ namespace smooth
                         core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;
                         core::network::PacketSendBuffer<packet::MQTTProtocol, 5> tx_buffer{};
                         core::network::PacketReceiveBuffer<packet::MQTTProtocol, 5> rx_buffer{};
-                        core::ipc::TaskEventQueue<core::network::TransmitBufferEmptyEvent> tx_empty;
-                        core::ipc::TaskEventQueue<core::network::DataAvailableEvent<packet::MQTTProtocol>> data_available;
-                        core::ipc::TaskEventQueue<smooth::core::network::ConnectionStatusEvent> connection_status;
+                        core::ipc::TaskEventQueue<core::network::event::TransmitBufferEmptyEvent> tx_empty;
+                        core::ipc::TaskEventQueue<core::network::event::DataAvailableEvent<packet::MQTTProtocol>> data_available;
+                        core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
                         core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus> system_event;

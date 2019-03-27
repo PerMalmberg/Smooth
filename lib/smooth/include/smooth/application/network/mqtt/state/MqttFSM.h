@@ -8,9 +8,9 @@
 #include <smooth/core/timer/TimerExpiredEvent.h>
 #include <smooth/core/ipc/IEventListener.h>
 #include <smooth/core/logging/log.h>
-#include <smooth/core/network/DataAvailableEvent.h>
-#include <smooth/core/network/ConnectionStatusEvent.h>
-#include <smooth/core/network/TransmitBufferEmptyEvent.h>
+#include <smooth/core/network/event/DataAvailableEvent.h>
+#include <smooth/core/network/event/ConnectionStatusEvent.h>
+#include <smooth/core/network/event/TransmitBufferEmptyEvent.h>
 #include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/IMqttClient.h>
 #include <smooth/application/network/mqtt/packet/PacketDecoder.h>
@@ -32,8 +32,8 @@ namespace smooth
                     template<typename BaseState>
                     class MqttFSM
                             : public core::fsm::StaticFSM<BaseState, MQTT_FSM_STATE_SIZE>,
-                              public core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
-                              public core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
+                              public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+                              public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
                               public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
                     {
                         public:
@@ -46,8 +46,8 @@ namespace smooth
                             void leaving_state(BaseState* state) override;
 
                             void tick();
-                            void event(const core::network::TransmitBufferEmptyEvent& event) override;
-                            void event(const core::network::ConnectionStatusEvent& event) override;
+                            void event(const core::network::event::TransmitBufferEmptyEvent& event) override;
+                            void event(const core::network::event::ConnectionStatusEvent& event) override;
                             void event(const core::timer::TimerExpiredEvent& event) override;
 
                             void packet_received(const packet::MQTTPacket& packet);
@@ -84,7 +84,7 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::event(const core::network::TransmitBufferEmptyEvent& event)
+                    void MqttFSM<BaseState>::event(const core::network::event::TransmitBufferEmptyEvent& event)
                     {
                         if (this->get_state() != nullptr)
                         {
@@ -107,7 +107,7 @@ namespace smooth
                     }
 
                     template<typename BaseState>
-                    void MqttFSM<BaseState>::event(const core::network::ConnectionStatusEvent& event)
+                    void MqttFSM<BaseState>::event(const core::network::event::ConnectionStatusEvent& event)
                     {
                         if (this->get_state() != nullptr)
                         {

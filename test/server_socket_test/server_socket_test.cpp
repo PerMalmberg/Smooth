@@ -11,6 +11,7 @@
 using namespace std::chrono;
 using namespace smooth::core;
 using namespace smooth::core::network;
+using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
 
 namespace server_socket_test
@@ -55,7 +56,7 @@ namespace server_socket_test
     }
 
 
-    void App::event(const smooth::core::network::ClientConnectedEvent<StreamingProtocol>& ev)
+    void App::event(const ClientConnectedEvent<StreamingProtocol>& ev)
     {
         auto client = ev.get_socket();
         tx_buffer.put(StreamPacket{'a'});
@@ -63,19 +64,19 @@ namespace server_socket_test
 
     }
 
-    void App::event(const smooth::core::network::TransmitBufferEmptyEvent&)
+    void App::event(const TransmitBufferEmptyEvent&)
     {
 
     }
 
-    void App::event(const smooth::core::network::DataAvailableEvent<StreamingProtocol>& ev)
+    void App::event(const DataAvailableEvent<StreamingProtocol>& ev)
     {
         StreamingProtocol::packet_type packet;
         ev.get(packet);
         std::cout << static_cast<char>(packet.data()[0]);
     }
 
-    void App::event(const smooth::core::network::ConnectionStatusEvent&)
+    void App::event(const ConnectionStatusEvent&)
     {
 
     }

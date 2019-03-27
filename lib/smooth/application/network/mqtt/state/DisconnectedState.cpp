@@ -37,7 +37,7 @@ namespace smooth
                         }
                     }
 
-                    void DisconnectedState::event(const core::network::ConnectionStatusEvent& event)
+                    void DisconnectedState::event(const core::network::event::ConnectionStatusEvent& event)
                     {
                         if (fsm.get_mqtt().is_auto_reconnect() && !event.is_connected())
                         {

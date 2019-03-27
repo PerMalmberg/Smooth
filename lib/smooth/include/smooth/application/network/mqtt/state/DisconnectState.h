@@ -27,7 +27,7 @@ namespace smooth
                             }
 
                             void enter_state() override;
-                            void event(const core::network::TransmitBufferEmptyEvent& event) override;
+                            void event(const core::network::event::TransmitBufferEmptyEvent& event) override;
                             void tick() override;
                         private:
                             smooth::core::timer::ElapsedTime elapsed_time{};
