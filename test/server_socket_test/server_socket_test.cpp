@@ -18,10 +18,8 @@ namespace server_socket_test
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              client_connected("client_connected", 3, *this, *this),
-              tx_empty("tx_emtpy", 3, *this, *this),
-              data_available("data_available", 3, *this, *this),
-              connection_status("connection_status", 3, *this, *this)
+              client_connected("client_connected", 3, *this, *this)
+
     {
     }
 
@@ -43,25 +41,20 @@ namespace server_socket_test
     {
         if (!server)
         {
-            server = ServerSocket<StreamingProtocol>::create(client_connected,
-                                                             tx_buffer,
-                                                             rx_buffer,
-                                                             tx_empty,
-                                                             data_available,
-                                                             connection_status,
-                                                             seconds{1});
+            server = ServerSocket<StreamingProtocol, StreamingClient>::create(client_connected, *this);
 
             server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
         }
     }
 
 
-    void App::event(const ClientConnectedEvent<StreamingProtocol>& ev)
+    void App::event(const ClientConnectedEvent<StreamingClient>& ev)
     {
-        auto client = ev.get_socket();
-        tx_buffer.put(StreamPacket{'a'});
+        auto client = ev.get_client();
+        //tx_buffer.put(StreamPacket{'a'});
 
 
+        // TODO: Termination of client and decoupling of Socket.
     }
 
     void App::event(const TransmitBufferEmptyEvent&)

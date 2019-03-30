@@ -12,7 +12,7 @@ namespace smooth
         {
             namespace event
             {
-                template<typename Protocol>
+                template<typename ProtocolClient>
                 class ClientConnectedEvent
                 {
                     public:
@@ -20,18 +20,18 @@ namespace smooth
 
                         ClientConnectedEvent(const ClientConnectedEvent&) = default;
 
-                        explicit ClientConnectedEvent(std::shared_ptr<Socket < Protocol>> client)
-                            : socket (std::move(client))
+                        explicit ClientConnectedEvent(std::shared_ptr<ProtocolClient> new_client)
+                            : client(std::move(new_client))
                         {
                         }
 
-                        const std::shared_ptr<Socket < Protocol>>get_socket() const
+                        const std::shared_ptr<ProtocolClient>get_client() const
                         {
-                            return socket;
+                            return client;
                         }
 
                     private:
-                        std::shared_ptr<Socket < Protocol>> socket;
+                        std::shared_ptr<ProtocolClient> client;
                 };
             }
         }

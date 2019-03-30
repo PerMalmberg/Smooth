@@ -11,6 +11,7 @@ using namespace std::chrono;
 using namespace smooth::core;
 using namespace smooth::core::timer;
 using namespace smooth::core::network;
+using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
 
 namespace secure_socket_test
@@ -49,12 +50,12 @@ namespace secure_socket_test
         }
     }
 
-    void App::event(const smooth::core::network::TransmitBufferEmptyEvent&)
+    void App::event(const TransmitBufferEmptyEvent&)
     {
 
     }
 
-    void App::event(const smooth::core::network::DataAvailableEvent<HTTPProtocol<>>& packet)
+    void App::event(const DataAvailableEvent<HTTPProtocol<>>& packet)
     {
         HTTPProtocol<>::packet_type p;
         packet.get(p);
@@ -91,7 +92,7 @@ namespace secure_socket_test
         }
     }
 
-    void App::event(const smooth::core::network::ConnectionStatusEvent& ev)
+    void App::event(const ConnectionStatusEvent& ev)
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
 

@@ -10,6 +10,7 @@
 #include <memory>
 #include <chrono>
 #include "CommonSocket.h"
+#include "IProtocolClient.h"
 #include <smooth/core/util/CircularBuffer.h>
 #include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
@@ -58,11 +59,7 @@ namespace smooth
                     static std::shared_ptr<Socket<Protocol>>
                     create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                            int socket_id,
-                           IPacketSendBuffer<Protocol>& tx_buffer, IPacketReceiveBuffer<Protocol>& rx_buffer,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
-                           std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
+                           IProtocolClient<Protocol>& client);
 
                     ~Socket() override
                     {
@@ -75,7 +72,7 @@ namespace smooth
 
                     void writable() override;
 
-                    void set_existing_socket(std::shared_ptr<InetAddress> address, int socket_id);
+                    void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id);
 
                 protected:
                     Socket(IPacketSendBuffer<Protocol>& tx_buffer,
@@ -101,11 +98,6 @@ namespace smooth
                                && elapsed_send_time.get_running_time() > send_timeout;
                     }
 
-                    IPacketSendBuffer<Protocol>& tx_buffer;
-                    IPacketReceiveBuffer<Protocol>& rx_buffer;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty;
-
                     bool internal_start() override;
 
                     bool has_data_to_transmit() override
@@ -117,27 +109,29 @@ namespace smooth
 
                     void publish_connected_status() override;
 
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status;
-
                     void stop_internal() override;
 
-
+                    IPacketSendBuffer<Protocol>& tx_buffer;
+                    IPacketReceiveBuffer<Protocol>& rx_buffer;
+                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available;
+                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty;
+                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status;
                     std::chrono::milliseconds send_timeout;
-
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
             };
 
             template<typename Protocol, typename Packet>
             std::shared_ptr<Socket<Protocol>>
             Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip, int socket_id,
-                                             IPacketSendBuffer<Protocol>& tx_buffer,
-                                             IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                                             ipc::TaskEventQueue<event::DataAvailableEvent<Protocol>>& data_available,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
-                                             std::chrono::milliseconds send_timeout)
+                                             IProtocolClient<Protocol>& client)
             {
-                auto s = create(tx_buffer, rx_buffer, tx_empty, data_available, connection_status, send_timeout);
+                auto s = create(client.get_tx_buffer(),
+                                client.get_rx_buffer(),
+                                client.get_tx_empty(),
+                                client.get_data_available(),
+                                client.get_connection_status(),
+                                client.get_send_timeout());
+
                 s->set_existing_socket(ip, socket_id);
                 return s;
             }
@@ -171,11 +165,11 @@ namespace smooth
                 };
 
                 std::shared_ptr<Socket<Protocol>> s = std::make_shared<MakeSharedActivator>(tx_buffer,
-                                                                                   rx_buffer,
-                                                                                   tx_empty,
-                                                                                   data_available,
-                                                                                   connection_status,
-                                                                                   send_timeout);
+                                                                                            rx_buffer,
+                                                                                            tx_empty,
+                                                                                            data_available,
+                                                                                            connection_status,
+                                                                                            send_timeout);
                 return s;
             }
 
@@ -328,7 +322,7 @@ namespace smooth
                 // Try to read the desired amount
                 auto read_count = recv(socket_id, rx_buffer.get_write_pos(), static_cast<size_t>(wanted_length), 0);
 
-                if(read_count == 0)
+                if (read_count == 0)
                 {
                     log("Socket closed");
                     stop();
@@ -457,7 +451,8 @@ namespace smooth
             }
 
             template<typename Protocol, typename Packet>
-            void Socket<Protocol, Packet>::set_existing_socket(std::shared_ptr<InetAddress> address, int socket_id)
+            void
+            Socket<Protocol, Packet>::set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id)
             {
                 this->ip = address;
                 this->socket_id = socket_id;
