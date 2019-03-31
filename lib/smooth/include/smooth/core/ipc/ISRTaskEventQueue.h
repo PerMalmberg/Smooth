@@ -59,7 +59,7 @@ namespace smooth
                     }
 
                 private:
-                    void forward_to_event_queue() override;
+                    void forward_to_event_listener() override;
 
                     QueueHandle_t queue;
                     Task& task;
@@ -90,7 +90,7 @@ namespace smooth
             }
 
             template<typename DataType, int Size>
-            void ISRTaskEventQueue<DataType, Size>::forward_to_event_queue()
+            void ISRTaskEventQueue<DataType, Size>::forward_to_event_listener()
             {
                 // All messages passed via a queue needs a default constructor
                 // and must be copyable and have the assignment operator.

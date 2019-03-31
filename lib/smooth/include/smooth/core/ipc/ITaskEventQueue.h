@@ -19,8 +19,8 @@ namespace smooth
                 public:
                     virtual ~ITaskEventQueue() = default;
 
-                    /// Forwards the next event to the event queue
-                    virtual void forward_to_event_queue() = 0;
+                    /// Forwards the next event to the event listener
+                    virtual void forward_to_event_listener() = 0;
                     /// Returns the size of the event queue.
                     virtual int size() = 0;
                     virtual void register_notification(QueueNotification* notification) = 0;

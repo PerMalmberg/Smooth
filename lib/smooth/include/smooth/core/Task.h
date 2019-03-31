@@ -70,7 +70,7 @@ namespace smooth
                 /// \param priority Task priority
                 /// \param tick_interval Tick interval
                 /// \param core Core affinity, defaults to no affinity
-                Task(const std::string& task_name,
+                Task(std::string  task_name,
                      uint32_t stack_size,
                      uint32_t priority,
                      std::chrono::milliseconds tick_interval,

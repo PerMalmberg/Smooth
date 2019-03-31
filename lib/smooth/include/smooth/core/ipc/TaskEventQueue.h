@@ -94,14 +94,13 @@ namespace smooth
                     Queue<T> queue;
                     QueueNotification* notif = nullptr;
                 private:
-                    void forward_to_event_queue() override
+                    void forward_to_event_listener() override
                     {
                         // All messages passed via a queue needs a default constructor
                         // and must be copyable and have the assignment operator.
                         T m;
                         if (queue.pop(m))
                         {
-                            // Listener still alive
                             listener.event(m);
                         }
                     }

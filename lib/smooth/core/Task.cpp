@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by permal on 6/25/17.
 //
@@ -19,9 +21,9 @@ namespace smooth
     namespace core
     {
         /// Constructor used when creating a new task running on a new thread.
-        Task::Task(const std::string& task_name, uint32_t stack_size, uint32_t priority,
+        Task::Task(std::string  task_name, uint32_t stack_size, uint32_t priority,
                    std::chrono::milliseconds tick_interval, int core)
-                : name(task_name),
+                : name(std::move(task_name)),
                   worker(),
                   stack_size(stack_size),
                   priority(priority),
@@ -160,9 +162,8 @@ namespace smooth
                         // A queue has signaled an item is available.
                         // Note: Do not retrieve all messages from the the queue;
                         // it will prevent messages to arrive in the same order
-                        // they were sent to, when there are more than one
-                        // receiver queue.
-                        queue->forward_to_event_queue();
+                        // they were sent when there are more than one receiver queue.
+                        queue->forward_to_event_listener();
                     }
                 }
 
