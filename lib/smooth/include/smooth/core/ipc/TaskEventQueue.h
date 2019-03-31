@@ -5,6 +5,7 @@
 #pragma once
 
 #include <smooth/core/Task.h>
+#include <memory>
 #include "ITaskEventQueue.h"
 #include "IEventListener.h"
 #include "QueueNotification.h"
@@ -20,13 +21,14 @@ namespace smooth
             /// to do other things.
             /// \tparam T The type of events to receive.
             template<typename T>
-            class TaskEventQueue : public ITaskEventQueue
+            class TaskEventQueue
+                    : public ITaskEventQueue
             {
                 public:
                     friend core::Task;
 
                     static_assert(std::is_default_constructible<T>::value, "DataType must be default-constructible");
-                    static_assert(std::is_assignable<T,T>::value, "DataType must be a assignable");
+                    static_assert(std::is_assignable<T, T>::value, "DataType must be a assignable");
 
                     /// Constructor
                     /// \param name The name of the event queue, mainly used for debugging and logging.
@@ -53,9 +55,9 @@ namespace smooth
                     bool push(const T& item)
                     {
                         auto res = queue.push(item);
-                        if(res)
+                        if (res)
                         {
-                            notification->notify(this);
+                            notif->notify(this);
                         }
                         return res;
                     }
@@ -76,12 +78,21 @@ namespace smooth
 
                     void register_notification(QueueNotification* notification) override
                     {
-                        this->notification = notification;
+                        notif = notification;
+                    }
+
+                    void clear()
+                    {
+                        while (!queue.empty())
+                        {
+                            T t;
+                            queue.pop(t);
+                        }
                     }
 
                 protected:
                     Queue<T> queue;
-                    QueueNotification* notification = nullptr;
+                    QueueNotification* notif = nullptr;
                 private:
                     void forward_to_event_queue() override
                     {
@@ -90,6 +101,7 @@ namespace smooth
                         T m;
                         if (queue.pop(m))
                         {
+                            // Listener still alive
                             listener.event(m);
                         }
                     }

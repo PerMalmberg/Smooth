@@ -139,6 +139,7 @@ namespace smooth
                 }
                 else
                 {
+                    std::unique_lock<std::mutex> lock{queue_mutex};
                     // Check the polled queues for data availability
                     for(auto q : polled_queues)
                     {
@@ -159,7 +160,7 @@ namespace smooth
                         // A queue has signaled an item is available.
                         // Note: Do not retrieve all messages from the the queue;
                         // it will prevent messages to arrive in the same order
-                        // they were sent to the us, when there are more than one
+                        // they were sent to, when there are more than one
                         // receiver queue.
                         queue->forward_to_event_queue();
                     }
@@ -180,8 +181,19 @@ namespace smooth
 
         void Task::register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue)
         {
+            std::unique_lock<std::mutex> lock{queue_mutex};
             polled_queue->register_notification(&notification);
             polled_queues.push_back(polled_queue);
+        }
+
+        void Task::unregister_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue)
+        {
+            std::unique_lock<std::mutex> lock{queue_mutex};
+            auto pos = std::find(polled_queues.begin(), polled_queues.end(), polled_queue);
+            if(pos != polled_queues.end())
+            {
+                polled_queues.erase(pos);
+            }
         }
 
         void Task::print_stack_status()

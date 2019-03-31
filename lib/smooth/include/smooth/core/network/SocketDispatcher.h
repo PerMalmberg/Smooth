@@ -64,9 +64,9 @@ namespace smooth
                     smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus> network_events;
                     smooth::core::ipc::TaskEventQueue<SocketOperation> socket_op;
 
-                    fd_set read_set;
-                    fd_set write_set;
-                    timeval tv;
+                    fd_set read_set{};
+                    fd_set write_set{};
+                    timeval tv{};
                     bool has_ip = false;
                     static constexpr const char* tag = "SocketDispatcher";
                     void check_socket_send_timeout();

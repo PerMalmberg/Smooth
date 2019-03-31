@@ -28,6 +28,7 @@
 #include <smooth/application/network/mqtt/event/BaseEvent.h>
 #include <smooth/application/network/mqtt/Publication.h>
 #include <smooth/application/network/mqtt/Subscription.h>
+#include <smooth/core/network/BufferContainer.h>
 
 namespace smooth
 {
@@ -42,14 +43,15 @@ namespace smooth
                 /// MQTT client; handles everything required for a connection to a single MQTT broker
                 /// such as connecting, subscribing and publishing topics.
                 class MqttClient
-                        : private smooth::core::Task,
+                        : public smooth::core::Task,
                           private IMqttClient,
-                          private core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
-                          private core::ipc::IEventListener<core::network::event::DataAvailableEvent<packet::MQTTProtocol>>,
-                          private core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
+                          public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+                          public core::ipc::IEventListener<core::network::event::DataAvailableEvent<packet::MQTTProtocol>>,
+                          public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
                           private core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
                           private core::ipc::IEventListener<event::BaseEvent>,
-                          private core::ipc::IEventListener<smooth::core::network::NetworkStatus>
+                          private core::ipc::IEventListener<smooth::core::network::NetworkStatus>,
+                          public std::enable_shared_from_this<MqttClient>
                 {
                     public:
                         /// Constructor
@@ -164,11 +166,6 @@ namespace smooth
                         void force_disconnect() override;
 
                         core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;
-                        core::network::PacketSendBuffer<packet::MQTTProtocol, 5> tx_buffer{};
-                        core::network::PacketReceiveBuffer<packet::MQTTProtocol, 5> rx_buffer{};
-                        core::ipc::TaskEventQueue<core::network::event::TransmitBufferEmptyEvent> tx_empty;
-                        core::ipc::TaskEventQueue<core::network::event::DataAvailableEvent<packet::MQTTProtocol>> data_available;
-                        core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent> connection_status;
                         core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
                         core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
                         core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus> system_event;
@@ -185,6 +182,7 @@ namespace smooth
                         Subscription subscription{};
                         bool connected = false;
                         std::mutex address_guard{};
+                        std::shared_ptr<smooth::core::network::BufferContainer<packet::MQTTProtocol>> buff{};
                 };
             }
         }

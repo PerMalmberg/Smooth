@@ -106,7 +106,7 @@ namespace smooth
                     int count()
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return items.size();
+                        return static_cast<int>(items.size());
                     }
 
                 private:

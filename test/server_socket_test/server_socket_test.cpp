@@ -37,6 +37,7 @@ namespace server_socket_test
 
     }
 
+
     void App::tick()
     {
         if (!server)
@@ -51,8 +52,11 @@ namespace server_socket_test
     void App::event(const ClientConnectedEvent<StreamingClient>& ev)
     {
         auto client = ev.get_client();
-        //tx_buffer.put(StreamPacket{'a'});
+        static std::vector<decltype(client)> v{};
+        //v.push_back(client);
+        //client->get_buffers()->get_tx_buffer().put(StreamPacket{'a'});
 
+        // Shutdown event of some sort?
 
         // TODO: Termination of client and decoupling of Socket.
     }

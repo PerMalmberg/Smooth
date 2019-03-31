@@ -132,7 +132,7 @@ namespace smooth
                     }
 
                     auto client = std::make_shared<ProtocolClient>(task_provider.get_task());
-                    auto socket = Socket<Protocol>::create(ip, accepted_socket, *client);
+                    auto socket = Socket<Protocol>::create(ip, accepted_socket, client->get_buffers(), client->get_send_timeout());
                     client->set_socket(socket);
 
                     connected_receiver.push(event::ClientConnectedEvent<ProtocolClient>(client));

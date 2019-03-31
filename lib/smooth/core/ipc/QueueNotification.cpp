@@ -4,6 +4,7 @@
 
 #include <thread>
 #include <smooth/core/ipc/QueueNotification.h>
+#include <algorithm>
 
 
 namespace smooth
@@ -19,8 +20,18 @@ namespace smooth
                 // data item to their internal queue. As such, the queue can only be as large as
                 // the sum of all queues within the same Task.
                 std::unique_lock<std::mutex> lock{guard};
-                queues.push(queue);
+                queues.push_back(queue);
                 cond.notify_one();
+            }
+
+            void QueueNotification::remove(smooth::core::ipc::ITaskEventQueue* queue)
+            {
+                std::unique_lock<std::mutex> lock{guard};
+                auto pos = std::find(queues.begin(), queues.end(), queue);
+                if(pos != queues.end())
+                {
+                    queues.erase(pos);
+                }
             }
 
             ITaskEventQueue* QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
@@ -46,14 +57,14 @@ namespace smooth
                         if (!queues.empty())
                         {
                             res = queues.front();
-                            queues.pop();
+                            queues.pop_front();
                         }
                     }
                 }
                 else
                 {
                     res = queues.front();
-                    queues.pop();
+                    queues.pop_front();
                 }
 
                 return res;

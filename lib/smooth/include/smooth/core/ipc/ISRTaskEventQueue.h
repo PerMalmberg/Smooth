@@ -32,6 +32,8 @@ namespace smooth
 
                     ISRTaskEventQueue(Task& task, IEventListener<DataType>& listener);
 
+                    ~ISRTaskEventQueue() override;
+
                     IRAM_ATTR void signal(const DataType& data) override;
 
                     int size() override
@@ -57,7 +59,7 @@ namespace smooth
                     }
 
                 private:
-                    void forward_to_event_queue();
+                    void forward_to_event_queue() override;
 
                     QueueHandle_t queue;
                     Task& task;
@@ -100,6 +102,12 @@ namespace smooth
                 }
 
                 read_since_poll = true;
+            }
+
+            template<typename DataType, int Size>
+            ISRTaskEventQueue<DataType, Size>::~ISRTaskEventQueue()
+            {
+                task.unregister_polled_queue_with_task(this);
             }
         }
     }

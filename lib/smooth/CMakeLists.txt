@@ -112,6 +112,7 @@ set(SOURCES
         include/smooth/core/network/IPv4.h
         include/smooth/core/network/IPv6.h
         include/smooth/core/network/ISocket.h
+        include/smooth/core/network/BufferContainer.h
         include/smooth/core/network/MbedTLSContext.h
         include/smooth/core/network/NetworkStatus.h
         include/smooth/core/network/SocketOperation.h

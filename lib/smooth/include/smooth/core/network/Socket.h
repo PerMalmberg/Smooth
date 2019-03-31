@@ -10,7 +10,8 @@
 #include <memory>
 #include <chrono>
 #include "CommonSocket.h"
-#include "IProtocolClient.h"
+#include "ProtocolClient.h"
+#include "BufferContainer.h"
 #include <smooth/core/util/CircularBuffer.h>
 #include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
@@ -49,17 +50,15 @@ namespace smooth
                     /// \return a std::shared_ptr pointing to an instance of a ISocket object, or nullptr if no socket could be
                     /// created.
                     static std::shared_ptr<Socket<Protocol>>
-                    create(IPacketSendBuffer<Protocol>& tx_buffer, IPacketReceiveBuffer<Protocol>& rx_buffer,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
+                    create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
 
 
                     static std::shared_ptr<Socket<Protocol>>
                     create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                            int socket_id,
-                           IProtocolClient<Protocol>& client);
+                           std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                           std::chrono::milliseconds timeout);
 
                     ~Socket() override
                     {
@@ -75,11 +74,7 @@ namespace smooth
                     void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id);
 
                 protected:
-                    Socket(IPacketSendBuffer<Protocol>& tx_buffer,
-                           IPacketReceiveBuffer<Protocol>& rx_buffer,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                           smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
+                    Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                            std::chrono::milliseconds send_timeout);
 
                     virtual bool create_socket();
@@ -104,45 +99,46 @@ namespace smooth
                     {
                         // Also check on connected state so that we don't try to send data
                         // when the socket just has been closed while in SocketDispatcher::tick()
-                        return connected && !tx_buffer.is_empty();
+                        bool res = connected;
+                        if (res)
+                        {
+                            auto cont = get_container_or_close();
+                            if (cont)
+                            {
+                                res = !cont->get_tx_buffer().is_empty();
+                            }
+                        }
+
+                        return res;
                     }
 
                     void publish_connected_status() override;
 
                     void stop_internal() override;
 
-                    IPacketSendBuffer<Protocol>& tx_buffer;
-                    IPacketReceiveBuffer<Protocol>& rx_buffer;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty;
-                    smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status;
                     std::chrono::milliseconds send_timeout;
+                    std::weak_ptr<BufferContainer<Protocol>> buffers{};
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
+
+                private:
+                    std::shared_ptr<BufferContainer<Protocol>> get_container_or_close();
             };
 
             template<typename Protocol, typename Packet>
             std::shared_ptr<Socket<Protocol>>
-            Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip, int socket_id,
-                                             IProtocolClient<Protocol>& client)
+            Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
+                                             int socket_id,
+                                             std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                             std::chrono::milliseconds timeout)
             {
-                auto s = create(client.get_tx_buffer(),
-                                client.get_rx_buffer(),
-                                client.get_tx_empty(),
-                                client.get_data_available(),
-                                client.get_connection_status(),
-                                client.get_send_timeout());
-
+                auto s = create(buffer_container, timeout);
                 s->set_existing_socket(ip, socket_id);
                 return s;
             }
 
             template<typename Protocol, typename Packet>
             std::shared_ptr<Socket<Protocol>>
-            Socket<Protocol, Packet>::create(IPacketSendBuffer<Protocol>& tx_buffer,
-                                             IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
+            Socket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                              std::chrono::milliseconds send_timeout)
             {
                 // This class is solely used to enabled access to the protected Socket<Protocol, Packet> constructor from std::make_shared<>
@@ -150,44 +146,26 @@ namespace smooth
                         : public Socket<Protocol, Packet>
                 {
                     public:
-                        MakeSharedActivator(IPacketSendBuffer<Protocol>& tx_buffer,
-                                            IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                                            smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
+                        MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                             std::chrono::milliseconds send_timeout)
-                                : Socket<Protocol, Packet>(tx_buffer, rx_buffer, tx_empty, data_available,
-                                                           connection_status,
-                                                           send_timeout)
+                                : Socket<Protocol, Packet>(buffer_container, send_timeout)
                         {
                         }
 
                 };
 
-                std::shared_ptr<Socket<Protocol>> s = std::make_shared<MakeSharedActivator>(tx_buffer,
-                                                                                            rx_buffer,
-                                                                                            tx_empty,
-                                                                                            data_available,
-                                                                                            connection_status,
+                std::shared_ptr<Socket<Protocol>> s = std::make_shared<MakeSharedActivator>(buffer_container,
                                                                                             send_timeout);
                 return s;
             }
 
             template<typename Protocol, typename Packet>
-            Socket<Protocol, Packet>::Socket(IPacketSendBuffer<Protocol>& tx_buffer,
-                                             IPacketReceiveBuffer<Protocol>& rx_buffer,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>& tx_empty,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::DataAvailableEvent<Protocol>>& data_available,
-                                             smooth::core::ipc::TaskEventQueue<smooth::core::network::event::ConnectionStatusEvent>& connection_status,
+            Socket<Protocol, Packet>::Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                              std::chrono::milliseconds send_timeout
             )
                     :
-                    tx_buffer(tx_buffer),
-                    rx_buffer(rx_buffer),
-                    data_available(data_available),
-                    tx_empty(tx_empty),
-                    connection_status(connection_status),
-                    send_timeout(send_timeout)
+                    send_timeout(send_timeout),
+                    buffers(buffer_container)
             {
             }
 
@@ -251,9 +229,16 @@ namespace smooth
             template<typename Protocol, typename Packet>
             void Socket<Protocol, Packet>::readable()
             {
-                if (started && !rx_buffer.is_full())
+                if (started)
                 {
-                    read_data();
+                    auto cont = get_container_or_close();
+                    if (cont)
+                    {
+                        if(!cont->get_rx_buffer().is_full())
+                        {
+                            read_data();
+                        }
+                    }
                 }
             }
 
@@ -289,23 +274,29 @@ namespace smooth
             {
                 if (connected)
                 {
-                    // Any data to send?
-                    if (tx_buffer.is_empty())
+                    auto cont = get_container_or_close();
+                    if (cont)
                     {
-                        // Let the application know it may send a packet.
-                        smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
-                        tx_empty.push(event);
-                    }
-                    else
-                    {
-                        if (!tx_buffer.is_in_progress())
-                        {
-                            tx_buffer.prepare_next_packet();
-                        }
+                        auto& tx = cont->get_tx_buffer();
 
-                        if (tx_buffer.is_in_progress())
+                        // Any data to send?
+                        if (tx.is_empty())
                         {
-                            write_data();
+                            // Let the application know it may send a packet.
+                            smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
+                            cont->get_tx_empty().push(event);
+                        }
+                        else
+                        {
+                            if (!tx.is_in_progress())
+                            {
+                                tx.prepare_next_packet();
+                            }
+
+                            if (tx.is_in_progress())
+                            {
+                                write_data();
+                            }
                         }
                     }
                 }
@@ -316,75 +307,85 @@ namespace smooth
             {
                 errno = 0;
 
-                // How much data to assemble the current packet?
-                int wanted_length = rx_buffer.amount_wanted();
-
-                // Try to read the desired amount
-                auto read_count = recv(socket_id, rx_buffer.get_write_pos(), static_cast<size_t>(wanted_length), 0);
-
-                if (read_count == 0)
+                auto cont = get_container_or_close();
+                if (cont)
                 {
-                    log("Socket closed");
-                    stop();
-                }
-                else if (read_count < 0)
-                {
-                    if (errno != EWOULDBLOCK)
+                    auto& rx = cont->get_rx_buffer();
+
+                    // How much data to assemble the current packet?
+                    int wanted_length = rx.amount_wanted();
+
+                    // Try to read the desired amount
+                    auto read_count = recv(socket_id, rx.get_write_pos(), static_cast<size_t>(wanted_length), 0);
+
+                    if (read_count == 0)
                     {
-                        loge("Error during receive");
+                        log("Socket closed");
                         stop();
                     }
-                }
-                else
-                {
-                    rx_buffer.data_received(static_cast<int>(read_count));
-                    if (rx_buffer.is_error())
+                    else if (read_count < 0)
                     {
-                        log("Assembly error");
-                        stop();
+                        if (errno != EWOULDBLOCK)
+                        {
+                            loge("Error during receive");
+                            stop();
+                        }
                     }
-                    else if (rx_buffer.is_packet_complete())
+                    else
                     {
-                        event::DataAvailableEvent<Protocol> d(&rx_buffer);
-                        data_available.push(d);
-                        rx_buffer.prepare_new_packet();
+                        rx.data_received(static_cast<int>(read_count));
+                        if (rx.is_error())
+                        {
+                            log("Assembly error");
+                            stop();
+                        }
+                        else if (rx.is_packet_complete())
+                        {
+                            event::DataAvailableEvent<Protocol> d(&rx);
+                            cont->get_data_available().push(d);
+                            rx.prepare_new_packet();
+                        }
                     }
                 }
-
             }
 
             template<typename Protocol, typename Packet>
             void Socket<Protocol, Packet>::write_data()
             {
-                // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
-                // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
-                // packet.
-                auto data_to_send = tx_buffer.get_data_to_send();
-                auto length = tx_buffer.get_remaining_data_length();
-                auto amount_sent = send(socket_id,
-                                        data_to_send,
-                                        static_cast<size_t>(length),
-                                        SEND_FLAGS);
-
-                if (amount_sent == -1)
+                auto cont = get_container_or_close();
+                if (cont)
                 {
-                    loge("Failure during send");
-                    stop();
-                }
-                else
-                {
-                    tx_buffer.data_has_been_sent(static_cast<int>(amount_sent));
+                    // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                    // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                    // packet.
+                    auto& tx = cont->get_tx_buffer();
+                    auto data_to_send = tx.get_data_to_send();
+                    auto length = tx.get_remaining_data_length();
+                    auto amount_sent = send(socket_id,
+                                            data_to_send,
+                                            static_cast<size_t>(length),
+                                            SEND_FLAGS);
 
-                    // Was a complete packet sent?
-                    if (tx_buffer.is_in_progress())
+                    if (amount_sent == -1)
                     {
-                        elapsed_send_time.start();
+                        loge("Failure during send");
+                        stop();
                     }
                     else
                     {
-                        // Let the application know it may now send another packet.
-                        smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
-                        tx_empty.push(event);
+                        tx.data_has_been_sent(static_cast<int>(amount_sent));
+
+                        // Was a complete packet sent?
+                        if (tx.is_in_progress())
+                        {
+                            elapsed_send_time.start();
+                        }
+                        else
+                        {
+                            // Let the application know it may now send another packet.
+                            smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
+                            cont->get_tx_empty().push(event);
+                        }
                     }
                 }
             }
@@ -426,11 +427,15 @@ namespace smooth
             {
                 if (started)
                 {
-                    log("Client stopping");
+                    log("Socket stopping");
                     started = false;
                     connected = false;
-                    tx_buffer.clear();
-                    rx_buffer.clear();
+                    auto cont = buffers.lock();
+                    if (cont)
+                    {
+                        cont->get_tx_buffer().clear();
+                        cont->get_rx_buffer().clear();
+                    }
                     elapsed_send_time.stop_and_zero();
                 }
             }
@@ -447,7 +452,12 @@ namespace smooth
                     log("Disconnected");
                 }
 
-                connection_status.push(event::ConnectionStatusEvent(shared_from_this(), is_connected()));
+                auto cont = get_container_or_close();
+                if (cont)
+                {
+                    cont->get_connection_status()
+                        .push(event::ConnectionStatusEvent(shared_from_this(), is_connected()));
+                }
             }
 
             template<typename Protocol, typename Packet>
@@ -459,6 +469,21 @@ namespace smooth
                 started = true;
                 connected = true;
                 SocketDispatcher::instance().perform_op(SocketOperation::Op::AddActiveSocket, shared_from_this());
+            }
+
+            template<typename Protocol, typename Packet>
+            std::shared_ptr<BufferContainer<Protocol>> Socket<Protocol, Packet>::get_container_or_close()
+            {
+                auto cont = buffers.lock();
+
+                if(!cont)
+                {
+                    // If the buffer container has expired, it means the client
+                    // has let it go, meaning this socket also can close.
+                    stop();
+                }
+
+                return cont;
             }
         }
     }

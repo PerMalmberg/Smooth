@@ -33,9 +33,6 @@ namespace smooth
                                        uint32_t priority, TaskEventQueue<MQTTData>& application_queue)
                         : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
                           application_queue(application_queue),
-                          tx_empty("TX_empty", 5, *this, *this),
-                          data_available("data_available", 5, *this, *this),
-                          connection_status("connection_status", 5, *this, *this),
                           timer_events("timer_events", 5, *this, *this),
                           control_event("control_event", 5, *this, *this),
                           system_event("system_event", 5, *this, *this),
@@ -56,7 +53,11 @@ namespace smooth
                                                 true,
                                                 std::chrono::seconds(1))),
                           fsm(*this),
-                          address()
+                          address(),
+                          buff(std::make_shared<smooth::core::network::BufferContainer<packet::MQTTProtocol>>(*this,
+                                                                                                              *this,
+                                                                                                              *this,
+                                                                                                              *this))
                 {
                 }
 
@@ -75,15 +76,15 @@ namespace smooth
                     fsm.set_state(new(fsm) state::StartupState(fsm));
                 }
 
-                void MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address,
-                                            bool auto_reconnect)
+                void
+                MqttClient::connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect)
                 {
                     std::lock_guard<std::mutex> lock(guard);
                     // Must start the task before pushing an event, otherwise the task will not
                     // have run its exec() far enough to initialize the FreeRTOS pointer
                     start();
 
-                    if(address)
+                    if (address)
                     {
                         {
                             std::lock_guard<std::mutex> l(address_guard);
@@ -139,7 +140,7 @@ namespace smooth
                     bool res = false;
                     if (packet.validate_packet())
                     {
-                        res = tx_buffer.put(packet);
+                        res = buff->get_tx_buffer().put(packet);
                     }
                     return res;
                 }
@@ -206,10 +207,10 @@ namespace smooth
                     {
                         keep_alive_timer->stop();
                         reconnect_timer->stop();
-                        tx_buffer.clear();
-                        rx_buffer.clear();
+                        buff->get_tx_buffer().clear();
+                        buff->get_rx_buffer().clear();
 
-                        if(mqtt_socket)
+                        if (mqtt_socket)
                         {
                             mqtt_socket->stop();
                             mqtt_socket.reset();
@@ -222,14 +223,9 @@ namespace smooth
                             mqtt_socket->stop();
                         }
 
-                        tx_buffer.clear();
-                        rx_buffer.clear();
+                        buff->clear();
 
-                        mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(tx_buffer,
-                                                                                        rx_buffer,
-                                                                                        tx_empty,
-                                                                                        data_available,
-                                                                                        connection_status);
+                        mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(buff, seconds{1});
                         mqtt_socket->start(address);
                     }
                 }
@@ -245,7 +241,7 @@ namespace smooth
                 std::string MqttClient::get_payload(const MQTTData& data)
                 {
                     std::stringstream ss;
-                    for(auto b : data.second)
+                    for (auto b : data.second)
                     {
                         ss << static_cast<char>(b);
                     }
