@@ -60,10 +60,7 @@ namespace smooth
                            std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                            std::chrono::milliseconds timeout);
 
-                    ~Socket() override
-                    {
-                        log("Destructing");
-                    }
+                    ~Socket() override = default;
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
 

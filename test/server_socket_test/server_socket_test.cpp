@@ -1,11 +1,11 @@
 #include "server_socket_test.h"
+#include <deque>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/Application.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/network/ServerSocket.h>
-#include <iostream>
 #include "wifi_creds.h"
 
 using namespace std::chrono;
@@ -17,7 +17,7 @@ using namespace smooth::core::logging;
 namespace server_socket_test
 {
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000)),
               client_connected("client_connected", 3, *this, *this)
 
     {
@@ -43,7 +43,6 @@ namespace server_socket_test
         if (!server)
         {
             server = ServerSocket<StreamingProtocol, StreamingClient>::create(client_connected, *this);
-
             server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
         }
     }
@@ -52,30 +51,9 @@ namespace server_socket_test
     void App::event(const ClientConnectedEvent<StreamingClient>& ev)
     {
         auto client = ev.get_client();
-        static std::vector<decltype(client)> v{};
-        //v.push_back(client);
-        //client->get_buffers()->get_tx_buffer().put(StreamPacket{'a'});
+        
 
-        // Shutdown event of some sort?
-
-        // TODO: Termination of client and decoupling of Socket.
-    }
-
-    void App::event(const TransmitBufferEmptyEvent&)
-    {
-
-    }
-
-    void App::event(const DataAvailableEvent<StreamingProtocol>& ev)
-    {
-        StreamingProtocol::packet_type packet;
-        ev.get(packet);
-        std::cout << static_cast<char>(packet.data()[0]);
-    }
-
-    void App::event(const ConnectionStatusEvent&)
-    {
-
+        server->return_client_to_pool(client);
     }
 }
 

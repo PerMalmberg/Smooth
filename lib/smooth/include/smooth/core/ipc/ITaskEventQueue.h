@@ -6,7 +6,7 @@
 
 namespace smooth
 {
-    namespace  core
+    namespace core
     {
         namespace ipc
         {
@@ -17,12 +17,15 @@ namespace smooth
             class ITaskEventQueue
             {
                 public:
+                    ITaskEventQueue() = default;
                     virtual ~ITaskEventQueue() = default;
 
                     /// Forwards the next event to the event listener
                     virtual void forward_to_event_listener() = 0;
+
                     /// Returns the size of the event queue.
                     virtual int size() = 0;
+
                     virtual void register_notification(QueueNotification* notification) = 0;
             };
         }

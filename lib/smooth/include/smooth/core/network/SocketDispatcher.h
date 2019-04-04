@@ -55,7 +55,7 @@ namespace smooth
                                                        std::shared_ptr<ISocket> socket);
                     void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
-                    void start_socket(std::shared_ptr<ISocket> socket);
+                    void start_socket(const std::shared_ptr<ISocket>& socket);
                     void shutdown_socket(std::shared_ptr<ISocket> socket);
 
                     std::map<int, std::shared_ptr<ISocket>> active_sockets;

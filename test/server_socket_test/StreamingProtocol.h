@@ -18,17 +18,17 @@ namespace server_socket_test
             {
             }
 
-            int get_wanted_amount(StreamPacket& packet) override
+            int get_wanted_amount(StreamPacket& /*packet*/) override
             {
                 return 1;
             }
 
-            void data_received(StreamPacket& packet, int length) override
+            void data_received(StreamPacket& /*packet*/, int /*length*/) override
             {
                 complete = true;
             }
 
-            uint8_t* get_write_pos(StreamPacket& packet) override
+            uint8_t* get_write_pos(StreamPacket& /*packet*/) override
             {
                 return packet.data().data();
             }

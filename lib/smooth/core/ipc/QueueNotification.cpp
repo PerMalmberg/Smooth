@@ -28,7 +28,7 @@ namespace smooth
             {
                 std::unique_lock<std::mutex> lock{guard};
                 auto pos = std::find(queues.begin(), queues.end(), queue);
-                if(pos != queues.end())
+                if (pos != queues.end())
                 {
                     queues.erase(pos);
                 }
@@ -45,8 +45,7 @@ namespace smooth
                     // Wait until data is available, or timeout. This will atomically release the lock.
                     auto wait_result = cond.wait_until(lock,
                                                        std::chrono::steady_clock::now() + timeout,
-                                                       [this]()
-                                                       {
+                                                       [this]() {
                                                            // Stop waiting when there is data
                                                            return !queues.empty();
                                                        });

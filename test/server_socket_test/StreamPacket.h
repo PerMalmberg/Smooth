@@ -16,7 +16,7 @@ class StreamPacket
 
         int get_send_length() override
         {
-            return buff.size();
+            return static_cast<int>(buff.size());
         }
 
         const uint8_t* get_data() override

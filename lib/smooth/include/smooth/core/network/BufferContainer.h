@@ -29,10 +29,6 @@ namespace smooth
                                     smooth::core::ipc::IEventListener<event::DataAvailableEvent<Protocol>>& data_receiver,
                                     smooth::core::ipc::IEventListener<event::ConnectionStatusEvent>& connection_status_receiver);
 
-                    ~BufferContainer()
-                    {
-                        smooth::core::logging::Log::debug("~BufferContainer", "~BufferContainer");
-                    }
 
                     smooth::core::ipc::TaskEventQueue<smooth::core::network::event::TransmitBufferEmptyEvent>&
                     get_tx_empty()

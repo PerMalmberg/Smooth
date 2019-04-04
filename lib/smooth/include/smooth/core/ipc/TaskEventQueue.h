@@ -93,6 +93,7 @@ namespace smooth
                 protected:
                     Queue<T> queue;
                     QueueNotification* notif = nullptr;
+
                 private:
                     void forward_to_event_listener() override
                     {

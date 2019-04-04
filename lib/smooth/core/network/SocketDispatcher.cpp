@@ -152,7 +152,7 @@ namespace smooth
                 return max;
             }
 
-            void SocketDispatcher::start_socket(std::shared_ptr<ISocket> socket)
+            void SocketDispatcher::start_socket(const std::shared_ptr<ISocket>& socket)
             {
                 std::lock_guard<std::mutex> lock(socket_guard);
 

@@ -6,6 +6,7 @@
 #include <smooth/core/ipc/IEventListener.h>
 #include <smooth/core/network/BufferContainer.h>
 #include <smooth/core/network/event/DataAvailableEvent.h>
+#include <smooth/core/logging/log.h>
 
 namespace server_socket_test
 {
@@ -15,27 +16,27 @@ namespace server_socket_test
     {
         public:
             explicit StreamingClient(smooth::core::Task& task)
-                    : ProtocolClient<StreamingProtocol>(task, *this, *this, *this)
+                    : ProtocolClient<StreamingProtocol>(task)
 
             {
             }
 
-            ~StreamingClient() override
-            {
-
-            }
+            ~StreamingClient() override = default;
 
             void event(const smooth::core::network::event::DataAvailableEvent<StreamingProtocol>& event) override
             {
-
+                StreamingProtocol::packet_type packet;
+                event.get(packet);
+                std::string s{static_cast<char>(packet.data()[0])};
+                smooth::core::logging::Log::debug("-->", s);
             }
 
-            void event(const smooth::core::network::event::TransmitBufferEmptyEvent& event) override
+            void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override
             {
 
             }
 
-            void event(const smooth::core::network::event::ConnectionStatusEvent& event) override
+            void event(const smooth::core::network::event::ConnectionStatusEvent& /*event*/) override
             {
 
             }

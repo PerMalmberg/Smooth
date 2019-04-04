@@ -3,11 +3,11 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <memory>
+#include "ClientPool.h"
 #include "InetAddress.h"
 #include "ISocket.h"
 #include "IPv4.h"
 #include "IPv6.h"
-#include "IServerSocketTaskFactory.h"
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/SocketDispatcher.h>
@@ -37,18 +37,23 @@ namespace smooth
                     : public CommonSocket
             {
                 public:
-                    static std::shared_ptr<ISocket>
+                    static std::shared_ptr<ServerSocket>
                     create(smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                           IServerSocketTaskFactory& task_factory);
+                           smooth::core::Task& task);
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
 
+                    void return_client_to_pool(std::shared_ptr<ProtocolClient> client)
+                    {
+                        pool.return_client(std::move(client));
+                    }
+
+                protected:
                     bool has_send_expired() const override
                     {
                         return false;
                     }
 
-                protected:
                     void readable() override;
 
                     void writable() override;
@@ -73,15 +78,15 @@ namespace smooth
 
                     ServerSocket(
                             smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                            IServerSocketTaskFactory& task_factory)
+                            smooth::core::Task& task)
                             : connected_receiver(client_connected),
-                              task_provider(task_factory)
+                              pool(task)
                     {
                     }
 
                 private:
                     smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& connected_receiver;
-                    IServerSocketTaskFactory& task_provider;
+                    ClientPool<ProtocolClient> pool;
             };
 
             template<typename Protocol, typename ProtocolClient>
@@ -119,23 +124,35 @@ namespace smooth
                 }
                 else
                 {
-                    std::shared_ptr<smooth::core::network::InetAddress> ip{};
-                    if (addr.sa_family == AF_INET)
+                    if (pool.empty())
                     {
-                        auto ipv4_address = reinterpret_cast<sockaddr_in*>(&addr);
-                        ip = std::make_shared<smooth::core::network::IPv4>(*ipv4_address);
+                        shutdown(accepted_socket, SHUT_RDWR);
+                        close(accepted_socket);
                     }
                     else
                     {
-                        auto ipv6_address = reinterpret_cast<sockaddr_in6*>(&addr);
-                        ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
+                        std::shared_ptr<smooth::core::network::InetAddress> ip{};
+                        if (addr.sa_family == AF_INET)
+                        {
+                            auto ipv4_address = reinterpret_cast<sockaddr_in*>(&addr);
+                            ip = std::make_shared<smooth::core::network::IPv4>(*ipv4_address);
+                        }
+                        else
+                        {
+                            auto ipv6_address = reinterpret_cast<sockaddr_in6*>(&addr);
+                            ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
+                        }
+
+
+                        auto client = pool.get();
+                        auto socket = Socket<Protocol>::create(ip,
+                                                               accepted_socket,
+                                                               client->get_buffers(),
+                                                               client->get_send_timeout());
+                        client->set_socket(socket);
+
+                        connected_receiver.push(event::ClientConnectedEvent<ProtocolClient>(std::move(client)));
                     }
-
-                    auto client = std::make_shared<ProtocolClient>(task_provider.get_task());
-                    auto socket = Socket<Protocol>::create(ip, accepted_socket, client->get_buffers(), client->get_send_timeout());
-                    client->set_socket(socket);
-
-                    connected_receiver.push(event::ClientConnectedEvent<ProtocolClient>(client));
                 }
             }
 
@@ -205,26 +222,25 @@ namespace smooth
             }
 
             template<typename Protocol, typename ProtocolClient>
-            std::shared_ptr<ISocket> ServerSocket<Protocol, ProtocolClient>::create(
+            std::shared_ptr<ServerSocket<Protocol, ProtocolClient>> ServerSocket<Protocol, ProtocolClient>::create(
                     smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                    IServerSocketTaskFactory& task_factory)
+                    smooth::core::Task& task)
             {
-                // This class is solely used to enabled access to the protected ServerSocket<Protocol> constructor from std::make_shared<>
+                // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
                 class MakeSharedActivator
                         : public ServerSocket<Protocol, ProtocolClient>
                 {
                     public:
                         explicit MakeSharedActivator(
                                 smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                                IServerSocketTaskFactory& task_factory)
-                                : ServerSocket<Protocol, ProtocolClient>(client_connected,
-                                                                         task_factory)
+                                smooth::core::Task& task)
+                                : ServerSocket<Protocol, ProtocolClient>(client_connected, task)
                         {
                         }
 
                 };
 
-                return std::make_shared<MakeSharedActivator>(client_connected, task_factory);
+                return std::make_shared<MakeSharedActivator>(client_connected, task);
             }
 
             template<typename Protocol, typename ProtocolClient>

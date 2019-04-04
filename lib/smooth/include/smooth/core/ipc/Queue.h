@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <algorithm>
 #include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;

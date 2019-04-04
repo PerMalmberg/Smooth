@@ -100,6 +100,7 @@ set(SOURCES
         include/smooth/core/ipc/SubscribingTaskEventQueue.h
         include/smooth/core/ipc/TaskEventQueue.h
         include/smooth/core/logging/log.h
+        include/smooth/core/network/ClientPool.h
         include/smooth/core/network/event/ConnectionStatusEvent.h
         include/smooth/core/network/event/ClientConnectedEvent.h
         include/smooth/core/network/event/DataAvailableEvent.h
