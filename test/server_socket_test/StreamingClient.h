@@ -12,11 +12,11 @@ namespace server_socket_test
 {
 
     class StreamingClient
-            : public smooth::core::network::ProtocolClient<StreamingProtocol>
+            : public smooth::core::network::ProtocolClient<StreamingProtocol, StreamingClient>
     {
         public:
-            explicit StreamingClient(smooth::core::Task& task)
-                    : ProtocolClient<StreamingProtocol>(task)
+            explicit StreamingClient(smooth::core::Task& task, smooth::core::network::ClientPool<StreamingClient>& pool)
+                    : ProtocolClient<StreamingProtocol, StreamingClient>(task, pool)
 
             {
             }
@@ -36,7 +36,12 @@ namespace server_socket_test
 
             }
 
-            void event(const smooth::core::network::event::ConnectionStatusEvent& /*event*/) override
+            void disconnected() override
+            {
+
+            }
+
+            void connected() override
             {
 
             }

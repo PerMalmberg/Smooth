@@ -26,6 +26,7 @@ namespace smooth
 
                 private:
                     std::deque<std::shared_ptr<Client>> clients{};
+                    std::vector<std::shared_ptr<Client>> in_use{};
             };
 
             template<typename Client, int Count>
@@ -36,6 +37,7 @@ namespace smooth
                 if (!clients.empty())
                 {
                     c = *clients.begin();
+                    in_use.push_back(c);
                     clients.pop_front();
                 }
 
@@ -46,6 +48,12 @@ namespace smooth
             void ClientPool<Client, Count>::return_client(std::shared_ptr<Client> client)
             {
                 client->reset();
+                auto found = std::find(in_use.begin(), in_use.end(), client);
+                if(found != in_use.end())
+                {
+                    in_use.erase(found);
+                }
+
                 clients.push_back(std::move(client));
             }
 
@@ -54,7 +62,7 @@ namespace smooth
             {
                 for(int i = 0; i < Count; ++i)
                 {
-                    clients.emplace_back(std::make_shared<Client>(task));
+                    clients.emplace_back(std::make_shared<Client>(task, *this));
                 }
             }
         }

@@ -17,8 +17,7 @@ using namespace smooth::core::logging;
 namespace server_socket_test
 {
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000)),
-              client_connected("client_connected", 3, *this, *this)
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
 
     {
     }
@@ -42,18 +41,9 @@ namespace server_socket_test
     {
         if (!server)
         {
-            server = ServerSocket<StreamingProtocol, StreamingClient>::create(client_connected, *this);
+            server = ServerSocket<StreamingProtocol, StreamingClient>::create(*this);
             server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
         }
-    }
-
-
-    void App::event(const ClientConnectedEvent<StreamingClient>& ev)
-    {
-        auto client = ev.get_client();
-        
-
-        server->return_client_to_pool(client);
     }
 }
 

@@ -12,7 +12,6 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/network/event/ConnectionStatusEvent.h>
-#include <smooth/core/network/event/ClientConnectedEvent.h>
 #include <smooth/core/network/CommonSocket.h>
 
 #ifndef ESP_PLATFORM
@@ -38,15 +37,9 @@ namespace smooth
             {
                 public:
                     static std::shared_ptr<ServerSocket>
-                    create(smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                           smooth::core::Task& task);
+                    create(smooth::core::Task& task);
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
-
-                    void return_client_to_pool(std::shared_ptr<ProtocolClient> client)
-                    {
-                        pool.return_client(std::move(client));
-                    }
 
                 protected:
                     bool has_send_expired() const override
@@ -76,16 +69,12 @@ namespace smooth
                     void clear_socket_id() override;
 
 
-                    ServerSocket(
-                            smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                            smooth::core::Task& task)
-                            : connected_receiver(client_connected),
-                              pool(task)
+                    explicit ServerSocket(smooth::core::Task& task)
+                            : pool(task)
                     {
                     }
 
                 private:
-                    smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& connected_receiver;
                     ClientPool<ProtocolClient> pool;
             };
 
@@ -134,15 +123,20 @@ namespace smooth
                         std::shared_ptr<smooth::core::network::InetAddress> ip{};
                         if (addr.sa_family == AF_INET)
                         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
                             auto ipv4_address = reinterpret_cast<sockaddr_in*>(&addr);
+#pragma GCC diagnostic pop
                             ip = std::make_shared<smooth::core::network::IPv4>(*ipv4_address);
                         }
                         else
                         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
                             auto ipv6_address = reinterpret_cast<sockaddr_in6*>(&addr);
+#pragma GCC diagnostic pop
                             ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
                         }
-
 
                         auto client = pool.get();
                         auto socket = Socket<Protocol>::create(ip,
@@ -150,8 +144,6 @@ namespace smooth
                                                                client->get_buffers(),
                                                                client->get_send_timeout());
                         client->set_socket(socket);
-
-                        connected_receiver.push(event::ClientConnectedEvent<ProtocolClient>(std::move(client)));
                     }
                 }
             }
@@ -223,7 +215,6 @@ namespace smooth
 
             template<typename Protocol, typename ProtocolClient>
             std::shared_ptr<ServerSocket<Protocol, ProtocolClient>> ServerSocket<Protocol, ProtocolClient>::create(
-                    smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
                     smooth::core::Task& task)
             {
                 // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
@@ -231,16 +222,14 @@ namespace smooth
                         : public ServerSocket<Protocol, ProtocolClient>
                 {
                     public:
-                        explicit MakeSharedActivator(
-                                smooth::core::ipc::TaskEventQueue<event::ClientConnectedEvent<ProtocolClient>>& client_connected,
-                                smooth::core::Task& task)
-                                : ServerSocket<Protocol, ProtocolClient>(client_connected, task)
+                        explicit MakeSharedActivator(smooth::core::Task& task)
+                                : ServerSocket<Protocol, ProtocolClient>(task)
                         {
                         }
 
                 };
 
-                return std::make_shared<MakeSharedActivator>(client_connected, task);
+                return std::make_shared<MakeSharedActivator>(task);
             }
 
             template<typename Protocol, typename ProtocolClient>
