@@ -102,7 +102,6 @@ set(SOURCES
         include/smooth/core/logging/log.h
         include/smooth/core/network/ClientPool.h
         include/smooth/core/network/event/ConnectionStatusEvent.h
-        include/smooth/core/network/event/ClientConnectedEvent.h
         include/smooth/core/network/event/DataAvailableEvent.h
         include/smooth/core/network/event/TransmitBufferEmptyEvent.h
         include/smooth/core/network/InetAddress.h
