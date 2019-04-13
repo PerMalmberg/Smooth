@@ -38,6 +38,9 @@ namespace server_socket_test
         // application (unless the implementor adds such bindings).
         server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5);
         server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
+
+        // Point your browser to http://localhost:8080 and watch the output.
+        // Or, if you're on linux, do "echo ` date` | nc localhost 8080 -w1"
     }
 
 }
