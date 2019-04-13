@@ -34,16 +34,11 @@ namespace server_socket_test
         wifi.connect_to_ap();
 #endif
 
+        // The server creates StreamingClients which are self-sufficient and never seen by the main
+        // application (unless the implementor adds such bindings).
+        server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5);
+        server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
     }
 
-
-    void App::tick()
-    {
-        if (!server)
-        {
-            server = ServerSocket<StreamingProtocol, StreamingClient>::create(*this);
-            server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
-        }
-    }
 }
 

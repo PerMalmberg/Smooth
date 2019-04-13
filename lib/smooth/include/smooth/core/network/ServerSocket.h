@@ -31,13 +31,13 @@ namespace smooth
     {
         namespace network
         {
-            template<typename Protocol, typename ProtocolClient>
+            template<typename Client, typename Protocol>
             class ServerSocket
                     : public CommonSocket
             {
                 public:
                     static std::shared_ptr<ServerSocket>
-                    create(smooth::core::Task& task);
+                    create(smooth::core::Task& task, int max_client_count);
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
 
@@ -69,17 +69,17 @@ namespace smooth
                     void clear_socket_id() override;
 
 
-                    explicit ServerSocket(smooth::core::Task& task)
-                            : pool(task)
+                    explicit ServerSocket(smooth::core::Task& task, int max_client_count)
+                            : pool(task, max_client_count)
                     {
                     }
 
                 private:
-                    ClientPool<ProtocolClient> pool;
+                    ClientPool<Client> pool;
             };
 
-            template<typename Protocol, typename ProtocolClient>
-            bool ServerSocket<Protocol, ProtocolClient>::start(std::shared_ptr<InetAddress> ip)
+            template<typename Client, typename Protocol>
+            bool ServerSocket<Client, Protocol>::start(std::shared_ptr<InetAddress> ip)
             {
                 bool res = false;
                 if (!started)
@@ -98,8 +98,8 @@ namespace smooth
                 return res;
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            void ServerSocket<Protocol, ProtocolClient>::readable()
+            template<typename Client, typename Protocol>
+            void ServerSocket<Client, Protocol>::readable()
             {
                 sockaddr addr{};
                 socklen_t len{AF_INET6};
@@ -115,6 +115,7 @@ namespace smooth
                 {
                     if (pool.empty())
                     {
+                        Log::warning("ServerSocket", "No available client, rejecting socket.");
                         shutdown(accepted_socket, SHUT_RDWR);
                         close(accepted_socket);
                     }
@@ -148,13 +149,13 @@ namespace smooth
                 }
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            void ServerSocket<Protocol, ProtocolClient>::writable()
+            template<typename Client, typename Protocol>
+            void ServerSocket<Client, Protocol>::writable()
             {
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            void ServerSocket<Protocol, ProtocolClient>::stop_internal()
+            template<typename Client, typename Protocol>
+            void ServerSocket<Client, Protocol>::stop_internal()
             {
                 if (started)
                 {
@@ -164,14 +165,14 @@ namespace smooth
                 }
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            void ServerSocket<Protocol, ProtocolClient>::clear_socket_id()
+            template<typename Client, typename Protocol>
+            void ServerSocket<Client, Protocol>::clear_socket_id()
             {
                 socket_id = INVALID_SOCKET;
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            bool ServerSocket<Protocol, ProtocolClient>::internal_start()
+            template<typename Client, typename Protocol>
+            bool ServerSocket<Client, Protocol>::internal_start()
             {
                 bool res = false;
 
@@ -213,27 +214,27 @@ namespace smooth
                 return res;
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            std::shared_ptr<ServerSocket<Protocol, ProtocolClient>> ServerSocket<Protocol, ProtocolClient>::create(
-                    smooth::core::Task& task)
+            template<typename Client, typename Protocol>
+            std::shared_ptr<ServerSocket<Client, Protocol>> ServerSocket<Client, Protocol>::create(
+                    smooth::core::Task& task, int max_client_count)
             {
                 // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
                 class MakeSharedActivator
-                        : public ServerSocket<Protocol, ProtocolClient>
+                        : public ServerSocket<Client, Protocol>
                 {
                     public:
-                        explicit MakeSharedActivator(smooth::core::Task& task)
-                                : ServerSocket<Protocol, ProtocolClient>(task)
+                        explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count)
+                                : ServerSocket<Client, Protocol>(task, max_client_count)
                         {
                         }
 
                 };
 
-                return std::make_shared<MakeSharedActivator>(task);
+                return std::make_shared<MakeSharedActivator>(task, max_client_count);
             }
 
-            template<typename Protocol, typename ProtocolClient>
-            bool ServerSocket<Protocol, ProtocolClient>::create_socket()
+            template<typename Client, typename Protocol>
+            bool ServerSocket<Client, Protocol>::create_socket()
             {
                 bool res = false;
 

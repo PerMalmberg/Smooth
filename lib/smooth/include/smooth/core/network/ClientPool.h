@@ -9,11 +9,15 @@ namespace smooth
     {
         namespace network
         {
-            template<typename Client, int Count = 5>
+            /// ClientPool holds a number of client instances which are requested by the
+            /// owning ServerSocket. When a client is done, i.e. connection closed, it
+            /// is returned to the pool for reuse at a later time.
+            /// \tparam Client The client type held by the pool.
+            template<typename Client>
             class ClientPool
             {
                 public:
-                    explicit ClientPool(smooth::core::Task& task);
+                    ClientPool(smooth::core::Task& task, int count);
 
                     bool empty() const
                     {
@@ -29,8 +33,8 @@ namespace smooth
                     std::vector<std::shared_ptr<Client>> in_use{};
             };
 
-            template<typename Client, int Count>
-            std::shared_ptr<Client> ClientPool<Client, Count>::get()
+            template<typename Client>
+            std::shared_ptr<Client> ClientPool<Client>::get()
             {
                 std::shared_ptr<Client> c{};
 
@@ -44,8 +48,8 @@ namespace smooth
                 return c;
             }
 
-            template<typename Client, int Count>
-            void ClientPool<Client, Count>::return_client(std::shared_ptr<Client> client)
+            template<typename Client>
+            void ClientPool<Client>::return_client(std::shared_ptr<Client> client)
             {
                 client->reset();
                 auto found = std::find(in_use.begin(), in_use.end(), client);
@@ -57,10 +61,10 @@ namespace smooth
                 clients.push_back(std::move(client));
             }
 
-            template<typename Client, int Count>
-            ClientPool<Client, Count>::ClientPool(smooth::core::Task& task)
+            template<typename Client>
+            ClientPool<Client>::ClientPool(smooth::core::Task& task, int count)
             {
-                for(int i = 0; i < Count; ++i)
+                for(int i = 0; i < count; ++i)
                 {
                     clients.emplace_back(std::make_shared<Client>(task, *this));
                 }

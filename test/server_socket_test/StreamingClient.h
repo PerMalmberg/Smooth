@@ -1,6 +1,6 @@
 #pragma once
 
-#include <smooth/core/network/ProtocolClient.h>
+#include <smooth/core/network/ServerClient.h>
 #include <chrono>
 #include "StreamingProtocol.h"
 #include <smooth/core/ipc/IEventListener.h>
@@ -12,11 +12,11 @@ namespace server_socket_test
 {
 
     class StreamingClient
-            : public smooth::core::network::ProtocolClient<StreamingProtocol, StreamingClient>
+            : public smooth::core::network::ServerClient<StreamingClient, StreamingProtocol>
     {
         public:
             explicit StreamingClient(smooth::core::Task& task, smooth::core::network::ClientPool<StreamingClient>& pool)
-                    : ProtocolClient<StreamingProtocol, StreamingClient>(task, pool)
+                    : ServerClient<StreamingClient, StreamingProtocol>(task, pool)
 
             {
             }
@@ -25,10 +25,13 @@ namespace server_socket_test
 
             void event(const smooth::core::network::event::DataAvailableEvent<StreamingProtocol>& event) override
             {
+                // Print data as it is received.
                 StreamingProtocol::packet_type packet;
-                event.get(packet);
-                std::string s{static_cast<char>(packet.data()[0])};
-                smooth::core::logging::Log::debug("-->", s);
+                if(event.get(packet))
+                {
+                    std::string s{static_cast<char>(packet.data()[0])};
+                    smooth::core::logging::Log::debug("-->", s);
+                }
             }
 
             void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override
@@ -42,6 +45,11 @@ namespace server_socket_test
             }
 
             void connected() override
+            {
+
+            }
+
+            void reset_client() override
             {
 
             }

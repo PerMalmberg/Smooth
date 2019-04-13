@@ -10,7 +10,7 @@
 #include <memory>
 #include <chrono>
 #include "CommonSocket.h"
-#include "ProtocolClient.h"
+#include "ServerClient.h"
 #include "BufferContainer.h"
 #include <smooth/core/util/CircularBuffer.h>
 #include <smooth/core/timer/ElapsedTime.h>
