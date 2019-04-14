@@ -82,18 +82,22 @@ namespace smooth
                     /// created.
                     static std::shared_ptr<SecureSocket<Protocol>>
                     create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                           std::shared_ptr<std::vector<unsigned char>> ca_certificates,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
 
                     static std::shared_ptr<SecureSocket<Protocol>>
                     create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                            int socket_id,
                            std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                           std::shared_ptr<std::vector<unsigned char>>,
                            std::chrono::milliseconds timeout);
 
                 protected:
                     SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                 std::shared_ptr<std::vector<unsigned char>> ca_certificates,
                                  std::chrono::milliseconds send_timeout)
-                            : Socket<Protocol, Packet>(buffer_container, send_timeout)
+                            : Socket<Protocol, Packet>(buffer_container, send_timeout),
+                              ca_certs(std::move(ca_certificates))
                     {
 
                     }
@@ -113,6 +117,7 @@ namespace smooth
                 private:
                     static constexpr const char* tag = "SecureSocket";
                     std::unique_ptr<MBedTLSContext> secure_context{};
+                    std::shared_ptr<std::vector<unsigned char>> ca_certs{};
 
                     bool is_handshake_complete(const MBedTLSContext& ctx) const;
 
@@ -123,11 +128,12 @@ namespace smooth
             template<typename Protocol, typename Packet>
             std::shared_ptr<SecureSocket<Protocol>>
             SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
-                                             int socket_id,
-                                             std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                             std::chrono::milliseconds timeout)
+                                                   int socket_id,
+                                                   std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                                   std::shared_ptr<std::vector<unsigned char>> ca_certs,
+                                                   std::chrono::milliseconds timeout)
             {
-                auto s = create(buffer_container, timeout);
+                auto s = create(buffer_container, std::move(ca_certs), timeout);
                 s->set_existing_socket(ip, socket_id);
                 return s;
             }
@@ -135,6 +141,7 @@ namespace smooth
             template<typename Protocol, typename Packet>
             std::shared_ptr<SecureSocket<Protocol>>
             SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                                   std::shared_ptr<std::vector<unsigned char>> ca_certificates,
                                                    std::chrono::milliseconds send_timeout)
             {
                 // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
@@ -143,22 +150,31 @@ namespace smooth
                 {
                     public:
                         MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                            std::shared_ptr<std::vector<unsigned char>> ca_certificates,
                                             std::chrono::milliseconds send_timeout)
-                                : SecureSocket<Protocol, Packet>(buffer_container,
-                                                                 send_timeout)
+                                : SecureSocket<Protocol, Packet>(buffer_container, std::move(ca_certificates), send_timeout)
                         {
                         }
 
                 };
 
-                return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout);
+                return std::make_shared<MakeSharedActivator>(buffer_container, ca_certificates, send_timeout);
             }
 
             template<typename Protocol, typename Packet>
             bool SecureSocket<Protocol, Packet>::create_socket()
             {
                 secure_context = std::make_unique<MBedTLSContext>();
-                auto res = secure_context->init();
+
+                bool res = false;
+                if(ca_certs)
+                {
+                    res = secure_context->init_client(*ca_certs);
+                }
+                else
+                {
+                    res = secure_context->init_client(std::vector<unsigned char>{});
+                }
 
                 if (res)
                 {
