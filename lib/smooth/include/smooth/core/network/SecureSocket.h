@@ -114,7 +114,7 @@ namespace smooth
                     static constexpr const char* tag = "SecureSocket";
                     std::unique_ptr<MBedTLSContext> secure_context{};
 
-                    bool is_handshake_comlete(const MBedTLSContext& ctx) const;
+                    bool is_handshake_complete(const MBedTLSContext& ctx) const;
 
 
                     void do_handshake_step();
@@ -187,7 +187,7 @@ namespace smooth
             {
                 if (this->is_active() && this->is_connected())
                 {
-                    if (is_handshake_comlete(*secure_context))
+                    if (is_handshake_complete(*secure_context))
                     {
                         Socket<Protocol, Packet>::readable();
                     }
@@ -203,7 +203,7 @@ namespace smooth
             {
                 if (this->is_active() && this->signal_new_connection())
                 {
-                    if (is_handshake_comlete(*secure_context))
+                    if (is_handshake_complete(*secure_context))
                     {
                         Socket<Protocol, Packet>::writable();
                     }
@@ -305,7 +305,7 @@ namespace smooth
             }
 
             template<typename Protocol, typename Packet>
-            bool SecureSocket<Protocol, Packet>::is_handshake_comlete(const MBedTLSContext& ctx) const
+            bool SecureSocket<Protocol, Packet>::is_handshake_complete(const MBedTLSContext& ctx) const
             {
                 return ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
             }
