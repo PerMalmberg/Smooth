@@ -3,6 +3,7 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/Application.h>
 #include <smooth/core/logging/log.h>
+#include <smooth/core/network/BufferContainer.h>
 #include <cassert>
 #include "HTTPPacket.h"
 #include "wifi_creds.h"
@@ -17,10 +18,7 @@ using namespace smooth::core::logging;
 namespace secure_socket_test
 {
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              tx_empty("tx_emtpy", 3, *this, *this),
-              data_available("data_available", 3, *this, *this),
-              connection_status("connection_status", 3, *this, *this)
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
     {
     }
 
@@ -41,11 +39,8 @@ namespace secure_socket_test
     {
         if (!sock)
         {
-            sock = SecureSocket<HTTPProtocol<>>::create(tx_buffer,
-                                                        rx_buffer,
-                                                        tx_empty,
-                                                        data_available,
-                                                        connection_status);
+            buff = std::make_shared<BufferContainer<HTTPProtocol<>>>(*this, *this, *this, *this);
+            sock = SecureSocket<HTTPProtocol<>>::create(buff);
             sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
         }
     }
@@ -78,9 +73,9 @@ namespace secure_socket_test
             sock->stop();
 
             std::stringstream ss;
-            for(char c : received_content)
+            for (auto c : received_content)
             {
-                ss << c;
+                ss << static_cast<char>(c);
             }
             std::string s{ss.str()};
 
@@ -89,6 +84,7 @@ namespace secure_socket_test
             bool has_ending = s.find("-----END PGP SIGNATURE-----") != std::string::npos;
             assert(has_begining);
             assert(has_ending);
+            Log::info("Result", "Data received!");
         }
     }
 
@@ -96,7 +92,7 @@ namespace secure_socket_test
     {
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
 
-        tx_buffer.put(
+        sock->send(
                 HTTPPacket(HTTPPacket::Method::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
                            {
                                    {"UserAgent", "Mozilla/4.0"},

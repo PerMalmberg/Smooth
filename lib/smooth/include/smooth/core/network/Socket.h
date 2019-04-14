@@ -70,6 +70,8 @@ namespace smooth
 
                     void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id);
 
+                    bool send(const Packet& packet);
+
                 protected:
                     Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                            std::chrono::milliseconds send_timeout);
@@ -117,7 +119,6 @@ namespace smooth
                     std::weak_ptr<BufferContainer<Protocol>> buffers{};
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
 
-                private:
                     std::shared_ptr<BufferContainer<Protocol>> get_container_or_close();
             };
 
@@ -151,9 +152,7 @@ namespace smooth
 
                 };
 
-                std::shared_ptr<Socket<Protocol>> s = std::make_shared<MakeSharedActivator>(buffer_container,
-                                                                                            send_timeout);
-                return s;
+                return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout);
             }
 
             template<typename Protocol, typename Packet>
@@ -231,7 +230,7 @@ namespace smooth
                     auto cont = get_container_or_close();
                     if (cont)
                     {
-                        if(!cont->get_rx_buffer().is_full())
+                        if (!cont->get_rx_buffer().is_full())
                         {
                             read_data();
                         }
@@ -358,7 +357,7 @@ namespace smooth
                     auto& tx = cont->get_tx_buffer();
                     auto data_to_send = tx.get_data_to_send();
                     auto length = tx.get_remaining_data_length();
-                    auto amount_sent = send(socket_id,
+                    auto amount_sent = ::send(socket_id,
                                             data_to_send,
                                             static_cast<size_t>(length),
                                             SEND_FLAGS);
@@ -473,7 +472,7 @@ namespace smooth
             {
                 auto cont = buffers.lock();
 
-                if(!cont)
+                if (!cont)
                 {
                     // If the buffer container has expired, it means the client
                     // has let it go, meaning this socket also can close.
@@ -481,6 +480,19 @@ namespace smooth
                 }
 
                 return cont;
+            }
+
+            template<typename Protocol, typename Packet>
+            bool Socket<Protocol, Packet>::send(const Packet& packet)
+            {
+                bool res = false;
+                auto cont = buffers.lock();
+                if(cont)
+                {
+                    res = cont->get_tx_buffer().put(packet);
+                }
+
+                return res;
             }
         }
     }

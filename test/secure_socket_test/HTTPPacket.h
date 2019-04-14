@@ -76,24 +76,24 @@ namespace secure_socket_test
 
             void set_size(int size)
             {
-                if (content.size() != size)
+                if (content.size() != static_cast<decltype(content)::size_type>(size))
                 {
-                    content.reserve(static_cast<unsigned long>(size));
-                    if(content.size() < size)
+                    content.reserve(static_cast<decltype(content)::size_type>(size));
+                    if(content.size() < static_cast<decltype(content)::size_type>(size))
                     {
-                        content.assign(size - content.size(), 0);
+                        content.assign(static_cast<decltype(content)::size_type>(size) - content.size(), 0);
                     }
                 }
             }
 
             int empty_space() const
             {
-                return static_cast<int>(content.size() - bytes_received);
+                return static_cast<int>(content.size() - static_cast<decltype(content)::size_type>(bytes_received));
             }
 
             void increase_size(int increase)
             {
-                content.resize(content.size() + increase);
+                content.resize(content.size() + static_cast<decltype(content)::size_type>(increase));
             }
 
             std::unordered_map<std::string, std::string>& headers()

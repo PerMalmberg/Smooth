@@ -150,7 +150,7 @@ namespace secure_socket_test
     template<int MaxPacketSize>
     uint8_t* HTTPProtocol<MaxPacketSize>::get_write_pos(HTTPPacket& packet)
     {
-        return &packet.data()[packet.get_bytes_received()];
+        return &packet.data()[static_cast<std::vector<uint8_t>::size_type>(packet.get_bytes_received())];
     }
 
     template<int MaxPacketSize>
@@ -170,11 +170,11 @@ namespace secure_socket_test
     {
         std::stringstream ss;
 
-        for (char c : packet.data())
+        for (auto c : packet.data())
         {
             if(c != '\n')
             {
-                ss << c;
+                ss << static_cast<char>(c);
             }
         }
 

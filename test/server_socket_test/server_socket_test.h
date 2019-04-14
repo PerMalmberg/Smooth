@@ -21,6 +21,7 @@ namespace server_socket_test
             void init() override;
 
         private:
-            std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient, StreamingProtocol>> server{};
+            std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
+                                                                StreamingProtocol>> server{};
     };
 }

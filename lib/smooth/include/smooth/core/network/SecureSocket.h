@@ -80,9 +80,15 @@ namespace smooth
                     /// If this time is exceeded, the socket will be closed.
                     /// \return a std::shared_ptr pointing to an instance of a ISocket object, or nullptr if no socket could be
                     /// created.
-                    static std::shared_ptr<ISocket>
+                    static std::shared_ptr<SecureSocket<Protocol>>
                     create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
+
+                    static std::shared_ptr<SecureSocket<Protocol>>
+                    create(std::shared_ptr<smooth::core::network::InetAddress> ip,
+                           int socket_id,
+                           std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                           std::chrono::milliseconds timeout);
 
                 protected:
                     SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
@@ -115,12 +121,22 @@ namespace smooth
             };
 
             template<typename Protocol, typename Packet>
-            std::shared_ptr<ISocket>
-            SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                                   std::chrono::milliseconds send_timeout
-            )
+            std::shared_ptr<SecureSocket<Protocol>>
+            SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
+                                             int socket_id,
+                                             std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                             std::chrono::milliseconds timeout)
             {
+                auto s = create(buffer_container, timeout);
+                s->set_existing_socket(ip, socket_id);
+                return s;
+            }
 
+            template<typename Protocol, typename Packet>
+            std::shared_ptr<SecureSocket<Protocol>>
+            SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                                   std::chrono::milliseconds send_timeout)
+            {
                 // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
                 class MakeSharedActivator
                         : public SecureSocket<Protocol, Packet>
@@ -135,8 +151,7 @@ namespace smooth
 
                 };
 
-                std::shared_ptr<ISocket> s = std::make_shared<MakeSharedActivator>(buffer_container, send_timeout);
-                return s;
+                return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout);
             }
 
             template<typename Protocol, typename Packet>
@@ -203,40 +218,44 @@ namespace smooth
             void SecureSocket<Protocol, Packet>::read_data()
             {
                 // How much data to assemble the current packet?
-                int wanted_length = this->rx_buffer.amount_wanted();
-
-
-                auto read_amount = mbedtls_ssl_read(secure_context->get_context(),
-                                                    this->rx_buffer.get_write_pos(),
-                                                    static_cast<size_t>(wanted_length));
-
-                if (read_amount == 0)
+                auto cont = this->get_container_or_close();
+                if (cont)
                 {
-                    // Underlying socket closed
-                    this->stop();
-                }
-                else if (read_amount < 0
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_READ
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
-                {
-                    char buf[128];
-                    mbedtls_strerror(read_amount, buf, sizeof(buf));
-                    Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
-                    this->stop();
-                }
-                else
-                {
-                    this->rx_buffer.data_received(read_amount);
-                    if (this->rx_buffer.is_error())
+                    auto& rx = cont->get_rx_buffer();
+                    int wanted_length = rx.amount_wanted();
+
+                    auto read_amount = mbedtls_ssl_read(secure_context->get_context(),
+                                                        rx.get_write_pos(),
+                                                        static_cast<size_t>(wanted_length));
+
+                    if (read_amount == 0)
                     {
-                        Log::error(tag, "Assembly error");
+                        // Underlying socket closed
                         this->stop();
                     }
-                    else if (this->rx_buffer.is_packet_complete())
+                    else if (read_amount < 0
+                             && read_amount != MBEDTLS_ERR_SSL_WANT_READ
+                             && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
                     {
-                        event::DataAvailableEvent<Protocol> d(&this->rx_buffer);
-                        this->data_available.push(d);
-                        this->rx_buffer.prepare_new_packet();
+                        char buf[128];
+                        mbedtls_strerror(read_amount, buf, sizeof(buf));
+                        Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
+                        this->stop();
+                    }
+                    else
+                    {
+                        rx.data_received(read_amount);
+                        if (rx.is_error())
+                        {
+                            Log::error(tag, "Assembly error");
+                            this->stop();
+                        }
+                        else if (rx.is_packet_complete())
+                        {
+                            event::DataAvailableEvent<Protocol> d(&rx);
+                            cont->get_data_available().push(d);
+                            rx.prepare_new_packet();
+                        }
                     }
                 }
             }
@@ -244,38 +263,44 @@ namespace smooth
             template<typename Protocol, typename Packet>
             void SecureSocket<Protocol, Packet>::write_data()
             {
-                auto data_to_send = this->tx_buffer.get_data_to_send();
-                auto length = this->tx_buffer.get_remaining_data_length();
-
-                auto amount_sent = mbedtls_ssl_write(secure_context->get_context(),
-                                                     data_to_send,
-                                                     static_cast<size_t>(length));
-
-                if (amount_sent > 0)
+                auto cont = this->get_container_or_close();
+                if (cont)
                 {
-                    this->tx_buffer.data_has_been_sent(amount_sent);
+                    auto& tx = cont->get_tx_buffer();
+                    auto data_to_send = tx.get_data_to_send();
 
-                    // Was a complete packet sent?
-                    if (this->tx_buffer.is_in_progress())
-                    {
-                        this->elapsed_send_time.start();
-                    }
-                    else
-                    {
-                        // Let the application know it may now send another packet.
-                        event::TransmitBufferEmptyEvent event(this->shared_from_this());
-                        this->tx_empty.push(event);
-                    }
-                }
+                    auto length = tx.get_remaining_data_length();
 
-                if (amount_sent < 0
-                    && amount_sent != MBEDTLS_ERR_SSL_WANT_READ
-                    && amount_sent != MBEDTLS_ERR_SSL_WANT_WRITE)
-                {
-                    char buf[128];
-                    mbedtls_strerror(amount_sent, buf, sizeof(buf));
-                    Log::error(tag, Format("mbedtls_ssl_write failed: {1}", Str(buf)));
-                    this->stop();
+                    auto amount_sent = mbedtls_ssl_write(secure_context->get_context(),
+                                                         data_to_send,
+                                                         static_cast<size_t>(length));
+
+                    if (amount_sent > 0)
+                    {
+                        tx.data_has_been_sent(amount_sent);
+
+                        // Was a complete packet sent?
+                        if (tx.is_in_progress())
+                        {
+                            this->elapsed_send_time.start();
+                        }
+                        else
+                        {
+                            // Let the application know it may now send another packet.
+                            event::TransmitBufferEmptyEvent event(this->shared_from_this());
+                            cont->get_tx_empty().push(event);
+                        }
+                    }
+
+                    if (amount_sent < 0
+                        && amount_sent != MBEDTLS_ERR_SSL_WANT_READ
+                        && amount_sent != MBEDTLS_ERR_SSL_WANT_WRITE)
+                    {
+                        char buf[128];
+                        mbedtls_strerror(amount_sent, buf, sizeof(buf));
+                        Log::error(tag, Format("mbedtls_ssl_write failed: {1}", Str(buf)));
+                        this->stop();
+                    }
                 }
             }
 
