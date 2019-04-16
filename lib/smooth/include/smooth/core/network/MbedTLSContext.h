@@ -33,6 +33,7 @@ namespace smooth
                     mbedtls_ssl_context ssl{};
                     mbedtls_ssl_config conf{};
                     mbedtls_x509_crt ca_cert{};
+                    mbedtls_pk_context pk_key{};
             };
         }
     }

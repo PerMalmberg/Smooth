@@ -134,6 +134,10 @@ namespace secure_socket_test
             ca_cert->push_back(static_cast<unsigned char>(ftp_sunet_se[i]));
         }
 
+        // the mbedtls_x509_crt_parse function wants the size of the buffer, including the terminating 0 so we
+        // add that too.
+        ca_cert->push_back('\0');
+
         return ca_cert;
     }
 

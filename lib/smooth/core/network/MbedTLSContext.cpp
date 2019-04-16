@@ -27,6 +27,7 @@ namespace smooth
 
             MBedTLSContext::MBedTLSContext()
             {
+                mbedtls_pk_init(&pk_key);
                 mbedtls_ssl_init(&ssl);
                 mbedtls_ssl_config_init(&conf);
                 mbedtls_x509_crt_init(&ca_cert);
@@ -76,7 +77,7 @@ namespace smooth
                     {
                         mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_REQUIRED);
 
-                        res = mbedtls_x509_crt_parse(&ca_cert, ca_certificates.data(), ca_certificates.size() + 1);
+                        res = mbedtls_x509_crt_parse(&ca_cert, ca_certificates.data(), ca_certificates.size());
 
                         if (res < 0)
                         {
@@ -112,9 +113,13 @@ namespace smooth
                 return res == 0;
             }
 
-            bool MBedTLSContext::init_server(const std::vector<unsigned char>& /*server_certificate*/)
+            bool MBedTLSContext::init_server(const std::vector<unsigned char>& server_certificate)
             {
                 auto res = common_init(true);
+                if(res == 0)
+                {
+                    res = mbedtls_x509_crt_parse(&ca_cert, server_certificate.data(), server_certificate.size());
+                }
 
                 return res;
             }
@@ -126,6 +131,7 @@ namespace smooth
                 mbedtls_x509_crt_free(&ca_cert);
                 mbedtls_ssl_config_free(&conf);
                 mbedtls_ssl_free(&ssl);
+                mbedtls_pk_free(&pk_key);
             }
         }
     }
