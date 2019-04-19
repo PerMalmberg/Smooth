@@ -89,8 +89,8 @@ namespace smooth
                     create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                            int socket_id,
                            std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                           std::shared_ptr<std::vector<unsigned char>>,
-                           std::chrono::milliseconds timeout);
+                           std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                           std::chrono::milliseconds timeout = std::chrono::milliseconds(1500));
 
                 protected:
                     SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
@@ -99,7 +99,6 @@ namespace smooth
                             : Socket<Protocol, Packet>(buffer_container, send_timeout),
                               ca_certs(std::move(ca_certificates))
                     {
-
                     }
 
                     bool create_socket() override;
@@ -130,10 +129,10 @@ namespace smooth
             SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                                                    int socket_id,
                                                    std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                                   std::shared_ptr<std::vector<unsigned char>> ca_certs,
+                                                   std::shared_ptr<std::vector<unsigned char>> ca_certificates,
                                                    std::chrono::milliseconds timeout)
             {
-                auto s = create(buffer_container, std::move(ca_certs), timeout);
+                auto s = create(buffer_container, std::move(ca_certificates), timeout);
                 s->set_existing_socket(ip, socket_id);
                 return s;
             }

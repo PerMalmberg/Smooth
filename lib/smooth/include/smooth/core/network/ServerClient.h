@@ -19,6 +19,9 @@ namespace smooth
             template<typename Client, typename Protocol>
             class ServerSocket;
 
+            template<typename Client, typename Protocol>
+            class SecureServerSocket;
+
             /// ServerClient is the base class for all clients created by the ServerSocket. ServerClient provides
             /// the base functionality to implement a client capable of communicating over the associated socket.
             /// \tparam FinalClientTypeName The complete derived type of the client.
@@ -62,6 +65,7 @@ namespace smooth
 
                 private:
                     friend ServerSocket<FinalClientTypeName,Protocol>;
+                    friend SecureServerSocket<FinalClientTypeName,Protocol>;
                     friend ClientPool<FinalClientTypeName>;
 
                     void set_socket(const std::shared_ptr<smooth::core::network::ISocket>& s)

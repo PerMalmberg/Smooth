@@ -6,6 +6,7 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/network/ServerSocket.h>
+#include <smooth/core/network/SecureServerSocket.h>
 #include "wifi_creds.h"
 
 using namespace std::chrono;
@@ -36,11 +37,20 @@ namespace server_socket_test
 
         // The server creates StreamingClients which are self-sufficient and never seen by the main
         // application (unless the implementor adds such bindings).
-        server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5);
-        server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
+        //server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5);
+        //server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
 
         // Point your browser to http://localhost:8080 and watch the output.
         // Or, if you're on linux, do "echo ` date` | nc localhost 8080 -w1"
+
+
+
+        std::vector<unsigned char> own_certs{};
+        std::vector<unsigned char> private_key{};
+        std::vector<unsigned char> password{};
+
+        server = SecureServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5, own_certs, private_key, password);
+        server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
     }
 
 }

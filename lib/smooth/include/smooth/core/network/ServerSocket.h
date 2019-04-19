@@ -49,6 +49,8 @@ namespace smooth
 
                     void readable() override;
 
+                    virtual std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int> accept_request();
+
                     void writable() override;
 
                     bool has_data_to_transmit() override
@@ -69,12 +71,11 @@ namespace smooth
                     void clear_socket_id() override;
 
 
-                    explicit ServerSocket(smooth::core::Task& task, int max_client_count)
+                    ServerSocket(smooth::core::Task& task, int max_client_count)
                             : pool(task, max_client_count)
                     {
                     }
 
-                private:
                     ClientPool<Client> pool;
             };
 
@@ -99,8 +100,11 @@ namespace smooth
             }
 
             template<typename Client, typename Protocol>
-            void ServerSocket<Client, Protocol>::readable()
+            std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int>
+            ServerSocket<Client, Protocol>::accept_request()
             {
+                auto res = std::make_tuple<std::shared_ptr<smooth::core::network::InetAddress>, int>(nullptr, 0);
+
                 sockaddr addr{};
                 socklen_t len{AF_INET6};
 
@@ -139,14 +143,31 @@ namespace smooth
                             ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
                         }
 
-                        auto client = pool.get();
-                        auto socket = Socket<Protocol>::create(ip,
-                                                               accepted_socket,
-                                                               client->get_buffers(),
-                                                               client->get_send_timeout());
-                        client->set_socket(socket);
+                        res = std::make_tuple<>(ip, accepted_socket);
                     }
                 }
+
+                return res;
+            }
+
+            template<typename Client, typename Protocol>
+            void ServerSocket<Client, Protocol>::readable()
+            {
+                auto accepted = accept_request();
+                auto ip = std::get<0>(accepted);
+                auto socket_id = std::get<1>(accepted);
+
+                if (ip)
+                {
+                    auto client = pool.get();
+                    auto socket = Socket<Protocol>::create(ip,
+                                                           socket_id,
+                                                           client->get_buffers(),
+                                                           client->get_send_timeout());
+
+                    client->set_socket(socket);
+                }
+
             }
 
             template<typename Client, typename Protocol>

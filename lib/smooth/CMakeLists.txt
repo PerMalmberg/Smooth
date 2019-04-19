@@ -122,6 +122,7 @@ set(SOURCES
         include/smooth/core/network/Socket.h
         include/smooth/core/network/SocketDispatcher.h
         include/smooth/core/network/ServerSocket.h
+        include/smooth/core/network/SecureServerSocket.h
         include/smooth/core/timer/ElapsedTime.h
         include/smooth/core/timer/ITimer.h
         include/smooth/core/timer/Timer.h
