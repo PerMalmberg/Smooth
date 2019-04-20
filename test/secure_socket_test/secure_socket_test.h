@@ -35,7 +35,8 @@ namespace secure_socket_test
             std::shared_ptr<smooth::core::network::BufferContainer<HTTPProtocol<>>> buff;
             std::shared_ptr<smooth::core::network::SecureSocket<HTTPProtocol<>>> sock{};
             std::vector<uint8_t> received_content{};
+            std::unique_ptr<smooth::core::network::MBedTLSContext> tls_context{};
 
-            std::shared_ptr<std::vector<unsigned char>> get_certs() const;
+            std::unique_ptr<std::vector<unsigned char>> get_certs() const;
     };
 }

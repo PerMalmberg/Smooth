@@ -16,21 +16,25 @@ namespace smooth
             {
                 public:
                     static std::shared_ptr<ServerSocket < Client, Protocol>>
-                    create(smooth::core::Task& task,
-                           int max_client_count,
-                           const std::vector<unsigned char>& own_cert,
-                           const std::vector<unsigned char>& private_key,
-                           const std::vector<unsigned char>& password);
+                    create(
+                    smooth::core::Task& task,
+                    int max_client_count,
+                    const std::vector<unsigned char>& ca_chain,
+                    const std::vector<unsigned char>& own_cert,
+                    const std::vector<unsigned char>& private_key,
+                    const std::vector<unsigned char>& password
+                    );
 
                 protected:
                     SecureServerSocket(smooth::core::Task& task,
                                        int max_client_count,
+                                       const std::vector<unsigned char>& ca_chain,
                                        const std::vector<unsigned char>& own_cert,
                                        const std::vector<unsigned char>& private_key,
                                        const std::vector<unsigned char>& password)
                             : ServerSocket<Client, Protocol>(task, max_client_count)
                     {
-                        server_context.init_server(own_cert,private_key, password);
+                        server_context.init_server(ca_chain, own_cert, private_key, password);
                     }
 
                     void readable() override;
@@ -40,29 +44,41 @@ namespace smooth
             };
 
             template<typename Client, typename Protocol>
-            std::shared_ptr<ServerSocket<Client, Protocol>>
+            std::shared_ptr<ServerSocket < Client, Protocol>>
             SecureServerSocket<Client, Protocol>::create(smooth::core::Task& task,
-                                                         int max_client_count,
-                                                         const std::vector<unsigned char>& own_cert,
-                                                         const std::vector<unsigned char>& private_key,
-                                                         const std::vector<unsigned char>& password)
+                                                        int max_client_count,
+                                                        const std::vector<unsigned char>& ca_chain,
+                                                        const std::vector<unsigned char>& own_cert,
+                                                        const std::vector<unsigned char>& private_key,
+                                                        const std::vector<unsigned char>& password)
+        {
+            class MakeSharedActivator
+                    : public SecureServerSocket<Client, Protocol>
             {
-                class MakeSharedActivator
-                        : public SecureServerSocket<Client, Protocol>
-                {
-                    public:
-                        MakeSharedActivator(smooth::core::Task& task,
-                                            int max_client_count,
-                                            const std::vector<unsigned char>& own_cert,
-                                            const std::vector<unsigned char>& private_key,
-                                            const std::vector<unsigned char>& password)
-                                : SecureServerSocket<Client, Protocol>(task, max_client_count, own_cert, private_key, password)
-                        {
-                        }
-                };
+                public:
+                    MakeSharedActivator(smooth::core::Task& task,
+                                        int max_client_count,
+                                        const std::vector<unsigned char>& ca_chain,
+                                        const std::vector<unsigned char>& own_cert,
+                                        const std::vector<unsigned char>& private_key,
+                                        const std::vector<unsigned char>& password)
+                            : SecureServerSocket<Client, Protocol>(task,
+                                                                   max_client_count,
+                                                                   ca_chain,
+                                                                   own_cert,
+                                                                   private_key,
+                                                                   password)
+                    {
+                    }
+            };
 
-                return std::make_shared<MakeSharedActivator>(task, max_client_count, own_cert, private_key, password);
-            }
+            return std::make_shared<MakeSharedActivator>(task,
+                                                         max_client_count,
+                                                         ca_chain,
+                                                         own_cert,
+                                                         private_key,
+                                                         password);
+        }
 
         template<typename Client, typename Protocol>
         void SecureServerSocket<Client, Protocol>::readable()
@@ -75,14 +91,14 @@ namespace smooth
             {
                 auto client = this->pool.get();
                 auto socket = SecureSocket<Protocol>::create(ip,
-                                                       socket_id,
-                                                       client->get_buffers(),
-                                                       client->get_send_timeout());
+                                                             socket_id,
+                                                             client->get_buffers(),
+                                                             server_context.create_context(),
+                                                             client->get_send_timeout());
 
                 client->set_socket(socket);
             }
-
-        }
         }
     }
+}
 }

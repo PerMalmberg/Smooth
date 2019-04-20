@@ -67,14 +67,6 @@ namespace smooth
                     friend class smooth::core::network::SocketDispatcher;
 
                     /// Creates a socket for network communication, with the specified packet type.
-                    /// \param tx_buffer The transmit buffer where outgoing packets are put by the application.
-                    /// \param rx_buffer The receive buffer used when receiving data
-                    /// \param tx_empty The response queue onto which events are put when all outgoing packets are sent.
-                    /// These events are forwarded to the application via the response method.
-                    /// \param data_available The response queue onto which events are put when data is available. These
-                    /// These events are forwarded to the application via the response method.
-                    /// \param connection_status The response queue into which events are put when a change in the connection
-                    /// state is detected. These events are forwarded to the application via the response method.
                     /// \param send_timeout The amount of time to wait for outgoing data to actually be sent to remote
                     /// endpoint (i.e. the maximum time between send() being called and the socket being writable again).
                     /// If this time is exceeded, the socket will be closed.
@@ -82,26 +74,26 @@ namespace smooth
                     /// created.
                     static std::shared_ptr<SecureSocket<Protocol>>
                     create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                           std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                           std::unique_ptr<SSLContext> secure_context,
                            std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
 
                     static std::shared_ptr<SecureSocket<Protocol>>
                     create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                            int socket_id,
                            std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                           std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                           std::unique_ptr<SSLContext> secure_context,
                            std::chrono::milliseconds timeout = std::chrono::milliseconds(1500));
+
+                    void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id) override;
 
                 protected:
                     SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                 std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                                 std::unique_ptr<SSLContext> context,
                                  std::chrono::milliseconds send_timeout)
                             : Socket<Protocol, Packet>(buffer_container, send_timeout),
-                              ca_certs(std::move(ca_certificates))
+                              secure_context(std::move(context))
                     {
                     }
-
-                    bool create_socket() override;
 
                     bool internal_start() override;
 
@@ -113,12 +105,13 @@ namespace smooth
 
                     void write_data() override;
 
+                    bool has_data_to_transmit() override;
+
                 private:
                     static constexpr const char* tag = "SecureSocket";
-                    std::unique_ptr<MBedTLSContext> secure_context{};
-                    std::shared_ptr<std::vector<unsigned char>> ca_certs{};
+                    std::unique_ptr<SSLContext> secure_context{};
 
-                    bool is_handshake_complete(const MBedTLSContext& ctx) const;
+                    bool is_handshake_complete(const SSLContext& ctx) const;
 
 
                     void do_handshake_step();
@@ -129,10 +122,10 @@ namespace smooth
             SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                                                    int socket_id,
                                                    std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                                   std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                                                   std::unique_ptr<SSLContext> context,
                                                    std::chrono::milliseconds timeout)
             {
-                auto s = create(buffer_container, std::move(ca_certificates), timeout);
+                auto s = create(buffer_container, std::move(context), timeout);
                 s->set_existing_socket(ip, socket_id);
                 return s;
             }
@@ -140,7 +133,7 @@ namespace smooth
             template<typename Protocol, typename Packet>
             std::shared_ptr<SecureSocket<Protocol>>
             SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                                   std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                                                   std::unique_ptr<SSLContext> context,
                                                    std::chrono::milliseconds send_timeout)
             {
                 // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
@@ -149,39 +142,24 @@ namespace smooth
                 {
                     public:
                         MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                            std::shared_ptr<std::vector<unsigned char>> ca_certificates,
+                                            std::unique_ptr<SSLContext> context,
                                             std::chrono::milliseconds send_timeout)
-                                : SecureSocket<Protocol, Packet>(buffer_container, std::move(ca_certificates), send_timeout)
+                                : SecureSocket<Protocol, Packet>(buffer_container, std::move(context), send_timeout)
                         {
                         }
-
                 };
 
-                return std::make_shared<MakeSharedActivator>(buffer_container, ca_certificates, send_timeout);
+                return std::make_shared<MakeSharedActivator>(buffer_container, std::move(context), send_timeout);
             }
 
             template<typename Protocol, typename Packet>
-            bool SecureSocket<Protocol, Packet>::create_socket()
+            void SecureSocket<Protocol, Packet>::set_existing_socket(const std::shared_ptr<InetAddress>& address,
+                                                                     int socket_id)
             {
-                secure_context = std::make_unique<MBedTLSContext>();
-
-                bool res = false;
-                if(ca_certs)
-                {
-                    res = secure_context->init_client(*ca_certs);
-                }
-                else
-                {
-                    res = secure_context->init_client(std::vector<unsigned char>{});
-                }
-
-                if (res)
-                {
-                    res = Socket<Protocol, Packet>::create_socket();
-                }
-
-                return res;
+                mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
+                Socket<Protocol, Packet>::set_existing_socket(address, socket_id);
             }
+
 
             template<typename Protocol, typename Packet>
             bool SecureSocket<Protocol, Packet>::internal_start()
@@ -191,7 +169,7 @@ namespace smooth
                 if (res)
                 {
                     // At this point we *may* have a connected socket
-                    mbedtls_ssl_set_bio(secure_context->get_context(), this, ssl_send, ssl_recv, nullptr);
+                    mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
                 }
 
                 return res;
@@ -239,7 +217,7 @@ namespace smooth
                     auto& rx = cont->get_rx_buffer();
                     int wanted_length = rx.amount_wanted();
 
-                    auto read_amount = mbedtls_ssl_read(secure_context->get_context(),
+                    auto read_amount = mbedtls_ssl_read(*secure_context,
                                                         rx.get_write_pos(),
                                                         static_cast<size_t>(wanted_length));
 
@@ -286,7 +264,7 @@ namespace smooth
 
                     auto length = tx.get_remaining_data_length();
 
-                    auto amount_sent = mbedtls_ssl_write(secure_context->get_context(),
+                    auto amount_sent = mbedtls_ssl_write(*secure_context,
                                                          data_to_send,
                                                          static_cast<size_t>(length));
 
@@ -320,15 +298,15 @@ namespace smooth
             }
 
             template<typename Protocol, typename Packet>
-            bool SecureSocket<Protocol, Packet>::is_handshake_complete(const MBedTLSContext& ctx) const
+            bool SecureSocket<Protocol, Packet>::is_handshake_complete(const SSLContext& ctx) const
             {
-                return ctx.get_context()->state == MBEDTLS_SSL_HANDSHAKE_OVER;
+                return ctx.get_state() == MBEDTLS_SSL_HANDSHAKE_OVER;
             }
 
             template<typename Protocol, typename Packet>
             void SecureSocket<Protocol, Packet>::do_handshake_step()
             {
-                auto res = mbedtls_ssl_handshake_step(secure_context->get_context());
+                auto res = mbedtls_ssl_handshake_step(*secure_context);
 
                 if (res == MBEDTLS_ERR_SSL_WANT_READ
                     || res == MBEDTLS_ERR_SSL_WANT_WRITE)
@@ -343,6 +321,13 @@ namespace smooth
                     Log::error(tag, Format("mbedtls_ssl_handshake failed: {1}", Str(buf)));
                     this->stop();
                 }
+            }
+
+            template<typename Protocol, typename Packet>
+            bool SecureSocket<Protocol, Packet>::has_data_to_transmit()
+            {
+                return !is_handshake_complete(*secure_context)
+                       || Socket<Protocol, Packet>::has_data_to_transmit();
             }
         }
     }

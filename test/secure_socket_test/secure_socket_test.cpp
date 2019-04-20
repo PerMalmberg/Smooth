@@ -4,6 +4,7 @@
 #include <smooth/core/Application.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/BufferContainer.h>
+#include <smooth/core/network/MbedTLSContext.h>
 #include <cassert>
 #include "HTTPPacket.h"
 #include "wifi_creds.h"
@@ -119,15 +120,19 @@ namespace secure_socket_test
             buff = std::make_shared<BufferContainer<HTTPProtocol<>>>(*this, *this, *this, *this);
 
             // If no certificates are provided, no certificate verification will be performed.
-            std::shared_ptr<std::vector<unsigned char>> ca_cert = get_certs();
-            sock = SecureSocket<HTTPProtocol<>>::create(buff, ca_cert);
+            auto ca_cert = get_certs();
+
+            tls_context = std::make_unique<MBedTLSContext>();
+            tls_context->init_client(*ca_cert);
+
+            sock = SecureSocket<HTTPProtocol<>>::create(buff, tls_context->create_context());
             sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
         }
     }
 
-    std::shared_ptr<std::vector<unsigned char>> App::get_certs() const
+    std::unique_ptr<std::vector<unsigned char>> App::get_certs() const
     {
-        auto ca_cert = std::make_shared<std::vector<unsigned char>>();
+        auto ca_cert = std::make_unique<std::vector<unsigned char>>();
 
         for (size_t i = 0; i < strlen(ftp_sunet_se); ++i)
         {

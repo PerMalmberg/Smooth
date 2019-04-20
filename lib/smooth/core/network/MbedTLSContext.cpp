@@ -28,7 +28,6 @@ namespace smooth
             MBedTLSContext::MBedTLSContext()
             {
                 mbedtls_pk_init(&pk_key);
-                mbedtls_ssl_init(&ssl);
                 mbedtls_ssl_config_init(&conf);
                 mbedtls_x509_crt_init(&ca_cert);
                 mbedtls_x509_crt_init(&ca_chain);
@@ -89,19 +88,14 @@ namespace smooth
                     if (res == 0)
                     {
                         mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
-                        res = mbedtls_ssl_setup(&ssl, &conf);
-
-                        if (res != 0)
-                        {
-                            Log::error("MBedTLSContext", Format("mbedtls_ssl_setup returned {1}", Int32(res)));
-                        }
                     }
                 }
 
                 return res == 0;
             }
 
-            bool MBedTLSContext::init_server(const std::vector<unsigned char>& server_certificate,
+            bool MBedTLSContext::init_server(const std::vector<unsigned char>& ca_certificates,
+                                             const std::vector<unsigned char>& server_certificate,
                                              const std::vector<unsigned char>& private_key,
                                              const std::vector<unsigned char>& password)
             {
@@ -109,7 +103,13 @@ namespace smooth
 
                 if (res == 0)
                 {
+                    mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
                     res = load_certificate(server_certificate, server_cert);
+
+                    if(res == 0)
+                    {
+                        res = load_certificate(ca_certificates, ca_cert);
+                    }
 
                     if (res == 0)
                     {
@@ -154,7 +154,6 @@ namespace smooth
                 mbedtls_x509_crt_free(&ca_cert);
                 mbedtls_x509_crt_free(&server_cert);
                 mbedtls_ssl_config_free(&conf);
-                mbedtls_ssl_free(&ssl);
                 mbedtls_pk_free(&pk_key);
             }
 

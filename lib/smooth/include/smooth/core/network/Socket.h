@@ -68,7 +68,7 @@ namespace smooth
 
                     void writable() override;
 
-                    void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id);
+                    virtual void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id);
 
                     bool send(const Packet& packet);
 
@@ -464,6 +464,8 @@ namespace smooth
                 this->socket_id = socket_id;
                 started = true;
                 connected = true;
+                set_non_blocking();
+
                 SocketDispatcher::instance().perform_op(SocketOperation::Op::AddActiveSocket, shared_from_this());
             }
 
