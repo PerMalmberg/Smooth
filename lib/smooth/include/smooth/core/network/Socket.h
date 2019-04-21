@@ -115,11 +115,14 @@ namespace smooth
 
                     void stop_internal() override;
 
+                    std::shared_ptr<BufferContainer<Protocol>> get_container_or_close();
+
+                    bool set_no_delay();
+
                     std::chrono::milliseconds send_timeout;
                     std::weak_ptr<BufferContainer<Protocol>> buffers{};
-                    smooth::core::timer::ElapsedTime elapsed_send_time{};
 
-                    std::shared_ptr<BufferContainer<Protocol>> get_container_or_close();
+                    smooth::core::timer::ElapsedTime elapsed_send_time{};
             };
 
             template<typename Protocol, typename Packet>
@@ -201,17 +204,7 @@ namespace smooth
                     }
                     else
                     {
-                        res = set_non_blocking();
-                        int no_delay = 1;
-                        res &= setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay)) == 0;
-                        if (res)
-                        {
-                            log("Created socket");
-                        }
-                        else
-                        {
-                            loge("Failed to set socket options");
-                        }
+                        res = set_non_blocking() && set_no_delay();
                     }
                 }
                 else
@@ -219,6 +212,19 @@ namespace smooth
                     res = true;
                 }
 
+                return res;
+            }
+
+            template<typename Protocol, typename Packet>
+            bool Socket<Protocol, Packet>::set_no_delay()
+            {
+                int no_delay = 1;
+                auto res = setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay)) == 0;
+
+                if (!res)
+                {
+                    loge("Failed to set no delay socket option");
+                }
                 return res;
             }
 
@@ -358,9 +364,9 @@ namespace smooth
                     auto data_to_send = tx.get_data_to_send();
                     auto length = tx.get_remaining_data_length();
                     auto amount_sent = ::send(socket_id,
-                                            data_to_send,
-                                            static_cast<size_t>(length),
-                                            SEND_FLAGS);
+                                              data_to_send,
+                                              static_cast<size_t>(length),
+                                              SEND_FLAGS);
 
                     if (amount_sent == -1)
                     {
@@ -465,6 +471,7 @@ namespace smooth
                 started = true;
                 connected = true;
                 set_non_blocking();
+                set_no_delay();
 
                 SocketDispatcher::instance().perform_op(SocketOperation::Op::AddActiveSocket, shared_from_this());
             }
@@ -489,7 +496,7 @@ namespace smooth
             {
                 bool res = false;
                 auto cont = buffers.lock();
-                if(cont)
+                if (cont)
                 {
                     res = cont->get_tx_buffer().put(packet);
                 }
