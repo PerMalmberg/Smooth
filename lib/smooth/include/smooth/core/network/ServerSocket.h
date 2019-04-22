@@ -83,7 +83,7 @@ namespace smooth
             bool ServerSocket<Client, Protocol>::start(std::shared_ptr<InetAddress> ip)
             {
                 bool res = false;
-                if (!started)
+                if (!is_active())
                 {
                     this->ip = ip;
 
@@ -178,10 +178,10 @@ namespace smooth
             template<typename Client, typename Protocol>
             void ServerSocket<Client, Protocol>::stop_internal()
             {
-                if (started)
+                if (is_active())
                 {
                     log("Server stopping");
-                    started = false;
+                    active = false;
                     connected = false;
                 }
             }
@@ -208,7 +208,7 @@ namespace smooth
                             if (listen_res == 0)
                             {
                                 connected = true;
-                                started = true;
+                                active = true;
                                 res = true;
                             }
                             else

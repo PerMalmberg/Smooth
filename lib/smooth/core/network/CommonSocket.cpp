@@ -78,7 +78,7 @@ namespace smooth
 
             bool CommonSocket::is_active() const
             {
-                return started;
+                return active;
             }
 
             bool CommonSocket::restart()

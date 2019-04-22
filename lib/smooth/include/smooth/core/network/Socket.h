@@ -78,9 +78,9 @@ namespace smooth
 
                     virtual bool create_socket();
 
-                    virtual void read_data();
+                    virtual void read_data(const std::shared_ptr<BufferContainer<Protocol>>& container);
 
-                    virtual void write_data();
+                    virtual void write_data(const std::shared_ptr<BufferContainer<Protocol>>& container);
 
                     void send_next_packet();
 
@@ -172,7 +172,7 @@ namespace smooth
             bool Socket<Protocol, Packet>::start(std::shared_ptr<InetAddress> ip)
             {
                 bool res = false;
-                if (!started)
+                if (!active)
                 {
                     elapsed_send_time.stop_and_zero();
                     this->ip = ip;
@@ -231,14 +231,14 @@ namespace smooth
             template<typename Protocol, typename Packet>
             void Socket<Protocol, Packet>::readable()
             {
-                if (started)
+                if (is_active())
                 {
                     auto cont = get_container_or_close();
                     if (cont)
                     {
                         if (!cont->get_rx_buffer().is_full())
                         {
-                            read_data();
+                            read_data(cont);
                         }
                     }
                 }
@@ -247,7 +247,7 @@ namespace smooth
             template<typename Protocol, typename Packet>
             void Socket<Protocol, Packet>::writable()
             {
-                if (started)
+                if (active)
                 {
                     elapsed_send_time.stop_and_zero();
 
@@ -297,7 +297,7 @@ namespace smooth
 
                             if (tx.is_in_progress())
                             {
-                                write_data();
+                                write_data(cont);
                             }
                         }
                     }
@@ -305,89 +305,80 @@ namespace smooth
             }
 
             template<typename Protocol, typename Packet>
-            void Socket<Protocol, Packet>::read_data()
+            void Socket<Protocol, Packet>::read_data(const std::shared_ptr<BufferContainer<Protocol>>& container)
             {
-                errno = 0;
+                auto& rx = container->get_rx_buffer();
 
-                auto cont = get_container_or_close();
-                if (cont)
+                // How much data to assemble the current packet?
+                int wanted_length = rx.amount_wanted();
+
+                // Try to read the desired amount
+                auto read_count = recv(socket_id, rx.get_write_pos(), static_cast<size_t>(wanted_length), 0);
+
+                if (read_count == 0)
                 {
-                    auto& rx = cont->get_rx_buffer();
-
-                    // How much data to assemble the current packet?
-                    int wanted_length = rx.amount_wanted();
-
-                    // Try to read the desired amount
-                    auto read_count = recv(socket_id, rx.get_write_pos(), static_cast<size_t>(wanted_length), 0);
-
-                    if (read_count == 0)
+                    log("Socket closed");
+                    stop();
+                }
+                else if (read_count < 0)
+                {
+                    if (errno != EWOULDBLOCK)
                     {
-                        log("Socket closed");
+                        loge("Error during receive");
                         stop();
                     }
-                    else if (read_count < 0)
+                }
+                else
+                {
+                    rx.data_received(static_cast<int>(read_count));
+                    if (rx.is_error())
                     {
-                        if (errno != EWOULDBLOCK)
-                        {
-                            loge("Error during receive");
-                            stop();
-                        }
+                        log("Assembly error");
+                        stop();
                     }
-                    else
+                    else if (rx.is_packet_complete())
                     {
-                        rx.data_received(static_cast<int>(read_count));
-                        if (rx.is_error())
-                        {
-                            log("Assembly error");
-                            stop();
-                        }
-                        else if (rx.is_packet_complete())
-                        {
-                            event::DataAvailableEvent<Protocol> d(&rx);
-                            cont->get_data_available().push(d);
-                            rx.prepare_new_packet();
-                        }
+                        event::DataAvailableEvent<Protocol> d(&rx);
+                        container->get_data_available().push(d);
+                        rx.prepare_new_packet();
                     }
                 }
             }
 
             template<typename Protocol, typename Packet>
-            void Socket<Protocol, Packet>::write_data()
+            void Socket<Protocol, Packet>::write_data(const std::shared_ptr<BufferContainer<Protocol>>& container)
             {
-                auto cont = get_container_or_close();
-                if (cont)
-                {
-                    // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
-                    // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
-                    // packet.
-                    auto& tx = cont->get_tx_buffer();
-                    auto data_to_send = tx.get_data_to_send();
-                    auto length = tx.get_remaining_data_length();
-                    auto amount_sent = ::send(socket_id,
-                                              data_to_send,
-                                              static_cast<size_t>(length),
-                                              SEND_FLAGS);
 
-                    if (amount_sent == -1)
+                // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
+                // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire
+                // packet.
+                auto& tx = container->get_tx_buffer();
+                auto data_to_send = tx.get_data_to_send();
+                auto length = tx.get_remaining_data_length();
+                auto amount_sent = ::send(socket_id,
+                                          data_to_send,
+                                          static_cast<size_t>(length),
+                                          SEND_FLAGS);
+
+                if (amount_sent == -1)
+                {
+                    loge("Failure during send");
+                    stop();
+                }
+                else
+                {
+                    tx.data_has_been_sent(static_cast<int>(amount_sent));
+
+                    // Was a complete packet sent?
+                    if (tx.is_in_progress())
                     {
-                        loge("Failure during send");
-                        stop();
+                        elapsed_send_time.start();
                     }
                     else
                     {
-                        tx.data_has_been_sent(static_cast<int>(amount_sent));
-
-                        // Was a complete packet sent?
-                        if (tx.is_in_progress())
-                        {
-                            elapsed_send_time.start();
-                        }
-                        else
-                        {
-                            // Let the application know it may now send another packet.
-                            smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
-                            cont->get_tx_empty().push(event);
-                        }
+                        // Let the application know it may now send another packet.
+                        smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
+                        container->get_tx_empty().push(event);
                     }
                 }
             }
@@ -407,7 +398,7 @@ namespace smooth
                         int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
                         if (res == 0 || (res == -1 && errno == EINPROGRESS))
                         {
-                            started = true;
+                            active = true;
                         }
                         else
                         {
@@ -415,22 +406,22 @@ namespace smooth
                         }
                     }
 
-                    if (!started)
+                    if (!active)
                     {
                         stop();
                     }
                 }
 
-                return started;
+                return active;
             }
 
             template<typename Protocol, typename Packet>
             void Socket<Protocol, Packet>::stop_internal()
             {
-                if (started)
+                if (active)
                 {
                     log("Socket stopping");
-                    started = false;
+                    active = false;
                     connected = false;
                     auto cont = buffers.lock();
                     if (cont)
@@ -468,7 +459,7 @@ namespace smooth
             {
                 this->ip = address;
                 this->socket_id = socket_id;
-                started = true;
+                active = true;
                 connected = true;
                 set_non_blocking();
                 set_no_delay();

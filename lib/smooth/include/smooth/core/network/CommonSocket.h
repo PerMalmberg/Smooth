@@ -39,7 +39,7 @@ namespace smooth
                     bool is_connected() const override;
 
                     std::shared_ptr<InetAddress> ip{};
-                    bool started = false;
+                    bool active = false;
                     bool connected = false;
                     int socket_id = INVALID_SOCKET;
             };
