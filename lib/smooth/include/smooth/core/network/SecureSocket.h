@@ -195,42 +195,64 @@ namespace smooth
             {
                 // How much data to assemble the current packet?
 
+                bool more_to_read = false;
                 auto& rx = container->get_rx_buffer();
-                int wanted_length = rx.amount_wanted();
 
-                auto read_amount = mbedtls_ssl_read(*secure_context,
-                                                    rx.get_write_pos(),
-                                                    static_cast<size_t>(wanted_length));
+                do
+                {
+                    if (rx.is_full())
+                    {
+                        // Receiver is full. Since mbedtls_ssl_read() moves data from the underlying socket, we get no
+                        // no more readable-events on it, which results in the SocketDispatcher no longer calling
+                        // readable() on this socket, in turn preventing this function be called again to read the
+                        // remaining decrypted data. As such we have to wait a bit so the application consumes at
+                        // least one packet.
+                        std::this_thread::sleep_for(std::chrono::milliseconds{1});
 
-                if (read_amount == 0)
-                {
-                    // Underlying socket closed
-                    this->stop();
-                }
-                else if (read_amount < 0
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_READ
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
-                {
-                    char buf[128];
-                    mbedtls_strerror(read_amount, buf, sizeof(buf));
-                    Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
-                    this->stop();
-                }
-                else
-                {
-                    rx.data_received(read_amount);
-                    if (rx.is_error())
-                    {
-                        Log::error(tag, "Assembly error");
-                        this->stop();
+                        // Likely better solution: Set an artificial readable-indicator on the socket telling the
+                        // SocketDispatcher there are more data to be read, forcing a readable()-call on the socket.
                     }
-                    else if (rx.is_packet_complete())
+                    else
                     {
-                        event::DataAvailableEvent<Protocol> d(&rx);
-                        container->get_data_available().push(d);
-                        rx.prepare_new_packet();
+                        int wanted_length = rx.amount_wanted();
+                        auto read_amount = mbedtls_ssl_read(*secure_context,
+                                                            rx.get_write_pos(),
+                                                            static_cast<size_t>(wanted_length));
+
+                        more_to_read = mbedtls_ssl_get_bytes_avail(*secure_context) > 0;
+
+                        if (read_amount == 0)
+                        {
+                            // Underlying socket closed
+                            this->stop();
+                        }
+                        else if (read_amount < 0
+                                 && read_amount != MBEDTLS_ERR_SSL_WANT_READ
+                                 && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
+                        {
+                            char buf[128];
+                            mbedtls_strerror(read_amount, buf, sizeof(buf));
+                            Log::error(tag, Format("mbedtls_ssl_read failed: {1}", Str(buf)));
+                            this->stop();
+                        }
+                        else
+                        {
+                            rx.data_received(read_amount);
+                            if (rx.is_error())
+                            {
+                                Log::error(tag, "Assembly error");
+                                this->stop();
+                            }
+                            else if (rx.is_packet_complete())
+                            {
+                                event::DataAvailableEvent<Protocol> d(&rx);
+                                container->get_data_available().push(d);
+                                rx.prepare_new_packet();
+                            }
+                        }
                     }
                 }
+                while (this->is_active() && more_to_read);
             }
 
             template<typename Protocol, typename Packet>
