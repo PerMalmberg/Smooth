@@ -2,11 +2,15 @@
 
 #include <deque>
 #include <memory>
+#include <vector>
+#include <algorithm>
 
 namespace smooth
 {
     namespace core
     {
+        class Task;
+
         namespace network
         {
             /// ClientPool holds a number of client instances which are requested by the

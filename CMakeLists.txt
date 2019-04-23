@@ -9,7 +9,7 @@ include(lib/smooth/compiler_options.cmake)
 
 # Select the test project, then build target "main". The available projects are the names of the
 # folders under "test", e.g. hello_world, mqtt etc.
-set(CURRENT_PROJECT_NAME secure_server_socket_test)
+set(CURRENT_PROJECT_NAME http_server_test)
 set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${CURRENT_PROJECT_NAME})
 
 # for std::to_string (until using xtensa-gcc 8)
@@ -26,6 +26,7 @@ add_subdirectory(test/timer)
 add_subdirectory(test/secure_socket_test)
 add_subdirectory(test/server_socket_test)
 add_subdirectory(test/secure_server_socket_test)
+add_subdirectory(test/http_server_test)
 
 # These needs actual hardware to run
 if( ESP_PLATFORM )

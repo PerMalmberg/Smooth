@@ -13,6 +13,7 @@
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/network/event/ConnectionStatusEvent.h>
 #include <smooth/core/network/CommonSocket.h>
+#include <smooth/core/network/Socket.h>
 
 #ifndef ESP_PLATFORM
 

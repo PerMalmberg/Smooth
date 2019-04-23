@@ -7,6 +7,8 @@ smooth_verify_idf_path()
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCES
+        application/network/http/HTTPServer.cpp
+        application/network/http/HTTPProtocol.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -51,6 +53,9 @@ set(SOURCES
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/i2c/ADS1115.h
         include/smooth/application/io/i2c/MCP23017.h
+        include/smooth/application/network/http/HTTPServerClient.h
+        include/smooth/application/network/http/HTTPServer.h
+        include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h

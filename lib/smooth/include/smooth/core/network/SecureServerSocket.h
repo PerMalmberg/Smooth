@@ -3,6 +3,8 @@
 #include "ServerSocket.h"
 #include <memory>
 #include <vector>
+#include <smooth/core/network/SecureSocket.h>
+#include <smooth/core/network/MbedTLSContext.h>
 
 namespace smooth
 {
