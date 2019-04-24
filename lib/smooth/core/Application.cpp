@@ -11,6 +11,7 @@
 #include <esp_event.h>
 #include <esp_event_loop.h>
 #include <nvs_flash.h>
+#include <driver/gpio.h>
 #include <smooth/core/logging/log.h>
 #endif // END ESP_PLATFORM
 
