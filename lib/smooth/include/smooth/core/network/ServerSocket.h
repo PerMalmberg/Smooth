@@ -37,7 +37,7 @@ namespace smooth
                     : public CommonSocket
             {
                 public:
-                    static std::shared_ptr<ServerSocket>
+                    static std::shared_ptr<ServerSocket<Client,Protocol>>
                     create(smooth::core::Task& task, int max_client_count);
 
                     bool start(std::shared_ptr<InetAddress> ip) override;
