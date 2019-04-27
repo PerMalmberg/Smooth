@@ -19,10 +19,6 @@ namespace smooth
                     public:
                         using packet_type = HTTPPacket;
 
-                        explicit HTTPProtocol(HTTPPacket& working_packet)
-                                : packet(working_packet)
-                        {
-                        }
 
                         int get_wanted_amount(HTTPPacket& /*packet*/) override
                         {
@@ -58,7 +54,6 @@ namespace smooth
 
                     private:
                         bool complete{false};
-                        HTTPPacket& packet;
                 };
             }
         }

@@ -136,17 +136,19 @@ namespace smooth
 
                     bool MQTTProtocol::is_error()
                     {
-                        return packet.error;
+                        return error;
                     }
 
                     bool MQTTProtocol::is_too_big() const
                     {
-                        return packet.too_big;
+                        return too_big;
                     }
 
                     void MQTTProtocol::packet_consumed()
                     {
                         state = START;
+                        error = false;
+                        too_big = false;
                         remaining_bytes_to_read = 1;
                         bytes_received = 0;
                     }

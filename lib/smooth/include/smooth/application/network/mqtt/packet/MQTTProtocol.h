@@ -31,11 +31,6 @@ namespace smooth
                         public:
                             using packet_type = MQTTPacket;
 
-                            explicit MQTTProtocol(packet_type& working_packet) : packet(working_packet) {}
-
-                            MQTTProtocol& operator=(const MQTTProtocol&) = delete;
-                            MQTTProtocol(const MQTTProtocol& other) = delete;
-
                             // Must return the number of bytes the packet wants to fill
                             // its internal buffer, e.g. header, checksum etc. Returned
                             // value will differ depending on how much data already has been provided.
@@ -65,9 +60,6 @@ namespace smooth
 
                             void packet_consumed() override;
 
-                        protected:
-
-                            packet_type& packet;
                         private:
 
                             enum ReadingHeaderSection
@@ -81,6 +73,8 @@ namespace smooth
                             int bytes_received = 0;
                             int remaining_bytes_to_read = 1;
                             int received_header_length = 0;
+                            bool error = false;
+                            bool too_big = false;
                     };
                 }
             }

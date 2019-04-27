@@ -28,7 +28,7 @@ namespace smooth
             {
                 public:
                     PacketReceiveBuffer()
-                            : proto(current_item)
+                            : proto()
                     {
                     }
 

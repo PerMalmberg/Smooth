@@ -20,11 +20,6 @@ namespace secure_socket_test
         public:
             using packet_type = HTTPPacket;
 
-            explicit HTTPProtocol(HTTPPacket& working_packet)
-                    : packet(working_packet)
-            {
-            }
-
             /// Must return the number of bytes the packet wants to fill
             /// its internal buffer, e.g. header, checksum etc. Returned
             /// value will differ depending on how much data already has been provided.
@@ -71,7 +66,6 @@ namespace secure_socket_test
             int content_length = 0;
             int content_bytes_received = 0;
             const std::regex response_line{"(.+) (\\d+) (.+)"};
-            HTTPPacket& packet;
 
             State state = State::reading_headers;
     };

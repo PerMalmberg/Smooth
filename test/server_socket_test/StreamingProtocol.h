@@ -13,11 +13,6 @@ namespace server_socket_test
         public:
             using packet_type = StreamPacket;
 
-            explicit StreamingProtocol(StreamPacket& working_packet)
-                : packet(working_packet)
-            {
-            }
-
             int get_wanted_amount(StreamPacket& /*packet*/) override
             {
                 return 1;
@@ -28,7 +23,7 @@ namespace server_socket_test
                 complete = true;
             }
 
-            uint8_t* get_write_pos(StreamPacket& /*packet*/) override
+            uint8_t* get_write_pos(StreamPacket& packet) override
             {
                 return packet.data().data();
             }
@@ -52,6 +47,5 @@ namespace server_socket_test
 
         private:
             bool complete{false};
-            StreamPacket& packet;
     };
 }
