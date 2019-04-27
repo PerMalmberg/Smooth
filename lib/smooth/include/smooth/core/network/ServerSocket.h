@@ -40,7 +40,7 @@ namespace smooth
                     static std::shared_ptr<ServerSocket<Client,Protocol>>
                     create(smooth::core::Task& task, int max_client_count);
 
-                    bool start(std::shared_ptr<InetAddress> ip) override;
+                    bool start(std::shared_ptr<InetAddress> bind_to) override;
 
                 protected:
                     bool has_send_expired() const override
@@ -81,12 +81,12 @@ namespace smooth
             };
 
             template<typename Client, typename Protocol>
-            bool ServerSocket<Client, Protocol>::start(std::shared_ptr<InetAddress> ip)
+            bool ServerSocket<Client, Protocol>::start(std::shared_ptr<InetAddress> bind_to)
             {
                 bool res = false;
                 if (!is_active())
                 {
-                    this->ip = ip;
+                    ip = std::move(bind_to);
 
                     // Always do resolve ip to ensure that we are update-to-date.
                     res = ip->resolve_ip() && ip->is_valid();

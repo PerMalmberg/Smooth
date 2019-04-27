@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 #include <memory>
@@ -26,7 +28,7 @@ namespace smooth
                         void start(std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
                             server = ServerType::create(task, 5);
-                            server->start(bind_to);
+                            server->start(std::move(bind_to));
                         }
 
                         void start(std::shared_ptr<smooth::core::network::InetAddress> bind_to,
@@ -36,7 +38,7 @@ namespace smooth
                                    const std::vector<unsigned char>& password)
                         {
                             server = ServerType::create(task, 5, ca_chain, own_cert, private_key, password);
-                            server->start(bind_to);
+                            server->start(std::move(bind_to));
                         }
 
                     private:
