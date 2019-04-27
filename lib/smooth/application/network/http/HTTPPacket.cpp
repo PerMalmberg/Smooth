@@ -12,25 +12,17 @@ namespace smooth
         {
             namespace http
             {
-                HTTPPacket::HTTPPacket(Method method, const std::string& path,
-                                       const std::unordered_map<std::string, std::string>& headers)
+                HTTPPacket::HTTPPacket(ResponseCode code, const std::string&& version,
+                                       const std::unordered_map<std::string, std::string>&& new_headers)
                 {
-                    if (method == Method::GET)
-                    {
-                        append(http_get);
-                    }
-                    else
-                    {
-                        append(http_post);
-                    }
-
+                    append("HTTP/");
+                    append(version);
                     append(" ");
-                    append(path);
+                    append(std::to_string(static_cast<int>(code)));
                     append(" ");
-                    append(http_1_0);
                     append("\r\n");
 
-                    for (const auto& header : headers)
+                    for (const auto& header : new_headers)
                     {
                         const auto& key = header.first;
                         const auto& value = header.second;

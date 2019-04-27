@@ -136,7 +136,7 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 #endif
-        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxPacketSize>>(*this);
+        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxPacketSize, ContentChuckSize>>(*this);
 
         insecure_server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -149,7 +149,7 @@ namespace http_server_test
         fill(server_cert_data, own_cert);
         fill(private_key_data, private_key);
 
-        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxPacketSize>>(*this);
+        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxPacketSize, ContentChuckSize>>(*this);
         secure_server->start(std::make_shared<IPv4>("0.0.0.0", 8443), ca_chain, own_cert, private_key, password);
     }
 

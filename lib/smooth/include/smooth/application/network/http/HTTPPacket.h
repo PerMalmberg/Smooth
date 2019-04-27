@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <smooth/core/network/IPacketDisassembly.h>
+#include <smooth/application/network/http/ResponseCodes.h>
 
 namespace smooth
 {
@@ -30,8 +31,10 @@ namespace smooth
 
                         HTTPPacket& operator=(const HTTPPacket&) = default;
 
-                        explicit HTTPPacket(Method method, const std::string& path,
-                                            const std::unordered_map<std::string, std::string>& headers);
+                        HTTPPacket(HTTPPacket&&) = default;
+
+                        HTTPPacket(ResponseCode code, const std::string&& version,
+                                            const std::unordered_map<std::string, std::string>&& new_headers);
 
                         // Must return the total amount of bytes to send
                         int get_send_length() override
@@ -65,14 +68,11 @@ namespace smooth
                             return continuation;
                         }
 
-                        void set_status(int code)
+                        void set_request_data(const std::string&& method, const std::string&& url, const std::string&& version)
                         {
-                            status_code = code;
-                        }
-
-                        int status() const
-                        {
-                            return status_code;
+                            request_method = method;
+                            request_url = url;
+                            request_version = version;
                         }
 
                         std::vector<uint8_t>& data()
@@ -92,12 +92,6 @@ namespace smooth
                             }
                         }
 
-                        int empty_space() const
-                        {
-                            return static_cast<int>(content.size() -
-                                                    static_cast<decltype(content)::size_type>(bytes_received));
-                        }
-
                         void increase_size(int increase)
                         {
                             content.resize(content.size() + static_cast<decltype(content)::size_type>(increase));
@@ -105,23 +99,12 @@ namespace smooth
 
                         std::unordered_map<std::string, std::string>& headers()
                         {
-                            return header;
-                        }
-
-                        void data_received(int length)
-                        {
-                            bytes_received += length;
-                        }
-
-                        int get_bytes_received() const
-                        {
-                            return bytes_received;
+                            return request_headers;
                         }
 
                         void clear()
                         {
                             content.clear();
-                            bytes_received = 0;
                         }
 
                         bool ends_with_two_crlf() const
@@ -137,16 +120,14 @@ namespace smooth
                     private:
                         void append(const std::string& s);
 
-                        std::unordered_map<std::string, std::string> header{};
+                        std::unordered_map<std::string, std::string> request_headers{};
+                        std::string request_method{};
+                        std::string request_url{};
+                        std::string request_version{};
                         std::vector<uint8_t> content{};
-                        int status_code = 0;
-                        int bytes_received = 0;
                         bool continuation = false;
                         bool continued = false;
 
-                        static constexpr const char* const http_get = "GET";
-                        static constexpr const char* const http_post = "POST";
-                        static constexpr const char* const http_1_0 = "HTTP/1.0";
                 };
             }
         }

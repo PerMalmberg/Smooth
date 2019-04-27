@@ -11,21 +11,21 @@ namespace smooth
         {
             namespace http
             {
-                template<int MaxPacketSize>
+                template<int MaxHeaderSize, int ContentChuckSize>
                 class HTTPServerClient
-                        : public smooth::core::network::ServerClient<HTTPServerClient<MaxPacketSize>, HTTPProtocol<MaxPacketSize>>
+                        : public smooth::core::network::ServerClient<HTTPServerClient<MaxHeaderSize, ContentChuckSize>, HTTPProtocol<MaxHeaderSize, ContentChuckSize>>
                 {
                     public:
                         explicit HTTPServerClient(smooth::core::Task& task,
                                                   smooth::core::network::ClientPool<HTTPServerClient>& pool)
                                 : core::network::ServerClient<
-                                HTTPServerClient<MaxPacketSize>,
-                                smooth::application::network::http::HTTPProtocol<MaxPacketSize>>(task, pool)
+                                HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
+                                smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>(task, pool)
                         {
                         }
 
                         void
-                        event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol<MaxPacketSize>>& /*event*/) override;
+                        event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& /*event*/) override;
 
                         void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override;
 
@@ -41,34 +41,37 @@ namespace smooth
                         }
                 };
 
-                template<int MaxPacketSize>
-                void HTTPServerClient<MaxPacketSize>::event(
-                        const core::network::event::DataAvailableEvent<HTTPProtocol<MaxPacketSize>>&)
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(
+                        const core::network::event::DataAvailableEvent<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& event)
                 {
+                    typename HTTPProtocol<MaxHeaderSize, ContentChuckSize>::packet_type packet;
+                    if(event.get(packet))
+                    {
 
+                    }
                 }
 
-                template<int MaxPacketSize>
+                template<int MaxHeaderSize, int ContentChuckSize>
                 void
-                HTTPServerClient<MaxPacketSize>::event(const smooth::core::network::event::TransmitBufferEmptyEvent&)
+                HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(const smooth::core::network::event::TransmitBufferEmptyEvent&)
+                {
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::disconnected()
                 {
 
                 }
 
-                template<int MaxPacketSize>
-                void HTTPServerClient<MaxPacketSize>::disconnected()
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::connected()
                 {
 
                 }
 
-                template<int MaxPacketSize>
-                void HTTPServerClient<MaxPacketSize>::connected()
-                {
-
-                }
-
-                template<int MaxPacketSize>
-                void HTTPServerClient<MaxPacketSize>::reset_client()
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::reset_client()
                 {
 
                 }
