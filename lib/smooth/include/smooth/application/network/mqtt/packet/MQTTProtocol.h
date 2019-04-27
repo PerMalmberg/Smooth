@@ -63,7 +63,7 @@ namespace smooth
 
                             bool is_too_big() const;
 
-                            void packet_consumed();
+                            void packet_consumed() override;
 
                         protected:
 
