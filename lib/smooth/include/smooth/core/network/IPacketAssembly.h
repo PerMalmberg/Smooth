@@ -40,7 +40,7 @@ namespace smooth
                     /// Must return true when the packet has received all data it needs
                     /// to fully assemble.
                     /// \return true or false
-                    virtual bool is_complete() = 0;
+                    virtual bool is_complete(Packet& packet) = 0;
 
                     /// Must return true whenever the packet is unable to correctly assemble
                     /// based on received data.

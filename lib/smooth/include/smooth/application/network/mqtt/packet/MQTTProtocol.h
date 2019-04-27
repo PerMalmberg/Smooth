@@ -49,7 +49,7 @@ namespace smooth
 
                             // Must return true when the packet has received all data it needs
                             // to fully assemble.
-                            bool is_complete() override;
+                            bool is_complete(MQTTProtocol::packet_type& packet) override;
 
                             // Must return true whenever the packet is unable to correctly assemble
                             // based on received data.

@@ -128,7 +128,7 @@ namespace smooth
                     }
 
 
-                    bool MQTTProtocol::is_complete()
+                    bool MQTTProtocol::is_complete(MQTTPacket&)
                     {
                         return remaining_bytes_to_read == 0;
                     }

@@ -28,7 +28,7 @@ namespace secure_server_socket_test
                 return packet.data().data();
             }
 
-            bool is_complete() override
+            bool is_complete(StreamPacket& /*packet*/) override
             {
                 return complete;
             }
@@ -38,7 +38,6 @@ namespace secure_server_socket_test
                 // Can't fail when there really is no actual protocol.
                 return false;
             }
-
 
             void packet_consumed() override
             {

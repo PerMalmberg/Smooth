@@ -28,7 +28,7 @@ namespace server_socket_test
                 return packet.data().data();
             }
 
-            bool is_complete() override
+            bool is_complete(StreamPacket& /*packet*/) override
             {
                 return complete;
             }

@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(SOURCES
         application/network/http/HTTPServer.cpp
         application/network/http/HTTPProtocol.cpp
+        application/network/http/HTTPPacket.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp

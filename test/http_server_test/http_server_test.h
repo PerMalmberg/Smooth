@@ -20,10 +20,11 @@ namespace http_server_test
             void init() override;
 
         private:
-            using Client = smooth::application::network::http::HTTPServerClient;
-            using Protocol = smooth::application::network::http::HTTPProtocol;
+            static constexpr int MaxPacketSize = 500;
+            using Client = smooth::application::network::http::HTTPServerClient<MaxPacketSize>;
+            using Protocol = smooth::application::network::http::HTTPProtocol<MaxPacketSize>;
 
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>>> insecure_server{};
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>>> secure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>, MaxPacketSize>> insecure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>, MaxPacketSize>> secure_server{};
     };
 }

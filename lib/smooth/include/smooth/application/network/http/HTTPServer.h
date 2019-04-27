@@ -19,7 +19,9 @@ namespace smooth
         {
             namespace http
             {
-                template<typename ServerType>
+                // https://upload.wikimedia.org/wikipedia/commons/8/88/Http-headers-status.png
+
+                template<typename ServerType, int MaxPacketSize>
                 class HTTPServer
                 {
                     public:
@@ -44,17 +46,15 @@ namespace smooth
                     private:
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
-                                                            smooth::application::network::http::HTTPServerClient,
-                                                            smooth::application::network::http::HTTPProtocol>> server{};
+                                                            smooth::application::network::http::HTTPServerClient<MaxPacketSize>,
+                                                            smooth::application::network::http::HTTPProtocol<MaxPacketSize>>> server{};
                 };
 
-                template<typename ServerSocketType>
-                HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task)
+                template<typename ServerSocketType, int MaxPacketSize>
+                HTTPServer<ServerSocketType, MaxPacketSize>::HTTPServer(smooth::core::Task& task)
                         : task(task)
                 {
                 }
-
-
             }
         }
     }

@@ -45,7 +45,7 @@ namespace secure_socket_test
             /// Must return true when the packet has received all data it needs
             /// to fully assemble.
             /// \return true or false
-            bool is_complete() override;
+            bool is_complete(HTTPPacket& packet) override;
 
             /// Must return true whenever the packet is unable to correctly assemble
             /// based on received data.
@@ -148,7 +148,7 @@ namespace secure_socket_test
     }
 
     template<int MaxPacketSize>
-    bool HTTPProtocol<MaxPacketSize>::is_complete()
+    bool HTTPProtocol<MaxPacketSize>::is_complete(HTTPPacket& packet)
     {
         return state != State::reading_headers && packet.empty_space() == 0;
     }
@@ -203,8 +203,6 @@ namespace secure_socket_test
     template<int MaxPacketSize>
     void HTTPProtocol<MaxPacketSize>::packet_consumed()
     {
-        packet.clear();
-        packet.set_size(get_wanted_amount(packet));
     }
 
 }

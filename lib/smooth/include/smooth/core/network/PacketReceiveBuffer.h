@@ -54,7 +54,7 @@ namespace smooth
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         proto.data_received(current_item, length);
-                        if (proto.is_complete())
+                        if (proto.is_complete(current_item))
                         {
                             buffer.put(current_item);
                             in_progress = false;
@@ -64,7 +64,7 @@ namespace smooth
                     bool is_packet_complete() override
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return proto.is_complete();
+                        return proto.is_complete(current_item);
                     }
 
                     bool get(Packet& target) override
