@@ -25,7 +25,8 @@ namespace smooth
                                                   smooth::core::network::ClientPool<HTTPServerClient>& pool)
                                 : core::network::ServerClient<
                                 HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
-                                smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>(task, pool)
+                                smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>(task,
+                                                                                                                   pool)
                         {
                         }
 
@@ -47,6 +48,7 @@ namespace smooth
 
                     private:
                         bool parse_url(std::string& raw_url);
+
                         void separate_request_parameters(std::string& url);
 
                         std::unordered_map<std::string, std::string> request_parameters{};
@@ -60,7 +62,7 @@ namespace smooth
                         const core::network::event::DataAvailableEvent<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& event)
                 {
                     typename HTTPProtocol<MaxHeaderSize, ContentChuckSize>::packet_type packet;
-                    if(event.get(packet))
+                    if (event.get(packet))
                     {
                         bool first_packet = !packet.is_continuation();
                         //bool last_packet = !packet.is_continued();
@@ -80,7 +82,7 @@ namespace smooth
                         }
 
 
-                        if(res)
+                        if (res)
                         {
 
                             /*auto context = this->get_client_context<IRequestHandler>();
@@ -94,7 +96,8 @@ namespace smooth
 
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void
-                HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(const smooth::core::network::event::TransmitBufferEmptyEvent&)
+                HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(
+                        const smooth::core::network::event::TransmitBufferEmptyEvent&)
                 {
                 }
 
@@ -130,14 +133,35 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::separate_request_parameters(std::string& url)
                 {
+                    // Only supporting key=value format.
                     request_parameters.clear();
 
                     auto pos = std::find(url.begin(), url.end(), '?');
-                    if(pos != url.end())
+                    if (pos != url.end())
                     {
-                        for(pos++; pos != url.end(); ++pos )
-                        {
+                        encoding.decode(url, pos, url.end());
 
+                        pos++;
+                        while (pos != url.end())
+                        {
+                            auto equal_sign = std::find(pos, url.end(), '=');
+                            if (equal_sign != url.end())
+                            {
+                                // Find ampersand or end of string
+                                auto ampersand = std::find(equal_sign, url.end(), '&');
+                                auto key = std::string(pos, equal_sign);
+                                auto value = std::string{++equal_sign, ampersand};
+                                request_parameters[key] = value;
+                                if (ampersand != url.end())
+                                {
+                                    ++ampersand;
+                                }
+                                pos = ampersand;
+                            }
+                            else
+                            {
+                                pos = url.end();
+                            }
                         }
                     }
                 }

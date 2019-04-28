@@ -3,6 +3,7 @@
 #include <cctype>
 #include <sstream>
 #include <array>
+#include <algorithm>
 
 namespace smooth
 {
@@ -14,23 +15,33 @@ namespace smooth
             {
                 bool http::URLEncoding::decode(std::string& url)
                 {
+                    return decode(url, url.begin(), url.end());
+                }
+
+                bool URLEncoding::has_two_left(std::size_t total_length, std::size_t current_ix) const
+                {
+                    return (total_length - current_ix) >= 3;
+                }
+
+                bool URLEncoding::decode(std::string& url, std::string::iterator begin, std::string::iterator end)
+                {
                     bool res = true;
                     std::array<char, 3> hex{0, 0, 0};
 
                     // We know that the result string is going to be shorter or equal to the original,
                     // so we'll do an in-place conversion to save on memory usage.
-                    auto org_size = url.size();
 
-                    std::size_t write = 0;
+                    auto write = begin;
+                    auto read = begin;
 
-                    for (std::size_t read = 0; res && read < org_size;)
+                    for (; res && read != end;)
                     {
-                        if (url[read] == '%')
+                        if (*read == '%')
                         {
-                            if (has_two_left(org_size, read))
+                            if (std::distance(read, end) > 2)
                             {
-                                hex[0] = url[++read];
-                                hex[1] = url[++read];
+                                hex[0] = *(++read);
+                                hex[1] = *(++read);
                                 ++read;
 
                                 auto a = std::isxdigit(static_cast<unsigned char>(hex[0]));
@@ -42,7 +53,7 @@ namespace smooth
                                 {
                                     try
                                     {
-                                        url[write++] = static_cast<char>(std::stoul(hex.data(), nullptr, 16));
+                                        *(write++) = static_cast<char>(std::stoul(hex.data(), nullptr, 16));
                                     }
                                     catch (...)
                                     {
@@ -58,29 +69,19 @@ namespace smooth
                         else
                         {
                             // Just keep going
-                            url[write] = url[read];
+                            *write = *read;
                             ++read;
-                            write++;
+                            ++write;
                         }
                     }
 
                     if (res)
                     {
-                        url[write] = '\0';
-                        url.erase(url.begin() + static_cast<long>(write), url.end());
+                        *write = '\0';
+                        url.erase(write, end);
                     }
 
                     return res;
-                }
-
-                bool URLEncoding::has_two_left(std::size_t total_length, std::size_t current_ix) const
-                {
-                    return (total_length - current_ix) >= 3;
-                }
-
-                bool URLEncoding::decode(std::string::iterator begin, std::string::iterator end)
-                {
-                    return false;
                 }
 
             }
