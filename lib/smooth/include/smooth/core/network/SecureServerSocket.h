@@ -96,6 +96,7 @@ namespace smooth
                                                                  server_context.create_context(),
                                                                  client->get_send_timeout());
 
+                    client->set_client_context(this->client_context);
                     client->set_socket(socket);
                 }
             }

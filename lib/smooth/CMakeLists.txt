@@ -10,6 +10,7 @@ set(SOURCES
         application/network/http/HTTPServer.cpp
         application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPPacket.cpp
+        application/network/http/URLEncoding.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -57,6 +58,7 @@ set(SOURCES
         include/smooth/application/network/http/HTTPServerClient.h
         include/smooth/application/network/http/HTTPServer.h
         include/smooth/application/network/http/HTTPProtocol.h
+        include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h

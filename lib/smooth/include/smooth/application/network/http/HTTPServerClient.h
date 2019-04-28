@@ -2,6 +2,11 @@
 
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
+#include "IRequestHandler.h"
+#include "URLEncoding.h"
+
+#include <iostream>
+#include <fstream>
 
 namespace smooth
 {
@@ -39,6 +44,14 @@ namespace smooth
                         {
                             return std::chrono::seconds{1};
                         }
+
+                    private:
+                        bool parse_url(std::string& raw_url);
+
+                        std::unordered_map<std::string, std::string> request_parameters{};
+                        std::unordered_map<std::string, std::string> request_headers{};
+                        std::string requested_url{};
+                        URLEncoding encoding{};
                 };
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -48,7 +61,31 @@ namespace smooth
                     typename HTTPProtocol<MaxHeaderSize, ContentChuckSize>::packet_type packet;
                     if(event.get(packet))
                     {
+                        bool first_packet = !packet.is_continuation();
+                        //bool last_packet = !packet.is_continued();
+                        bool res = true;
 
+                        if (first_packet)
+                        {
+                            // First packet, parse URL
+                            requested_url = packet.get_request_url();
+                            res = parse_url(requested_url);
+                        }
+                        else
+                        {
+                            // Pass previously parsed URL, query parameters and headers in call.
+                        }
+
+
+                        if(res)
+                        {
+
+                            /*auto context = this->get_client_context<IRequestHandler>();
+                            if(context)
+                            {
+                                context->on_post()
+                            } */
+                        }
                     }
                 }
 
@@ -74,6 +111,15 @@ namespace smooth
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::reset_client()
                 {
 
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                bool HTTPServerClient<MaxHeaderSize, ContentChuckSize>::parse_url(std::string& raw_url)
+                {
+                    auto res = encoding.decode(raw_url);
+
+
+                    return res;
                 }
             }
         }

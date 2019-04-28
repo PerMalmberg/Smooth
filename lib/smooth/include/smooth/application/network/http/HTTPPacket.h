@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/application/network/http/ResponseCodes.h>
+#include "HTTPMethod.h"
 
 namespace smooth
 {
@@ -18,12 +19,6 @@ namespace smooth
                         : public smooth::core::network::IPacketDisassembly
                 {
                     public:
-
-                        enum class Method
-                        {
-                                GET,
-                                POST
-                        };
 
                         HTTPPacket() = default;
 
@@ -73,6 +68,21 @@ namespace smooth
                             request_method = method;
                             request_url = url;
                             request_version = version;
+                        }
+
+                        const std::string& get_request_url() const
+                        {
+                            return request_url;
+                        }
+
+                        const std::string& get_request_method() const
+                        {
+                            return request_method;
+                        }
+
+                        const std::string& get_request_version() const
+                        {
+                            return request_version;
                         }
 
                         std::vector<uint8_t>& data()

@@ -12,8 +12,7 @@ include(lib/smooth/compiler_options.cmake)
 set(CURRENT_PROJECT_NAME http_server_test)
 set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${CURRENT_PROJECT_NAME})
 
-# for std::to_string (until using xtensa-gcc 8)
-add_definitions(-D_GLIBCXX_USE_C99)
+set(TEST_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
 #include_directories($ENV{IDF_PATH}/components)
 add_subdirectory(test/hello_world)
@@ -37,6 +36,8 @@ if( ESP_PLATFORM )
     add_subdirectory(test/security)
     add_subdirectory(test/wrover_kit_blinky)
     add_subdirectory(test/interrupt_queue)
+else()
+    add_subdirectory(test/url_encoding_test)
 endif()
 
 include_directories(${CURRENT_PROJECT_DIR})

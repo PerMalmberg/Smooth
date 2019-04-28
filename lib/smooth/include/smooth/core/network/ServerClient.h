@@ -63,6 +63,17 @@ namespace smooth
                         }
                     }
 
+                    void set_client_context(void* ctx)
+                    {
+                        client_context = ctx;
+                    }
+
+                    template<typename T>
+                    T* get_client_context()
+                    {
+                        return reinterpret_cast<T*>(client_context);
+                    }
+
                 private:
                     friend ServerSocket<FinalClientTypeName,Protocol>;
                     friend SecureServerSocket<FinalClientTypeName,Protocol>;
@@ -88,6 +99,7 @@ namespace smooth
                     std::shared_ptr<smooth::core::network::ISocket> socket{};
                     smooth::core::network::ClientPool<FinalClientTypeName>& pool;
                     std::shared_ptr<BufferContainer<Protocol>> container;
+                    void* client_context{nullptr};
             };
 
             template<typename FinalClientTypeName, typename Protocol>

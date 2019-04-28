@@ -42,6 +42,11 @@ namespace smooth
 
                     bool start(std::shared_ptr<InetAddress> bind_to) override;
 
+                    void set_client_context(void* ctx)
+                    {
+                        client_context = ctx;
+                    }
+
                 protected:
                     bool has_send_expired() const override
                     {
@@ -78,6 +83,7 @@ namespace smooth
                     }
 
                     ClientPool<Client> pool;
+                    void* client_context{nullptr};
             };
 
             template<typename Client, typename Protocol>
@@ -166,6 +172,7 @@ namespace smooth
                                                            client->get_buffers(),
                                                            client->get_send_timeout());
 
+                    client->set_client_context(client_context);
                     client->set_socket(socket);
                 }
 

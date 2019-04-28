@@ -107,7 +107,7 @@ namespace smooth
                                 incoming_content_length = 0;
                             }
 
-                            if (incoming_content_length > 0)
+                            if (total_content_bytes_received < incoming_content_length)
                             {
                                 packet.set_continued();
                             }
@@ -123,16 +123,17 @@ namespace smooth
                         total_content_bytes_received += length;
                         content_bytes_received_in_current_package += length;
 
-                        if (content_bytes_received_in_current_package == static_cast<int>(packet.data().size()))
+                        if (total_content_bytes_received - content_bytes_received_in_current_package > 0
+                            && content_bytes_received_in_current_package == static_cast<int>(packet.data().size()))
                         {
                             // Packet continues on a previous packet.
                             packet.set_continuation();
-                            
-                            if (total_content_bytes_received < incoming_content_length)
-                            {
-                                // There is more content to read.
-                                packet.set_continued();
-                            }
+                        }
+
+                        if (total_content_bytes_received < incoming_content_length)
+                        {
+                            // There is more content to read.
+                            packet.set_continued();
                         }
                     }
                 }
