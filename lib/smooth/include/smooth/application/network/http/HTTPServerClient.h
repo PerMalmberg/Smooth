@@ -47,6 +47,7 @@ namespace smooth
 
                     private:
                         bool parse_url(std::string& raw_url);
+                        void separate_request_parameters(std::string& url);
 
                         std::unordered_map<std::string, std::string> request_parameters{};
                         std::unordered_map<std::string, std::string> request_headers{};
@@ -68,7 +69,9 @@ namespace smooth
                         if (first_packet)
                         {
                             // First packet, parse URL
-                            requested_url = packet.get_request_url();
+                            request_headers.clear();
+                            std::swap(request_headers, packet.headers());
+                            requested_url = std::move(packet.get_request_url());
                             res = parse_url(requested_url);
                         }
                         else
@@ -116,10 +119,27 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 bool HTTPServerClient<MaxHeaderSize, ContentChuckSize>::parse_url(std::string& raw_url)
                 {
+                    separate_request_parameters(raw_url);
+
                     auto res = encoding.decode(raw_url);
 
 
                     return res;
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::separate_request_parameters(std::string& url)
+                {
+                    request_parameters.clear();
+
+                    auto pos = std::find(url.begin(), url.end(), '?');
+                    if(pos != url.end())
+                    {
+                        for(pos++; pos != url.end(); ++pos )
+                        {
+
+                        }
+                    }
                 }
             }
         }
