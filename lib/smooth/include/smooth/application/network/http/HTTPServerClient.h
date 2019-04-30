@@ -65,31 +65,32 @@ namespace smooth
                     if (event.get(packet))
                     {
                         bool first_packet = !packet.is_continuation();
-                        //bool last_packet = !packet.is_continued();
                         bool res = true;
 
                         if (first_packet)
                         {
-                            // First packet, parse URL
+                            // First packet, parse URL etc.
                             request_headers.clear();
                             std::swap(request_headers, packet.headers());
                             requested_url = std::move(packet.get_request_url());
                             res = parse_url(requested_url);
                         }
-                        else
-                        {
-                            // Pass previously parsed URL, query parameters and headers in call.
-                        }
-
 
                         if (res)
                         {
-
-                            /*auto context = this->get_client_context<IRequestHandler>();
-                            if(context)
+                            auto* context = reinterpret_cast<IRequestHandler*>(this->get_client_context());
+                            if (context)
                             {
-                                context->on_post()
-                            } */
+                                if (packet.get_request_method() == "POST")
+                                {
+                                    context->handle_post(requested_url,
+                                                         request_headers,
+                                                         request_parameters,
+                                                         packet.get_buffer(),
+                                                         first_packet,
+                                                         !packet.is_continued());
+                                }
+                            }
                         }
                     }
                 }
@@ -125,7 +126,6 @@ namespace smooth
                     separate_request_parameters(raw_url);
 
                     auto res = encoding.decode(raw_url);
-
 
                     return res;
                 }
@@ -163,6 +163,12 @@ namespace smooth
                                 pos = url.end();
                             }
                         }
+                    }
+
+                    pos = std::find(url.begin(), url.end(), '?');
+                    if(pos != url.end())
+                    {
+                        url.erase(pos, url.end());
                     }
                 }
             }

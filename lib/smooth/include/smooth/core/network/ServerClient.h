@@ -68,10 +68,9 @@ namespace smooth
                         client_context = ctx;
                     }
 
-                    template<typename T>
-                    T* get_client_context()
+                    void* get_client_context()
                     {
-                        return reinterpret_cast<T*>(client_context);
+                        return client_context;
                     }
 
                 private:

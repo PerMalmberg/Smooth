@@ -26,6 +26,7 @@ namespace smooth
 
                 template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
                 class HTTPServer
+                        : private IRequestHandler
                 {
                     public:
                         explicit HTTPServer(smooth::core::Task& task);
@@ -51,12 +52,20 @@ namespace smooth
                         void on_post(const std::string&& url, const ResponseSignature& handler);
 
                     private:
+                        void handle_post(const std::string& requested_url,
+                                         const std::unordered_map<std::string, std::string>& request_headers,
+                                         const std::unordered_map<std::string, std::string>& request_parameters,
+                                         const std::vector<uint8_t>& data,
+                                         bool fist_part,
+                                         bool last_part) override;
+
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
                                 smooth::application::network::http::HTTPServerClient<MaxPacketSize, ContentChuckSize>,
                                 smooth::application::network::http::HTTPProtocol<MaxPacketSize, ContentChuckSize>>> server{};
                         std::unordered_map<HTTPMethod, std::unordered_map<std::string, ResponseSignature>> handlers{};
                 };
+
 
                 template<typename ServerSocketType, int MaxPacketSize, int ContentChuckSize>
                 HTTPServer<ServerSocketType, MaxPacketSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task)
@@ -65,10 +74,30 @@ namespace smooth
                 }
 
                 template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
-                void HTTPServer<ServerType, MaxPacketSize, ContentChuckSize>::on_post(const std::string&& url, const ResponseSignature& handler)
+                void HTTPServer<ServerType, MaxPacketSize, ContentChuckSize>::on_post(const std::string&& url,
+                                                                                      const ResponseSignature& handler)
                 {
                     handlers[HTTPMethod::POST][url] = handler;
-                    //handler("", true, true, )
+                }
+
+                template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
+                void
+                HTTPServer<ServerType, MaxPacketSize, ContentChuckSize>::handle_post(const std::string& requested_url,
+                                                                                     const std::unordered_map<std::string, std::string>& request_headers,
+                                                                                     const std::unordered_map<std::string, std::string>& request_parameters,
+                                                                                     const std::vector<uint8_t>& data,
+                                                                                     bool fist_part,
+                                                                                     bool last_part)
+                {
+                    auto& post_responders = handlers[HTTPMethod::POST];
+                    auto it = post_responders.find(requested_url);
+
+                    if(it != post_responders.end())
+                    {
+                        (*it).second(requested_url, fist_part, last_part, request_headers, request_parameters, data);
+
+
+                    }
                 }
             }
         }

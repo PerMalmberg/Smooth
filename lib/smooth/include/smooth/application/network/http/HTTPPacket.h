@@ -43,6 +43,11 @@ namespace smooth
                             return content.data();
                         }
 
+                        const auto& get_buffer()
+                        {
+                            return content;
+                        }
+
                         void set_continued()
                         {
                             continued = true;
