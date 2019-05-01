@@ -31,7 +31,7 @@ namespace smooth
                         }
 
                         void
-                        event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& /*event*/) override;
+                        event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& event) override;
 
                         void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override;
 
@@ -78,12 +78,13 @@ namespace smooth
 
                         if (res)
                         {
-                            auto* context = reinterpret_cast<IRequestHandler*>(this->get_client_context());
+                            auto* context = reinterpret_cast<IRequestHandler<MaxHeaderSize, ContentChuckSize>*>(this->get_client_context());
                             if (context)
                             {
                                 if (packet.get_request_method() == "POST")
                                 {
-                                    context->handle_post(requested_url,
+                                    context->handle_post(this->get_buffers()->get_tx_buffer(),
+                                                         requested_url,
                                                          request_headers,
                                                          request_parameters,
                                                          packet.get_buffer(),
@@ -100,6 +101,11 @@ namespace smooth
                 HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(
                         const smooth::core::network::event::TransmitBufferEmptyEvent&)
                 {
+                    auto* context = reinterpret_cast<IRequestHandler<MaxHeaderSize, ContentChuckSize>*>(this->get_client_context());
+                    if (context)
+                    {
+
+                    }
                 }
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -166,7 +172,7 @@ namespace smooth
                     }
 
                     pos = std::find(url.begin(), url.end(), '?');
-                    if(pos != url.end())
+                    if (pos != url.end())
                     {
                         url.erase(pos, url.end());
                     }

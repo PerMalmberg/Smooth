@@ -73,6 +73,11 @@ namespace smooth
                         return client_context;
                     }
 
+                    std::shared_ptr<BufferContainer<Protocol>> get_buffers()
+                    {
+                        return container;
+                    }
+
                 private:
                     friend ServerSocket<FinalClientTypeName,Protocol>;
                     friend SecureServerSocket<FinalClientTypeName,Protocol>;
@@ -81,11 +86,6 @@ namespace smooth
                     void set_socket(const std::shared_ptr<smooth::core::network::ISocket>& s)
                     {
                         socket = s;
-                    }
-
-                    std::shared_ptr<BufferContainer<Protocol>> get_buffers()
-                    {
-                        return container;
                     }
 
                     void reset()

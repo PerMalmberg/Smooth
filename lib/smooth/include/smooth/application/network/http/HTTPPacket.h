@@ -28,8 +28,14 @@ namespace smooth
 
                         HTTPPacket(HTTPPacket&&) = default;
 
-                        HTTPPacket(ResponseCode code, const std::string&& version,
-                                            const std::unordered_map<std::string, std::string>&& new_headers);
+                        HTTPPacket(ResponseCode code, const std::string& version,
+                                            const std::unordered_map<std::string, std::string>& new_headers,
+                                            const std::vector<uint8_t>& response_content);
+
+                        HTTPPacket(ResponseCode code, const std::string& version,
+                                   const std::unordered_map<std::string, std::string>& new_headers,
+                                   const std::string& response_content);
+
 
                         // Must return the total amount of bytes to send
                         int get_send_length() override
@@ -134,6 +140,7 @@ namespace smooth
 
                     private:
                         void append(const std::string& s);
+                        void add_header(const std::string& key, const std::string& value);
 
                         std::unordered_map<std::string, std::string> request_headers{};
                         std::string request_method{};
@@ -142,7 +149,6 @@ namespace smooth
                         std::vector<uint8_t> content{};
                         bool continuation = false;
                         bool continued = false;
-
                 };
             }
         }

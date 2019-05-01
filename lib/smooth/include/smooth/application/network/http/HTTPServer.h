@@ -24,9 +24,9 @@ namespace smooth
             {
                 // https://upload.wikimedia.org/wikipedia/commons/8/88/Http-headers-status.png
 
-                template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 class HTTPServer
-                        : private IRequestHandler
+                        : private IRequestHandler<MaxHeaderSize, ContentChuckSize>
                 {
                     public:
                         explicit HTTPServer(smooth::core::Task& task);
@@ -34,6 +34,7 @@ namespace smooth
                         void start(std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
                             server = ServerType::create(task, 5);
+                            server->set_client_context(this);
                             server->start(std::move(bind_to));
                         }
 
@@ -49,10 +50,11 @@ namespace smooth
                         }
 
 
-                        void on_post(const std::string&& url, const ResponseSignature& handler);
+                        void on_post(const std::string&& url, const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                     private:
-                        void handle_post(const std::string& requested_url,
+                        void handle_post(core::network::IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                                         const std::string& requested_url,
                                          const std::unordered_map<std::string, std::string>& request_headers,
                                          const std::unordered_map<std::string, std::string>& request_parameters,
                                          const std::vector<uint8_t>& data,
@@ -61,42 +63,42 @@ namespace smooth
 
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
-                                smooth::application::network::http::HTTPServerClient<MaxPacketSize, ContentChuckSize>,
-                                smooth::application::network::http::HTTPProtocol<MaxPacketSize, ContentChuckSize>>> server{};
-                        std::unordered_map<HTTPMethod, std::unordered_map<std::string, ResponseSignature>> handlers{};
+                                smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
+                                smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
+                        std::unordered_map<HTTPMethod, std::unordered_map<std::string, ResponseSignature<MaxHeaderSize, ContentChuckSize>>> handlers{};
                 };
 
 
-                template<typename ServerSocketType, int MaxPacketSize, int ContentChuckSize>
-                HTTPServer<ServerSocketType, MaxPacketSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task)
+                template<typename ServerSocketType, int MaxHeaderSize, int ContentChuckSize>
+                HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task)
                         : task(task)
                 {
                 }
 
-                template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
-                void HTTPServer<ServerType, MaxPacketSize, ContentChuckSize>::on_post(const std::string&& url,
-                                                                                      const ResponseSignature& handler)
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_post(const std::string&& url,
+                                                                                      const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
                 {
                     handlers[HTTPMethod::POST][url] = handler;
                 }
 
-                template<typename ServerType, int MaxPacketSize, int ContentChuckSize>
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void
-                HTTPServer<ServerType, MaxPacketSize, ContentChuckSize>::handle_post(const std::string& requested_url,
-                                                                                     const std::unordered_map<std::string, std::string>& request_headers,
-                                                                                     const std::unordered_map<std::string, std::string>& request_parameters,
-                                                                                     const std::vector<uint8_t>& data,
-                                                                                     bool fist_part,
-                                                                                     bool last_part)
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_post(
+                        core::network::IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
                 {
                     auto& post_responders = handlers[HTTPMethod::POST];
                     auto it = post_responders.find(requested_url);
 
-                    if(it != post_responders.end())
+                    if (it != post_responders.end())
                     {
-                        (*it).second(requested_url, fist_part, last_part, request_headers, request_parameters, data);
-
-
+                        (*it).second(sender, requested_url, fist_part, last_part, request_headers, request_parameters, data);
                     }
                 }
             }

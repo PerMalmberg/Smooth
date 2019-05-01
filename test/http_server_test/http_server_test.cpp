@@ -118,10 +118,8 @@ namespace http_server_test
     }
 
 
-
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
-
     {
     }
 
@@ -136,7 +134,8 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 #endif
-        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxPacketSize, ContentChuckSize>>(*this);
+        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
+                *this);
 
         insecure_server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -149,18 +148,36 @@ namespace http_server_test
         fill(server_cert_data, own_cert);
         fill(private_key_data, private_key);
 
-        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxPacketSize, ContentChuckSize>>(*this);
+        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
+                *this);
         secure_server->start(std::make_shared<IPv4>("0.0.0.0", 8443), ca_chain, own_cert, private_key, password);
 
-        secure_server->on_post("/store/data", [](const std::string& /*url*/,
-                                                            bool /*first_part*/,
-                                                            bool /*last_part*/,
-                                                            const std::unordered_map<std::string, std::string>& /*headers*/,
-                                                            const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                                                            const std::vector<uint8_t>& /*content*/)
-        {
-            return HTTPPacket();
-        });
+        auto store_data = [](
+                IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                const std::string& url,
+                bool first_part,
+                bool last_part,
+                const std::unordered_map<std::string, std::string>& /*headers*/,
+                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+        const std::vector<uint8_t>& content) {
+            (void) first_part;
+            (void) last_part;
+            (void) url;
+            (void) content;
+            std::vector<uint8_t> content2;
+
+            for (const auto& c: "<html><body>Hello Smooth World!</body></html>")
+            {
+                content2.emplace_back(static_cast<uint8_t>(c));
+            }
+
+            HTTPPacket p(ResponseCode::OK, "1.1", {{"Connection", "close"}}, content2);
+
+            sender.put(p);
+        };
+
+        secure_server->on_post("/store/data", store_data);
+        insecure_server->on_post("/store/data", store_data);
     }
 
 }
