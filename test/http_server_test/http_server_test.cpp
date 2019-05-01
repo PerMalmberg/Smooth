@@ -166,12 +166,7 @@ namespace http_server_test
             (void) content;
             std::vector<uint8_t> content2;
 
-            for (const auto& c: "<html><body>Hello Smooth World!</body></html>")
-            {
-                content2.emplace_back(static_cast<uint8_t>(c));
-            }
-
-            HTTPPacket p(ResponseCode::OK, "1.1", {{"Connection", "close"}}, content2);
+            HTTPPacket p(ResponseCode::OK, "1.1", {{"Connection", "close"}}, "<html><body>Hello Smooth World!</body></html>");
 
             sender.put(p);
         };

@@ -37,7 +37,7 @@ namespace smooth
                     // Add required ending CRLF
                     append("\r\n");
 
-                    if(!response_content.empty())
+                    if (!response_content.empty())
                     {
                         std::copy(response_content.begin(), response_content.end(), std::back_inserter(content));
                     }
@@ -58,9 +58,10 @@ namespace smooth
 
                 HTTPPacket::HTTPPacket(ResponseCode code, const std::string& version,
                                        const std::unordered_map<std::string, std::string>& new_headers,
-                                       const std::string& response_content) : HTTPPacket(code, version, new_headers, std::vector<uint8_t>())
+                                       const std::string& response_content)
+                        : HTTPPacket(code, version, new_headers,
+                                     std::vector<uint8_t>({response_content.begin(), response_content.end()}))
                 {
-                    std::copy(response_content.begin(), response_content.end(), std::back_inserter(content));
                 }
             }
         }
