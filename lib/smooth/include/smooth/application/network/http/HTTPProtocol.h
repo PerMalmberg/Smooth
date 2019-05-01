@@ -106,11 +106,6 @@ namespace smooth
                             {
                                 incoming_content_length = 0;
                             }
-
-                            if (total_content_bytes_received < incoming_content_length)
-                            {
-                                packet.set_continued();
-                            }
                         }
                         else if (header_bytes_received > MaxHeaderSize)
                         {

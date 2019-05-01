@@ -14,7 +14,7 @@ namespace smooth
             {
                 HTTPPacket::HTTPPacket(ResponseCode code, const std::string& version,
                                        const std::unordered_map<std::string, std::string>& new_headers,
-                                       const std::vector<uint8_t>& response_content)
+                                       std::vector<uint8_t>& response_content)
                 {
                     append("HTTP/");
                     append(version);
@@ -56,12 +56,9 @@ namespace smooth
                     append("\r\n");
                 }
 
-                HTTPPacket::HTTPPacket(ResponseCode code, const std::string& version,
-                                       const std::unordered_map<std::string, std::string>& new_headers,
-                                       const std::string& response_content)
-                        : HTTPPacket(code, version, new_headers,
-                                     std::vector<uint8_t>({response_content.begin(), response_content.end()}))
+                HTTPPacket::HTTPPacket(std::vector<uint8_t>& response_content)
                 {
+                    content = std::move(response_content);
                 }
             }
         }

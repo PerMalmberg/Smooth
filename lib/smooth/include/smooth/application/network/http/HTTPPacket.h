@@ -30,11 +30,9 @@ namespace smooth
 
                         HTTPPacket(ResponseCode code, const std::string& version,
                                             const std::unordered_map<std::string, std::string>& new_headers,
-                                            const std::vector<uint8_t>& response_content);
+                                            std::vector<uint8_t>& response_content);
 
-                        HTTPPacket(ResponseCode code, const std::string& version,
-                                   const std::unordered_map<std::string, std::string>& new_headers,
-                                   const std::string& response_content);
+                        explicit HTTPPacket(std::vector<uint8_t>& response_content);
 
 
                         // Must return the total amount of bytes to send

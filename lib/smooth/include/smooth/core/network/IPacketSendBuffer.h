@@ -8,20 +8,14 @@ namespace smooth
     {
         namespace network
         {
-            template<typename Protocol, typename Packet = typename Protocol::packet_type>
-            class IPacketSender
-            {
-                public:
-                    virtual ~IPacketSender() = default;
-                    virtual bool put(const Packet& packet) = 0;
-            };
-
             /// Interface for packet send buffers
             /// \tparam Packet
             template<typename Protocol, typename Packet = typename Protocol::packet_type>
-            class IPacketSendBuffer : public IPacketSender<Protocol>
+            class IPacketSendBuffer
             {
                 public:
+                    virtual ~IPacketSendBuffer() = default;
+
                     /// Returns a value indicating if a packet is currently being sent.
                     /// \return true or false.
                     virtual bool is_in_progress() = 0;

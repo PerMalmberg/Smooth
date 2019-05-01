@@ -1,7 +1,10 @@
 #include "http_server_test.h"
+#include <memory>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
+#include <smooth/application/network/http/responses/NotFound_404.h>
+#include <smooth/application/network/http/responses/OK_200.h>
 
 #include "wifi_creds.h"
 
@@ -12,6 +15,7 @@ using namespace smooth::core::network;
 using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
 using namespace smooth::application::network::http;
+using namespace smooth::application::network::http::responses;
 
 namespace http_server_test
 {
@@ -153,7 +157,7 @@ namespace http_server_test
         secure_server->start(std::make_shared<IPv4>("0.0.0.0", 8443), ca_chain, own_cert, private_key, password);
 
         auto store_data = [](
-                IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                IResponseQueue& response,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -164,11 +168,13 @@ namespace http_server_test
             (void) last_part;
             (void) url;
             (void) content;
-            std::vector<uint8_t> content2;
 
-            HTTPPacket p(ResponseCode::OK, "1.1", {{"Connection", "close"}}, "<html><body>Hello Smooth World!</body></html>");
+            if(last_part)
+            {
+                response.enqueue(std::make_unique<OK_200>("Hello Smooth World!"));
+            }
 
-            sender.put(p);
+
         };
 
         secure_server->on_post("/store/data", store_data);

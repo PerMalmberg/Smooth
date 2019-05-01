@@ -53,7 +53,7 @@ namespace smooth
                         void on_post(const std::string&& url, const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                     private:
-                        void handle_post(core::network::IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                        void handle_post(IResponseQueue& response,
                                          const std::string& requested_url,
                                          const std::unordered_map<std::string, std::string>& request_headers,
                                          const std::unordered_map<std::string, std::string>& request_parameters,
@@ -85,7 +85,7 @@ namespace smooth
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void
                 HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_post(
-                        core::network::IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                        IResponseQueue& response,
                         const std::string& requested_url,
                         const std::unordered_map<std::string, std::string>& request_headers,
                         const std::unordered_map<std::string, std::string>& request_parameters,
@@ -98,7 +98,7 @@ namespace smooth
 
                     if (it != post_responders.end())
                     {
-                        (*it).second(sender, requested_url, fist_part, last_part, request_headers, request_parameters, data);
+                        (*it).second(response, requested_url, fist_part, last_part, request_headers, request_parameters, data);
                     }
                 }
             }

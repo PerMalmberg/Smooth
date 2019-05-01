@@ -3,8 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include "ResponseSignature.h"
-#include "HTTPProtocol.h"
-#include "HTTPPacket.h"
+#include "IResponseQueue.h"
 
 namespace smooth
 {
@@ -20,7 +19,7 @@ namespace smooth
                     public:
                         virtual ~IRequestHandler() = default;
 
-                        virtual void handle_post(core::network::IPacketSender<HTTPProtocol<MaxHeaderSize, ContentChuckSize>>& sender,
+                        virtual void handle_post(IResponseQueue& response,
                                                  const std::string& requested_url,
                                                  const std::unordered_map<std::string, std::string>& request_headers,
                                                  const std::unordered_map<std::string, std::string>& request_parameters,

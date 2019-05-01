@@ -1,12 +1,14 @@
 #pragma once
 
+#include <iostream>
+#include <fstream>
+#include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
 
-#include <iostream>
-#include <fstream>
+#include "IResponseQueue.h"
 
 namespace smooth
 {
@@ -18,7 +20,8 @@ namespace smooth
             {
                 template<int MaxHeaderSize, int ContentChuckSize>
                 class HTTPServerClient
-                        : public smooth::core::network::ServerClient<HTTPServerClient<MaxHeaderSize, ContentChuckSize>, HTTPProtocol<MaxHeaderSize, ContentChuckSize>>
+                        : public smooth::core::network::ServerClient<HTTPServerClient<MaxHeaderSize, ContentChuckSize>, HTTPProtocol<MaxHeaderSize, ContentChuckSize>>,
+                          IResponseQueue
                 {
                     public:
                         explicit HTTPServerClient(smooth::core::Task& task,
@@ -46,15 +49,20 @@ namespace smooth
                             return std::chrono::seconds{1};
                         }
 
+                        void enqueue(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+
                     private:
                         bool parse_url(std::string& raw_url);
 
                         void separate_request_parameters(std::string& url);
+                        void send_first_part();
 
                         std::unordered_map<std::string, std::string> request_parameters{};
                         std::unordered_map<std::string, std::string> request_headers{};
                         std::string requested_url{};
                         URLEncoding encoding{};
+                        std::deque<std::unique_ptr<responses::IRequestResponseOperation>> operations{};
+                        std::unique_ptr<responses::IRequestResponseOperation> current_operation{};
                 };
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -78,12 +86,14 @@ namespace smooth
 
                         if (res)
                         {
-                            auto* context = reinterpret_cast<IRequestHandler<MaxHeaderSize, ContentChuckSize>*>(this->get_client_context());
+                            auto* context = reinterpret_cast<IRequestHandler<MaxHeaderSize, ContentChuckSize>*>(
+                                    this->get_client_context());
+
                             if (context)
                             {
                                 if (packet.get_request_method() == "POST")
                                 {
-                                    context->handle_post(this->get_buffers()->get_tx_buffer(),
+                                    context->handle_post(*this,
                                                          requested_url,
                                                          request_headers,
                                                          request_parameters,
@@ -101,10 +111,22 @@ namespace smooth
                 HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(
                         const smooth::core::network::event::TransmitBufferEmptyEvent&)
                 {
-                    auto* context = reinterpret_cast<IRequestHandler<MaxHeaderSize, ContentChuckSize>*>(this->get_client_context());
-                    if (context)
+                    if(current_operation)
                     {
+                        std::vector<uint8_t> data;
+                        auto res = current_operation->get_data(ContentChuckSize, data);
+                        HTTPPacket p{data};
+                        if(res == responses::ResponseStatus::AllSent)
+                        {
+                            current_operation.reset();
+                        }
 
+                        auto& tx = this->get_buffers()->get_tx_buffer();
+                        tx.put(p);
+                    }
+                    else
+                    {
+                        send_first_part();
                     }
                 }
 
@@ -175,6 +197,42 @@ namespace smooth
                     if (pos != url.end())
                     {
                         url.erase(pos, url.end());
+                    }
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::enqueue(
+                        std::unique_ptr<responses::IRequestResponseOperation> response)
+                {
+                    operations.emplace_back(std::move(response));
+                    if(!current_operation)
+                    {
+                        send_first_part();
+                    }
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::send_first_part()
+                {
+                    if(operations.size() > 0)
+                    {
+                        current_operation = std::move(operations.front());
+                        operations.pop_front();
+
+                        std::unordered_map<std::string, std::string> headers{};
+                        current_operation->get_headers(headers);
+
+                        std::vector<uint8_t> data{};
+                        auto res = current_operation->get_data(ContentChuckSize, data);
+
+                        HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                        auto& tx = this->get_buffers()->get_tx_buffer();
+                        tx.put(p);
+
+                        if(res == responses::ResponseStatus::AllSent)
+                        {
+                            current_operation.reset();
+                        }
                     }
                 }
             }
