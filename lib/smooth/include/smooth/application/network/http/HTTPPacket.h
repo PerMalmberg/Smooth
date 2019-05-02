@@ -29,8 +29,8 @@ namespace smooth
                         HTTPPacket(HTTPPacket&&) = default;
 
                         HTTPPacket(ResponseCode code, const std::string& version,
-                                            const std::unordered_map<std::string, std::string>& new_headers,
-                                            std::vector<uint8_t>& response_content);
+                                   const std::unordered_map<std::string, std::string>& new_headers,
+                                   std::vector<uint8_t>& response_content);
 
                         explicit HTTPPacket(std::vector<uint8_t>& response_content);
 
@@ -72,7 +72,8 @@ namespace smooth
                             return continuation;
                         }
 
-                        void set_request_data(const std::string&& method, const std::string&& url, const std::string&& version)
+                        void
+                        set_request_data(const std::string& method, const std::string& url, const std::string& version)
                         {
                             request_method = method;
                             request_url = url;
@@ -138,6 +139,7 @@ namespace smooth
 
                     private:
                         void append(const std::string& s);
+
                         void add_header(const std::string& key, const std::string& value);
 
                         std::unordered_map<std::string, std::string> request_headers{};

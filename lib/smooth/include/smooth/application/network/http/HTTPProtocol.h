@@ -55,6 +55,9 @@ namespace smooth
                         bool error = false;
 
                         State state = State::reading_headers;
+                        std::string last_method{};
+                        std::string last_url{};
+                        std::string last_request_version{};
                 };
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -92,7 +95,7 @@ namespace smooth
 
                         if (packet.ends_with_two_crlf())
                         {
-                            // End of header
+                            // End of header, parse it.
                             parse_headers(packet);
                             state = State::reading_content;
 
@@ -121,15 +124,17 @@ namespace smooth
                         if (total_content_bytes_received - content_bytes_received_in_current_package > 0
                             && content_bytes_received_in_current_package == static_cast<int>(packet.data().size()))
                         {
-                            // Packet continues on a previous packet.
+                            // Packet continues a previous packet.
                             packet.set_continuation();
                         }
 
                         if (total_content_bytes_received < incoming_content_length)
                         {
-                            // There is more content to read.
+                            // There is more content to read, this packet will be followed by another packet.
                             packet.set_continued();
                         }
+
+                        packet.set_request_data(last_method, last_url, last_request_version);
                     }
                 }
 
@@ -182,7 +187,11 @@ namespace smooth
                                 std::smatch m;
                                 if (std::regex_match(s, m, request_line))
                                 {
-                                    packet.set_request_data(m[1].str(), m[2].str(), m[3].str());
+                                    // Store method for use in continued packets.
+                                    last_method = m[1].str();
+                                    last_url = m[2].str();
+                                    last_request_version = m[3].str();
+                                    packet.set_request_data(last_method, last_url, last_request_version);
                                 }
                             }
                             else
