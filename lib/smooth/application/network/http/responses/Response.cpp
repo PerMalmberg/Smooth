@@ -1,5 +1,5 @@
 
-#include <smooth/application/network/http/responses/OK_200.h>
+#include <smooth/application/network/http/responses/Response.h>
 #include <algorithm>
 
 namespace smooth
@@ -12,25 +12,25 @@ namespace smooth
             {
                 namespace responses
                 {
-                    OK_200::OK_200(std::string&& content)
+                    Response::Response(ResponseCode code, std::string content)
+                            : code(code)
                     {
                         data.insert(data.end(), std::make_move_iterator(content.begin()),
                                     std::make_move_iterator(content.end()));
                         content.erase(content.begin(), content.end());
                     }
 
-                    ResponseCode OK_200::get_response_code()
+                    ResponseCode Response::get_response_code()
                     {
-                        return ResponseCode::OK;
+                        return code;
                     }
 
-
-                    void OK_200::get_headers(std::unordered_map<std::string, std::string>& headers)
+                    void Response::get_headers(std::unordered_map<std::string, std::string>& headers)
                     {
-                        headers["Connection"] = "Close";
+                        (void) headers;
                     }
 
-                    ResponseStatus OK_200::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
+                    ResponseStatus Response::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
                     {
                         auto res = ResponseStatus::AllSent;
 
@@ -41,7 +41,8 @@ namespace smooth
                             auto begin = data.begin();
                             auto end = data.begin() + static_cast<long>(to_send);
 
-                            std::copy(std::make_move_iterator(begin), std::make_move_iterator(end), std::back_inserter(target));
+                            std::copy(std::make_move_iterator(begin), std::make_move_iterator(end),
+                                      std::back_inserter(target));
                             data.erase(begin, end);
 
                             // Anything still left?

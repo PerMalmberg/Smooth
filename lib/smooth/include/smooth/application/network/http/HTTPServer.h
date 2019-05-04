@@ -11,6 +11,7 @@
 #include <smooth/core/network/SecureServerSocket.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/HTTPServerClient.h>
+#include <smooth/application/network/http/responses/Response.h>
 #include "HTTPMethod.h"
 #include "ResponseSignature.h"
 
@@ -50,9 +51,24 @@ namespace smooth
                         }
 
 
-                        void on_post(const std::string&& url, const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+                        void on_post(const std::string&& url,
+                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+
+                        void on_get(const std::string&& url,
+                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+
+                        void on_put(const std::string&& url,
+                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+
+                        void on_head(const std::string&& url,
+                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+
+                        void on_delete(const std::string&& url,
+                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                     private:
+                        using MethodHandler = std::unordered_map<std::string, ResponseSignature<MaxHeaderSize, ContentChuckSize>>;
+
                         void handle_post(IResponseQueue& response,
                                          const std::string& requested_url,
                                          const std::unordered_map<std::string, std::string>& request_headers,
@@ -61,11 +77,53 @@ namespace smooth
                                          bool fist_part,
                                          bool last_part) override;
 
+                        void handle_get(IResponseQueue& response,
+                                        const std::string& requested_url,
+                                        const std::unordered_map<std::string, std::string>& request_headers,
+                                        const std::unordered_map<std::string, std::string>& request_parameters,
+                                        const std::vector<uint8_t>& data,
+                                        bool fist_part,
+                                        bool last_part) override;
+
+                        void handle_put(IResponseQueue& response,
+                                        const std::string& requested_url,
+                                        const std::unordered_map<std::string, std::string>& request_headers,
+                                        const std::unordered_map<std::string, std::string>& request_parameters,
+                                        const std::vector<uint8_t>& data,
+                                        bool fist_part,
+                                        bool last_part) override;
+
+                        void handle_delete(IResponseQueue& response,
+                                           const std::string& requested_url,
+                                           const std::unordered_map<std::string, std::string>& request_headers,
+                                           const std::unordered_map<std::string, std::string>& request_parameters,
+                                           const std::vector<uint8_t>& data,
+                                           bool fist_part,
+                                           bool last_part) override;
+
+                        void handle_head(IResponseQueue& response,
+                                         const std::string& requested_url,
+                                         const std::unordered_map<std::string, std::string>& request_headers,
+                                         const std::unordered_map<std::string, std::string>& request_parameters,
+                                         const std::vector<uint8_t>& data,
+                                         bool fist_part,
+                                         bool last_part) override;
+
+                        void call_response_handler(MethodHandler& method_handlers,
+                                                   IResponseQueue& response,
+                                                   const std::string& requested_url,
+                                                   const std::unordered_map<std::string, std::string>& request_headers,
+                                                   const std::unordered_map<std::string, std::string>& request_parameters,
+                                                   const std::vector<uint8_t>& data,
+                                                   bool fist_part,
+                                                   bool last_part);
+
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
                                 smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
                                 smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
-                        std::unordered_map<HTTPMethod, std::unordered_map<std::string, ResponseSignature<MaxHeaderSize, ContentChuckSize>>> handlers{};
+
+                        std::unordered_map<HTTPMethod, MethodHandler> handlers{};
                 };
 
 
@@ -83,6 +141,63 @@ namespace smooth
                 }
 
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_get(const std::string&& url,
+                                                                                      const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                {
+                    handlers[HTTPMethod::GET][url] = handler;
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_put(const std::string&& url,
+                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                {
+                    handlers[HTTPMethod::PUT][url] = handler;
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_head(const std::string&& url,
+                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                {
+                    handlers[HTTPMethod::HEAD][url] = handler;
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_delete(const std::string&& url,
+                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                {
+                    handlers[HTTPMethod::DELETE][url] = handler;
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::call_response_handler(
+                        MethodHandler& method_handlers,
+                        IResponseQueue& response,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
+                {
+                    auto handler = method_handlers.find(requested_url);
+                    if (handler == method_handlers.end())
+                    {
+                        // No handler for this URL.
+                        response.enqueue(std::make_unique<responses::Response>(ResponseCode::Not_Found));
+                    }
+                    else
+                    {
+                        (*handler).second(response,
+                                          requested_url,
+                                          fist_part,
+                                          last_part,
+                                          request_headers,
+                                          request_parameters,
+                                          data);
+                    }
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void
                 HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_post(
                         IResponseQueue& response,
@@ -93,13 +208,97 @@ namespace smooth
                         bool fist_part,
                         bool last_part)
                 {
-                    auto& post_responders = handlers[HTTPMethod::POST];
-                    auto it = post_responders.find(requested_url);
+                    call_response_handler(handlers[HTTPMethod::POST],
+                                          response,
+                                          requested_url,
+                                          request_headers,
+                                          request_parameters,
+                                          data,
+                                          fist_part,
+                                          last_part);
+                }
 
-                    if (it != post_responders.end())
-                    {
-                        (*it).second(response, requested_url, fist_part, last_part, request_headers, request_parameters, data);
-                    }
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_get(
+                        IResponseQueue& response,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
+                {
+                    call_response_handler(handlers[HTTPMethod::GET],
+                                          response,
+                                          requested_url,
+                                          request_headers,
+                                          request_parameters,
+                                          data,
+                                          fist_part,
+                                          last_part);
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_put(
+                        IResponseQueue& response,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
+                {
+                    call_response_handler(handlers[HTTPMethod::PUT],
+                                          response, requested_url,
+                                          request_headers,
+                                          request_parameters,
+                                          data,
+                                          fist_part,
+                                          last_part);
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_delete(
+                        IResponseQueue& response,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
+                {
+                    call_response_handler(handlers[HTTPMethod::DELETE],
+                                          response,
+                                          requested_url,
+                                          request_headers,
+                                          request_parameters,
+                                          data,
+                                          fist_part,
+                                          last_part);
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                void
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle_head(
+                        IResponseQueue& response,
+                        const std::string& requested_url,
+                        const std::unordered_map<std::string, std::string>& request_headers,
+                        const std::unordered_map<std::string, std::string>& request_parameters,
+                        const std::vector<uint8_t>& data,
+                        bool fist_part,
+                        bool last_part)
+                {
+                    call_response_handler(handlers[HTTPMethod::HEAD],
+                                          response,
+                                          requested_url,
+                                          request_headers,
+                                          request_parameters,
+                                          data,
+                                          fist_part,
+                                          last_part);
                 }
             }
         }

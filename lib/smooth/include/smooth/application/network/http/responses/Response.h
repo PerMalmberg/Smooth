@@ -13,10 +13,11 @@ namespace smooth
             {
                 namespace responses
                 {
-                    class OK_200 : public IRequestResponseOperation
+                    class Response
+                            : public IRequestResponseOperation
                     {
                         public:
-                            explicit OK_200(std::string&& content);
+                            explicit Response(ResponseCode code, std::string content = "");
 
                             ResponseCode get_response_code() override;
 
@@ -27,6 +28,7 @@ namespace smooth
                             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
                         private:
+                            ResponseCode code;
                             std::vector<uint8_t> data{};
                     };
                 }

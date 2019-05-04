@@ -11,8 +11,7 @@ set(SOURCES
         application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
-        application/network/http/responses/OK_200.cpp
-        application/network/http/responses/NotFound_404.cpp
+        application/network/http/responses/Response.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp

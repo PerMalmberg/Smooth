@@ -3,8 +3,7 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
-#include <smooth/application/network/http/responses/NotFound_404.h>
-#include <smooth/application/network/http/responses/OK_200.h>
+#include <smooth/application/network/http/responses/Response.h>
 
 #include "wifi_creds.h"
 
@@ -156,29 +155,61 @@ namespace http_server_test
                 *this);
         secure_server->start(std::make_shared<IPv4>("0.0.0.0", 8443), ca_chain, own_cert, private_key, password);
 
-        auto store_data = [](
+        auto post_response = [](
                 IResponseQueue& response,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
-                const std::unordered_map<std::string, std::string>& /*headers*/,
+                const std::unordered_map<std::string, std::string>& headers,
                 const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-        const std::vector<uint8_t>& content) {
+                const std::vector<uint8_t>& content) {
             (void) first_part;
             (void) last_part;
             (void) url;
             (void) content;
 
-            if(last_part)
+            if (first_part)
             {
-                response.enqueue(std::make_unique<OK_200>("Hello Smooth World!"));
+                (void) headers;
+                response.enqueue(std::make_unique<responses::Response>(ResponseCode::Continue));
             }
 
-
+            if (last_part)
+            {
+                response.enqueue(std::make_unique<responses::Response>(ResponseCode::OK, "Hello Smooth World!"));
+            }
         };
 
-        secure_server->on_post("/store/data", store_data);
-        insecure_server->on_post("/store/data", store_data);
+        auto index = [](
+                IResponseQueue& response,
+                const std::string& url,
+                bool
+                first_part,
+                bool
+                last_part,
+                const std::unordered_map<std::string, std::string>& /*headers*/,
+                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+                const std::vector<uint8_t>& content) {
+            (void) first_part;
+            (void) last_part;
+            (void) url;
+            (void) content;
+
+            if (first_part)
+            {
+                response.enqueue(std::make_unique<responses::Response>(ResponseCode::Continue));
+            }
+
+            if (last_part)
+            {
+                response.enqueue(std::make_unique<responses::Response>(ResponseCode::OK, "Hello Smooth World!"));
+            }
+        };
+
+        secure_server->on_post("/post", post_response);
+        insecure_server->on_post("/post", post_response);
+        secure_server->on_get("/", index);
+        insecure_server->on_get("/", index);
     }
 
 }

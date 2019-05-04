@@ -5,6 +5,7 @@
 #include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
+#include <smooth/application/network/http/responses/Response.h>
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
 
@@ -55,6 +56,7 @@ namespace smooth
                         bool parse_url(std::string& raw_url);
 
                         void separate_request_parameters(std::string& url);
+
                         void send_first_part();
 
                         std::unordered_map<std::string, std::string> request_parameters{};
@@ -91,6 +93,7 @@ namespace smooth
 
                             if (context)
                             {
+
                                 if (packet.get_request_method() == "POST")
                                 {
                                     context->handle_post(*this,
@@ -100,6 +103,51 @@ namespace smooth
                                                          packet.get_buffer(),
                                                          first_packet,
                                                          !packet.is_continued());
+                                }
+                                else if (packet.get_request_method() == "GET")
+                                {
+                                    context->handle_post(*this,
+                                                         requested_url,
+                                                         request_headers,
+                                                         request_parameters,
+                                                         packet.get_buffer(),
+                                                         first_packet,
+                                                         !packet.is_continued());
+                                }
+                                else if (packet.get_request_method() == "DELETE")
+                                {
+                                    context->handle_delete(*this,
+                                                         requested_url,
+                                                         request_headers,
+                                                         request_parameters,
+                                                         packet.get_buffer(),
+                                                         first_packet,
+                                                         !packet.is_continued());
+                                }
+                                else if (packet.get_request_method() == "HEAD")
+                                {
+                                    context->handle_head(*this,
+                                                         requested_url,
+                                                         request_headers,
+                                                         request_parameters,
+                                                         packet.get_buffer(),
+                                                         first_packet,
+                                                         !packet.is_continued());
+                                }
+                                else if (packet.get_request_method() == "PUT")
+                                {
+                                    context->handle_put(*this,
+                                                         requested_url,
+                                                         request_headers,
+                                                         request_parameters,
+                                                         packet.get_buffer(),
+                                                         first_packet,
+                                                         !packet.is_continued());
+                                }
+                                else
+                                {
+                                    // Unsupported method.
+                                    enqueue(std::make_unique<responses::Response>(ResponseCode::Method_Not_Allowed));
                                 }
                             }
                         }
@@ -111,12 +159,12 @@ namespace smooth
                 HTTPServerClient<MaxHeaderSize, ContentChuckSize>::event(
                         const smooth::core::network::event::TransmitBufferEmptyEvent&)
                 {
-                    if(current_operation)
+                    if (current_operation)
                     {
                         std::vector<uint8_t> data;
                         auto res = current_operation->get_data(ContentChuckSize, data);
                         HTTPPacket p{data};
-                        if(res == responses::ResponseStatus::AllSent)
+                        if (res == responses::ResponseStatus::AllSent)
                         {
                             current_operation.reset();
                         }
@@ -205,7 +253,7 @@ namespace smooth
                         std::unique_ptr<responses::IRequestResponseOperation> response)
                 {
                     operations.emplace_back(std::move(response));
-                    if(!current_operation)
+                    if (!current_operation)
                     {
                         send_first_part();
                     }
@@ -214,7 +262,7 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::send_first_part()
                 {
-                    if(operations.size() > 0)
+                    if (operations.size() > 0)
                     {
                         current_operation = std::move(operations.front());
                         operations.pop_front();
@@ -229,7 +277,7 @@ namespace smooth
                         auto& tx = this->get_buffers()->get_tx_buffer();
                         tx.put(p);
 
-                        if(res == responses::ResponseStatus::AllSent)
+                        if (res == responses::ResponseStatus::AllSent)
                         {
                             current_operation.reset();
                         }
