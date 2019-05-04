@@ -61,8 +61,6 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/responses/IRequestResponeOperation.h
-        include/smooth/application/network/http/responses/OK_200.h
-        include/smooth/application/network/http/responses/NotFound_404.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
