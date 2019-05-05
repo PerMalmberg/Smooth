@@ -215,9 +215,14 @@ namespace smooth
                     else
                     {
                         int wanted_length = rx.amount_wanted();
-                        auto read_amount = mbedtls_ssl_read(*secure_context,
-                                                            rx.get_write_pos(),
-                                                            static_cast<size_t>(wanted_length));
+                        auto read_amount = 0;
+
+                        {
+                            auto write_pos = rx.get_write_pos();
+                            read_amount = mbedtls_ssl_read(*secure_context,
+                                                           static_cast<uint8_t*>(write_pos),
+                                                           static_cast<size_t>(wanted_length));
+                        }
 
                         more_to_read = mbedtls_ssl_get_bytes_avail(*secure_context) > 0;
 

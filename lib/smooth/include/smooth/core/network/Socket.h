@@ -123,6 +123,8 @@ namespace smooth
                     std::weak_ptr<BufferContainer<Protocol>> buffers{};
 
                     smooth::core::timer::ElapsedTime elapsed_send_time{};
+                private:
+                    void clear_buffers();
             };
 
             template<typename Protocol, typename Packet>
@@ -166,6 +168,9 @@ namespace smooth
                     send_timeout(send_timeout),
                     buffers(buffer_container)
             {
+                // In case the buffers have been used by another socket previously (i.e. by another ServerClient),
+                // we make sure they are empty before we start using them.
+                clear_buffers();
             }
 
             template<typename Protocol, typename Packet>
@@ -313,7 +318,11 @@ namespace smooth
                 int wanted_length = rx.amount_wanted();
 
                 // Try to read the desired amount
-                auto read_count = recv(socket_id, rx.get_write_pos(), static_cast<size_t>(wanted_length), 0);
+                ssize_t read_count = 0;
+                {
+                    auto write_pos = rx.get_write_pos();
+                    read_count = recv(socket_id, static_cast<void*>(write_pos), static_cast<size_t>(wanted_length), 0);
+                }
 
                 if (read_count == 0)
                 {
@@ -423,12 +432,6 @@ namespace smooth
                     log("Socket stopping");
                     active = false;
                     connected = false;
-                    auto cont = buffers.lock();
-                    if (cont)
-                    {
-                        cont->get_tx_buffer().clear();
-                        cont->get_rx_buffer().clear();
-                    }
                     elapsed_send_time.stop_and_zero();
                 }
             }
@@ -493,6 +496,17 @@ namespace smooth
                 }
 
                 return res;
+            }
+
+            template<typename Protocol, typename Packet>
+            void Socket<Protocol, Packet>::clear_buffers()
+            {
+                auto cont = buffers.lock();
+                if (cont)
+                {
+                    //cont->get_tx_buffer().clear();
+                    //cont->get_rx_buffer().clear();
+                }
             }
         }
     }
