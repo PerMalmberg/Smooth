@@ -32,20 +32,21 @@ namespace smooth
                     public:
                         explicit HTTPServer(smooth::core::Task& task);
 
-                        void start(std::shared_ptr<smooth::core::network::InetAddress> bind_to)
+                        void start(int max_client_count, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
-                            server = ServerType::create(task, 5);
+                            server = ServerType::create(task, max_client_count);
                             server->set_client_context(this);
                             server->start(std::move(bind_to));
                         }
 
-                        void start(std::shared_ptr<smooth::core::network::InetAddress> bind_to,
+                        void start(int max_client_count, std::shared_ptr<smooth::core::network::InetAddress> bind_to,
                                    const std::vector<unsigned char>& ca_chain,
                                    const std::vector<unsigned char>& own_cert,
                                    const std::vector<unsigned char>& private_key,
                                    const std::vector<unsigned char>& password)
                         {
-                            server = ServerType::create(task, 5, ca_chain, own_cert, private_key, password);
+                            server = ServerType::create(task, max_client_count, ca_chain, own_cert, private_key,
+                                                        password);
                             server->set_client_context(this);
                             server->start(std::move(bind_to));
                         }
@@ -55,16 +56,16 @@ namespace smooth
                                      const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                         void on_get(const std::string&& url,
-                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                         void on_put(const std::string&& url,
                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                         void on_head(const std::string&& url,
-                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                         void on_delete(const std::string&& url,
-                                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+                                       const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
 
                     private:
                         using MethodHandler = std::unordered_map<std::string, ResponseSignature<MaxHeaderSize, ContentChuckSize>>;
@@ -142,7 +143,7 @@ namespace smooth
 
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_get(const std::string&& url,
-                                                                                      const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
                 {
                     handlers[HTTPMethod::GET][url] = handler;
                 }
@@ -156,14 +157,14 @@ namespace smooth
 
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_head(const std::string&& url,
-                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                                                                                      const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
                 {
                     handlers[HTTPMethod::HEAD][url] = handler;
                 }
 
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on_delete(const std::string&& url,
-                                                                                     const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
+                                                                                        const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler)
                 {
                     handlers[HTTPMethod::DELETE][url] = handler;
                 }

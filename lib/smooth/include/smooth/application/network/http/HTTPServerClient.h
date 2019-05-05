@@ -94,6 +94,7 @@ namespace smooth
                             if (context)
                             {
 
+                                // HTTP verbs are case sensitive: https://tools.ietf.org/html/rfc7230#section-3.1.1
                                 if (packet.get_request_method() == "POST")
                                 {
                                     context->handle_post(*this,

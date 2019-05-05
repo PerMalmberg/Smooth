@@ -209,6 +209,9 @@ namespace smooth
                 {
                     if (create_socket())
                     {
+                        int reuseaddr = 1;
+                        setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
+
                         auto bind_res = bind(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
                         if (bind_res == 0)
                         {

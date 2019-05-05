@@ -128,6 +128,8 @@ namespace http_server_test
 
     void App::init()
     {
+        const int max_client_count = 1;
+
         Application::init();
 #ifdef ESP_PLATFORM
         Log::info("App::Init", Format("Starting wifi..."));
@@ -140,7 +142,7 @@ namespace http_server_test
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
                 *this);
 
-        insecure_server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
+        insecure_server->start(max_client_count, std::make_shared<IPv4>("0.0.0.0", 8080));
 
         std::vector<uint8_t> ca_chain{};
         std::vector<uint8_t> own_cert{};
@@ -153,7 +155,12 @@ namespace http_server_test
 
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
                 *this);
-        secure_server->start(std::make_shared<IPv4>("0.0.0.0", 8443), ca_chain, own_cert, private_key, password);
+        secure_server->start(max_client_count,
+                             std::make_shared<IPv4>("0.0.0.0", 8443),
+                             ca_chain,
+                             own_cert,
+                             private_key,
+                             password);
 
         auto post_response = [](
                 IResponseQueue& response,

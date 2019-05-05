@@ -5,8 +5,10 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/core/network/IPacketAssembly.h>
+#include <smooth/core/util/string_util.h>
 #include "HTTPPacket.h"
 
+using namespace smooth::core;
 using namespace smooth::core::logging;
 
 namespace smooth
@@ -55,6 +57,7 @@ namespace smooth
                         int total_content_bytes_received = 0;
                         int content_bytes_received_in_current_package{0};
                         const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
+                        const char* CONTENT_LENGTH = "content-length";
                         bool error = false;
 
                         State state = State::reading_headers;
@@ -104,8 +107,8 @@ namespace smooth
 
                             try
                             {
-                                incoming_content_length = packet.headers()["Content-Length"].empty() ? 0 : std::stoi(
-                                        packet.headers()["Content-Length"]);
+                                incoming_content_length = packet.headers()[CONTENT_LENGTH].empty() ? 0 : std::stoi(
+                                        packet.headers()[CONTENT_LENGTH]);
                                 total_content_bytes_received = 0;
                             }
                             catch (...)
@@ -117,7 +120,8 @@ namespace smooth
                         {
                             // Headers are too large
                             error = true;
-                            Log::error("HTTPProtocol", Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(MaxHeaderSize)));
+                            Log::error("HTTPProtocol",
+                                       Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(MaxHeaderSize)));
                         }
                     }
                     else
@@ -145,7 +149,8 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 uint8_t* HTTPProtocol<MaxHeaderSize, ContentChuckSize>::get_write_pos(HTTPPacket& packet)
                 {
-                    auto offset = state == State::reading_content ? content_bytes_received_in_current_package : header_bytes_received;
+                    auto offset = state == State::reading_content ? content_bytes_received_in_current_package
+                                                                  : header_bytes_received;
 
                     return &packet.data()[static_cast<std::vector<uint8_t>::size_type>(offset)];
                 }
@@ -156,8 +161,10 @@ namespace smooth
                     auto complete = state != State::reading_headers;
 
                     bool content_received = (incoming_content_length == 0 // No content to read.
-                                        || total_content_bytes_received == incoming_content_length // All content received
-                                        || content_bytes_received_in_current_package == ContentChuckSize); // Packet filled, split into multiple.
+                                             || total_content_bytes_received ==
+                                                incoming_content_length // All content received
+                                             || content_bytes_received_in_current_package ==
+                                                ContentChuckSize); // Packet filled, split into multiple.
 
                     return complete && content_received;
                 }
@@ -202,7 +209,8 @@ namespace smooth
                             {
                                 if (std::distance(colon, s.end()) > 2)
                                 {
-                                    packet.headers()[{s.begin(), colon}] = {colon + 2, s.end()};
+                                    // Headers are case-insensitive: https://tools.ietf.org/html/rfc7230#section-3.2
+                                    packet.headers()[util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
                                 }
                             }
                         }
@@ -214,10 +222,9 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void HTTPProtocol<MaxHeaderSize, ContentChuckSize>::packet_consumed()
                 {
-                    error = false;
                     content_bytes_received_in_current_package = 0;
 
-                    if (total_content_bytes_received == incoming_content_length)
+                    if (error || total_content_bytes_received == incoming_content_length)
                     {
                         // All chunks of the current request has been received.
                         incoming_content_length = 0;
@@ -225,6 +232,8 @@ namespace smooth
                         total_content_bytes_received = 0;
                         state = State::reading_headers;
                     }
+
+                    error = false;
                 }
             }
         }

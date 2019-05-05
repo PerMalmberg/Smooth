@@ -173,7 +173,7 @@ namespace smooth
             {
                 std::lock_guard<std::mutex> lock(socket_guard);
 
-                Log::verbose(tag, Format("Shutting down socket {1}", Pointer(socket.get())));
+                Log::verbose(tag, Format("Shutting down socket {1}, ID: {2}", Pointer(socket.get()), Int32(socket->get_socket_id())));
                 socket->stop_internal();
                 remove_socket_from_active_sockets(socket);
                 remove_socket_from_collection(inactive_sockets, socket);
