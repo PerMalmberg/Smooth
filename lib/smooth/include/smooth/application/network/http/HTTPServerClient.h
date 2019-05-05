@@ -107,7 +107,7 @@ namespace smooth
                                 }
                                 else if (packet.get_request_method() == "GET")
                                 {
-                                    context->handle_post(*this,
+                                    context->handle_get(*this,
                                                          requested_url,
                                                          request_headers,
                                                          request_parameters,
