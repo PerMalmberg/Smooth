@@ -47,8 +47,11 @@ namespace smooth
                     /// \return true or false
                     virtual bool is_error() = 0;
 
-                    /// Tells the protocol, that the last received package has been consumed.
+                    /// Tells the protocol that the current working-package has been consumed.
                     virtual void packet_consumed() = 0;
+
+                    /// Resets the protocol
+                    virtual void reset() = 0;
 
                     virtual ~IPacketAssembly() = default;
             };

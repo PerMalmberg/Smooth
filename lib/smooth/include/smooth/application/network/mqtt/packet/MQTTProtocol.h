@@ -60,6 +60,8 @@ namespace smooth
 
                             void packet_consumed() override;
 
+                            void reset() override;
+
                         private:
 
                             enum ReadingHeaderSection

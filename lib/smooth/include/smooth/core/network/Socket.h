@@ -505,8 +505,7 @@ namespace smooth
                 auto cont = buffers.lock();
                 if (cont)
                 {
-                    //cont->get_tx_buffer().clear();
-                    //cont->get_rx_buffer().clear();
+                    cont->clear();
                 }
             }
         }

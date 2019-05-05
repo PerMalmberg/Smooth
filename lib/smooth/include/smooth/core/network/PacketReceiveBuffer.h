@@ -81,6 +81,9 @@ namespace smooth
                         // Clear out any packets in progress too.
                         in_progress = false;
                         ReplacePacketWithDefault();
+                        // Reset protocol so that it isn't left in a state
+                        // where it thinks it is in the middle of a receive.
+                        proto.reset();
                     }
 
                     bool is_in_progress() override

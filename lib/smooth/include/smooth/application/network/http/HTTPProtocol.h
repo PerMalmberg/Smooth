@@ -43,6 +43,8 @@ namespace smooth
 
                         void packet_consumed() override;
 
+                        void reset() override;
+
                     private:
                         void parse_headers(HTTPPacket& packet);
 
@@ -85,7 +87,7 @@ namespace smooth
                     else
                     {
                         // Don't make packets larger than ContentChuckSize
-                        res = ContentChuckSize - content_bytes_received_in_current_package;
+                        res = std::min(incoming_content_length, ContentChuckSize - content_bytes_received_in_current_package);
                         packet.set_size(res);
                     }
 
@@ -129,8 +131,7 @@ namespace smooth
                         total_content_bytes_received += length;
                         content_bytes_received_in_current_package += length;
 
-                        if (total_content_bytes_received - content_bytes_received_in_current_package > 0
-                            && content_bytes_received_in_current_package == static_cast<int>(packet.data().size()))
+                        if (total_content_bytes_received > ContentChuckSize)
                         {
                             // Packet continues a previous packet.
                             packet.set_continuation();
@@ -234,6 +235,14 @@ namespace smooth
                     }
 
                     error = false;
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPProtocol<MaxHeaderSize, ContentChuckSize>::reset()
+                {
+                    // Simulate an error to force protocol to be completely reset.
+                    error = true;
+                    packet_consumed();
                 }
             }
         }

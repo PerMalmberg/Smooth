@@ -152,6 +152,11 @@ namespace smooth
                         remaining_bytes_to_read = 1;
                         bytes_received = 0;
                     }
+
+                    void MQTTProtocol::reset()
+                    {
+                        reset();
+                    }
                 }
             }
         }
