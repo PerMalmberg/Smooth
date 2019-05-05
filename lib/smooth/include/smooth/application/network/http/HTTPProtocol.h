@@ -2,9 +2,12 @@
 
 #include <cstdint>
 #include <regex>
+#include <smooth/core/logging/log.h>
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/core/network/IPacketAssembly.h>
 #include "HTTPPacket.h"
+
+using namespace smooth::core::logging;
 
 namespace smooth
 {
@@ -79,7 +82,7 @@ namespace smooth
                     else
                     {
                         // Don't make packets larger than ContentChuckSize
-                        res = std::min(ContentChuckSize, incoming_content_length - total_content_bytes_received);
+                        res = ContentChuckSize - content_bytes_received_in_current_package;
                         packet.set_size(res);
                     }
 
@@ -114,6 +117,7 @@ namespace smooth
                         {
                             // Headers are too large
                             error = true;
+                            Log::error("HTTPProtocol", Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(MaxHeaderSize)));
                         }
                     }
                     else
