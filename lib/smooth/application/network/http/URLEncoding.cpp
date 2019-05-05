@@ -1,9 +1,10 @@
 
 #include <smooth/application/network/http/URLEncoding.h>
-#include <cctype>
-#include <sstream>
 #include <array>
 #include <algorithm>
+#include <cctype>
+#include <sstream>
+#include <string>
 
 namespace smooth
 {

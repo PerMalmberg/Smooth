@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <functional>
+#include <unordered_map>
 #include "HTTPProtocol.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/network/InetAddress.h>

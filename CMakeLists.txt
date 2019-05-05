@@ -5,6 +5,11 @@ cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 14)
 
+if( ESP_PLATFORM )
+    # for std::to_string (until using xtensa-gcc 8)
+    add_definitions(-D_GLIBCXX_USE_C99)
+endif()
+
 include(lib/smooth/compiler_options.cmake)
 
 # Select the test project, then build target "main". The available projects are the names of the

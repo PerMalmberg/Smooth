@@ -128,7 +128,7 @@ namespace http_server_test
 
     void App::init()
     {
-        const int max_client_count = 1;
+        const int max_client_count = 5;
 
         Application::init();
 #ifdef ESP_PLATFORM
