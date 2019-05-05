@@ -246,6 +246,7 @@ namespace smooth
                             if (rx.is_error())
                             {
                                 Log::error(tag, "Assembly error");
+                                rx.prepare_new_packet();
                                 this->stop();
                             }
                             else if (rx.is_packet_complete())
