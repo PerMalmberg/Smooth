@@ -54,6 +54,8 @@ namespace secure_socket_test
 
             void packet_consumed() override;
 
+            void reset() override;
+
         private:
             void parse_headers(HTTPPacket& packet);
 
@@ -202,6 +204,11 @@ namespace secure_socket_test
 
     template<int MaxPacketSize>
     void HTTPProtocol<MaxPacketSize>::packet_consumed()
+    {
+    }
+
+    template<int MaxPacketSize>
+    void HTTPProtocol<MaxPacketSize>::reset()
     {
     }
 

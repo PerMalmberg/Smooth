@@ -5,12 +5,6 @@
 #include "MbedTLSContext.h"
 #include <mbedtls/error.h>
 
-#ifdef ESP_PLATFORM
-#define socket_cast(x) (x)
-#else
-#define socket_cast(x) static_cast<int>(x);
-#endif
-
 namespace smooth
 {
     namespace core

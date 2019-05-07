@@ -40,7 +40,7 @@ namespace smooth
 
                     void tick() override;
                     void event(const NetworkStatus& event) override;
-                    void event(const SocketOperation& event);
+                    void event(const SocketOperation& event) override;
 
 
                 protected:
@@ -52,7 +52,7 @@ namespace smooth
                     void restart_inactive_sockets();
 
                     void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
-                                                       std::shared_ptr<ISocket> socket);
+                                                       const std::shared_ptr<ISocket>& socket);
                     void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
                     void start_socket(const std::shared_ptr<ISocket>& socket);
@@ -63,6 +63,9 @@ namespace smooth
                     std::mutex socket_guard;
                     smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus> network_events;
                     smooth::core::ipc::TaskEventQueue<SocketOperation> socket_op;
+
+                    static void set_fd(std::size_t socket_id, fd_set& fd);
+                    static bool is_fd_set(std::size_t socket_id, fd_set& fd);
 
                     fd_set read_set{};
                     fd_set write_set{};

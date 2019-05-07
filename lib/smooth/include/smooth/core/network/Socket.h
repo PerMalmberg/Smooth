@@ -28,6 +28,18 @@ namespace smooth
     {
         namespace network
         {
+            // Depending on if Smooth is compiled using regular gcc or xtensa-gcc,
+            // recv() returns different types. As such we need to cast the return value of that type.
+            template<typename T>
+            inline int socket_cast(T t)
+            {
+#ifdef ESP_PLATFORM
+                return t;
+#else
+                return static_cast<int>(t);
+#endif
+            }
+
             /// Socket is used to perform TCP/IP communication.
             /// \tparam Packet The type of the packet used for communication on this socket
             template<typename Protocol, typename Packet = typename Protocol::packet_type>
@@ -339,7 +351,7 @@ namespace smooth
                 }
                 else
                 {
-                    rx.data_received(static_cast<int>(read_count));
+                    rx.data_received(socket_cast(read_count));
                     if (rx.is_error())
                     {
                         log("Assembly error");

@@ -44,6 +44,11 @@ namespace secure_server_socket_test
                 complete = false;
             }
 
+            void reset() override
+            {
+                packet_consumed();
+            }
+
         private:
             bool complete{false};
     };

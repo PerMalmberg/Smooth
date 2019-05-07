@@ -71,7 +71,7 @@ namespace smooth
                     {
                         for (int i = 0; i <= max_file_descriptor; ++i)
                         {
-                            if (FD_ISSET(static_cast<size_t>(i), &read_set))
+                            if (is_fd_set(static_cast<size_t>(i), read_set))
                             {
                                 auto it = active_sockets.find(i);
                                 if (it != active_sockets.end())
@@ -80,7 +80,7 @@ namespace smooth
                                 }
                             }
 
-                            if (FD_ISSET(static_cast<size_t>(i), &write_set))
+                            if (is_fd_set(static_cast<size_t>(i), write_set))
                             {
                                 auto it = active_sockets.find(i);
                                 if (it != active_sockets.end())
@@ -138,13 +138,13 @@ namespace smooth
                         if (s->has_data_to_transmit() || !s->is_connected())
                         {
                             // A valid socket id is >= 0 so casting to unsigned is safe
-                            FD_SET(static_cast<size_t >(s->get_socket_id()), &write_set);
+                            set_fd(static_cast<size_t >(s->get_socket_id()), write_set);
                         }
 
                         if (s->is_connected())
                         {
                             // A valid socket id is >= 0 so casting to unsigned is safe
-                            FD_SET(static_cast<size_t>(s->get_socket_id()), &read_set);
+                            set_fd(static_cast<size_t>(s->get_socket_id()), read_set);
                         }
                     }
                 }
@@ -199,7 +199,7 @@ namespace smooth
             }
 
             void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
-                                                                 std::shared_ptr<ISocket> socket)
+                                                                 const std::shared_ptr<ISocket>& socket)
             {
                 const std::function<bool(const std::shared_ptr<ISocket>)> predicate = [socket](
                         const std::shared_ptr<ISocket> o)
@@ -312,6 +312,20 @@ namespace smooth
                     }
                 }
             }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+            void SocketDispatcher::set_fd(std::size_t socket_id, fd_set& fd)
+            {
+                FD_SET(socket_id, &fd);
+            }
+
+            bool SocketDispatcher::is_fd_set(std::size_t socket_id, fd_set& fd)
+            {
+                return FD_ISSET(socket_id, &fd);
+            }
+
+#pragma GCC diagnostic pop
         }
     }
 }
