@@ -32,8 +32,6 @@ namespace smooth
                         add_header(key, value);
                     }
 
-                    add_header("Content-Length", std::to_string(response_content.size()));
-
                     // Add required ending CRLF
                     append("\r\n");
 
