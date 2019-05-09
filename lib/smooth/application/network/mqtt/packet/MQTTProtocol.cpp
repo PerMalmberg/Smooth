@@ -155,7 +155,7 @@ namespace smooth
 
                     void MQTTProtocol::reset()
                     {
-                        reset();
+                        packet_consumed();
                     }
                 }
             }
