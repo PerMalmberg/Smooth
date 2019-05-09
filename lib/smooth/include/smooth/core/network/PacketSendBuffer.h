@@ -60,7 +60,7 @@ namespace smooth
                     {
                         std::lock_guard<std::mutex> lock(guard);
                         bytes_sent += length;
-                        if(current_item.get_send_length() >= bytes_sent)
+                        if(bytes_sent >= current_item.get_send_length())
                         {
                             in_progress = false;
                         }
