@@ -4,7 +4,7 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/application/network/http/responses/Response.h>
-
+#include "SendBlob.h"
 #include "wifi_creds.h"
 
 using namespace std;
@@ -183,7 +183,8 @@ namespace http_server_test
 
             if (last_part)
             {
-                response.enqueue(std::make_unique<responses::Response>(ResponseCode::OK, "Hello Smooth World!"));
+                response.enqueue(
+                        std::make_unique<responses::Response>(ResponseCode::OK, "Are you the mailman, posting stuff?"));
             }
         };
 
@@ -213,10 +214,31 @@ namespace http_server_test
             }
         };
 
+        auto blob = [](
+                IResponseQueue& response,
+                const std::string& url,
+                bool first_part,
+                bool last_part,
+                const std::unordered_map<std::string, std::string>& /*headers*/,
+                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+                const std::vector<uint8_t>& content) {
+            (void) first_part;
+            (void) last_part;
+            (void) url;
+            (void) content;
+
+            if (last_part)
+            {
+                response.enqueue(std::make_unique<SendBlob>(1024*1024));
+            }
+        };
+
         secure_server->on_post("/post", post_response);
         insecure_server->on_post("/post", post_response);
         secure_server->on_get("/", index);
         insecure_server->on_get("/", index);
+        secure_server->on_get("/api/blob", blob);
+        insecure_server->on_get("/api/blob", blob);
     }
 
 }
