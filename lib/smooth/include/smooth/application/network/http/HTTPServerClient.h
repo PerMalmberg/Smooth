@@ -59,6 +59,8 @@ namespace smooth
 
                         void send_first_part();
 
+                        bool translate_method(const HTTPPacket& packet, HTTPMethod& method);
+
                         std::unordered_map<std::string, std::string> request_parameters{};
                         std::unordered_map<std::string, std::string> request_headers{};
                         std::string requested_url{};
@@ -93,57 +95,17 @@ namespace smooth
 
                             if (context)
                             {
-
-                                // HTTP verbs are case sensitive: https://tools.ietf.org/html/rfc7230#section-3.1.1
-                                if (packet.get_request_method() == "POST")
+                                HTTPMethod method{};
+                                if (translate_method(packet, method))
                                 {
-                                    context->handle_post(*this,
-                                                         requested_url,
-                                                         request_headers,
-                                                         request_parameters,
-                                                         packet.get_buffer(),
-                                                         first_packet,
-                                                         !packet.is_continued());
-                                }
-                                else if (packet.get_request_method() == "GET")
-                                {
-                                    context->handle_get(*this,
-                                                         requested_url,
-                                                         request_headers,
-                                                         request_parameters,
-                                                         packet.get_buffer(),
-                                                         first_packet,
-                                                         !packet.is_continued());
-                                }
-                                else if (packet.get_request_method() == "DELETE")
-                                {
-                                    context->handle_delete(*this,
-                                                         requested_url,
-                                                         request_headers,
-                                                         request_parameters,
-                                                         packet.get_buffer(),
-                                                         first_packet,
-                                                         !packet.is_continued());
-                                }
-                                else if (packet.get_request_method() == "HEAD")
-                                {
-                                    context->handle_head(*this,
-                                                         requested_url,
-                                                         request_headers,
-                                                         request_parameters,
-                                                         packet.get_buffer(),
-                                                         first_packet,
-                                                         !packet.is_continued());
-                                }
-                                else if (packet.get_request_method() == "PUT")
-                                {
-                                    context->handle_put(*this,
-                                                         requested_url,
-                                                         request_headers,
-                                                         request_parameters,
-                                                         packet.get_buffer(),
-                                                         first_packet,
-                                                         !packet.is_continued());
+                                    context->handle(method,
+                                                    *this,
+                                                    requested_url,
+                                                    request_headers,
+                                                    request_parameters,
+                                                    packet.get_buffer(),
+                                                    first_packet,
+                                                    !packet.is_continued());
                                 }
                                 else
                                 {
@@ -283,6 +245,42 @@ namespace smooth
                             current_operation.reset();
                         }
                     }
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                bool HTTPServerClient<MaxHeaderSize, ContentChuckSize>::translate_method(
+                        const smooth::application::network::http::HTTPPacket& packet,
+                        smooth::application::network::http::HTTPMethod& method)
+                {
+                    auto res = true;
+
+                    // HTTP verbs are case sensitive: https://tools.ietf.org/html/rfc7230#section-3.1.1
+                    if (packet.get_request_method() == "POST")
+                    {
+                        method = HTTPMethod::POST;
+                    }
+                    else if (packet.get_request_method() == "GET")
+                    {
+                        method = HTTPMethod::GET;
+                    }
+                    else if (packet.get_request_method() == "DELETE")
+                    {
+                        method = HTTPMethod::DELETE;
+                    }
+                    else if (packet.get_request_method() == "HEAD")
+                    {
+                        method = HTTPMethod::HEAD;
+                    }
+                    else if (packet.get_request_method() == "PUT")
+                    {
+                        method = HTTPMethod::PUT;
+                    }
+                    else
+                    {
+                        res = false;
+                    }
+
+                    return res;
                 }
             }
         }

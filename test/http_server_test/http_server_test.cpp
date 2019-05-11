@@ -233,12 +233,12 @@ namespace http_server_test
             }
         };
 
-        secure_server->on_post("/post", post_response);
-        insecure_server->on_post("/post", post_response);
-        secure_server->on_get("/", index);
-        insecure_server->on_get("/", index);
-        secure_server->on_get("/api/blob", blob);
-        insecure_server->on_get("/api/blob", blob);
+        secure_server->on(HTTPMethod::POST, "/post", post_response);
+        insecure_server->on(HTTPMethod::POST, "/post", post_response);
+        secure_server->on(HTTPMethod::GET, "/", index);
+        insecure_server->on(HTTPMethod::GET, "/", index);
+        secure_server->on(HTTPMethod::GET, "/api/blob", blob);
+        insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
     }
 
 }

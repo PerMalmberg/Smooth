@@ -19,45 +19,14 @@ namespace smooth
                     public:
                         virtual ~IRequestHandler() = default;
 
-                        virtual void handle_post(IResponseQueue& response,
-                                                 const std::string& requested_url,
-                                                 const std::unordered_map<std::string, std::string>& request_headers,
-                                                 const std::unordered_map<std::string, std::string>& request_parameters,
-                                                 const std::vector<uint8_t>& data,
-                                                 bool fist_part,
-                                                 bool last_part) = 0;
-
-                        virtual void handle_get(IResponseQueue& response,
-                                                 const std::string& requested_url,
-                                                 const std::unordered_map<std::string, std::string>& request_headers,
-                                                 const std::unordered_map<std::string, std::string>& request_parameters,
-                                                 const std::vector<uint8_t>& data,
-                                                 bool fist_part,
-                                                 bool last_part) = 0;
-
-                        virtual void handle_head(IResponseQueue& response,
-                                                const std::string& requested_url,
-                                                const std::unordered_map<std::string, std::string>& request_headers,
-                                                const std::unordered_map<std::string, std::string>& request_parameters,
-                                                const std::vector<uint8_t>& data,
-                                                bool fist_part,
-                                                bool last_part) = 0;
-
-                        virtual void handle_put(IResponseQueue& response,
-                                                const std::string& requested_url,
-                                                const std::unordered_map<std::string, std::string>& request_headers,
-                                                const std::unordered_map<std::string, std::string>& request_parameters,
-                                                const std::vector<uint8_t>& data,
-                                                bool fist_part,
-                                                bool last_part) = 0;
-
-                        virtual void handle_delete(IResponseQueue& response,
-                                                const std::string& requested_url,
-                                                const std::unordered_map<std::string, std::string>& request_headers,
-                                                const std::unordered_map<std::string, std::string>& request_parameters,
-                                                const std::vector<uint8_t>& data,
-                                                bool fist_part,
-                                                bool last_part) = 0;
+                        virtual void handle(HTTPMethod method,
+                                            IResponseQueue& response,
+                                            const std::string& requested_url,
+                                            const std::unordered_map<std::string, std::string>& request_headers,
+                                            const std::unordered_map<std::string, std::string>& request_parameters,
+                                            const std::vector<uint8_t>& data,
+                                            bool fist_part,
+                                            bool last_part) = 0;
                 };
             }
         }
