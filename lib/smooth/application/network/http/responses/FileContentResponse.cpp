@@ -3,6 +3,7 @@
 
 #include <smooth/application/network/http/responses/FileContentResponse.h>
 #include <smooth/core/filesystem/File.h>
+#include <smooth/core/filesystem/Path.h>
 
 namespace smooth
 {
@@ -14,10 +15,10 @@ namespace smooth
             {
                 namespace responses
                 {
-                    FileContentResponse::FileContentResponse(std::filesystem::path full_path)
+                    FileContentResponse::FileContentResponse(smooth::core::filesystem::Path full_path)
                             : smooth::application::network::http::responses::Response(ResponseCode::OK),
                               path(std::move(full_path)),
-                              file_size(static_cast<int64_t>(std::filesystem::file_size(path)))
+                              file_size(static_cast<int64_t>(smooth::core::filesystem::File::file_size(path)))
                     {
 
                     }
@@ -25,7 +26,7 @@ namespace smooth
                     void FileContentResponse::get_headers(std::unordered_map<std::string, std::string>& headers)
                     {
                         headers["content-length"] = std::to_string(file_size);
-                        headers["content-type"] = get_content_type(path);
+                        headers["content-type"] = get_content_type();
                         headers["connection"] = "close";
                     }
 
@@ -55,9 +56,18 @@ namespace smooth
                         return res;
                     }
 
-                    std::string FileContentResponse::get_content_type(const std::filesystem::path& path)
+                    std::string FileContentResponse::get_content_type()
                     {
-                        (void) path;
+                        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
+                        const auto& ext = path.extension();
+                        if (ext == ".jpeg")
+                        {
+                            return "image/jpeg";
+                        }
+                        else if (ext == ".html")
+                        {
+                            return "text/html";
+                        }
                         return "application/octet-stream";
                     }
                 }

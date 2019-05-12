@@ -7,7 +7,6 @@
 #pragma once
 
 #include <memory>
-#include <filesystem>
 #include <functional>
 #include <unordered_map>
 #include "HTTPProtocol.h"
@@ -20,6 +19,7 @@
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/responses/EmptyResponse.h>
 #include <smooth/application/network/http/responses/FileContentResponse.h>
+#include <smooth/core/filesystem/Path.h>
 #include "HTTPMethod.h"
 #include "ResponseSignature.h"
 
@@ -38,7 +38,7 @@ namespace smooth
                         : private IRequestHandler<MaxHeaderSize, ContentChuckSize>
                 {
                     public:
-                        explicit HTTPServer(smooth::core::Task& task, std::filesystem::path  web_root);
+                        explicit HTTPServer(smooth::core::Task& task, smooth::core::filesystem::Path  web_root);
 
                         void start(int max_client_count, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
@@ -76,7 +76,7 @@ namespace smooth
                                     bool last_part) override;
 
                         bool
-                        is_parent_of(const std::filesystem::path& base, const std::filesystem::path& possible_child);
+                        is_parent_of(const smooth::core::filesystem::Path& base, const smooth::core::filesystem::Path& possible_child);
 
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
@@ -84,13 +84,13 @@ namespace smooth
                                 smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
 
                         HandlerByMethod handlers{};
-                        std::filesystem::path root;
+                        smooth::core::filesystem::Path root;
                 };
 
 
                 template<typename ServerSocketType, int MaxHeaderSize, int ContentChuckSize>
                 HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task,
-                                                                                          std::filesystem::path web_root)
+                                                                                          smooth::core::filesystem::Path web_root)
                         :
                         task(task),
                         root(std::move(web_root))
@@ -132,13 +132,12 @@ namespace smooth
                             auto found = false;
 
                             // No handler for this URL, does it match a file path beneath the web root?
-                            std::filesystem::path search{root};
-                            search += requested_url;
-                            search = search.lexically_normal();
+                            smooth::core::filesystem::Path search{root};
+                            search /= requested_url;
 
                             if (is_parent_of(root, search))
                             {
-                                if (std::filesystem::is_regular_file(search))
+                                if (smooth::core::filesystem::File::is_regular_file(search))
                                 {
                                     // Serve the requested file
                                     response.enqueue(std::make_unique<responses::FileContentResponse>(search));
@@ -171,8 +170,8 @@ namespace smooth
 
                 template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
                 bool
-                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::is_parent_of(const std::filesystem::path& base,
-                                                                                      const std::filesystem::path& possible_child)
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::is_parent_of(const smooth::core::filesystem::Path& base,
+                                                                                      const smooth::core::filesystem::Path& possible_child)
                 {
                     auto res = false;
                     // Don't consider equal paths to be the parents of one another.
@@ -182,13 +181,12 @@ namespace smooth
                         // To prevent part of directory/file names to match (/a/w vs /a/what), append a
                         // separator before comparing.
                         auto child_path = base;
-                        child_path += possible_child;
-                        child_path += std::filesystem::path::preferred_separator;
+                        child_path /= possible_child;
 
-                        auto base_path = base.string();
-                        base_path += std::filesystem::path::preferred_separator;
+                        std::string c = child_path;
+                        std::string b = base;
 
-                        res = child_path.string().find(base_path) == 0;
+                        res = c.find(b) == 0;
                     }
                     return res;
                 }

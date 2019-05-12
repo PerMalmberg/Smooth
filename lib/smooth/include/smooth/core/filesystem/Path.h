@@ -34,24 +34,51 @@ namespace smooth
                         resolve();
                     }
 
-                    Path& operator/(const char* path)
+                    Path operator/(const char* path)
+                    {
+                        Path p{*this};
+                        p /= path;
+                        return p;
+                    }
+
+                    Path operator/(const std::string& path)
+                    {
+                        Path p{*this};
+                        p /= path.c_str();
+                        return p;
+                    }
+
+                    Path operator/(const Path& path)
+                    {
+                        Path p{*this};
+                        p /= path;
+                        return p;
+                    }
+
+                    Path& operator/=(const char* path)
                     {
                         append(path);
                         return *this;
                     }
 
-                    Path& operator/(const Path& path)
+                    Path& operator/=(const std::string& path)
+                    {
+                        append(path);
+                        return *this;
+                    }
+
+                    Path& operator/=(const Path& path)
                     {
                         append(path.p);
                         return *this;
                     }
 
-                    explicit operator std::string() const
+                    operator std::string() const
                     {
                         return p;
                     }
 
-                    explicit operator const char*() const
+                    operator const char*() const
                     {
                         return p.c_str();
                     }
@@ -79,6 +106,9 @@ namespace smooth
                         return p.empty();
                     }
 
+                    std::string extension() const;
+                    bool has_extension() const;
+
                 private:
                     void append(const std::string& path);
 
@@ -95,6 +125,7 @@ namespace smooth
 
                     static const std::string separator;
                     static const std::string dot_token;
+                    static const std::string dot_dot_token;
                     std::string p;
             };
         }

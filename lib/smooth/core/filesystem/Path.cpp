@@ -8,7 +8,8 @@ namespace smooth
         namespace filesystem
         {
             const std::string Path::separator = "/";
-            const std::string Path::dot_token = "..";
+            const std::string Path::dot_token = ".";
+            const std::string Path::dot_dot_token = "..";
 
             void Path::append(const std::string& path)
             {
@@ -98,7 +99,7 @@ namespace smooth
 
                 auto absolute = is_absolute();
 
-                if (p.find(dot_token) != std::string::npos || p.find('.') != std::string::npos)
+                if (p.find(dot_dot_token) != std::string::npos || p.find('.') != std::string::npos)
                 {
                     auto prev = p.begin();
                     auto pos = std::search(p.begin(), p.end(), separator.begin(), separator.end());
@@ -173,7 +174,28 @@ namespace smooth
 
             bool Path::contains_dots(const std::string& s)
             {
-                return s == dot_token;
+                return s == dot_dot_token;
+            }
+
+            bool Path::has_extension() const
+            {
+                return !extension().empty();
+            }
+
+            std::string Path::extension() const
+            {
+                auto last_separator = std::find_end(p.begin(), p.end(), separator.begin(), separator.end());
+                auto last_dot = std::find_end(p.begin(), p.end(), dot_token.begin(), dot_token.end());
+
+                std::string extension{};
+
+                // The dot myst be after the /, i.e. /foo/bar/file.ext
+                if(last_dot > last_separator)
+                {
+                    extension = {last_dot, p.end()};
+                }
+
+                return extension;
             }
         }
     }

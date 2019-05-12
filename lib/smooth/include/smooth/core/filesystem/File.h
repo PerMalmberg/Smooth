@@ -2,8 +2,8 @@
 
 
 #include <vector>
-#include <string>
-#include <filesystem>
+#include <smooth/core/filesystem/Path.h>
+
 
 namespace smooth
 {
@@ -25,7 +25,7 @@ namespace smooth
                     /// Reads a part of a file into the vector.
                     /// \param data The target container
                     /// \return true on success, false on failure
-                    static bool read(const std::filesystem::path& path, std::vector<uint8_t>& data, int64_t offset, int64_t length);
+                    static bool read(const smooth::core::filesystem::Path& path, std::vector<uint8_t>& data, int64_t offset, int64_t length);
 
                     /// Writes the entire vector to the file, overwriting any existing file.
                     /// \param data The source container
@@ -46,6 +46,8 @@ namespace smooth
 
                     /// Gets the size of the file, in bytes
                     static uint_fast64_t file_size(const char* full_path);
+
+                    static bool is_regular_file(const char* full_path);
                 private:
                     std::string name;
             };

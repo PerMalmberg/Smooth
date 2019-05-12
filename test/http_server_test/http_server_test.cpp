@@ -129,7 +129,7 @@ namespace http_server_test
     void App::init()
     {
         const int max_client_count = 5;
-        std::filesystem::path web_root("/home/permal/tmp");
+        const smooth::core::filesystem::Path web_root("/home/permal/tmp");
 
         Application::init();
 #ifdef ESP_PLATFORM

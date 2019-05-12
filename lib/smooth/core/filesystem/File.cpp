@@ -46,13 +46,13 @@ namespace smooth
                 return res;
             }
 
-            bool File::read(const std::filesystem::path& path, std::vector<uint8_t>& data, int64_t offset, int64_t length)
+            bool File::read(const smooth::core::filesystem::Path& path, std::vector<uint8_t>& data, int64_t offset, int64_t length)
             {
                 bool res = false;
 
                 try
                 {
-                    std::fstream fs{path, std::ios::binary | std::ios::in};
+                    std::fstream fs(static_cast<const char*>(path), std::ios::binary | std::ios::in);
                     if (fs.is_open())
                     {
                         fs.seekg(offset, std::ios::beg);
@@ -114,6 +114,13 @@ namespace smooth
                 struct stat s{};
                 stat(full_path, &s);
                 return static_cast<uint_fast64_t>(s.st_size);
+            }
+
+            bool File::is_regular_file(const char* full_path)
+            {
+                struct stat s{};
+                stat(full_path, &s);
+                return S_ISREG(s.st_mode);
             }
         }
     }

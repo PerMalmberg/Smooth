@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Response.h"
-#include <filesystem>
+#include <smooth/core/filesystem/Path.h>
 
 namespace smooth
 {
@@ -17,7 +17,7 @@ namespace smooth
                             : public Response
                     {
                         public:
-                            explicit FileContentResponse(std::filesystem::path full_path);
+                            explicit FileContentResponse(smooth::core::filesystem::Path full_path);
 
                             // Called once when beginning to send a response.
                             void get_headers(std::unordered_map<std::string, std::string>& headers) override;
@@ -26,9 +26,9 @@ namespace smooth
                             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
                         private:
-                            std::string get_content_type(const std::filesystem::path& path);
+                            std::string get_content_type();
 
-                            std::filesystem::path path;
+                            smooth::core::filesystem::Path path;
                             const std::int64_t file_size{0};
                             std::int64_t sent{0};
                     };
