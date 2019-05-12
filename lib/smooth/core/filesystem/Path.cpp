@@ -75,7 +75,7 @@ namespace smooth
                 }
                 else
                 {
-                    res = Path(p.cbegin(), end_of_parent);
+                    res = Path(p.cbegin(), end_of_parent + 1);
                 }
 
                 return res;
@@ -83,9 +83,12 @@ namespace smooth
 
             void Path::remove_ending_separator()
             {
-                if (!p.empty() && *p.rbegin() == '/')
+                if(p != "/")
                 {
-                    p = p.substr(0, p.size() - 1);
+                    if (!p.empty() && *p.rbegin() == '/')
+                    {
+                        p = p.substr(0, p.size() - 1);
+                    }
                 }
             }
 
@@ -95,7 +98,7 @@ namespace smooth
 
                 auto absolute = is_absolute();
 
-                if (p.find(dot_token) != std::string::npos)
+                if (p.find(dot_token) != std::string::npos || p.find('.') != std::string::npos)
                 {
                     auto prev = p.begin();
                     auto pos = std::search(p.begin(), p.end(), separator.begin(), separator.end());
@@ -113,12 +116,8 @@ namespace smooth
                                     s = {s.begin() + 1, s.end()};
                                 }
 
-                                // Make sure the path remains absolute if it was originally.
-                                if (res.empty() && absolute)
-                                {
-                                    res.push_back("/" + s);
-                                }
-                                else
+                                // Skip paths referring to the current dir
+                                if (s != ".")
                                 {
                                     res.emplace_back(s);
                                 }
@@ -129,38 +128,44 @@ namespace smooth
                         }
                     }
 
-                    if (prev != p.end())
+                    if (prev + 1 != p.end())
                     {
-                        res.emplace_back(prev, p.end());
+                        res.emplace_back(prev + 1, p.end());
                     }
 
 
+                    std::vector<std::string> final_path{};
+                    // Loop the split path, removing non-dots for each dot found
+                    for (auto& part : res)
+                    {
+                        if (contains_dots(part))
+                        {
+                            if (!final_path.empty())
+                            {
+                                final_path.pop_back();
+                            }
+                        }
+                        else
+                        {
+                            final_path.push_back(std::move(part));
+                        }
+                    }
+
                     p.clear();
 
-                    std::size_t i = 0;
-                    for (; i < res.size(); ++i)
+                    for (auto& s : final_path)
                     {
-                        if (i < res.size() - 1)
-                        {
-                            // Next to last, or prior items
-                            if (!contains_dots(res[i + 1]) && !contains_dots(res[i]))
-                            {
-                                append(res[i]);
-                            }
-                        }
-                        else if(i < res.size())
-                        {
-                            // Last item
-                            if (!contains_dots(res[i]))
-                            {
-                                append(res[i]);
-                            }
-                        }
+                        append(s);
+                    }
+
+                    if (absolute && !is_absolute())
+                    {
+                        p.insert(0, "/");
                     }
                 }
 
                 // Treat empty paths as pointing to current directory
-                if(p.empty())
+                if (p.empty())
                 {
                     p = ".";
                 }
@@ -168,8 +173,7 @@ namespace smooth
 
             bool Path::contains_dots(const std::string& s)
             {
-                auto res = std::search(s.cbegin(), s.cend(), dot_token.cbegin(), dot_token.cend());
-                return res != s.cend();
+                return s == dot_token;
             }
         }
     }

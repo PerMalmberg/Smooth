@@ -28,8 +28,8 @@ namespace smooth
                     }
 
                     Path(std::string::const_iterator beg, std::string::const_iterator end)
-                            : p(beg, end)
                     {
+                        std::copy(beg, end, std::back_inserter(p));
                         remove_ending_separator();
                         resolve();
                     }
