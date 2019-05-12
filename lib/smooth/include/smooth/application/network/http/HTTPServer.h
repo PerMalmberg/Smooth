@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "HTTPProtocol.h"
 #include <smooth/core/Task.h>
+#include <smooth/core/filesystem/Path.h>
 #include <smooth/core/network/InetAddress.h>
 #include <smooth/core/network/ServerSocket.h>
 #include <smooth/core/network/SecureServerSocket.h>
@@ -31,7 +32,7 @@ namespace smooth
                         : private IRequestHandler<MaxHeaderSize, ContentChuckSize>
                 {
                     public:
-                        explicit HTTPServer(smooth::core::Task& task);
+                        explicit HTTPServer(smooth::core::Task& task, smooth::core::filesystem::Path web_root);
 
                         void start(int max_client_count, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
@@ -74,12 +75,17 @@ namespace smooth
                                 smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
 
                         HandlerByMethod handlers{};
+                        smooth::core::filesystem::Path root;
                 };
 
 
                 template<typename ServerSocketType, int MaxHeaderSize, int ContentChuckSize>
-                HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task)
-                        : task(task)
+                HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task,
+                                                                                          smooth::core::filesystem::Path
+                                                                                          web_root)
+                        :
+                        task(task),
+                        root(std::move(web_root))
                 {
                 }
 
@@ -121,12 +127,12 @@ namespace smooth
                         else
                         {
                             (*response_handler).second(response,
-                                              requested_url,
-                                              fist_part,
-                                              last_part,
-                                              request_headers,
-                                              request_parameters,
-                                              data);
+                                                       requested_url,
+                                                       fist_part,
+                                                       last_part,
+                                                       request_headers,
+                                                       request_parameters,
+                                                       data);
                         }
                     }
                     else

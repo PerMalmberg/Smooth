@@ -42,7 +42,7 @@ if( ESP_PLATFORM )
     add_subdirectory(test/wrover_kit_blinky)
     add_subdirectory(test/interrupt_queue)
 else()
-    add_subdirectory(test/url_encoding_test)
+    add_subdirectory(test/unit_tests)
 endif()
 
 include_directories(${CURRENT_PROJECT_DIR})

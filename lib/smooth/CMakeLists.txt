@@ -40,6 +40,7 @@ set(SOURCES
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
+        core/filesystem/Path.cpp
         core/network/IPv4.cpp
         core/network/IPv6.cpp
         core/network/MbedTLSContext.cpp
@@ -143,6 +144,7 @@ set(SOURCES
         include/smooth/core/util/FixedBuffer.h
         include/smooth/core/util/FixedBufferBase.h
         include/smooth/core/Application.h
+        include/smooth/core/filesystem/Path.h
         include/smooth/core/Task.h
         include/smooth/core/task_priorities.h
         include/smooth/core/ipc/ILinkSubscriber.h

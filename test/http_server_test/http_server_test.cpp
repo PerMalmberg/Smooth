@@ -140,7 +140,7 @@ namespace http_server_test
         wifi.connect_to_ap();
 #endif
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this);
+                *this, "/");
 
         insecure_server->start(max_client_count, std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -154,7 +154,7 @@ namespace http_server_test
         fill(private_key_data, private_key);
 
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this);
+                *this, "/");
         secure_server->start(max_client_count,
                              std::make_shared<IPv4>("0.0.0.0", 8443),
                              ca_chain,

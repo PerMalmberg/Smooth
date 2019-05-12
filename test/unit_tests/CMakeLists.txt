@@ -1,6 +1,8 @@
-project(url_encoding_test)
+project(unit_test)
 
-add_executable(${PROJECT_NAME} url_encoding_test.cpp)
+add_executable(${PROJECT_NAME}
+        url_encoding_test.cpp
+        PathTest.cpp)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${TEST_ROOT_DIR})
