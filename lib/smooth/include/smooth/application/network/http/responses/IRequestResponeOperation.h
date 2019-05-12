@@ -16,6 +16,7 @@ namespace smooth
                 {
                     enum class ResponseStatus
                     {
+                            Error,
                             HasMoreData,
                             AllSent
                     };

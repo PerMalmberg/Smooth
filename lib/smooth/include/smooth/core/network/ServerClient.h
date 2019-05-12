@@ -78,6 +78,8 @@ namespace smooth
                         return container;
                     }
 
+                    void close() { socket->stop(); }
+
                 private:
                     friend ServerSocket<FinalClientTypeName,Protocol>;
                     friend SecureServerSocket<FinalClientTypeName,Protocol>;

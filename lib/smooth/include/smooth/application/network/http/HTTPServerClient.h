@@ -19,6 +19,8 @@ namespace smooth
         {
             namespace http
             {
+                static const char* tag = "HTTPServerClient";
+
                 template<int MaxHeaderSize, int ContentChuckSize>
                 class HTTPServerClient
                         : public smooth::core::network::ServerClient<HTTPServerClient<MaxHeaderSize, ContentChuckSize>, HTTPProtocol<MaxHeaderSize, ContentChuckSize>>,
@@ -126,14 +128,23 @@ namespace smooth
                     {
                         std::vector<uint8_t> data;
                         auto res = current_operation->get_data(ContentChuckSize, data);
-                        HTTPPacket p{data};
-                        if (res == responses::ResponseStatus::AllSent)
-                        {
-                            current_operation.reset();
-                        }
 
-                        auto& tx = this->get_buffers()->get_tx_buffer();
-                        tx.put(p);
+                        if(res == responses::ResponseStatus::Error)
+                        {
+                            Log::error(tag, "Current operation reported error, closing server client.");
+                            this->close();
+                        }
+                        else
+                        {
+                            HTTPPacket p{data};
+                            if (res == responses::ResponseStatus::AllSent)
+                            {
+                                current_operation.reset();
+                            }
+
+                            auto& tx = this->get_buffers()->get_tx_buffer();
+                            tx.put(p);
+                        }
                     }
                     else
                     {
@@ -240,7 +251,12 @@ namespace smooth
                         auto& tx = this->get_buffers()->get_tx_buffer();
                         tx.put(p);
 
-                        if (res == responses::ResponseStatus::AllSent)
+                        if(res == responses::ResponseStatus::Error)
+                        {
+                            Log::error(tag, "Current operation reported error, closing server client.");
+                            this->close();
+                        }
+                        else if (res == responses::ResponseStatus::AllSent)
                         {
                             current_operation.reset();
                         }

@@ -129,6 +129,7 @@ namespace http_server_test
     void App::init()
     {
         const int max_client_count = 5;
+        std::filesystem::path web_root("/home/permal/tmp");
 
         Application::init();
 #ifdef ESP_PLATFORM
@@ -140,7 +141,7 @@ namespace http_server_test
         wifi.connect_to_ap();
 #endif
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, "/");
+                *this, web_root);
 
         insecure_server->start(max_client_count, std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -154,7 +155,7 @@ namespace http_server_test
         fill(private_key_data, private_key);
 
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, "/");
+                *this, web_root);
         secure_server->start(max_client_count,
                              std::make_shared<IPv4>("0.0.0.0", 8443),
                              ca_chain,

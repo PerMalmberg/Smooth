@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 namespace smooth
 {
@@ -21,6 +22,11 @@ namespace smooth
                     /// \return true on success, false on failure
                     bool read(std::vector<uint8_t>& data) const;
 
+                    /// Reads a part of a file into the vector.
+                    /// \param data The target container
+                    /// \return true on success, false on failure
+                    static bool read(const std::filesystem::path& path, std::vector<uint8_t>& data, int64_t offset, int64_t length);
+
                     /// Writes the entire vector to the file, overwriting any existing file.
                     /// \param data The source container
                     /// \return true on success, false on failure
@@ -37,6 +43,9 @@ namespace smooth
 
                     /// Determines if the file exists
                     static bool exists(const char* name);
+
+                    /// Gets the size of the file, in bytes
+                    static uint_fast64_t file_size(const char* full_path);
                 private:
                     std::string name;
             };

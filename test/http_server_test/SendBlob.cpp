@@ -39,7 +39,7 @@ namespace http_server_test
         return res;
     }
 
-    http_server_test::SendBlob::SendBlob(uint64_t amount)
+    http_server_test::SendBlob::SendBlob(std::size_t amount)
             : Response(ResponseCode::OK), amount_to_send(amount)
     {
     }

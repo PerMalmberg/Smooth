@@ -4,12 +4,14 @@ include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
 smooth_verify_idf_path()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
         application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
+        application/network/http/responses/EmptyResponse.cpp
+        application/network/http/responses/FileContentResponse.cpp
         application/network/http/responses/Response.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
@@ -40,6 +42,7 @@ set(SOURCES
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
+        core/filesystem/File.cpp
         core/filesystem/Path.cpp
         core/network/IPv4.cpp
         core/network/IPv6.cpp
@@ -60,7 +63,10 @@ set(SOURCES
         include/smooth/application/network/http/HTTPServer.h
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
+        include/smooth/application/network/http/responses/EmptyResponse.h
+        include/smooth/application/network/http/responses/FileContentResponse.h
         include/smooth/application/network/http/responses/IRequestResponeOperation.h
+        include/smooth/application/network/http/responses/Response.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
@@ -166,7 +172,6 @@ if (${ESP_PLATFORM})
             core/io/i2c/I2CCommandLink.cpp
             core/io/i2c/I2CMasterDevice.cpp
             core/io/i2c/Master.cpp
-            core/filesystem/File.cpp
             core/filesystem/SPIFlash.cpp
             core/filesystem/SDCard.cpp
             core/filesystem/SPISDCard.cpp
@@ -198,6 +203,8 @@ else()
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
+#target_link_libraries(${PROJECT_NAME} stdc++fs)
 
 if (NOT ESP_PLATFORM)
     target_link_libraries(${PROJECT_NAME} pthread mbedtls mbedx509 mbedcrypto)

@@ -8,7 +8,7 @@ namespace http_server_test
             : public smooth::application::network::http::responses::Response
     {
         public:
-            explicit SendBlob(uint64_t amount);
+            explicit SendBlob(std::size_t amount);
 
             ~SendBlob() override = default;
 
@@ -20,6 +20,6 @@ namespace http_server_test
             get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
         private:
-            uint64_t amount_to_send;
+            std::size_t amount_to_send;
     };
 }
