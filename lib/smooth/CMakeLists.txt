@@ -204,7 +204,7 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
-#target_link_libraries(${PROJECT_NAME} stdc++fs)
+target_link_libraries(${PROJECT_NAME} libstdc++fs.a)
 
 if (NOT ESP_PLATFORM)
     target_link_libraries(${PROJECT_NAME} pthread mbedtls mbedx509 mbedcrypto)
