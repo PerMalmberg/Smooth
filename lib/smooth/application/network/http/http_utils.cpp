@@ -72,10 +72,9 @@ namespace smooth::application::network::http::utils
         return "application/octet-stream";
     }
 
-    static std::mutex timemg_lock;
-
     time_t timegm(tm& tm)
     {
+        static std::mutex timemg_lock{};
         std::lock_guard<std::mutex> lock(timemg_lock);
 
         time_t ret{};
