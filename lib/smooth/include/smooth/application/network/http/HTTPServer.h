@@ -12,6 +12,7 @@
 #include "HTTPProtocol.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/filesystem/File.h>
+#include <smooth/core/filesystem/Fileinfo.h>
 #include <smooth/core/network/InetAddress.h>
 #include <smooth/core/network/ServerSocket.h>
 #include <smooth/core/network/SecureServerSocket.h>
@@ -137,7 +138,8 @@ namespace smooth
 
                             if (is_parent_of(root, search))
                             {
-                                if (smooth::core::filesystem::File::is_regular_file(search))
+                                smooth::core::filesystem::FileInfo info(search);
+                                if (info.is_regular_file())
                                 {
                                     // Serve the requested file
                                     response.enqueue(std::make_unique<responses::FileContentResponse>(search));
