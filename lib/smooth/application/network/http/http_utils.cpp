@@ -12,7 +12,7 @@ namespace smooth::application::network::http::utils
     static const std::array<const char*, 12> month{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
                                                    "Nov", "Dec"};
 
-    std::string format_last_modified(const time_t& t)
+    std::string make_http_time(const time_t& t)
     {
         tm time{};
         gmtime_r(&t, &time);

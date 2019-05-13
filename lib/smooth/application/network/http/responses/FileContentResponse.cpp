@@ -21,7 +21,7 @@ namespace smooth::application::network::http::responses
     {
         headers["content-length"] = std::to_string(info.size());
         headers["content-type"] = utils::get_content_type(info.path());
-        headers["Last-Modified"] = utils::format_last_modified(info.last_modified());
+        headers["Last-Modified"] = utils::make_http_time(info.last_modified());
         headers["connection"] = "close";
     }
 
