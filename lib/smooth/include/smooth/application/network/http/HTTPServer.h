@@ -1,9 +1,3 @@
-#include <utility>
-
-#include <utility>
-
-#include <utility>
-
 #pragma once
 
 #include <memory>
@@ -16,6 +10,7 @@
 #include <smooth/core/network/InetAddress.h>
 #include <smooth/core/network/ServerSocket.h>
 #include <smooth/core/network/SecureServerSocket.h>
+#include <smooth/application/network/http/http_utils.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/responses/EmptyResponse.h>
@@ -142,7 +137,29 @@ namespace smooth
                                 if (info.is_regular_file())
                                 {
                                     // Serve the requested file
-                                    response.enqueue(std::make_unique<responses::FileContentResponse>(search));
+
+                                    bool send_not_modified = false;
+                                    auto if_modified_since = request_headers.find("if-modified-since");
+
+                                    if(if_modified_since != request_headers.end())
+                                    {
+                                        auto since = utils::parse_http_time((*if_modified_since).second);
+                                        auto a = info.last_modified_point();
+                                        if(since >= a)
+                                        {
+                                            send_not_modified = true;
+                                        }
+                                    }
+
+                                    if(send_not_modified)
+                                    {
+                                        response.enqueue(std::make_unique<responses::EmptyResponse>(ResponseCode::Not_Modified));
+                                    }
+                                    else
+                                    {
+                                        response.enqueue(std::make_unique<responses::FileContentResponse>(search));
+                                    }
+
                                     found = true;
                                 }
                             }

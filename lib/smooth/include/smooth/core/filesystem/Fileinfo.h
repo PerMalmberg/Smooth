@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <chrono>
 #include <smooth/core/filesystem/Path.h>
 
 namespace smooth::core::filesystem
@@ -11,6 +12,7 @@ namespace smooth::core::filesystem
     {
         public:
             explicit FileInfo(const smooth::core::filesystem::Path& path)
+                    : file_path(path)
             {
                 struct stat s{};
                 file_exists = stat(path, &s) == 0;
@@ -40,9 +42,19 @@ namespace smooth::core::filesystem
                 return modified;
             }
 
+            const std::chrono::system_clock::time_point last_modified_point()
+            {
+                return std::chrono::system_clock::from_time_t(modified);
+            }
+
             std::size_t size() const
             {
                 return file_size;
+            }
+
+            const smooth::core::filesystem::Path& path() const
+            {
+                return file_path;
             }
 
         private:
@@ -51,5 +63,6 @@ namespace smooth::core::filesystem
             bool directory{false};
             std::size_t file_size{0};
             time_t modified{};
+            const smooth::core::filesystem::Path file_path;
     };
 }

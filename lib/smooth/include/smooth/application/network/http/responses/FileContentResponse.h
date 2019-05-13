@@ -21,8 +21,6 @@ namespace smooth::application::network::http::responses
         private:
             std::string get_content_type();
 
-            std::string format_last_modified(const time_t& t) const;
-
             smooth::core::filesystem::Path path;
             smooth::core::filesystem::FileInfo info;
             std::size_t sent{0};
