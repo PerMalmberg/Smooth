@@ -3,6 +3,7 @@
 #include <array>
 #include <sstream>
 #include <iomanip>
+#include <mutex>
 
 using namespace std::chrono;
 
@@ -49,7 +50,7 @@ namespace smooth::application::network::http::utils
         else
         {
             time.tm_isdst = 0;
-            time_t time_to_use = timegm(&time);
+            time_t time_to_use = timegm(time);
             res = system_clock::from_time_t(time_to_use);
         }
 
@@ -69,5 +70,33 @@ namespace smooth::application::network::http::utils
             return "text/html";
         }
         return "application/octet-stream";
+    }
+
+    static std::mutex timemg_lock;
+
+    time_t timegm(tm& tm)
+    {
+        std::lock_guard<std::mutex> lock(timemg_lock);
+
+        time_t ret{};
+        char* tz = nullptr;
+
+        tz = getenv("TZ");
+        setenv("TZ", "", 1);
+        tzset();
+        ret = std::mktime(&tm);
+
+        if (tz)
+        {
+            setenv("TZ", tz, 1);
+        }
+        else
+        {
+            unsetenv("TZ");
+        }
+
+        tzset();
+
+        return ret;
     }
 }
