@@ -38,7 +38,9 @@ namespace smooth::application::network::http::utils
     {
         tm time{};
         std::istringstream ss(t);
-        ss.imbue(std::locale("en_US.utf-8"));
+
+        // Crashes on xtensa-gcc
+        // ss.imbue(std::locale("en_US.utf-8"));
 
         system_clock::time_point res{};
 

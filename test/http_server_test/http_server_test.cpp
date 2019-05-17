@@ -129,7 +129,6 @@ namespace http_server_test
     void App::init()
     {
         const int max_client_count = 5;
-        const smooth::core::filesystem::Path web_root("/home/permal/tmp");
 
         Application::init();
 #ifdef ESP_PLATFORM
@@ -139,6 +138,14 @@ namespace http_server_test
         wifi.set_auto_connect(true);
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
+
+        const smooth::core::filesystem::Path web_root("/sdcard/webroot");
+
+        sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4, GPIO_NUM_12, GPIO_NUM_13);
+
+        sd_card->init("/sdcard", false, 5);
+#else
+        const smooth::core::filesystem::Path web_root("/home/permal/electronics/IO-Card-G3/software/externals/smooth/test/http_server_test/static_content");
 #endif
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
                 *this, web_root);

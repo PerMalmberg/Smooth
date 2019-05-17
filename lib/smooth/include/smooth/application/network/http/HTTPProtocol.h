@@ -217,6 +217,11 @@ namespace smooth
                         }
                     }
 
+                    for(const auto header : packet.headers())
+                    {
+                        Log::debug("HTTPProtocol", Format("{1}: {2}", Str(header.first), Str(header.second)));
+                    }
+
                     packet.clear();
                 }
 

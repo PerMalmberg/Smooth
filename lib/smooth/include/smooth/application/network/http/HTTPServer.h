@@ -71,9 +71,6 @@ namespace smooth
                                     bool fist_part,
                                     bool last_part) override;
 
-                        bool
-                        is_parent_of(const smooth::core::filesystem::Path& base, const smooth::core::filesystem::Path& possible_child);
-
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
                                 smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
@@ -131,9 +128,26 @@ namespace smooth
                             smooth::core::filesystem::Path search{root};
                             search /= requested_url;
 
-                            if (is_parent_of(root, search))
+                            Log::info(tag, Format("Requested URL: {1}", Str(static_cast<const char*>(search))));
+
+                            if (root.is_parent_of(search))
                             {
+                                Log::info(tag, Format("Root: {1}", Str(static_cast<const char*>(root))));
                                 smooth::core::filesystem::FileInfo info(search);
+
+                                auto f = fopen(search, "rb");
+                                if(f)
+                                {
+                                    Log::info(tag, "QQQ");
+                                    fclose(f);
+                                }
+                                else
+                                {
+                                    Log::info(tag, "WWW");
+                                }
+
+
+                                Log::info(tag, Format("Exists: {1}", Bool(info.exists())));
                                 if (info.is_regular_file())
                                 {
                                     // Serve the requested file
@@ -162,6 +176,14 @@ namespace smooth
 
                                     found = true;
                                 }
+                                else
+                                {
+                                    Log::info(tag, Format("Is not a regular file: {1}", Str(static_cast<const char*>(info.path()))));
+                                }
+                            }
+                            else
+                            {
+                                Log::info(tag, "Not parent of");
                             }
 
                             if (!found)
@@ -185,29 +207,6 @@ namespace smooth
                         // No handler for this method type
                         response.enqueue(std::make_unique<responses::EmptyResponse>(ResponseCode::Method_Not_Allowed));
                     }
-                }
-
-                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
-                bool
-                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::is_parent_of(const smooth::core::filesystem::Path& base,
-                                                                                      const smooth::core::filesystem::Path& possible_child)
-                {
-                    auto res = false;
-                    // Don't consider equal paths to be the parents of one another.
-                    if (base != possible_child)
-                    {
-                        // If child begins with 'this', then 'this' is a parent of 'child'.
-                        // To prevent part of directory/file names to match (/a/w vs /a/what), append a
-                        // separator before comparing.
-                        auto child_path = base;
-                        child_path /= possible_child;
-
-                        std::string c = child_path;
-                        std::string b = base;
-
-                        res = c.find(b) == 0;
-                    }
-                    return res;
                 }
             }
         }
