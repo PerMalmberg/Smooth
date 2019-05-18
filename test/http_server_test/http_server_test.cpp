@@ -143,11 +143,14 @@ namespace http_server_test
 
         const smooth::core::filesystem::Path web_root("/sdcard/web_root");
 
-        sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4, GPIO_NUM_12, GPIO_NUM_13);
+        // Setup SD Card as per WROOVER Kit 3.x
+        sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4,
+                                                                        GPIO_NUM_12, GPIO_NUM_13);
 
         sd_card->init("/sdcard", false, 5);
 #else
-        const smooth::core::filesystem::Path web_root("/home/permal/electronics/IO-Card-G3/software/externals/smooth/test/http_server_test/static_content");
+        const smooth::core::filesystem::Path web_root(
+                "/home/permal/electronics/IO-Card-G3/software/externals/smooth/test/http_server_test/static_content");
 #endif
         std::vector<std::string> indexes{"index.html"};
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
@@ -214,7 +217,7 @@ namespace http_server_test
 
             if (last_part)
             {
-                response.enqueue(std::make_unique<SendBlob>(1024*1024));
+                response.enqueue(std::make_unique<SendBlob>(1024 * 1024));
             }
         };
 
