@@ -58,7 +58,7 @@ namespace smooth
                 {SYSTEM_EVENT_AP_STACONNECTED,     "a station connected to ESP32 soft-AP"},
                 {SYSTEM_EVENT_AP_STADISCONNECTED,  "a station disconnected from ESP32 soft-AP"},
                 {SYSTEM_EVENT_AP_PROBEREQRECVED,   "Receive probe request packet in soft-AP interface"},
-                {SYSTEM_EVENT_AP_STA_GOT_IP6,      "ESP32 station or ap interface v6IP addr is preferred"},
+                {SYSTEM_EVENT_GOT_IP6,             "ESP32 station or ap interface v6IP addr is preferred"},
                 {SYSTEM_EVENT_ETH_START,           "ESP32 ethernet start"},
                 {SYSTEM_EVENT_ETH_STOP,            "ESP32 ethernet stop"},
                 {SYSTEM_EVENT_ETH_CONNECTED,       "ESP32 ethernet phy link up"},
