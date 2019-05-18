@@ -99,4 +99,29 @@ namespace smooth::application::network::http::utils
 
         return ret;
     }
+
+    std::string http_method_to_string(const HTTPMethod m)
+    {
+        if(m == HTTPMethod::DELETE)
+        {
+            return "DELETE";
+        }
+        else if(m == HTTPMethod::GET)
+        {
+            return "GET";
+        }
+        else if(m == HTTPMethod::HEAD)
+        {
+            return "HEAD";
+        }
+        else if(m == HTTPMethod::PUT)
+        {
+            return "PUT";
+        }
+        else if(m == HTTPMethod::POST)
+        {
+            return "POST";
+        }
+        return "";
+    }
 }

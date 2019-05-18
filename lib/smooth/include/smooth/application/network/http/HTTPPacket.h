@@ -30,7 +30,11 @@ namespace smooth
 
                         HTTPPacket(ResponseCode code, const std::string& version,
                                    const std::unordered_map<std::string, std::string>& new_headers,
-                                   std::vector<uint8_t>& response_content);
+                                   const std::vector<uint8_t>& response_content);
+
+                        HTTPPacket(HTTPMethod method, const std::string& url,
+                                   const std::unordered_map<std::string, std::string>& new_headers,
+                                   const std::vector<uint8_t>& response_content);
 
                         explicit HTTPPacket(std::vector<uint8_t>& response_content);
 
@@ -78,6 +82,16 @@ namespace smooth
                             request_method = method;
                             request_url = url;
                             request_version = version;
+                        }
+
+                        void set_response_data(ResponseCode code)
+                        {
+                            resp_code = code;
+                        }
+
+                        ResponseCode response_code() const
+                        {
+                            return resp_code;
                         }
 
                         const std::string& get_request_url() const
@@ -147,6 +161,7 @@ namespace smooth
                         std::string request_url{};
                         std::string request_version{};
                         std::vector<uint8_t> content{};
+                        ResponseCode resp_code{};
                         bool continuation = false;
                         bool continued = false;
                 };

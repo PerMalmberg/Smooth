@@ -13,14 +13,14 @@ using namespace smooth::core::logging;
 
 namespace smooth::application::network::http
 {
-    template<int MaxHeaderSize, int ContentChuckSize>
+    template<int MaxHeaderSize, int ContentChunkSize>
     class HTTPProtocol
-            : public smooth::core::network::IPacketAssembly<HTTPProtocol<MaxHeaderSize, ContentChuckSize>, HTTPPacket>
+            : public smooth::core::network::IPacketAssembly<HTTPProtocol<MaxHeaderSize, ContentChunkSize>, HTTPPacket>
     {
             static_assert(MaxHeaderSize > 0,
                           "MaxHeaderSize must be larger than 0, and a reasonable value.");
-            static_assert(ContentChuckSize > 0,
-                          "ContentChuckSize must be larger than 0, and a reasonable value.");
+            static_assert(ContentChunkSize > 0,
+                          "ContentChunkSize must be larger than 0, and a reasonable value.");
 
         public:
             using packet_type = HTTPPacket;
@@ -52,6 +52,7 @@ namespace smooth::application::network::http
             int header_bytes_received{0};
             int total_content_bytes_received = 0;
             int content_bytes_received_in_current_package{0};
+            const std::regex response_line{R"!(HTTP\/(\d.\d)\ (\d+)\ (.+))!"}; // HTTP/1.1 200 OK
             const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
             const char* CONTENT_LENGTH = "content-length";
             const char* tag = "HTTPProtocol";
@@ -81,7 +82,7 @@ namespace smooth::application::network::http
         }
         else
         {
-            // Don't make packets larger than ContentChuckSize
+            // Don't make packets larger than ContentChunkSize
             res = std::min(incoming_content_length, ContentChuckSize - content_bytes_received_in_current_package);
             packet.set_size(res);
         }
@@ -199,6 +200,21 @@ namespace smooth::application::network::http
                         last_url = m[2].str();
                         last_request_version = m[3].str();
                         packet.set_request_data(last_method, last_url, last_request_version);
+                    }
+                    else if(std::regex_match(s, m, response_line))
+                    {
+                        // Store response data for later use
+                        try
+                        {
+                            auto response_code = std::stoi(m[2].str());
+                            packet.set_response_data(static_cast<ResponseCode>(response_code));
+                        }
+                        catch(...)
+                        {
+                            error = true;
+                            Log::error("HTTPProtocol",
+                                       Format("Invalid response code: {1}", Str(m[2].str())));
+                        }
                     }
                 }
                 else

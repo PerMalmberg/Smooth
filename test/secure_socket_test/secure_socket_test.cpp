@@ -5,8 +5,10 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/network/BufferContainer.h>
 #include <smooth/core/network/MbedTLSContext.h>
+#include <smooth/application/network/http/HTTPPacket.h>
+#include <smooth/application/network/http/HTTPMethod.h>
+#include <smooth/application/network/http/ResponseCodes.h>
 #include <cassert>
-#include "HTTPPacket.h"
 #include "wifi_creds.h"
 
 using namespace std::chrono;
@@ -15,6 +17,7 @@ using namespace smooth::core::timer;
 using namespace smooth::core::network;
 using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
+using namespace smooth::application::network::http;
 
 namespace secure_socket_test
 {
@@ -117,7 +120,7 @@ namespace secure_socket_test
     {
         if (!sock)
         {
-            buff = std::make_shared<BufferContainer<HTTPProtocol<>>>(*this, *this, *this, *this);
+            buff = std::make_shared<BufferContainer<Proto>>(*this, *this, *this, *this);
 
             // If no certificates are provided, no certificate verification will be performed.
             auto ca_cert = get_certs();
@@ -125,7 +128,7 @@ namespace secure_socket_test
             tls_context = std::make_unique<MBedTLSContext>();
             tls_context->init_client(*ca_cert);
 
-            sock = SecureSocket<HTTPProtocol<>>::create(buff, tls_context->create_context());
+            sock = SecureSocket<Proto>::create(buff, tls_context->create_context());
             sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
         }
     }
@@ -151,15 +154,16 @@ namespace secure_socket_test
 
     }
 
-    void App::event(const DataAvailableEvent<HTTPProtocol<>>& packet)
+    void App::event(const DataAvailableEvent<Proto>& packet)
     {
-        HTTPProtocol<>::packet_type p;
+        Proto::packet_type p;
         packet.get(p);
 
         if (!p.is_continuation())
         {
             // First packet
-            assert(p.status() == 200);
+            assert(p.response_code() == ResponseCode::OK);
+            received_content.insert(received_content.end(), p.data().begin(), p.data().end());
         }
         else
         {
@@ -185,7 +189,7 @@ namespace secure_socket_test
             bool has_ending = s.find("-----END PGP SIGNATURE-----") != std::string::npos;
             assert(has_begining);
             assert(has_ending);
-            Log::info("Result", "Data received successfully!!!");
+            Log::info("Result", "============> SUCCESS <============ ");
         }
     }
 
@@ -194,11 +198,12 @@ namespace secure_socket_test
         Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
 
         sock->send(
-                HTTPPacket(HTTPPacket::Method::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
+                HTTPPacket(HTTPMethod::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
                            {
                                    {"UserAgent", "Mozilla/4.0"},
                                    {"Host",      "ftp.sunet.se"}
-                           }));
+                           },
+                           {}));
     }
 }
 
