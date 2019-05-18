@@ -55,6 +55,10 @@ namespace smooth
                     /// \return The socket id, possibly INVALID_SOCKET.
                     virtual int get_socket_id() const = 0;
 
+                    /// Return true if the socket is a server-socket
+                    /// \return true if the socket is a server socket, otherwise false.
+                    virtual bool is_server() const = 0;
+
                 protected:
                     virtual bool is_connected() const = 0;
                     virtual void readable() = 0;
