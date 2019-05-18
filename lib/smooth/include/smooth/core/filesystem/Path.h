@@ -34,25 +34,25 @@ namespace smooth
                         resolve();
                     }
 
-                    Path operator/(const char* path)
+                    Path operator/(const char* path) const
                     {
-                        Path p{*this};
-                        p /= path;
-                        return p;
+                        Path tmp{*this};
+                        tmp /= path;
+                        return tmp;
                     }
 
-                    Path operator/(const std::string& path)
+                    Path operator/(const std::string& path) const
                     {
-                        Path p{*this};
-                        p /= path.c_str();
-                        return p;
+                        Path tmp{*this};
+                        tmp /= path.c_str();
+                        return tmp;
                     }
 
-                    Path operator/(const Path& path)
+                    Path operator/(const Path& path) const
                     {
-                        Path p{*this};
-                        p /= path;
-                        return p;
+                        Path tmp{*this};
+                        tmp /= path;
+                        return tmp;
                     }
 
                     Path& operator/=(const char* path)

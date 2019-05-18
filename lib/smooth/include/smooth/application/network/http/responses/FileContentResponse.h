@@ -19,8 +19,6 @@ namespace smooth::application::network::http::responses
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
         private:
-            std::string get_content_type();
-
             smooth::core::filesystem::Path path;
             smooth::core::filesystem::FileInfo info;
             std::size_t sent{0};

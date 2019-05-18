@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 #include <memory>
@@ -34,7 +36,7 @@ namespace smooth
                         : private IRequestHandler<MaxHeaderSize, ContentChuckSize>
                 {
                     public:
-                        explicit HTTPServer(smooth::core::Task& task, smooth::core::filesystem::Path  web_root);
+                        HTTPServer(smooth::core::Task& task, smooth::core::filesystem::Path web_root, std::vector<std::string>  index_files);
 
                         void start(int max_client_count, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
                         {
@@ -71,22 +73,27 @@ namespace smooth
                                     bool fist_part,
                                     bool last_part) override;
 
+                        smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
+
                         smooth::core::Task& task;
                         std::shared_ptr<smooth::core::network::ServerSocket<
                                 smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
                                 smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
 
                         HandlerByMethod handlers{};
-                        smooth::core::filesystem::Path root;
+                        smooth::core::filesystem::Path root{};
+                        std::vector<std::string> index_files{};
                 };
 
 
                 template<typename ServerSocketType, int MaxHeaderSize, int ContentChuckSize>
                 HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task,
-                                                                                          smooth::core::filesystem::Path web_root)
+                                                                                          smooth::core::filesystem::Path web_root,
+                                                                                          std::vector<std::string> index_files)
                         :
                         task(task),
-                        root(std::move(web_root))
+                        root(std::move(web_root)),
+                        index_files(std::move(index_files))
                 {
                 }
 
@@ -128,46 +135,30 @@ namespace smooth
                             smooth::core::filesystem::Path search{root};
                             search /= requested_url;
 
-                            Log::info(tag, Format("Requested URL: {1}", Str(static_cast<const char*>(search))));
-
-                            if (root.is_parent_of(search))
+                            if (root.is_parent_of(search) || root == search)
                             {
-                                Log::info(tag, Format("Root: {1}", Str(static_cast<const char*>(root))));
                                 smooth::core::filesystem::FileInfo info(search);
 
-                                auto f = fopen(search, "rb");
-                                if(f)
-                                {
-                                    Log::info(tag, "QQQ");
-                                    fclose(f);
-                                }
-                                else
-                                {
-                                    Log::info(tag, "WWW");
-                                }
-
-
-                                Log::info(tag, Format("Exists: {1}", Bool(info.exists())));
                                 if (info.is_regular_file())
                                 {
                                     // Serve the requested file
-
                                     bool send_not_modified = false;
                                     auto if_modified_since = request_headers.find("if-modified-since");
 
-                                    if(if_modified_since != request_headers.end())
+                                    if (if_modified_since != request_headers.end())
                                     {
                                         auto since = utils::parse_http_time((*if_modified_since).second);
-                                        auto a = info.last_modified_point();
-                                        if(since >= a)
+
+                                        if (since >= info.last_modified_point())
                                         {
                                             send_not_modified = true;
                                         }
                                     }
 
-                                    if(send_not_modified)
+                                    if (send_not_modified)
                                     {
-                                        response.enqueue(std::make_unique<responses::EmptyResponse>(ResponseCode::Not_Modified));
+                                        response.enqueue(
+                                                std::make_unique<responses::EmptyResponse>(ResponseCode::Not_Modified));
                                     }
                                     else
                                     {
@@ -176,14 +167,15 @@ namespace smooth
 
                                     found = true;
                                 }
-                                else
+                                else if (info.is_directory())
                                 {
-                                    Log::info(tag, Format("Is not a regular file: {1}", Str(static_cast<const char*>(info.path()))));
+                                    auto index_path = find_index(search);
+                                    if(!index_path.empty())
+                                    {
+                                        response.enqueue(std::make_unique<responses::FileContentResponse>(index_path));
+                                        found = true;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                Log::info(tag, "Not parent of");
                             }
 
                             if (!found)
@@ -207,6 +199,29 @@ namespace smooth
                         // No handler for this method type
                         response.enqueue(std::make_unique<responses::EmptyResponse>(ResponseCode::Method_Not_Allowed));
                     }
+                }
+
+                template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+                smooth::core::filesystem::Path
+                HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::find_index(const smooth::core::filesystem::Path& search_path) const
+                {
+                    smooth::core::filesystem::Path found_index{};
+
+                    for(auto index = index_files.begin(); found_index.empty() && index != index_files.end(); ++index)
+                    {
+                        auto index_path = search_path / *index;
+
+                        if(root.is_parent_of(index_path))
+                        {
+                            core::filesystem::FileInfo index_info(search_path / *index);
+                            if(index_info.is_regular_file())
+                            {
+                                found_index = search_path / *index;
+                            }
+                        }
+                    }
+
+                    return found_index;
                 }
             }
         }

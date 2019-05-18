@@ -37,10 +37,9 @@ namespace smooth::application::network::http::utils
     std::chrono::system_clock::time_point parse_http_time(const std::string& t)
     {
         tm time{};
-        std::istringstream ss(t);
 
-        // Crashes on xtensa-gcc
-        // ss.imbue(std::locale("en_US.utf-8"));
+        // Default locale is "C"
+        std::istringstream ss(t);
 
         system_clock::time_point res{};
 

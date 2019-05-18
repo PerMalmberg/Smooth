@@ -128,6 +128,8 @@ namespace http_server_test
 
     void App::init()
     {
+        std::stringstream ss;
+
         const int max_client_count = 5;
 
         Application::init();
@@ -139,7 +141,7 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 
-        const smooth::core::filesystem::Path web_root("/sdcard/webroot");
+        const smooth::core::filesystem::Path web_root("/sdcard/web_root");
 
         sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4, GPIO_NUM_12, GPIO_NUM_13);
 
@@ -147,8 +149,9 @@ namespace http_server_test
 #else
         const smooth::core::filesystem::Path web_root("/home/permal/electronics/IO-Card-G3/software/externals/smooth/test/http_server_test/static_content");
 #endif
+        std::vector<std::string> indexes{"index.html"};
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, web_root);
+                *this, web_root, indexes);
 
         insecure_server->start(max_client_count, std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -162,7 +165,7 @@ namespace http_server_test
         fill(private_key_data, private_key);
 
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, web_root);
+                *this, web_root, indexes);
         secure_server->start(max_client_count,
                              std::make_shared<IPv4>("0.0.0.0", 8443),
                              ca_chain,
@@ -192,33 +195,7 @@ namespace http_server_test
             if (last_part)
             {
                 response.enqueue(
-                        std::make_unique<responses::Response>(ResponseCode::OK, "Are you the mailman, posting stuff?"));
-            }
-        };
-
-        auto index = [](
-                IResponseQueue& response,
-                const std::string& url,
-                bool
-                first_part,
-                bool
-                last_part,
-                const std::unordered_map<std::string, std::string>& /*headers*/,
-                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                const std::vector<uint8_t>& content) {
-            (void) first_part;
-            (void) last_part;
-            (void) url;
-            (void) content;
-
-            if (first_part)
-            {
-                response.enqueue(std::make_unique<responses::Response>(ResponseCode::Continue));
-            }
-
-            if (last_part)
-            {
-                response.enqueue(std::make_unique<responses::Response>(ResponseCode::OK, "Hello Smooth World!"));
+                        std::make_unique<responses::Response>(ResponseCode::OK, "You posted stuff!"));
             }
         };
 
@@ -243,8 +220,6 @@ namespace http_server_test
 
         secure_server->on(HTTPMethod::POST, "/post", post_response);
         insecure_server->on(HTTPMethod::POST, "/post", post_response);
-        secure_server->on(HTTPMethod::GET, "/", index);
-        insecure_server->on(HTTPMethod::GET, "/", index);
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
     }
