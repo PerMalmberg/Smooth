@@ -37,7 +37,7 @@ namespace server_socket_test
 
         // The server creates StreamingClients which are self-sufficient and never seen by the main
         // application (unless the implementor adds such bindings).
-        server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5);
+        server = ServerSocket<StreamingClient, StreamingProtocol>::create(*this, 5, 5);
         server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
 
         // Point your browser to http://localhost:8080 and watch the output.

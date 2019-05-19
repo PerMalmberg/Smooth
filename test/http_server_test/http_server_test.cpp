@@ -130,7 +130,8 @@ namespace http_server_test
     {
         std::stringstream ss;
 
-        const int max_client_count = 5;
+        const int max_client_count = 6;
+        const int listen_backlog = 5;
 
         Application::init();
 #ifdef ESP_PLATFORM
@@ -156,7 +157,7 @@ namespace http_server_test
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
                 *this, web_root, indexes);
 
-        insecure_server->start(max_client_count, std::make_shared<IPv4>("0.0.0.0", 8080));
+        insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
         std::vector<uint8_t> ca_chain{};
         std::vector<uint8_t> own_cert{};
@@ -170,6 +171,7 @@ namespace http_server_test
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
                 *this, web_root, indexes);
         secure_server->start(max_client_count,
+                             listen_backlog,
                              std::make_shared<IPv4>("0.0.0.0", 8443),
                              ca_chain,
                              own_cert,
@@ -222,8 +224,9 @@ namespace http_server_test
         };
 
         secure_server->on(HTTPMethod::POST, "/post", post_response);
-        insecure_server->on(HTTPMethod::POST, "/post", post_response);
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
+
+        insecure_server->on(HTTPMethod::POST, "/post", post_response);
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
     }
 
