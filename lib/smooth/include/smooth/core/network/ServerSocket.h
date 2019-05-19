@@ -49,11 +49,6 @@ namespace smooth::core::network
             }
 
         protected:
-            bool has_send_expired() const override
-            {
-                return false;
-            }
-
             void readable() override;
 
             void writable() override;
@@ -75,8 +70,11 @@ namespace smooth::core::network
 
             void stop_internal() override;
 
-            ServerSocket(smooth::core::Task& task, int max_client_count, int backlog)
-                    : pool(task, max_client_count), backlog(backlog)
+            ServerSocket(smooth::core::Task& task, int max_client_count, int backlog,
+                         std::chrono::milliseconds send_timeout = std::chrono::milliseconds{0},
+                         std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0})
+                    : CommonSocket(send_timeout, receive_timeout),
+                      pool(task, max_client_count), backlog(backlog)
             {
             }
 

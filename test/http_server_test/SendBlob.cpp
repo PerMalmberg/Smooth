@@ -10,8 +10,8 @@ using namespace smooth::application::network::http::responses;
 
 namespace http_server_test
 {
-
-    void http_server_test::SendBlob::get_headers(std::unordered_map<std::string, std::string>& headers)
+    http_server_test::SendBlob::SendBlob(std::size_t amount)
+            : Response(ResponseCode::OK), amount_to_send(amount)
     {
         headers["content-length"] = std::to_string(amount_to_send);
         headers["content-type"] = "application/octet-stream";
@@ -22,11 +22,11 @@ namespace http_server_test
     {
         auto res = ResponseStatus::AllSent;
 
-        if(amount_to_send > 0)
+        if (amount_to_send > 0)
         {
             auto size = std::min(max_amount, amount_to_send);
 
-            for(decltype(size) i = 0; i < size; ++i)
+            for (decltype(size) i = 0; i < size; ++i)
             {
                 target.push_back('x');
             }
@@ -38,10 +38,4 @@ namespace http_server_test
 
         return res;
     }
-
-    http_server_test::SendBlob::SendBlob(std::size_t amount)
-            : Response(ResponseCode::OK), amount_to_send(amount)
-    {
-    }
-
 }

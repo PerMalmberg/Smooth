@@ -20,6 +20,7 @@ namespace smooth
             namespace http
             {
                 static const char* tag = "HTTPServerClient";
+                static const std::chrono::milliseconds DefaultKeepAlive{5000};
 
                 template<int MaxHeaderSize, int ContentChuckSize>
                 class HTTPServerClient
@@ -69,6 +70,8 @@ namespace smooth
                         URLEncoding encoding{};
                         std::deque<std::unique_ptr<responses::IRequestResponseOperation>> operations{};
                         std::unique_ptr<responses::IRequestResponseOperation> current_operation{};
+
+                        void set_keep_alive();
                 };
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -88,6 +91,7 @@ namespace smooth
                             std::swap(request_headers, packet.headers());
                             requested_url = std::move(packet.get_request_url());
                             res = parse_url(requested_url);
+                            set_keep_alive();
                         }
 
                         if (res)
@@ -129,7 +133,7 @@ namespace smooth
                         std::vector<uint8_t> data;
                         auto res = current_operation->get_data(ContentChuckSize, data);
 
-                        if(res == responses::ResponseStatus::Error)
+                        if (res == responses::ResponseStatus::Error)
                         {
                             Log::error(tag, "Current operation reported error, closing server client.");
                             this->close();
@@ -161,13 +165,13 @@ namespace smooth
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::connected()
                 {
-
+                    this->socket->set_receive_timeout(DefaultKeepAlive);
                 }
 
                 template<int MaxHeaderSize, int ContentChuckSize>
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::reset_client()
                 {
-
+                    operations.clear();
                 }
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -226,6 +230,14 @@ namespace smooth
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::enqueue(
                         std::unique_ptr<responses::IRequestResponseOperation> response)
                 {
+                    using namespace std::chrono;
+                    const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
+                    if (timeout.count() > 0)
+                    {
+                        response->add_header("connection", "keep-alive");
+                        response->add_header("keep-alive", "timeout=" + std::to_string(timeout.count()));
+                    }
+
                     operations.emplace_back(std::move(response));
                     if (!current_operation)
                     {
@@ -241,8 +253,7 @@ namespace smooth
                         current_operation = std::move(operations.front());
                         operations.pop_front();
 
-                        std::unordered_map<std::string, std::string> headers{};
-                        current_operation->get_headers(headers);
+                        const auto& headers = current_operation->get_headers();
 
                         std::vector<uint8_t> data{};
                         auto res = current_operation->get_data(ContentChuckSize, data);
@@ -251,7 +262,7 @@ namespace smooth
                         auto& tx = this->get_buffers()->get_tx_buffer();
                         tx.put(p);
 
-                        if(res == responses::ResponseStatus::Error)
+                        if (res == responses::ResponseStatus::Error)
                         {
                             Log::error(tag, "Current operation reported error, closing server client.");
                             this->close();
@@ -297,6 +308,20 @@ namespace smooth
                     }
 
                     return res;
+                }
+
+                template<int MaxHeaderSize, int ContentChuckSize>
+                void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::set_keep_alive()
+                {
+                    auto connection = request_headers.find("connection");
+                    if (connection != request_headers.end())
+                    {
+                        auto s = (*connection).second;
+                        if (s.find("keep-alive") != std::string::npos)
+                        {
+                            this->socket->set_receive_timeout(DefaultKeepAlive);
+                        }
+                    }
                 }
             }
         }

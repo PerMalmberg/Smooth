@@ -15,14 +15,9 @@ namespace smooth::application::network::http::responses
               path(std::move(full_path)),
               info(path)
     {
-    }
-
-    void FileContentResponse::get_headers(std::unordered_map<std::string, std::string>& headers)
-    {
         headers["content-length"] = std::to_string(info.size());
         headers["content-type"] = utils::get_content_type(info.path());
         headers["Last-Modified"] = utils::make_http_time(info.last_modified());
-        headers["connection"] = "close";
     }
 
     // Called at least once when sending a response and until ResponseStatus::AllSent is returned

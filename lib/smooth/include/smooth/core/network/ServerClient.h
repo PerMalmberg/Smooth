@@ -80,9 +80,13 @@ namespace smooth::core::network
             void close()
             { socket->stop(); }
 
+        protected:
+            std::shared_ptr<smooth::core::network::ISocket> socket{};
+
         private:
             friend ServerSocket<FinalClientTypeName, Protocol>;
             friend SecureServerSocket<FinalClientTypeName, Protocol>;
+
             friend ClientPool<FinalClientTypeName>;
 
             void set_socket(const std::shared_ptr<smooth::core::network::ISocket>& s)
@@ -97,7 +101,6 @@ namespace smooth::core::network
                 get_buffers()->clear();
             }
 
-            std::shared_ptr<smooth::core::network::ISocket> socket{};
             smooth::core::network::ClientPool<FinalClientTypeName>& pool;
             std::shared_ptr<BufferContainer<Protocol>> container;
             void* client_context{nullptr};

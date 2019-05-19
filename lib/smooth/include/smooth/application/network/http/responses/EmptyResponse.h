@@ -17,9 +17,6 @@ namespace smooth
                     {
                         public:
                             explicit EmptyResponse(ResponseCode code);
-
-                            // Called once when beginning to send a response.
-                            void get_headers(std::unordered_map<std::string, std::string>& headers) override;
                     };
                 }
             }

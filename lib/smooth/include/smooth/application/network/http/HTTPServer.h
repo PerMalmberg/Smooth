@@ -201,6 +201,7 @@ namespace smooth::application::network::http
             {
                 Log::info(tag, Format("Matching route: {1}: '{2}'", Str(utils::http_method_to_string(method)),
                                       Str(requested_url)));
+
                 (*response_handler).second(response,
                                            requested_url,
                                            fist_part,

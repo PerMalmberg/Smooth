@@ -53,7 +53,7 @@ namespace smooth::core::network
     {
         std::lock_guard<std::mutex> lock(socket_guard);
         restart_inactive_sockets();
-        check_socket_send_timeout();
+        check_socket_timeouts();
 
         int max_file_descriptor = build_sets();
         if (max_file_descriptor >= 0)
@@ -307,13 +307,18 @@ namespace smooth::core::network
         socket_op.push(SocketOperation(op, std::move(socket)));
     }
 
-    void SocketDispatcher::check_socket_send_timeout()
+    void SocketDispatcher::check_socket_timeouts()
     {
         for (auto& pair : active_sockets)
         {
             if (pair.second->has_send_expired())
             {
                 Log::verbose(tag, Format("Send timeout on socket {1}", Pointer(pair.second.get())));
+                pair.second->stop();
+            }
+            else if (pair.second->has_receive_expired())
+            {
+                Log::verbose(tag, Format("Receive timeout on socket {1}", Pointer(pair.second.get())));
                 pair.second->stop();
             }
         }

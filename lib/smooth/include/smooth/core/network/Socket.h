@@ -13,7 +13,6 @@
 #include "ServerClient.h"
 #include "BufferContainer.h"
 #include <smooth/core/util/CircularBuffer.h>
-#include <smooth/core/timer/ElapsedTime.h>
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/network/event/TransmitBufferEmptyEvent.h>
 #include <smooth/core/network/event/DataAvailableEvent.h>
@@ -24,6 +23,9 @@
 
 namespace smooth::core::network
 {
+    static constexpr const std::chrono::milliseconds DefaultSendTimeout{1500};
+    static constexpr const std::chrono::milliseconds DefaultReceiveTimeout{1500};
+
     // Depending on if Smooth is compiled using regular gcc or xtensa-gcc,
     // recv() returns different types. As such we need to cast the return value of that type.
     template<typename T>
@@ -59,14 +61,16 @@ namespace smooth::core::network
             /// created.
             static std::shared_ptr<Socket<Protocol>>
             create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                   std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
+                   std::chrono::milliseconds send_timeout = DefaultSendTimeout,
+                   std::chrono::milliseconds receive_timeout = DefaultReceiveTimeout);
 
 
             static std::shared_ptr<Socket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                    int socket_id,
                    std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                   std::chrono::milliseconds timeout);
+                   std::chrono::milliseconds send_timeout = DefaultSendTimeout,
+                   std::chrono::milliseconds receive_timeout = DefaultReceiveTimeout);
 
             ~Socket() override = default;
 
@@ -87,7 +91,8 @@ namespace smooth::core::network
 
         protected:
             Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                   std::chrono::milliseconds send_timeout);
+                   std::chrono::milliseconds send_timeout,
+                   std::chrono::milliseconds receive_timeout);
 
             virtual bool create_socket();
 
@@ -98,12 +103,6 @@ namespace smooth::core::network
             void send_next_packet();
 
             bool signal_new_connection();
-
-            bool has_send_expired() const override
-            {
-                return elapsed_send_time.is_running()
-                       && elapsed_send_time.get_running_time() > send_timeout;
-            }
 
             bool internal_start() override;
 
@@ -132,10 +131,8 @@ namespace smooth::core::network
 
             bool set_no_delay();
 
-            std::chrono::milliseconds send_timeout;
             std::weak_ptr<BufferContainer<Protocol>> buffers{};
 
-            smooth::core::timer::ElapsedTime elapsed_send_time{};
         private:
             void clear_buffers();
     };
@@ -145,9 +142,10 @@ namespace smooth::core::network
     Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                                      int socket_id,
                                      std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds timeout)
+                                     std::chrono::milliseconds send_timeout,
+                                     std::chrono::milliseconds receive_timeout)
     {
-        auto s = create(buffer_container, timeout);
+        auto s = create(buffer_container, send_timeout, receive_timeout);
         s->set_existing_socket(ip, socket_id);
         return s;
     }
@@ -155,7 +153,7 @@ namespace smooth::core::network
     template<typename Protocol, typename Packet>
     std::shared_ptr<Socket<Protocol>>
     Socket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout)
+                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
     {
         // This class is solely used to enabled access to the protected Socket<Protocol, Packet> constructor from std::make_shared<>
         class MakeSharedActivator
@@ -163,23 +161,22 @@ namespace smooth::core::network
         {
             public:
                 MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                    std::chrono::milliseconds send_timeout)
-                        : Socket<Protocol, Packet>(buffer_container, send_timeout)
+                                    std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
+                        : Socket<Protocol, Packet>(buffer_container, send_timeout, receive_timeout)
                 {
                 }
 
         };
 
-        return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout);
+        return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout, receive_timeout);
     }
 
     template<typename Protocol, typename Packet>
     Socket<Protocol, Packet>::Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout
+                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout
     )
-            :
-            send_timeout(send_timeout),
-            buffers(buffer_container)
+            : CommonSocket(send_timeout, receive_timeout),
+              buffers(buffer_container)
     {
         // In case the buffers have been used by another socket previously (i.e. by another ServerClient),
         // we make sure they are empty before we start using them.
@@ -265,14 +262,10 @@ namespace smooth::core::network
     template<typename Protocol, typename Packet>
     void Socket<Protocol, Packet>::writable()
     {
-        if (active)
+        if (is_active() && signal_new_connection())
         {
             elapsed_send_time.stop_and_zero();
-
-            if (signal_new_connection())
-            {
-                send_next_packet();
-            }
+            send_next_packet();
         }
     }
 
@@ -366,11 +359,14 @@ namespace smooth::core::network
                 rx.prepare_new_packet();
             }
         }
+
+        elapsed_receive_time.start();
     }
 
     template<typename Protocol, typename Packet>
     void Socket<Protocol, Packet>::write_data(const std::shared_ptr<BufferContainer<Protocol>>& container)
     {
+        this->elapsed_receive_time.start();
 
         // Try to send as much as possible. The only guarantee POSIX gives when a socket is writable
         // is that send( id, some_data, some_length ) will be >= 1 and may or may not send the entire

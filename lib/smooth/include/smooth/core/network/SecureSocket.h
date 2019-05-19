@@ -65,22 +65,25 @@ namespace smooth::core::network
             static std::shared_ptr<SecureSocket<Protocol>>
             create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
-                   std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500));
+                   std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500),
+                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
 
             static std::shared_ptr<SecureSocket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                    int socket_id,
                    std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
-                   std::chrono::milliseconds timeout = std::chrono::milliseconds(1500));
+                   std::chrono::milliseconds timeout = std::chrono::milliseconds(1500),
+                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
 
             void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id) override;
 
         protected:
             SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                          std::unique_ptr<SSLContext> context,
-                         std::chrono::milliseconds send_timeout)
-                    : Socket<Protocol, Packet>(buffer_container, send_timeout),
+                         std::chrono::milliseconds send_timeout,
+                         std::chrono::milliseconds receive_timeout)
+                    : Socket<Protocol, Packet>(buffer_container, send_timeout, receive_timeout),
                       secure_context(std::move(context))
             {
                 mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
@@ -112,9 +115,10 @@ namespace smooth::core::network
                                            int socket_id,
                                            std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                            std::unique_ptr<SSLContext> context,
-                                           std::chrono::milliseconds timeout)
+                                           std::chrono::milliseconds send_timeout,
+                                           std::chrono::milliseconds receive_timeout)
     {
-        auto s = create(buffer_container, std::move(context), timeout);
+        auto s = create(buffer_container, std::move(context), send_timeout, receive_timeout);
         s->set_existing_socket(ip, socket_id);
         return s;
     }
@@ -123,7 +127,8 @@ namespace smooth::core::network
     std::shared_ptr<SecureSocket<Protocol>>
     SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                            std::unique_ptr<SSLContext> context,
-                                           std::chrono::milliseconds send_timeout)
+                                           std::chrono::milliseconds send_timeout,
+                                           std::chrono::milliseconds receive_timeout)
     {
         // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
         class MakeSharedActivator
@@ -132,13 +137,17 @@ namespace smooth::core::network
             public:
                 MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                     std::unique_ptr<SSLContext> context,
-                                    std::chrono::milliseconds send_timeout)
-                        : SecureSocket<Protocol, Packet>(buffer_container, std::move(context), send_timeout)
+                                    std::chrono::milliseconds send_timeout,
+                                    std::chrono::milliseconds receive_timeout)
+                        : SecureSocket<Protocol, Packet>(buffer_container, std::move(context),
+                                                         send_timeout,
+                                                         receive_timeout)
                 {
                 }
         };
 
-        return std::make_shared<MakeSharedActivator>(buffer_container, std::move(context), send_timeout);
+        return std::make_shared<MakeSharedActivator>(buffer_container, std::move(context), send_timeout,
+                                                     receive_timeout);
     }
 
     template<typename Protocol, typename Packet>
@@ -249,6 +258,8 @@ namespace smooth::core::network
                     }
                 }
             }
+
+            this->elapsed_receive_time.start();
         }
         while (this->is_active() && more_to_read);
     }
@@ -256,6 +267,8 @@ namespace smooth::core::network
     template<typename Protocol, typename Packet>
     void SecureSocket<Protocol, Packet>::write_data(const std::shared_ptr<BufferContainer<Protocol>>& container)
     {
+        this->elapsed_receive_time.start();
+
         auto& tx = container->get_tx_buffer();
         auto data_to_send = tx.get_data_to_send();
 

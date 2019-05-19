@@ -72,7 +72,7 @@ namespace smooth
                     timeval tv{};
                     bool has_ip = false;
                     static constexpr const char* tag = "SocketDispatcher";
-                    void check_socket_send_timeout();
+                    void check_socket_timeouts();
             };
         }
     }

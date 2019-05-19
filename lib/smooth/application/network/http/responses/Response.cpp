@@ -25,11 +25,6 @@ namespace smooth
                         return code;
                     }
 
-                    void Response::get_headers(std::unordered_map<std::string, std::string>& headers)
-                    {
-                        (void) headers;
-                    }
-
                     ResponseStatus Response::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
                     {
                         auto res = ResponseStatus::AllSent;
@@ -51,6 +46,11 @@ namespace smooth
                         }
 
                         return res;
+                    }
+
+                    void Response::add_header(const std::string& key, const std::string& value)
+                    {
+                        headers[key] = value;
                     }
                 }
             }
