@@ -34,7 +34,7 @@ namespace smooth::core::network
     {
         public:
             static std::shared_ptr<ServerSocket<Client, Protocol>>
-            create(smooth::core::Task& task, int max_client_count);
+            create(smooth::core::Task& task, int max_client_count, int backlog);
 
             bool start(std::shared_ptr<InetAddress> bind_to) override;
 
@@ -75,13 +75,15 @@ namespace smooth::core::network
 
             void stop_internal() override;
 
-            ServerSocket(smooth::core::Task& task, int max_client_count)
-                    : pool(task, max_client_count)
+            ServerSocket(smooth::core::Task& task, int max_client_count, int backlog)
+                    : pool(task, max_client_count), backlog(backlog)
             {
             }
 
             ClientPool<Client> pool;
             void* client_context{nullptr};
+        private:
+            int backlog{0};
     };
 
     template<typename Client, typename Protocol>
@@ -110,23 +112,21 @@ namespace smooth::core::network
     {
         auto res = std::make_tuple<std::shared_ptr<smooth::core::network::InetAddress>, int>(nullptr, 0);
 
-        sockaddr addr{};
-        socklen_t len{AF_INET6};
-
-        auto accepted_socket = accept(socket_id, &addr, &len);
-        if (accepted_socket == INVALID_SOCKET)
+        if (pool.empty())
         {
-            std::string msg = "Error accepting: ";
-            msg += strerror(errno);
-            loge(msg.c_str());
+            Log::warning("ServerSocket", "No client available at this time");
         }
         else
         {
-            if (pool.empty())
+            sockaddr addr{};
+            socklen_t len{AF_INET6};
+
+            auto accepted_socket = accept(socket_id, &addr, &len);
+            if (accepted_socket == INVALID_SOCKET)
             {
-                Log::warning("ServerSocket", "No available client, rejecting socket.");
-                shutdown(accepted_socket, SHUT_RDWR);
-                close(accepted_socket);
+                std::string msg = "Error accepting: ";
+                msg += strerror(errno);
+                loge(msg.c_str());
             }
             else
             {
@@ -148,6 +148,7 @@ namespace smooth::core::network
                     ip = std::make_shared<smooth::core::network::IPv6>(*ipv6_address);
                 }
 
+                Log::info("ServerSocket", "Connection accepted");
                 res = std::make_tuple<>(ip, accepted_socket);
             }
         }
@@ -207,7 +208,7 @@ namespace smooth::core::network
                 auto bind_res = bind(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
                 if (bind_res == 0)
                 {
-                    auto listen_res = listen(socket_id, ip->get_port());
+                    auto listen_res = listen(socket_id, backlog);
                     if (listen_res == 0)
                     {
                         connected = true;
@@ -240,21 +241,21 @@ namespace smooth::core::network
 
     template<typename Client, typename Protocol>
     std::shared_ptr<ServerSocket<Client, Protocol>> ServerSocket<Client, Protocol>::create(
-            smooth::core::Task& task, int max_client_count)
+            smooth::core::Task& task, int max_client_count, int backlog)
     {
         // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
         class MakeSharedActivator
                 : public ServerSocket<Client, Protocol>
         {
             public:
-                explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count)
-                        : ServerSocket<Client, Protocol>(task, max_client_count)
+                explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count, int backlog)
+                        : ServerSocket<Client, Protocol>(task, max_client_count, backlog)
                 {
                 }
 
         };
 
-        return std::make_shared<MakeSharedActivator>(task, max_client_count);
+        return std::make_shared<MakeSharedActivator>(task, max_client_count, backlog);
     }
 
     template<typename Client, typename Protocol>

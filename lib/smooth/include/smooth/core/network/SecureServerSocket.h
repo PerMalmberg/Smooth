@@ -20,6 +20,7 @@ namespace smooth
                     static std::shared_ptr<ServerSocket<Client, Protocol>>
                     create(smooth::core::Task& task,
                            int max_client_count,
+                           int backlog,
                            const std::vector<unsigned char>& ca_chain,
                            const std::vector<unsigned char>& own_cert,
                            const std::vector<unsigned char>& private_key,
@@ -28,11 +29,12 @@ namespace smooth
                 protected:
                     SecureServerSocket(smooth::core::Task& task,
                                        int max_client_count,
+                                       int backlog,
                                        const std::vector<unsigned char>& ca_chain,
                                        const std::vector<unsigned char>& own_cert,
                                        const std::vector<unsigned char>& private_key,
                                        const std::vector<unsigned char>& password)
-                            : ServerSocket<Client, Protocol>(task, max_client_count)
+                            : ServerSocket<Client, Protocol>(task, max_client_count, backlog)
                     {
                         server_context.init_server(ca_chain, own_cert, private_key, password);
                     }
@@ -47,6 +49,7 @@ namespace smooth
             std::shared_ptr<ServerSocket<Client, Protocol>>
             SecureServerSocket<Client, Protocol>::create(smooth::core::Task& task,
                                                          int max_client_count,
+                                                         int backlog,
                                                          const std::vector<unsigned char>& ca_chain,
                                                          const std::vector<unsigned char>& own_cert,
                                                          const std::vector<unsigned char>& private_key,
@@ -58,12 +61,14 @@ namespace smooth
                     public:
                         MakeSharedActivator(smooth::core::Task& task,
                                             int max_client_count,
+                                            int backlog,
                                             const std::vector<unsigned char>& ca_chain,
                                             const std::vector<unsigned char>& own_cert,
                                             const std::vector<unsigned char>& private_key,
                                             const std::vector<unsigned char>& password)
                                 : SecureServerSocket<Client, Protocol>(task,
                                                                        max_client_count,
+                                                                       backlog,
                                                                        ca_chain,
                                                                        own_cert,
                                                                        private_key,
@@ -74,6 +79,7 @@ namespace smooth
 
                 return std::make_shared<MakeSharedActivator>(task,
                                                              max_client_count,
+                                                             backlog,
                                                              ca_chain,
                                                              own_cert,
                                                              private_key,
