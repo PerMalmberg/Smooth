@@ -182,7 +182,9 @@ namespace smooth::core::network
         if (socket_id != ISocket::INVALID_SOCKET)
         {
             int res = shutdown(socket_id, SHUT_RDWR);
-            if (res < 0)
+
+            // Don't log "Not connected" errors
+            if (res < 0 && errno != ENOTCONN)
             {
                 Log::error(tag, Format("Shutdown error: {1}", Str(strerror(errno))));
             }
