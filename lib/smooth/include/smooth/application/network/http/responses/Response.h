@@ -32,10 +32,12 @@ namespace smooth
 
                             void add_header(const std::string& key, const std::string& value) override;
 
+                            void dump() const override;
+
                         protected:
                             std::unordered_map<std::string, std::string> headers{};
-                        private:
                             ResponseCode code;
+                        private:
                             std::vector<uint8_t> data{};
                     };
                 }

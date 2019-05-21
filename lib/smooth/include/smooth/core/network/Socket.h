@@ -248,6 +248,8 @@ namespace smooth::core::network
     {
         if (is_active())
         {
+            this->elapsed_receive_time.start();
+
             auto cont = get_container_or_close();
             if (cont)
             {

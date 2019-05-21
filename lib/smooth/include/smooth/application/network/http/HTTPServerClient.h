@@ -138,14 +138,15 @@ namespace smooth
                             Log::error(tag, "Current operation reported error, closing server client.");
                             this->close();
                         }
+                        else if(res == responses::ResponseStatus::AllSent)
+                        {
+                            current_operation.reset();
+                            // Immediately send next
+                            send_first_part();
+                        }
                         else
                         {
                             HTTPPacket p{data};
-                            if (res == responses::ResponseStatus::AllSent)
-                            {
-                                current_operation.reset();
-                            }
-
                             auto& tx = this->get_buffers()->get_tx_buffer();
                             tx.put(p);
                         }
@@ -172,6 +173,7 @@ namespace smooth
                 void HTTPServerClient<MaxHeaderSize, ContentChuckSize>::reset_client()
                 {
                     operations.clear();
+                    current_operation.reset();
                 }
 
                 template<int MaxHeaderSize, int ContentChuckSize>
@@ -258,10 +260,6 @@ namespace smooth
                         std::vector<uint8_t> data{};
                         auto res = current_operation->get_data(ContentChuckSize, data);
 
-                        HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
-                        auto& tx = this->get_buffers()->get_tx_buffer();
-                        tx.put(p);
-
                         if (res == responses::ResponseStatus::Error)
                         {
                             Log::error(tag, "Current operation reported error, closing server client.");
@@ -270,6 +268,14 @@ namespace smooth
                         else if (res == responses::ResponseStatus::AllSent)
                         {
                             current_operation.reset();
+                            // Immediately send next
+                            send_first_part();
+                        }
+                        else
+                        {
+                            HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                            auto& tx = this->get_buffers()->get_tx_buffer();
+                            tx.put(p);
                         }
                     }
                 }

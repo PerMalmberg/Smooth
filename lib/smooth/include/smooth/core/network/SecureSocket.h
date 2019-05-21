@@ -107,6 +107,12 @@ namespace smooth::core::network
 
 
             void do_handshake_step();
+            bool needs_tls_transfer(int code) const
+            {
+                return code == MBEDTLS_ERR_SSL_WANT_READ
+                || code == MBEDTLS_ERR_SSL_WANT_WRITE
+                || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS;
+            }
     };
 
     template<typename Protocol, typename Packet>
@@ -162,6 +168,8 @@ namespace smooth::core::network
     {
         if (this->is_active())
         {
+            this->elapsed_receive_time.start();
+
             if (is_handshake_complete(*secure_context))
             {
                 Socket<Protocol, Packet>::readable();
@@ -180,6 +188,7 @@ namespace smooth::core::network
         {
             if (is_handshake_complete(*secure_context))
             {
+                this->elapsed_send_time.start();
                 Socket<Protocol, Packet>::writable();
             }
             else
@@ -194,7 +203,6 @@ namespace smooth::core::network
     {
         // How much data to assemble the current packet?
 
-        bool more_to_read = false;
         auto& rx = container->get_rx_buffer();
 
         do
@@ -223,16 +231,12 @@ namespace smooth::core::network
                                                    static_cast<size_t>(wanted_length));
                 }
 
-                more_to_read = mbedtls_ssl_get_bytes_avail(*secure_context) > 0;
-
                 if (read_amount == 0)
                 {
                     // Underlying socket closed
                     this->stop();
                 }
-                else if (read_amount < 0
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_READ
-                         && read_amount != MBEDTLS_ERR_SSL_WANT_WRITE)
+                else if (read_amount < 0 && !needs_tls_transfer(read_amount))
                 {
                     if (read_amount != MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
                     {
@@ -258,10 +262,9 @@ namespace smooth::core::network
                     }
                 }
             }
-
-            this->elapsed_receive_time.start();
         }
-        while (this->is_active() && more_to_read);
+        while (this->is_active()
+               && mbedtls_ssl_get_bytes_avail(*secure_context) > 0);
     }
 
     template<typename Protocol, typename Packet>
@@ -274,34 +277,41 @@ namespace smooth::core::network
 
         auto length = tx.get_remaining_data_length();
 
-        auto amount_sent = mbedtls_ssl_write(*secure_context,
-                                             data_to_send,
-                                             static_cast<size_t>(length));
+        auto amount_sent = 0;
 
-        if (amount_sent > 0)
+        do
         {
-            tx.data_has_been_sent(amount_sent);
+            amount_sent = mbedtls_ssl_write(*secure_context,
+                                                 data_to_send,
+                                                 static_cast<size_t>(length));
 
-            // Was a complete packet sent?
-            if (tx.is_in_progress())
+            if(!needs_tls_transfer(amount_sent))
             {
-                this->elapsed_send_time.start();
-            }
-            else
-            {
-                // Let the application know it may now send another packet.
-                event::TransmitBufferEmptyEvent event(this->shared_from_this());
-                container->get_tx_empty().push(event);
+                if (amount_sent > 0)
+                {
+                    tx.data_has_been_sent(amount_sent);
+
+                    // Was a complete packet sent?
+                    if (tx.is_in_progress())
+                    {
+                        this->elapsed_send_time.start();
+                    }
+                    else
+                    {
+                        // Let the application know it may now send another packet.
+                        event::TransmitBufferEmptyEvent event(this->shared_from_this());
+                        container->get_tx_empty().push(event);
+                    }
+                }
+
+                if (amount_sent < 0 && !needs_tls_transfer(amount_sent))
+                {
+                    log_mbedtls_error("SecureSocket", "mbedtls_ssl_write", amount_sent);
+                    this->stop();
+                }
             }
         }
-
-        if (amount_sent < 0
-            && amount_sent != MBEDTLS_ERR_SSL_WANT_READ
-            && amount_sent != MBEDTLS_ERR_SSL_WANT_WRITE)
-        {
-            log_mbedtls_error("SecureSocket", "mbedtls_ssl_write", amount_sent);
-            this->stop();
-        }
+        while(needs_tls_transfer(amount_sent));
     }
 
     template<typename Protocol, typename Packet>
@@ -313,10 +323,12 @@ namespace smooth::core::network
     template<typename Protocol, typename Packet>
     void SecureSocket<Protocol, Packet>::do_handshake_step()
     {
+        this->elapsed_receive_time.start();
+        this->elapsed_send_time.start();
+
         auto res = mbedtls_ssl_handshake_step(*secure_context);
 
-        if (res == MBEDTLS_ERR_SSL_WANT_READ
-            || res == MBEDTLS_ERR_SSL_WANT_WRITE)
+        if (needs_tls_transfer(res))
         {
             // Handshake not yet complete
         }

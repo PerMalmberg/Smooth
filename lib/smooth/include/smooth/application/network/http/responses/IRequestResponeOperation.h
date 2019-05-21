@@ -30,5 +30,7 @@ namespace smooth::application::network::http::responses
 
             /// Adds a header to the reply.
             virtual void add_header(const std::string& key, const std::string& value) = 0;
+
+            virtual void dump() const = 0;
     };
 }

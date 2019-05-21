@@ -15,6 +15,8 @@ namespace smooth::application::network::http::responses
             // Called at least once when sending a response and until ResponseStatus::AllSent is returned
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
+            void dump() const override;
+
         private:
             smooth::core::filesystem::Path path;
             smooth::core::filesystem::FileInfo info;
