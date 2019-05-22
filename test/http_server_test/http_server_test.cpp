@@ -150,8 +150,8 @@ namespace http_server_test
 
         sd_card->init("/sdcard", false, 5);
 #else
-        const smooth::core::filesystem::Path web_root(
-                "/home/permal/electronics/IO-Card-G3/software/externals/smooth/test/http_server_test/static_content");
+        const smooth::core::filesystem::Path test_path(__FILE__);
+        const smooth::core::filesystem::Path web_root = test_path.parent() / "static_content";
 #endif
         std::vector<std::string> indexes{"index.html"};
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
