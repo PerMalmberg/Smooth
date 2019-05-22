@@ -265,17 +265,19 @@ namespace smooth
                             Log::error(tag, "Current operation reported error, closing server client.");
                             this->close();
                         }
-                        else if (res == responses::ResponseStatus::AllSent)
-                        {
-                            current_operation.reset();
-                            // Immediately send next
-                            send_first_part();
-                        }
                         else
                         {
+                            // Whether or not everything is sent, send the current (possibly header-only) packet.
                             HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
                             auto& tx = this->get_buffers()->get_tx_buffer();
                             tx.put(p);
+
+                            if(res == responses::ResponseStatus::AllSent)
+                            {
+                                current_operation.reset();
+                                // Immediately send next
+                                send_first_part();
+                            }
                         }
                     }
                 }
