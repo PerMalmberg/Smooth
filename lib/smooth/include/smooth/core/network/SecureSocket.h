@@ -111,7 +111,10 @@ namespace smooth::core::network
             {
                 return code == MBEDTLS_ERR_SSL_WANT_READ
                 || code == MBEDTLS_ERR_SSL_WANT_WRITE
-                || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS;
+#ifdef MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
+                || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
+#endif
+                ;
             }
     };
 
