@@ -39,6 +39,11 @@ namespace smooth::core::network
                 send_timeout = timeout;
             }
 
+            std::chrono::milliseconds get_send_timeout() const override
+            {
+                return send_timeout;
+            }
+
             void set_receive_timeout(std::chrono::milliseconds timeout) override
             {
                 receive_timeout = timeout;

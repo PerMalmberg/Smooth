@@ -65,7 +65,7 @@ namespace smooth::core::network
             static std::shared_ptr<SecureSocket<Protocol>>
             create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
-                   std::chrono::milliseconds send_timeout = std::chrono::milliseconds(1500),
+                   std::chrono::milliseconds send_timeout = std::chrono::milliseconds(5000),
                    std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
 
             static std::shared_ptr<SecureSocket<Protocol>>
@@ -73,7 +73,7 @@ namespace smooth::core::network
                    int socket_id,
                    std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
-                   std::chrono::milliseconds timeout = std::chrono::milliseconds(1500),
+                   std::chrono::milliseconds timeout = std::chrono::milliseconds(5000),
                    std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
 
             void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id) override;
@@ -189,9 +189,10 @@ namespace smooth::core::network
     {
         if (this->is_active() && this->signal_new_connection())
         {
+            this->elapsed_send_time.start();
+
             if (is_handshake_complete(*secure_context))
             {
-                this->elapsed_send_time.start();
                 Socket<Protocol, Packet>::writable();
             }
             else

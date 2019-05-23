@@ -69,6 +69,8 @@ namespace smooth::core::network
 
             virtual std::chrono::milliseconds get_receive_timeout() const= 0;
 
+            virtual std::chrono::milliseconds get_send_timeout() const = 0;
+
         protected:
             virtual bool is_connected() const = 0;
 

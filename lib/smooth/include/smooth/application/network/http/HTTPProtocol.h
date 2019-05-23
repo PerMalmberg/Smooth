@@ -75,6 +75,7 @@ namespace smooth::application::network::http
             if (header_bytes_received == static_cast<int>(packet.data().size()))
             {
                 // Make room for one byte
+                // TODO - read more than one byte at a time, this is slow and inefficient.
                 packet.increase_size(1);
             }
 

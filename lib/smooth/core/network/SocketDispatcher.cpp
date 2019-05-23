@@ -313,12 +313,14 @@ namespace smooth::core::network
         {
             if (pair.second->has_send_expired())
             {
-                Log::verbose(tag, Format("Send timeout on socket {1}", Pointer(pair.second.get())));
+                Log::warning(tag, Format("Send timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
+                                         Int64(pair.second->get_send_timeout().count())));
                 pair.second->stop();
             }
             else if (pair.second->has_receive_expired())
             {
-                Log::verbose(tag, Format("Receive timeout on socket {1}", Pointer(pair.second.get())));
+                Log::warning(tag, Format("Receive timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
+                                         Int64(pair.second->get_receive_timeout().count())));
                 pair.second->stop();
             }
         }
