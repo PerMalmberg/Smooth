@@ -4,6 +4,10 @@
 #include <smooth/core/logging/log.h>
 #include <cstring>
 
+#if defined(ESP_PLATFORM) && defined(CONFIG_MBEDTLS_DEBUG)
+    #include <mbedtls/esp_debug.h>
+#endif
+
 using namespace smooth::core::logging;
 
 namespace smooth::core::network
@@ -38,9 +42,15 @@ namespace smooth::core::network
         mbedtls_x509_crt_init(&server_cert);
         mbedtls_entropy_init(&entropy);
         mbedtls_ctr_drbg_init(&ctr_drbg);
-#ifndef ESP_PLATFORM
+
+        const int debug_threshold = 1;
+#if defined(ESP_PLATFORM)
+    #if defined(CONFIG_MBEDTLS_DEBUG)
+        mbedtls_esp_enable_debug_log(&conf, debug_threshold );
+    #endif
+#else
         mbedtls_ssl_conf_dbg(&conf, mbedtls_debug, stdout);
-        mbedtls_debug_set_threshold(1);
+        mbedtls_debug_set_threshold(debug_threshold );
 #endif
     }
 
