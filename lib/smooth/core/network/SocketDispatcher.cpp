@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 
 using namespace smooth::core::logging;
+using namespace std::chrono;
 
 namespace smooth::core::network
 {
@@ -52,6 +53,7 @@ namespace smooth::core::network
     void SocketDispatcher::tick()
     {
         std::lock_guard<std::mutex> lock(socket_guard);
+        print_status();
         restart_inactive_sockets();
         check_socket_timeouts();
 
@@ -337,6 +339,17 @@ namespace smooth::core::network
     bool SocketDispatcher::is_fd_set(std::size_t socket_id, fd_set& fd)
     {
         return FD_ISSET(socket_id, &fd);
+    }
+
+    void SocketDispatcher::print_status() const
+    {
+        static steady_clock::time_point last = steady_clock::now();
+        auto now = steady_clock::now();
+        if(now - last > seconds{15} )
+        {
+            last = now;
+            Log::info(tag, Format("Active sockets: {1}", UInt64(active_sockets.size())));
+        }
     }
 
 #pragma GCC diagnostic pop

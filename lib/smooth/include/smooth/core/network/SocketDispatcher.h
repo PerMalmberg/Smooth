@@ -67,6 +67,8 @@ namespace smooth
                     static void set_fd(std::size_t socket_id, fd_set& fd);
                     static bool is_fd_set(std::size_t socket_id, fd_set& fd);
 
+                    void print_status() const;
+
                     fd_set read_set{};
                     fd_set write_set{};
                     timeval tv{};
