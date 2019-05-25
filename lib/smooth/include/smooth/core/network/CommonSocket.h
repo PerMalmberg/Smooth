@@ -22,6 +22,8 @@ namespace smooth::core::network
             CommonSocket(std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
                     : send_timeout(send_timeout), receive_timeout(receive_timeout)
             {
+                // Always start the receive timer so that when no data at all is received, we timeout.
+                elapsed_receive_time.start();
             }
 
             void clear_socket_id() override;
