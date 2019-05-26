@@ -11,6 +11,7 @@
 namespace smooth::core::network
 {
     class SocketDispatcher;
+    class ISocketBackOff;
 
     /// Interface for sockets
     class ISocket
@@ -74,7 +75,7 @@ namespace smooth::core::network
         protected:
             virtual bool is_connected() const = 0;
 
-            virtual void readable() = 0;
+            virtual void readable(ISocketBackOff& ops) = 0;
 
             virtual void writable() = 0;
 

@@ -76,7 +76,7 @@ namespace smooth::core::network
                         auto it = active_sockets.find(i);
                         if (it != active_sockets.end())
                         {
-                            it->second->readable();
+                            it->second->readable(*this);
                         }
                     }
 
@@ -135,16 +135,19 @@ namespace smooth::core::network
             max = std::max(max, s->get_socket_id());
             if (s->is_active())
             {
-                if (s->has_data_to_transmit() || !s->is_connected())
+                if (!is_backed_off(s->get_socket_id()))
                 {
-                    // A valid socket id is >= 0 so casting to unsigned is safe
-                    set_fd(static_cast<size_t >(s->get_socket_id()), write_set);
-                }
+                    if (s->has_data_to_transmit() || !s->is_connected())
+                    {
+                        // A valid socket id is >= 0 so casting to unsigned is safe
+                        set_fd(static_cast<size_t >(s->get_socket_id()), write_set);
+                    }
 
-                if (s->is_connected())
-                {
-                    // A valid socket id is >= 0 so casting to unsigned is safe
-                    set_fd(static_cast<size_t>(s->get_socket_id()), read_set);
+                    if (s->is_connected())
+                    {
+                        // A valid socket id is >= 0 so casting to unsigned is safe
+                        set_fd(static_cast<size_t>(s->get_socket_id()), read_set);
+                    }
                 }
             }
         }
@@ -179,6 +182,7 @@ namespace smooth::core::network
         socket->stop_internal();
         remove_socket_from_active_sockets(socket);
         remove_socket_from_collection(inactive_sockets, socket);
+        remove_backed_off_socket(socket->get_socket_id());
 
         auto socket_id = socket->get_socket_id();
         if (socket_id != ISocket::INVALID_SOCKET)
@@ -212,12 +216,11 @@ namespace smooth::core::network
     void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
                                                          const std::shared_ptr<ISocket>& socket)
     {
-        const std::function<bool(const std::shared_ptr<ISocket>)> predicate = [socket](
-                const std::shared_ptr<ISocket> o) {
+        const auto predicate = [&socket](const std::shared_ptr<ISocket>& o) {
             return (o.get()) == (socket.get());
         };
 
-        auto found = std::find_if(col.begin(), col.end(), predicate);
+        const auto found = std::find_if(col.begin(), col.end(), predicate);
         if (found != col.end())
         {
             col.erase(found);
@@ -226,10 +229,11 @@ namespace smooth::core::network
 
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
-        auto found = std::find_if(active_sockets.begin(), active_sockets.end(),
-                                  [socket](std::pair<int, std::shared_ptr<ISocket>> o) {
-                                      return o.second.get() == socket.get();
-                                  });
+        const auto predicate = [&socket](std::pair<int, const std::shared_ptr<ISocket>> o) {
+            return o.second.get() == socket.get();
+        };
+
+        const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), predicate);
 
         if (found != active_sockets.end())
         {
@@ -345,10 +349,43 @@ namespace smooth::core::network
     {
         static steady_clock::time_point last = steady_clock::now();
         auto now = steady_clock::now();
-        if(now - last > seconds{15} )
+        if (now - last > seconds{15})
         {
             last = now;
             Log::info(tag, Format("Active sockets: {1}", UInt64(active_sockets.size())));
+        }
+    }
+
+    void SocketDispatcher::back_off(int socket_id, std::chrono::milliseconds duration)
+    {
+        backed_off[socket_id] = steady_clock::now() + duration;
+    }
+
+    bool SocketDispatcher::is_backed_off(int socket_id)
+    {
+        const auto& it = backed_off.find(socket_id);
+        bool b_off = it != backed_off.end();
+
+        if (b_off)
+        {
+            const auto& pair = *it;
+            if (pair.second < steady_clock::now())
+            {
+                // No longer backed off
+                backed_off.erase(socket_id);
+                b_off = false;
+            }
+        }
+
+        return b_off;
+    }
+
+    void SocketDispatcher::remove_backed_off_socket(int socket_id)
+    {
+        const auto& it = backed_off.find(socket_id);
+        if(it != backed_off.end())
+        {
+            backed_off.erase(it);
         }
     }
 
