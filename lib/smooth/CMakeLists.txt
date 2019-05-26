@@ -7,7 +7,6 @@ smooth_verify_idf_path()
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
-        application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp

@@ -21,9 +21,16 @@ namespace smooth::application::network::http
                           "MaxHeaderSize must be larger than 0, and a reasonable value.");
             static_assert(ContentChunkSize > 0,
                           "ContentChunkSize must be larger than 0, and a reasonable value.");
+            static_assert(ContentChunkSize >= MaxHeaderSize,
+                          "ContentChunkSize must be  larger or equal to MaxHeaderSize");
 
         public:
             using packet_type = HTTPPacket;
+
+            HTTPProtocol()
+            {
+                remains.reserve(MaxHeaderSize);
+            }
 
             int get_wanted_amount(HTTPPacket& packet) override;
 
@@ -40,14 +47,15 @@ namespace smooth::application::network::http
             void reset() override;
 
         private:
-            void parse_headers(HTTPPacket& packet);
+            int consume_headers(HTTPPacket& packet, std::vector<uint8_t>::const_iterator header_ending);
+
+            void set_continuation_indicators(HTTPPacket& packet) const;
 
             enum class State
             {
                     reading_headers,
                     reading_content
             };
-
             int incoming_content_length = 0;
             int header_bytes_received{0};
             int total_content_bytes_received = 0;
@@ -56,36 +64,43 @@ namespace smooth::application::network::http
             const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
             const char* CONTENT_LENGTH = "content-length";
             const char* tag = "HTTPProtocol";
-            bool error = false;
 
+            bool error = false;
             State state = State::reading_headers;
             std::string last_method{};
             std::string last_url{};
+
             std::string last_request_version{};
+
+            std::vector<uint8_t> remains{};
     };
 
     template<int MaxHeaderSize, int ContentChuckSize>
     int HTTPProtocol<MaxHeaderSize, ContentChuckSize>::get_wanted_amount(HTTPPacket& packet)
     {
+        auto& data = packet.data();
+
+        // If there is data remaining from the previous read, move that into the current packet
+        if(!remains.empty())
+        {
+            content_bytes_received_in_current_package = static_cast<int>(remains.size());
+            std::move(remains.begin(), remains.end(), std::back_inserter(data));
+            remains.clear();
+        }
+
         int res;
 
-        // Return the number of bytes available in the buffer
+        // Return the number of bytes wanted to fill the packet
         if (state == State::reading_headers)
         {
-            if (header_bytes_received == static_cast<int>(packet.data().size()))
-            {
-                // Make room for one byte
-                // TODO - read more than one byte at a time, this is slow and inefficient.
-                packet.increase_size(1);
-            }
-
-            res = 1;
+            res = MaxHeaderSize - header_bytes_received;
+            packet.ensure_room(header_bytes_received + res);
         }
         else
         {
             // Don't make packets larger than ContentChunkSize
-            res = std::min(incoming_content_length, ContentChuckSize - content_bytes_received_in_current_package);
-            packet.set_size(res);
+            res = std::min(incoming_content_length - total_content_bytes_received, ContentChuckSize - content_bytes_received_in_current_package);
+            packet.ensure_room(content_bytes_received_in_current_package + res);
         }
 
         return res;
@@ -98,21 +113,59 @@ namespace smooth::application::network::http
         {
             header_bytes_received += length;
 
-            if (packet.ends_with_two_crlf())
+            const auto end_of_header = packet.get_header_ending();
+            if (end_of_header != packet.data().end())
             {
-                // End of header, parse it.
-                parse_headers(packet);
                 state = State::reading_content;
+
+                auto total_bytes_so_far = header_bytes_received;
+
+                // End of header detected, consume it from the packet.
+                header_bytes_received = consume_headers(packet, end_of_header);
+
+                content_bytes_received_in_current_package = total_bytes_so_far - header_bytes_received;
+                total_content_bytes_received = content_bytes_received_in_current_package;
 
                 try
                 {
                     incoming_content_length = packet.headers()[CONTENT_LENGTH].empty() ? 0 : std::stoi(
                             packet.headers()[CONTENT_LENGTH]);
-                    total_content_bytes_received = 0;
                 }
                 catch (...)
                 {
                     incoming_content_length = 0;
+                }
+
+                auto& data = packet.data();
+
+                // Any data not part of the headers must be considered part of the content, or part of the next packet.
+                if (content_bytes_received_in_current_package >= incoming_content_length)
+                {
+                    // The packet is so small we received it all while reading the header, and we possibly
+                    // also have read part of the next packet.
+
+                    // Do we have data for next packet?
+                    if(content_bytes_received_in_current_package > incoming_content_length)
+                    {
+                        // TODO: Use netcat to craft a message that triggers this path.
+                        // We do, move parts after current content to other buffer.
+                        remains.clear();
+                        auto start_next = header_bytes_received + incoming_content_length;
+                        auto end_next = start_next + (content_bytes_received_in_current_package - incoming_content_length);
+                        std::move(data.begin() + start_next, data.begin() + end_next, std::back_inserter(remains));
+                        data.erase(std::remove_if(data.begin() + start_next, data.end(), [](auto&){return true;}), data.end());
+                    }
+
+                    // Must trim the packet since we reserved MaxHeaderSize in get_wanted_amount() to be able to do
+                    // block reads but we don't want to count the extra space after the actual data.
+                    data.erase(std::remove_if(data.begin() + content_bytes_received_in_current_package, data.end(), [](auto&){return true;}), data.end());
+
+                    // Only data for current packet left at this point
+                    const auto current_size = static_cast<int>(data.size());
+                    total_content_bytes_received = current_size;
+                    content_bytes_received_in_current_package = current_size;
+
+                    set_continuation_indicators(packet);
                 }
             }
             else if (header_bytes_received > MaxHeaderSize)
@@ -123,24 +176,30 @@ namespace smooth::application::network::http
                            Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(MaxHeaderSize)));
             }
         }
-        else
+        else // reading_content
         {
             total_content_bytes_received += length;
             content_bytes_received_in_current_package += length;
 
-            if (total_content_bytes_received > ContentChuckSize)
-            {
-                // Packet continues a previous packet.
-                packet.set_continuation();
-            }
-
-            if (total_content_bytes_received < incoming_content_length)
-            {
-                // There is more content to read, this packet will be followed by another packet.
-                packet.set_continued();
-            }
+            set_continuation_indicators(packet);
 
             packet.set_request_data(last_method, last_url, last_request_version);
+        }
+    }
+
+    template<int MaxHeaderSize, int ContentChuckSize>
+    void HTTPProtocol<MaxHeaderSize, ContentChuckSize>::set_continuation_indicators(HTTPPacket& packet) const
+    {
+        if (total_content_bytes_received > ContentChuckSize)
+        {
+            // Packet continues a previous packet.
+            packet.set_continuation();
+        }
+
+        if (total_content_bytes_received < incoming_content_length)
+        {
+            // There is more content to read, this packet will be followed by another packet.
+            packet.set_continued();
         }
     }
 
@@ -174,16 +233,25 @@ namespace smooth::application::network::http
     }
 
     template<int MaxHeaderSize, int ContentChuckSize>
-    void HTTPProtocol<MaxHeaderSize, ContentChuckSize>::parse_headers(HTTPPacket& packet)
+    int HTTPProtocol<MaxHeaderSize, ContentChuckSize>::consume_headers(HTTPPacket& packet,
+                                                                       std::vector<uint8_t>::const_iterator header_ending)
     {
         std::stringstream ss;
 
-        std::for_each(packet.data().cbegin(), packet.data().cend(), [&ss](auto& c) {
+        std::for_each(packet.data().cbegin(), header_ending, [&ss](auto& c) {
             if (c != '\n')
             {
                 ss << static_cast<char>(c);
             }
         });
+
+
+        // Get actual end of header
+        header_ending += HTTPPacket::ending.size();
+        // Update actual header size
+        auto actual_header_bytes_received = static_cast<int>(std::distance(packet.data().cbegin(), header_ending));
+        // Erase header
+        packet.data().erase(packet.data().begin(), header_ending);
 
         std::string s;
         while (std::getline(ss, s, '\r'))
@@ -202,7 +270,7 @@ namespace smooth::application::network::http
                         last_request_version = m[3].str();
                         packet.set_request_data(last_method, last_url, last_request_version);
                     }
-                    else if(std::regex_match(s, m, response_line))
+                    else if (std::regex_match(s, m, response_line))
                     {
                         // Store response data for later use
                         try
@@ -210,7 +278,7 @@ namespace smooth::application::network::http
                             auto response_code = std::stoi(m[2].str());
                             packet.set_response_data(static_cast<ResponseCode>(response_code));
                         }
-                        catch(...)
+                        catch (...)
                         {
                             error = true;
                             Log::error("HTTPProtocol",
@@ -236,7 +304,7 @@ namespace smooth::application::network::http
 //            Log::debug(tag, Format("{1}: {2}", Str(header.first), Str(header.second)));
 //        }
 
-        packet.clear();
+        return actual_header_bytes_received;
     }
 
     template<int MaxHeaderSize, int ContentChuckSize>

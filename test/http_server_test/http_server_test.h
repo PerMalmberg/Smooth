@@ -29,7 +29,7 @@ namespace http_server_test
 #endif
 
             static constexpr int MaxHeaderSize = 1024;
-            static constexpr int ContentChuckSize = 500;
+            static constexpr int ContentChuckSize = 1024;
             using Client = smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>;
             using Protocol = smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>;
 

@@ -43,14 +43,13 @@ namespace smooth::core::network
         mbedtls_entropy_init(&entropy);
         mbedtls_ctr_drbg_init(&ctr_drbg);
 
-        const int debug_threshold = 1;
 #if defined(ESP_PLATFORM)
     #if defined(CONFIG_MBEDTLS_DEBUG)
-        mbedtls_esp_enable_debug_log(&conf, debug_threshold );
+        mbedtls_esp_enable_debug_log(&conf, 1);
     #endif
 #else
         mbedtls_ssl_conf_dbg(&conf, mbedtls_debug, stdout);
-        mbedtls_debug_set_threshold(debug_threshold );
+        mbedtls_debug_set_threshold(1);
 #endif
     }
 
