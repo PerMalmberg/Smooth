@@ -147,18 +147,28 @@ namespace smooth::application::network::http
                     // Do we have data for next packet?
                     if(content_bytes_received_in_current_package > incoming_content_length)
                     {
-                        // TODO: Use netcat to craft a message that triggers this path.
                         // We do, move parts after current content to other buffer.
+
+                        // Test command to trigger this branch:
+                        // echo "GET / HTTP/1.1\r\n\r\nGET / HTTP/1.1\r\n\Connection: keep-alive\r\nContent-Length: 5\r\n12345\r\n\r\n" |nc localhost 8080
+                        // Note that if this path is triggered, another readable() event is required for the stored data
+                        // to actually be used, there is no recursive calls to force it to be processed.
+
                         remains.clear();
-                        auto start_next = header_bytes_received + incoming_content_length;
-                        auto end_next = start_next + (content_bytes_received_in_current_package - incoming_content_length);
-                        std::move(data.begin() + start_next, data.begin() + end_next, std::back_inserter(remains));
-                        data.erase(std::remove_if(data.begin() + start_next, data.end(), [](auto&){return true;}), data.end());
+                        auto length_of_extra_data = content_bytes_received_in_current_package - incoming_content_length;
+                        auto start_next = data.begin() + incoming_content_length;
+                        auto end_next = start_next + length_of_extra_data;
+                        std::move(start_next, end_next, std::back_inserter(remains));
+                        data.erase(std::remove_if(start_next, data.end(), [](auto&){return true;}), data.end());
                     }
 
                     // Must trim the packet since we reserved MaxHeaderSize in get_wanted_amount() to be able to do
                     // block reads but we don't want to count the extra space after the actual data.
-                    data.erase(std::remove_if(data.begin() + content_bytes_received_in_current_package, data.end(), [](auto&){return true;}), data.end());
+                    if(std::distance(data.begin(), data.end()) > content_bytes_received_in_current_package)
+                    {
+                        data.erase(std::remove_if(data.begin() + content_bytes_received_in_current_package, data.end(),
+                                                  [](auto&) { return true; }), data.end());
+                    }
 
                     // Only data for current packet left at this point
                     const auto current_size = static_cast<int>(data.size());
