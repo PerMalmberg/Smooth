@@ -144,7 +144,7 @@ namespace smooth::application::network::http
                     // The packet is so small we received it all while reading the header, and we possibly
                     // also have read part of the next packet.
 
-                    // Do we have data for next packet?
+                    // Do we have data for next packet, i.e. is the client doing HTTP-pipelining?
                     if(content_bytes_received_in_current_package > incoming_content_length)
                     {
                         // We do, move parts after current content to other buffer.
