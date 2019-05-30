@@ -24,12 +24,12 @@ namespace smooth
                         return buff.size();
                     }
 
-                    decltype(typename std::array<T, Size>::iterator) begin()
+                    typename std::array<T, Size>::iterator begin()
                     {
                         return buff.begin();
                     }
 
-                    decltype(typename std::array<T, Size>::iterator) end()
+                    typename std::array<T, Size>::iterator end()
                     {
                         return buff.end();
                     }

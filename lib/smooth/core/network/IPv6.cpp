@@ -7,17 +7,30 @@
 
 namespace smooth
 {
-    namespace  core
+    namespace core
     {
         namespace network
         {
 
-            IPv6::IPv6(const std::string& ip_number_as_string, uint16_t port) : InetAddress(ip_number_as_string, port)
+            IPv6::IPv6(const std::string& ip_number_as_string, uint16_t port)
+                    : InetAddress(ip_number_as_string, port)
             {
                 memset(&sock_address, 0, sizeof(sock_address));
                 sock_address.sin6_family = AF_INET6;
                 sock_address.sin6_port = htons(port);
                 valid = inet_pton(AF_INET, ip_number_as_string.c_str(), &sock_address.sin6_addr) == 1;
+            }
+
+            IPv6::IPv6(const sockaddr_in6& address)
+                    : InetAddress("", 0),
+                      sock_address(address)
+            {
+
+            }
+
+            bool IPv6::resolve_ip()
+            {
+                return true;
             }
 
             sockaddr* IPv6::get_socket_address()

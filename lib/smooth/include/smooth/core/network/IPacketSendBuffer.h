@@ -1,8 +1,6 @@
-//
-// Created by permal on 7/9/17.
-//
-
 #pragma once
+
+#include <cstdint>
 
 namespace smooth
 {

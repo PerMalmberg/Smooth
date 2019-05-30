@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <algorithm>
 #include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;
@@ -106,7 +107,7 @@ namespace smooth
                     int count()
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        return items.size();
+                        return static_cast<int>(items.size());
                     }
 
                 private:

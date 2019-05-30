@@ -41,6 +41,12 @@ namespace smooth
                 memset(&sock_address, 0, sizeof(sock_address));
             }
 
+            IPv4::IPv4(const sockaddr_in& addr)
+                    : InetAddress("", 0),
+                      sock_address(addr)
+            {
+            }
+
             sockaddr* IPv4::get_socket_address()
             {
                 return reinterpret_cast<sockaddr*>(&sock_address);
@@ -54,7 +60,7 @@ namespace smooth
             bool IPv4::resolve_ip()
             {
                 std::smatch match;
-                if(std::regex_match(host, match, numeric_ip))
+                if (std::regex_match(host, match, numeric_ip))
                 {
                     // Already an IP
                     resolved_ip = host;
@@ -66,10 +72,10 @@ namespace smooth
                 {
                     memset(&sock_address, 0, sizeof(sock_address));
 
-                    struct addrinfo *result = nullptr;
+                    struct addrinfo* result = nullptr;
 
                     auto res = getaddrinfo(host.c_str(), nullptr, nullptr, &result);
-                    if(res != 0)
+                    if (res != 0)
                     {
 #if ESP_PLATFORM
                         Log::error("IPv4", Format("Failed to lookup hostname {1}", Int32(res)));
@@ -80,7 +86,7 @@ namespace smooth
                     else
                     {
                         // Pick the first match (there may be more than one)
-                        if(result->ai_family == AF_INET)
+                        if (result->ai_family == AF_INET)
                         {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"

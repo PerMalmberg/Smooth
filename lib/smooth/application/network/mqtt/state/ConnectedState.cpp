@@ -28,7 +28,7 @@ namespace smooth
                         }
                     }
 
-                    void ConnectedState::event(const core::network::ConnectionStatusEvent& event)
+                    void ConnectedState::event(const core::network::event::ConnectionStatusEvent& event)
                     {
                         if (!event.is_connected())
                         {

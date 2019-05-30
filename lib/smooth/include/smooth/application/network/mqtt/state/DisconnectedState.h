@@ -28,7 +28,7 @@ namespace smooth
                             void enter_state() override;
 
                             void event(const core::timer::TimerExpiredEvent& event) override;
-                            void event(const core::network::ConnectionStatusEvent& event) override;
+                            void event(const core::network::event::ConnectionStatusEvent& event) override;
                         private:
                     };
                 }

@@ -40,15 +40,18 @@ namespace smooth
                     /// Must return true when the packet has received all data it needs
                     /// to fully assemble.
                     /// \return true or false
-                    virtual bool is_complete() = 0;
+                    virtual bool is_complete(Packet& packet) = 0;
 
                     /// Must return true whenever the packet is unable to correctly assemble
                     /// based on received data.
                     /// \return true or false
                     virtual bool is_error() = 0;
 
-                    /// Tells the protocol, that the last received package has been consumed.
+                    /// Tells the protocol that the current working-package has been consumed.
                     virtual void packet_consumed() = 0;
+
+                    /// Resets the protocol
+                    virtual void reset() = 0;
 
                     virtual ~IPacketAssembly() = default;
             };

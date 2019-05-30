@@ -4,12 +4,45 @@
 
 #pragma once
 
+#include <mutex>
+
 namespace smooth
 {
     namespace core
     {
         namespace network
         {
+            class LockedWritePos
+            {
+                public:
+                    explicit LockedWritePos(std::mutex& guard)
+                            : lock(guard)
+                    {
+                    }
+
+                    LockedWritePos(LockedWritePos&& other) = default;
+
+                    LockedWritePos() = delete;
+                    LockedWritePos(const LockedWritePos&) = delete;
+                    LockedWritePos operator=(const LockedWritePos&) = delete;
+
+                    void set_pos(uint8_t* pos) { write_pos = pos; }
+
+                    explicit operator void*()
+                    {
+                        return write_pos;
+                    }
+
+                    explicit operator uint8_t*()
+                    {
+                        return write_pos;
+                    }
+
+                private:
+                    std::unique_lock<std::mutex> lock;
+                    uint8_t* write_pos = nullptr;
+            };
+
             /// Interface for packet receive buffers
             template<typename Protocol, typename Packet = typename Protocol::packet_type>
             class IPacketReceiveBuffer
@@ -24,7 +57,7 @@ namespace smooth
                     virtual int amount_wanted() = 0;
                     /// Gets the write position in the packet to which data should be written.
                     /// \return
-                    virtual uint8_t* get_write_pos() = 0;
+                    virtual LockedWritePos get_write_pos() = 0;
                     /// This method is called to notify the buffer that the specified amount of data has been written.
                     /// \param length The number of bytes written.
                     virtual void data_received(int length) = 0;

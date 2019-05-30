@@ -4,9 +4,15 @@ include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
 
 smooth_verify_idf_path()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
+        application/network/http/HTTPPacket.cpp
+        application/network/http/URLEncoding.cpp
+        application/network/http/http_utils.cpp
+        application/network/http/responses/EmptyResponse.cpp
+        application/network/http/responses/FileContentResponse.cpp
+        application/network/http/responses/Response.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -36,10 +42,14 @@ set(SOURCES
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
+        core/filesystem/File.cpp
+        core/filesystem/FSLock.cpp
+        core/filesystem/Path.cpp
         core/network/IPv4.cpp
-        #core/network/IPv6.cpp
+        core/network/IPv6.cpp
         core/network/MbedTLSContext.cpp
         core/network/SocketDispatcher.cpp
+        core/network/CommonSocket.cpp
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
@@ -50,6 +60,15 @@ set(SOURCES
         include/smooth/application/display/ST7735.h
         include/smooth/application/io/i2c/ADS1115.h
         include/smooth/application/io/i2c/MCP23017.h
+        include/smooth/application/network/http/HTTPServerClient.h
+        include/smooth/application/network/http/HTTPServer.h
+        include/smooth/application/network/http/HTTPProtocol.h
+        include/smooth/application/network/http/URLEncoding.h
+        include/smooth/application/network/http/http_utils.h
+        include/smooth/application/network/http/responses/EmptyResponse.h
+        include/smooth/application/network/http/responses/FileContentResponse.h
+        include/smooth/application/network/http/responses/IRequestResponeOperation.h
+        include/smooth/application/network/http/responses/Response.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
@@ -89,51 +108,6 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
-        include/smooth/core/fsm/StaticFSM.h
-        include/smooth/core/ipc/IEventListener.h
-        include/smooth/core/ipc/ITaskEventQueue.h
-        include/smooth/core/ipc/Link.h
-        include/smooth/core/ipc/Publisher.h
-        include/smooth/core/ipc/Queue.h
-        include/smooth/core/ipc/QueueNotification.h
-        include/smooth/core/ipc/SubscribingTaskEventQueue.h
-        include/smooth/core/ipc/TaskEventQueue.h
-        include/smooth/core/logging/log.h
-        include/smooth/core/network/ConnectionStatusEvent.h
-        include/smooth/core/network/DataAvailableEvent.h
-        include/smooth/core/network/InetAddress.h
-        include/smooth/core/network/IPacketAssembly.h
-        include/smooth/core/network/IPacketDisassembly.h
-        include/smooth/core/network/IPacketReceiveBuffer.h
-        include/smooth/core/network/IPacketSendBuffer.h
-        include/smooth/core/network/IPv4.h
-        include/smooth/core/network/IPv6.h
-        include/smooth/core/network/ISocket.h
-        include/smooth/core/network/MbedTLSContext.h
-        include/smooth/core/network/NetworkStatus.h
-        include/smooth/core/network/SocketOperation.h
-        include/smooth/core/network/PacketReceiveBuffer.h
-        include/smooth/core/network/PacketSendBuffer.h
-        include/smooth/core/network/Socket.h
-        include/smooth/core/network/SocketDispatcher.h
-        include/smooth/core/network/TransmitBufferEmptyEvent.h
-        include/smooth/core/timer/ElapsedTime.h
-        include/smooth/core/timer/ITimer.h
-        include/smooth/core/timer/Timer.h
-        include/smooth/core/timer/TimerExpiredEvent.h
-        include/smooth/core/timer/TimerService.h
-        include/smooth/core/util/advance_iterator.h
-        include/smooth/core/util/ByteSet.h
-        include/smooth/core/util/CircularBuffer.h
-        include/smooth/core/util/FixedBuffer.h
-        include/smooth/core/util/FixedBufferBase.h
-        include/smooth/core/Application.h
-        include/smooth/core/Task.h
-        include/smooth/core/task_priorities.h
-        include/smooth/core/ipc/ILinkSubscriber.h
-        include/smooth/core/ipc/IPolledTaskQueue.h
-        include/smooth/core/json/Value.h
-        include/smooth/core/json/JsonFile.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -149,7 +123,6 @@ if (${ESP_PLATFORM})
             core/io/i2c/I2CCommandLink.cpp
             core/io/i2c/I2CMasterDevice.cpp
             core/io/i2c/Master.cpp
-            core/filesystem/File.cpp
             core/filesystem/SPIFlash.cpp
             core/filesystem/SDCard.cpp
             core/filesystem/SPISDCard.cpp

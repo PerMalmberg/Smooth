@@ -6,7 +6,7 @@
 
 #include <condition_variable>
 #include <mutex>
-#include <queue>
+#include <deque>
 #include "ITaskEventQueue.h"
 
 namespace smooth
@@ -22,19 +22,17 @@ namespace smooth
                     ~QueueNotification() = default;
 
                     void notify(ITaskEventQueue* queue);
+                    void remove(ITaskEventQueue* queue);
                     ITaskEventQueue* wait_for_notification(std::chrono::milliseconds timeout);
 
                     void clear()
                     {
                         std::lock_guard<std::mutex> lock(guard);
-                        while(!queues.empty())
-                        {
-                            queues.pop();
-                        }
+                        queues.clear();
                     }
 
                 private:
-                    std::queue<ITaskEventQueue*> queues{};
+                    std::deque<ITaskEventQueue*> queues{};
                     std::mutex guard{};
                     std::condition_variable cond{};
             };

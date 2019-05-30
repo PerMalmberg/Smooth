@@ -1,36 +1,71 @@
 #pragma once
 
+#include <vector>
+#include <memory>
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/ssl.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/debug.h>
 
-namespace smooth
+namespace smooth::core::network
 {
-    namespace core
+    void log_mbedtls_error(const char*  log_tag, const char* prefix, int err_code) noexcept;
+
+    class SSLContext
     {
-        namespace network
-        {
-            class MBedTLSContext
+        public:
+            SSLContext()
             {
-                public:
-                    MBedTLSContext() = default;
-                    ~MBedTLSContext();
+                mbedtls_ssl_init(&ssl);
+            }
 
-                    bool init();
+            ~SSLContext()
+            {
+                mbedtls_ssl_free(&ssl);
+            }
 
-                    mbedtls_ssl_context* get_context() { return &ssl; }
-                    const mbedtls_ssl_context* get_context() const { return &ssl; }
+            operator mbedtls_ssl_context*()
+            {
+                return &ssl;
+            }
 
-                private:
+            mbedtls_ssl_states get_state() const
+            {
+                return static_cast<mbedtls_ssl_states>(ssl.state);
+            }
 
-                    mbedtls_entropy_context entropy{};
-                    mbedtls_ctr_drbg_context ctr_drbg{};
-                    mbedtls_ssl_context ssl{};
-                    mbedtls_ssl_config conf{};
-                    mbedtls_x509_crt ca_cert{};
-            };
-        }
-    }
+        private:
+            mbedtls_ssl_context ssl{};
+    };
+
+    class MBedTLSContext
+    {
+        public:
+            MBedTLSContext();
+
+            ~MBedTLSContext();
+
+            bool init_client(const std::vector<unsigned char>& ca_certificates);
+
+            bool init_server(const std::vector<unsigned char>& ca_certificates,
+                             const std::vector<unsigned char>& server_certificate,
+                             const std::vector<unsigned char>& private_key,
+                             const std::vector<unsigned char>& password);
+
+            std::unique_ptr<SSLContext> create_context();
+
+        private:
+            int common_init(bool server);
+
+            int load_certificate(const std::vector<unsigned char>& cert, mbedtls_x509_crt& target);
+
+            mbedtls_entropy_context entropy{};
+            mbedtls_ctr_drbg_context ctr_drbg{};
+            mbedtls_ssl_config conf{};
+            mbedtls_x509_crt ca_cert{};
+            mbedtls_x509_crt ca_chain{};
+            mbedtls_x509_crt server_cert{};
+            mbedtls_pk_context pk_key{};
+    };
 }

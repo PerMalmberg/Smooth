@@ -24,7 +24,7 @@ namespace smooth
                             friend class MQTTProtocol;
 
                         public:
-                            virtual ~MQTTPacket() = default;
+                            ~MQTTPacket() override = default;
 
                             virtual std::vector<uint8_t>::const_iterator get_payload_cbegin() const
                             {

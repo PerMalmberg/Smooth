@@ -11,3 +11,6 @@ set_target_properties( ${PROJECT_NAME}
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/../.."
         )
 
+if( NOT ESP_PLATFORM )
+    target_link_libraries(${PROJECT_NAME} asan)
+endif()

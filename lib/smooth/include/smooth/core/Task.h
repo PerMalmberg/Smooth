@@ -48,8 +48,9 @@ namespace smooth
                 void start();
 
                 void register_queue_with_task(smooth::core::ipc::ITaskEventQueue *task_queue);
-
                 void register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue *polled_queue);
+
+                void unregister_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue *polled_queue);
 
                 Task(const Task&) = delete;
 
@@ -69,7 +70,7 @@ namespace smooth
                 /// \param priority Task priority
                 /// \param tick_interval Tick interval
                 /// \param core Core affinity, defaults to no affinity
-                Task(const std::string& task_name,
+                Task(std::string  task_name,
                      uint32_t stack_size,
                      uint32_t priority,
                      std::chrono::milliseconds tick_interval,
@@ -107,6 +108,7 @@ namespace smooth
                 int affinity;
                 std::atomic_bool started{false};
                 std::mutex start_mutex{};
+                std::mutex queue_mutex{}; //TODO: QQQ Needed or can we use start_mutex?
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
                 std::vector<smooth::core::ipc::IPolledTaskQueue *> polled_queues{};

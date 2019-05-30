@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <smooth/core/network/DataAvailableEvent.h>
-#include <smooth/core/network/ConnectionStatusEvent.h>
-#include <smooth/core/network/TransmitBufferEmptyEvent.h>
+#include <smooth/core/network/event/DataAvailableEvent.h>
+#include <smooth/core/network/event/ConnectionStatusEvent.h>
+#include <smooth/core/network/event/TransmitBufferEmptyEvent.h>
 #include <smooth/core/ipc/IEventListener.h>
 #include <smooth/core/timer/Timer.h>
 #include <smooth/core/timer/TimerExpiredEvent.h>
@@ -25,8 +25,8 @@ namespace smooth
                 {
                     class MQTTBaseState
                             :
-                                    public core::ipc::IEventListener<core::network::TransmitBufferEmptyEvent>,
-                                    public core::ipc::IEventListener<core::network::ConnectionStatusEvent>,
+                                    public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+                                    public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
                                     public core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
                                     public mqtt::packet::IPacketReceiver
                     {
@@ -52,11 +52,11 @@ namespace smooth
                             {
                             }
 
-                            void event(const core::network::TransmitBufferEmptyEvent&) override
+                            void event(const core::network::event::TransmitBufferEmptyEvent&) override
                             {
                             }
 
-                            void event(const core::network::ConnectionStatusEvent&) override
+                            void event(const core::network::event::ConnectionStatusEvent&) override
                             {
                             }
 

@@ -16,9 +16,7 @@ namespace smooth
             class IEventListener
             {
                 public:
-                    virtual ~IEventListener()
-                    {
-                    }
+                    virtual ~IEventListener() = default;
 
                     /// The response method where the event will be received from a TaskEventQueue<EventType>
                     /// \param event The event

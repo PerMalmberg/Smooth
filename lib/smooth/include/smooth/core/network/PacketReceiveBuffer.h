@@ -28,33 +28,34 @@ namespace smooth
             {
                 public:
                     PacketReceiveBuffer()
-                            : proto(current_item)
+                            : proto()
                     {
                     }
 
                     bool is_full() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         return buffer.is_full();
                     }
 
                     int amount_wanted() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         return proto.get_wanted_amount(current_item);
                     }
 
-                    uint8_t* get_write_pos() override
+                    LockedWritePos get_write_pos() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
-                        return proto.get_write_pos(current_item);
+                        LockedWritePos lock(guard);
+                        lock.set_pos(proto.get_write_pos(current_item));
+                        return lock;
                     }
 
                     void data_received(int length) override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         proto.data_received(current_item, length);
-                        if (proto.is_complete())
+                        if (proto.is_complete(current_item))
                         {
                             buffer.put(current_item);
                             in_progress = false;
@@ -63,52 +64,55 @@ namespace smooth
 
                     bool is_packet_complete() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
-                        return proto.is_complete();
+                        std::unique_lock<std::mutex> lock(guard);
+                        return proto.is_complete(current_item);
                     }
 
                     bool get(Packet& target) override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         return buffer.get(target);
                     }
 
                     void clear() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         buffer.clear();
                         // Clear out any packets in progress too.
                         in_progress = false;
                         ReplacePacketWithDefault();
+                        // Reset protocol so that it isn't left in a state
+                        // where it thinks it is in the middle of a receive.
+                        proto.reset();
                     }
 
                     bool is_in_progress() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         return in_progress;
                     }
 
                     void prepare_new_packet() override
                     {
-                        std::lock_guard<std::mutex> lock(guard);
+                        std::unique_lock<std::mutex> lock(guard);
                         ReplacePacketWithDefault();
                         in_progress = true;
                         proto.packet_consumed();
                     }
 
+                    bool is_error() override
+                    {
+                        std::unique_lock<std::mutex> lock(guard);
+                        return proto.is_error();
+                    }
+
+                private:
                     void ReplacePacketWithDefault()
                     {
                         current_item.~Packet();
                         new(&current_item) Packet();
                     }
 
-                    bool is_error() override
-                    {
-                        std::lock_guard<std::mutex> lock(guard);
-                        return proto.is_error();
-                    }
-
-                private:
                     std::mutex guard{};
                     bool in_progress = false;
                     Packet current_item{};
