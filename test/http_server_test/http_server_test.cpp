@@ -131,7 +131,7 @@ namespace http_server_test
         std::stringstream ss;
 
         const int max_client_count = 6;
-        const int listen_backlog = 5;
+        const int listen_backlog = 1;
 
         Application::init();
 #ifdef ESP_PLATFORM

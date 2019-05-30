@@ -43,6 +43,7 @@ set(SOURCES
         application/network/mqtt/Subscription.cpp
         core/ipc/QueueNotification.cpp
         core/filesystem/File.cpp
+        core/filesystem/FSLock.cpp
         core/filesystem/Path.cpp
         core/network/IPv4.cpp
         core/network/IPv6.cpp
@@ -107,57 +108,6 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
-        include/smooth/core/fsm/StaticFSM.h
-        include/smooth/core/ipc/IEventListener.h
-        include/smooth/core/ipc/ITaskEventQueue.h
-        include/smooth/core/ipc/Link.h
-        include/smooth/core/ipc/Publisher.h
-        include/smooth/core/ipc/Queue.h
-        include/smooth/core/ipc/QueueNotification.h
-        include/smooth/core/ipc/SubscribingTaskEventQueue.h
-        include/smooth/core/ipc/TaskEventQueue.h
-        include/smooth/core/logging/log.h
-        include/smooth/core/network/ClientPool.h
-        include/smooth/core/network/event/ConnectionStatusEvent.h
-        include/smooth/core/network/event/DataAvailableEvent.h
-        include/smooth/core/network/event/TransmitBufferEmptyEvent.h
-        include/smooth/core/network/InetAddress.h
-        include/smooth/core/network/IPacketAssembly.h
-        include/smooth/core/network/IPacketDisassembly.h
-        include/smooth/core/network/IPacketReceiveBuffer.h
-        include/smooth/core/network/IPacketSendBuffer.h
-        include/smooth/core/network/IPv4.h
-        include/smooth/core/network/IPv6.h
-        include/smooth/core/network/ISocket.h
-        include/smooth/core/network/BufferContainer.h
-        include/smooth/core/network/MbedTLSContext.h
-        include/smooth/core/network/NetworkStatus.h
-        include/smooth/core/network/SocketOperation.h
-        include/smooth/core/network/PacketReceiveBuffer.h
-        include/smooth/core/network/PacketSendBuffer.h
-        include/smooth/core/network/CommonSocket.h
-        include/smooth/core/network/Socket.h
-        include/smooth/core/network/SocketDispatcher.h
-        include/smooth/core/network/ServerSocket.h
-        include/smooth/core/network/SecureServerSocket.h
-        include/smooth/core/timer/ElapsedTime.h
-        include/smooth/core/timer/ITimer.h
-        include/smooth/core/timer/Timer.h
-        include/smooth/core/timer/TimerExpiredEvent.h
-        include/smooth/core/timer/TimerService.h
-        include/smooth/core/util/advance_iterator.h
-        include/smooth/core/util/ByteSet.h
-        include/smooth/core/util/CircularBuffer.h
-        include/smooth/core/util/FixedBuffer.h
-        include/smooth/core/util/FixedBufferBase.h
-        include/smooth/core/Application.h
-        include/smooth/core/filesystem/Path.h
-        include/smooth/core/Task.h
-        include/smooth/core/task_priorities.h
-        include/smooth/core/ipc/ILinkSubscriber.h
-        include/smooth/core/ipc/IPolledTaskQueue.h
-        include/smooth/core/json/Value.h
-        include/smooth/core/json/JsonFile.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
