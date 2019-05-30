@@ -33,6 +33,7 @@ without any special considerations.
 - Input
 - Input with interrupt to event translation
 - I2C Master Device class
+- Flash and SDCard initialization.
 
 ### Application level
 
