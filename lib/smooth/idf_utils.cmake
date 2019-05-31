@@ -9,25 +9,28 @@ endfunction()
 function(smooth_configure_link target)
     if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
         message(STATUS "Smooth: Importing IDF components.")
-            target_compile_definitions(${target} PRIVATE ESP_PLATFORM)
 
         include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
-        set(EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
+        target_compile_definitions(smooth PUBLIC ESP_PLATFORM)
+
+        set(comps fatfs sdmmc spi_flash nvs_flash wear_levelling libsodium lwip json)
+
+        idf_build_component("${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
 
         idf_build_process(esp32
-                # try and trim the build; additional components
-                # will be included as needed based on dependency tree
-                #
-                # although esptool_py does not generate static library,
-                # processing the component is needed for flashing related
-                # targets and file generation
-                COMPONENTS esp32 freertos esptool_py
+                COMPONENTS esp32 freertos esptool_py ${comps}
                 SDKCONFIG ${CMAKE_CURRENT_LIST_DIR}/sdkconfig
                 BUILD_DIR ${CMAKE_BINARY_DIR})
 
-        target_link_libraries(${target} idf::esp32)
+
+        foreach(c ${comps})
+            target_link_libraries(${target} idf::${c})
+        endforeach()
     else()
         message(STATUS "Smooth: Building for native Linux.")
+        target_include_directories(${target} PRIVATE $ENV{IDF_PATH}/components/json/cJSON)
+
+        target_link_libraries(${target} pthread mbedtls mbedx509 mbedcrypto)
 
         message(STATUS "Compiling for native Linux: Using default values for Smooth-MQTT")
         add_definitions("-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=3500")

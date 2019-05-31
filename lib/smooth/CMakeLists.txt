@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.12)
 project(smooth)
 
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
@@ -154,10 +155,7 @@ else()
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-if (NOT ESP_PLATFORM)
-    target_link_libraries(${PROJECT_NAME} pthread mbedtls mbedx509 mbedcrypto)
-endif()
+smooth_configure_link(${PROJECT_NAME})
 
 include(compiler_options.cmake)
 set_compile_options(${PROJECT_NAME})
@@ -165,10 +163,7 @@ set_compile_options(${PROJECT_NAME})
 target_include_directories(
         ${PROJECT_NAME}
         PRIVATE ${CMAKE_BINARY_DIR}
-        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-        PUBLIC $ENV{IDF_PATH}/components
-)
+        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
-smooth_configure_link(${PROJECT_NAME})
 
 

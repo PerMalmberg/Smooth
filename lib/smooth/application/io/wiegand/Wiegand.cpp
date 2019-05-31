@@ -49,7 +49,7 @@ namespace smooth
                     data.set(0, event.get_io() == d1_pin);
                 }
 
-                void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& event)
+                void Wiegand::event(const smooth::core::timer::TimerExpiredEvent& /*event*/)
                 {
                     if (bit_count == 4)
                     {
