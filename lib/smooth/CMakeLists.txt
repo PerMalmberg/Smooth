@@ -164,10 +164,11 @@ set_compile_options(${PROJECT_NAME})
 
 target_include_directories(
         ${PROJECT_NAME}
+        PRIVATE ${CMAKE_BINARY_DIR}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
         PUBLIC $ENV{IDF_PATH}/components
 )
 
-smooth_configure_link()
+smooth_configure_link(${PROJECT_NAME})
 
 

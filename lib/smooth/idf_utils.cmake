@@ -6,14 +6,26 @@ function(smooth_verify_idf_path)
     endif ()
 endfunction()
 
-function(smooth_configure_link)
+function(smooth_configure_link target)
     if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
         message(STATUS "Smooth: Importing IDF components.")
+            target_compile_definitions(${target} PRIVATE ESP_PLATFORM)
 
-        set(IDF_EXTRA_COMPONENT_DIRS "${IDF_EXTRA_COMPONENT_DIRS} ${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
-        include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
-        idf_import_components(components $ENV{IDF_PATH} esp-idf)
-        idf_link_components(${PROJECT_NAME} "${components}")
+        include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
+        set(EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/smooth_idf_component")
+
+        idf_build_process(esp32
+                # try and trim the build; additional components
+                # will be included as needed based on dependency tree
+                #
+                # although esptool_py does not generate static library,
+                # processing the component is needed for flashing related
+                # targets and file generation
+                COMPONENTS esp32 freertos esptool_py
+                SDKCONFIG ${CMAKE_CURRENT_LIST_DIR}/sdkconfig
+                BUILD_DIR ${CMAKE_BINARY_DIR})
+
+        target_link_libraries(${target} idf::esp32)
     else()
         message(STATUS "Smooth: Building for native Linux.")
 

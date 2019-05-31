@@ -42,16 +42,7 @@ endif()
 
 include_directories(${CURRENT_PROJECT_DIR})
 
-set(IDF_BUILD_ARTIFACTS ON)
-set(IDF_PROJECT_EXECUTABLE main)
-set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
-
 add_subdirectory(test/main)
-
-if( ESP_PLATFORM )
-    # Must include this file so that targets for menuconfig etc are included.
-    include($ENV{IDF_PATH}/tools/cmake/idf_functions.cmake)
-endif()
 
 set_compile_options(${CURRENT_PROJECT_NAME})
 add_subdirectory(lib/smooth)
