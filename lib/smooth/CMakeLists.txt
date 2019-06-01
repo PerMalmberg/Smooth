@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(smooth)
 
 include(${CMAKE_CURRENT_LIST_DIR}/idf_utils.cmake)
+include(compiler_options.cmake)
 
 smooth_verify_idf_path()
 
@@ -155,9 +156,9 @@ else()
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
-smooth_configure_link(${PROJECT_NAME})
 
-include(compiler_options.cmake)
+smooth_setup(${PROJECT_NAME})
+
 set_compile_options(${PROJECT_NAME})
 
 target_include_directories(

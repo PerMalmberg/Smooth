@@ -2,14 +2,14 @@
 // Created by permal on 2018-10-21.
 //
 
-#include <${CURRENT_PROJECT_NAME}.h>
+#include <${SELETED_TEST_PROJECT}.h>
 
 extern "C"
 {
 #ifdef ESP_PLATFORM
 void app_main()
 {
-    ${CURRENT_PROJECT_NAME}::App app;
+    ${SELETED_TEST_PROJECT}::App app;
     app.start();
 }
 #else
