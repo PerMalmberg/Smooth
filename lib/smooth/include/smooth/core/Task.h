@@ -108,7 +108,7 @@ namespace smooth
                 int affinity;
                 std::atomic_bool started{false};
                 std::mutex start_mutex{};
-                std::mutex queue_mutex{}; //TODO: QQQ Needed or can we use start_mutex?
+                std::mutex queue_mutex{};
                 std::condition_variable start_condition{};
                 smooth::core::timer::ElapsedTime status_report_timer{};
                 std::vector<smooth::core::ipc::IPolledTaskQueue *> polled_queues{};
