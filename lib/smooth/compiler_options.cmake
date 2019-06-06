@@ -5,6 +5,8 @@ function(set_compile_options target)
     target_compile_options(${target} PRIVATE -Wcast-align -Wunused )
     target_compile_options(${target} PRIVATE -Wconversion -Wsign-conversion)
     target_compile_options(${target} PRIVATE -Wlogical-op -Wdouble-promotion -Wformat=2)
+    target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:CXX>: -fno-rtti>)
+
 
     if( NOT ESP_PLATFORM )
         target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
