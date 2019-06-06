@@ -4,18 +4,20 @@
 
 #include <${SELETED_TEST_PROJECT}.h>
 
+using namespace ${SELETED_TEST_PROJECT};
+
 extern "C"
 {
 #ifdef ESP_PLATFORM
 void app_main()
 {
-    ${SELETED_TEST_PROJECT}::App app;
+    App app;
     app.start();
 }
 #else
 int main(int argc, char** argv)
 {
-    ${CURRENT_PROJECT_NAME}::App app;
+    App app;
     app.start();
     return 0;
 }

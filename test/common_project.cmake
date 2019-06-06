@@ -1,12 +1,12 @@
-get_filename_component(SELETED_TEST_PROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+get_filename_component(TEST_PROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-message(STATUS "Building: ${PROJECT}")
+message(STATUS "Building: ${TEST_PROJECT}")
 
 file(GLOB SOURCES *.h *.cpp)
 
-project(${SELETED_TEST_PROJECT})
-add_library(${SELETED_TEST_PROJECT} ${SOURCES})
-target_link_libraries(${SELETED_TEST_PROJECT} smooth)
-target_include_directories(${SELETED_TEST_PROJECT}
+project(${TEST_PROJECT})
+add_library(${TEST_PROJECT} ${SOURCES})
+target_link_libraries(${TEST_PROJECT} smooth)
+target_include_directories(${TEST_PROJECT}
         PRIVATE $ENV{IDF_PATH}/components
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
