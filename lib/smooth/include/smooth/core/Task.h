@@ -23,6 +23,7 @@
 #ifdef ESP_PLATFORM
     #include <freertos/FreeRTOS.h>
     #include <freertos/task.h>
+    #include <sdkconfig.h>
 
     #if CONFIG_FREERTOS_HZ < 1000
         #error "Smooth requires CONFIG_FREERTOS_HZ at 1000Hz for proper functionality (spec. timers)"

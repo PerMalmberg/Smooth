@@ -1,5 +1,5 @@
 #include <smooth/core/json/JsonFile.h>
-#include <json/cJSON/cJSON.h>
+#include <cJSON.h>
 
 #include <memory>
 #include <vector>

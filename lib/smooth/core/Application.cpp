@@ -82,7 +82,7 @@ namespace smooth::core
         ESP_ERROR_CHECK(esp_event_loop_init(&IDFApplication::event_callback, this));
     }
 
-    esp_err_t IDFApplication::event_callback(void* ctx, system_event_t* event)
+    esp_err_t IDFApplication::event_callback(void* /*ctx*/, system_event_t* event)
     {
 
         auto name = id_to_system_event.find(event->event_id);
