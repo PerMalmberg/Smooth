@@ -71,6 +71,10 @@ namespace smooth::core::network
             {
                 log_mbedtls_error(tag, "mbedtls_ssl_config_defaults", res);
             }
+            else
+            {
+                mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
+            }
         }
 
         return res;
@@ -96,11 +100,6 @@ namespace smooth::core::network
                     mbedtls_ssl_conf_ca_chain(&conf, &ca_cert, nullptr);
                 }
             }
-
-            if (res == 0)
-            {
-                mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
-            }
         }
 
         return res == 0;
@@ -115,7 +114,6 @@ namespace smooth::core::network
 
         if (res == 0)
         {
-            mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
             res = load_certificate(server_certificate, server_cert);
 
             if (res == 0)
