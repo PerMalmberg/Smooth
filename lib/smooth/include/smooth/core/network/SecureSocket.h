@@ -339,7 +339,7 @@ namespace smooth::core::network
         else if (res < 0)
         {
             // Handshake failed
-            log_mbedtls_error("SecureSocket", "mbedtls_ssl_handshake", res);
+            log_mbedtls_error("SecureSocket", "mbedtls_ssl_handshake_step", res);
             this->stop();
         }
     }
