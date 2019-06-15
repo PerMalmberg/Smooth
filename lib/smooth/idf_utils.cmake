@@ -22,7 +22,8 @@ set(smooth_req_comps
         lwip
         json
         mbedtls
-        xtensa)
+        xtensa
+        pthread)
 
 function(smooth_link_to_idf target)
     if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
@@ -40,7 +41,7 @@ function(smooth_setup target)
         idf_build_component("${CMAKE_SOURCE_DIR}/lib/smooth/smooth_idf_component")
 
         idf_build_process(esp32
-                COMPONENTS ${smooth_req_comps}
+                COMPONENTS ${smooth_req_comps} smooth_idf_component
                 SDKCONFIG ${CMAKE_CURRENT_LIST_DIR}/sdkconfig
                 BUILD_DIR ${CMAKE_BINARY_DIR})
 

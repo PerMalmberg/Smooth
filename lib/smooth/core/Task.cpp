@@ -10,7 +10,7 @@
 #include <smooth/core/ipc/Publisher.h>
 
 #ifdef ESP_PLATFORM
-#include "esp_pthread.h"
+#include <esp_pthread.h>
 #include <freertos/task.h>
 #endif
 
