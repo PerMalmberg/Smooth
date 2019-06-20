@@ -164,7 +164,7 @@ set_compile_options(${PROJECT_NAME})
 target_include_directories(
         ${PROJECT_NAME}
         PRIVATE ${CMAKE_BINARY_DIR}
-        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include $ENV{IDF_PATH}/components/json/cJSON)
 
 
 

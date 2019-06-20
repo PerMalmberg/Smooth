@@ -2,9 +2,9 @@
 // Created by permal on 2018-10-21.
 //
 
-#include <${SELETED_TEST_PROJECT}.h>
+#include <${TEST_PROJECT}.h>
 
-using namespace ${SELETED_TEST_PROJECT};
+using namespace ${TEST_PROJECT};
 
 extern "C"
 {
@@ -15,7 +15,7 @@ void app_main()
     app.start();
 }
 #else
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
     App app;
     app.start();

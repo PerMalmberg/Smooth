@@ -34,4 +34,4 @@
 build
 cmake-build-*
 sdkconfig.old
-test/main/generated_test.cpp
+generated_test_smooth_*
