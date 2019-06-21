@@ -6,36 +6,44 @@ set(SMOOTH_TEST_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
 
-# Select the test project, then build target "main". The available projects are the names of the
-# folders under "test", e.g. hello_world, mqtt etc.
-set(SELETED_TEST_PROJECT http_server_test)
+# Select the test project to build for ESP
+set(selected_test_project http_server_test)
 
-set(CURRENT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/test/${SELETED_TEST_PROJECT})
-include_directories(${SMOOTH_TEST_ROOT})
+list(APPEND available_tests hello_world
+                            logging
+                            json_test
+                            mqtt
+                            publish
+                            task_event_queue
+                            timer
+                            secure_socket_test
+                            server_socket_test
+                            secure_server_socket_test
+                            http_server_test)
 
-#add_subdirectory(hello_world)
-#add_subdirectory(logging)
-#add_subdirectory(json_test)
-#add_subdirectory(mqtt)
-#add_subdirectory(publish)
-#add_subdirectory(task_event_queue)
-#add_subdirectory(timer)
-#add_subdirectory(secure_socket_test)
-#add_subdirectory(server_socket_test)
-#add_subdirectory(secure_server_socket_test)
-add_subdirectory(http_server_test)
-#
-## These needs actual hardware to run
-#if(${ESP_PLATFORM})
-#    add_subdirectory(esp/spiflash)
-#    add_subdirectory(esp/sdcard_test)
-#    add_subdirectory(esp/jsonfile_test)
-#    add_subdirectory(esp/sntp)
-#    add_subdirectory(esp/security)
-#    add_subdirectory(esp/wrover_kit_blinky)
-#    add_subdirectory(esp/interrupt_queue)
-#else()
-#    add_subdirectory(unit_tests)
-#endif()
+# These tests needs actual hardware to run
+if(${ESP_PLATFORM})
+    list(APPEND available_tests esp/spiflash
+                                esp/sdcard_test
+                                esp/jsonfile_test
+                                esp/sntp
+                                esp/security
+                                esp/wrover_kit_blinky
+                                esp/interrupt_queue)
+else()
+    list(APPEND available_tests unit_tests)
+endif()
 
-set_compile_options(${SELETED_TEST_PROJECT})
+list(FIND available_tests ${selected_test_project} test_found)
+if(${test_found} EQUAL -1)
+    message(FATAL_ERROR "'${selected_test_project}' isn't a valid test project")
+endif()
+
+# Until such time ESP-IDF supports multiple targets, we only compile the selected target for ESP
+if(${ESP_PLATFORM})
+    add_subdirectory(${selected_test_project})
+else()
+    foreach(t ${available_tests})
+        add_subdirectory(${t})
+    endforeach()
+endif()

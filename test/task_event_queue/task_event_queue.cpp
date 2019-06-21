@@ -39,7 +39,7 @@ namespace task_event_queue
         if (count % 100 == 0)
         {
             Log::debug("Stats", Format("Avg: {1}us per message, Count: {2}, Last msg: {3}us",
-                                       Double(total.count() / (1.0 * count), 2),
+                                       Double(static_cast<double>(total.count()) / count, 2),
                                        Int64(count),
                                        Int64(val.count())));
         }
