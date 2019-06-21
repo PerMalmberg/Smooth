@@ -38,7 +38,7 @@ function(smooth_setup target)
     if(${CMAKE_CXX_COMPILER} MATCHES "xtensa")
         target_compile_definitions(${target} PUBLIC ESP_PLATFORM)
 
-        idf_build_component("smooth_idf_component")
+        idf_build_component(smooth_idf_component)
 
         idf_build_process(esp32
                 COMPONENTS ${smooth_req_comps} smooth_idf_component

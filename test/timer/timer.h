@@ -33,7 +33,7 @@ namespace timer
             std::shared_ptr<smooth::core::timer::Timer> timer;
             std::chrono::milliseconds interval;
             std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
-            uint64_t count = 0;
+            int count = 0;
             std::chrono::milliseconds total = std::chrono::milliseconds(0);
         };
 

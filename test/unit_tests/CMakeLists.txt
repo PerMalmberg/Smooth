@@ -6,6 +6,6 @@ add_executable(${PROJECT_NAME}
         FSLockTest.cpp)
 
 target_include_directories(${PROJECT_NAME}
-        PRIVATE ${TEST_ROOT_DIR})
+        PRIVATE ${SMOOTH_TEST_ROOT})
 target_link_libraries(${PROJECT_NAME} smooth asan)
 
