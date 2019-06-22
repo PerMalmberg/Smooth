@@ -153,9 +153,10 @@ namespace http_server_test
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "static_content";
 #endif
-        std::vector<std::string> indexes{"index.html"};
+        HTTPServerConfig cfg{web_root, {"index.html"}, MaxHeaderSize, ContentChuckSize};
+
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, web_root, indexes);
+                *this, cfg);
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -169,7 +170,8 @@ namespace http_server_test
         fill(private_key_data, private_key);
 
         secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>>(
-                *this, web_root, indexes);
+                *this, cfg);
+
         secure_server->start(max_client_count,
                              listen_backlog,
                              std::make_shared<IPv4>("0.0.0.0", 8443),
