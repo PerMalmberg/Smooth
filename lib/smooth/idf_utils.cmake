@@ -40,9 +40,16 @@ function(smooth_setup target)
 
         idf_build_component(smooth_idf_component)
 
+        # When a project specifies a specific sdkconfig, use it
+        if("${project_specific_sdkconfig}" EQUAL "")
+            set(smooth_sdkconfig ${CMAKE_CURRENT_LIST_DIR}/sdkconfig)
+        else()
+            set(smooth_sdkconfig ${project_specific_sdkconfig})
+        endif()
+
         idf_build_process(esp32
                 COMPONENTS ${smooth_req_comps} smooth_idf_component
-                SDKCONFIG ${CMAKE_CURRENT_LIST_DIR}/sdkconfig
+                SDKCONFIG ${smooth_sdkconfig}
                 BUILD_DIR ${CMAKE_BINARY_DIR})
 
         smooth_link_to_idf(${target})
