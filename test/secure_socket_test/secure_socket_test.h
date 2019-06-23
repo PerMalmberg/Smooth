@@ -12,7 +12,7 @@
 
 namespace secure_socket_test
 {
-    using Proto = smooth::application::network::http::HTTPProtocol<1024,1024>;
+    using Proto = smooth::application::network::http::HTTPProtocol;
 
     class App
             : public smooth::core::Application,

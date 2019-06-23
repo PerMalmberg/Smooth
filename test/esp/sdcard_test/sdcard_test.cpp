@@ -103,10 +103,10 @@ namespace sdcard_test
                     {
                         int write_count = 0;
                         size_t written_bytes = 0;
-                        for (int i = 0; !error && i <= total_size; i += chunk_size)
+                        for (size_t i = 0; !error && i <= total_size; i += chunk_size)
                         {
                             // Fill block with random data
-                            for (int j = 0; j < chunk_size; ++j)
+                            for (size_t j = 0; j < chunk_size; ++j)
                             {
                                 write[j] = dis(gen);
                             }
@@ -122,7 +122,7 @@ namespace sdcard_test
                             {
                                 // Read from file
                                 // Must seek when a read follows a write and vise-versa.
-                                if (0 != fseek(fp, written_bytes, SEEK_SET))
+                                if (0 != fseek(fp, static_cast<long int>(written_bytes), SEEK_SET))
                                 {
                                     Log::error(tag, "Failed to seek");
                                     error = true;
@@ -145,7 +145,7 @@ namespace sdcard_test
                             {
                                 if (++write_count % 1000 == 0)
                                 {
-                                    Log::info(tag, Format("Still working {1}", Int32(i)));
+                                    Log::info(tag, Format("Still working {1}", UInt32(i)));
                                 }
                             }
                             else

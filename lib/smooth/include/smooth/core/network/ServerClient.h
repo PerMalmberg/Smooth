@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "IPacketSendBuffer.h"
 #include "IPacketReceiveBuffer.h"
 #include "event/TransmitBufferEmptyEvent.h"
@@ -30,7 +31,9 @@ namespace smooth::core::network
               public std::enable_shared_from_this<FinalClientTypeName>
     {
         public:
-            ServerClient(smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool);
+            ServerClient(smooth::core::Task& task,
+                         smooth::core::network::ClientPool<FinalClientTypeName>& pool,
+                         std::unique_ptr<Protocol> proto);
 
             ~ServerClient() override = default;
 
@@ -108,9 +111,10 @@ namespace smooth::core::network
 
     template<typename FinalClientTypeName, typename Protocol>
     ServerClient<FinalClientTypeName, Protocol>::ServerClient(
-            smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool)
+            smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool,
+            std::unique_ptr<Protocol> proto)
             : pool(pool),
-              container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this))
+              container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto)))
     {
     }
 }

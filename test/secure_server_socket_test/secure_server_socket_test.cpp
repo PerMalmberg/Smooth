@@ -158,7 +158,8 @@ namespace secure_server_socket_test
                                                                                 5,
                                                                                 ca_chain,
                                                                                 own_certs,
-                                                                                private_key, password);
+                                                                                private_key,
+                                                                                password);
         server->start(std::make_shared<IPv4>("0.0.0.0", 8443));
     }
 

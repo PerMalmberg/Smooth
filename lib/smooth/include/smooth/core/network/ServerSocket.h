@@ -33,8 +33,9 @@ namespace smooth::core::network
             : public CommonSocket
     {
         public:
+            template<typename ...ProtocolArguments>
             static std::shared_ptr<ServerSocket<Client, Protocol>>
-            create(smooth::core::Task& task, int max_client_count, int backlog);
+            create(smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args);
 
             bool start(std::shared_ptr<InetAddress> bind_to) override;
 
@@ -53,7 +54,8 @@ namespace smooth::core::network
 
             void writable() override;
 
-            virtual std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int> accept_request(ISocketBackOff& ops);
+            virtual std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int>
+            accept_request(ISocketBackOff& ops);
 
             bool has_data_to_transmit() override
             {
@@ -70,12 +72,15 @@ namespace smooth::core::network
 
             void stop_internal() override;
 
-            ServerSocket(smooth::core::Task& task, int max_client_count, int backlog,
-                         std::chrono::milliseconds send_timeout = std::chrono::milliseconds{0},
-                         std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0})
-                    : CommonSocket(send_timeout, receive_timeout),
+            template<typename ...ProtocolArguments>
+            ServerSocket(smooth::core::Task& task,
+                         int max_client_count,
+                         int backlog,
+                         ProtocolArguments... proto_args)
+                    : CommonSocket(),
                       pool(task, max_client_count), backlog(backlog)
             {
+                pool.create_clients(proto_args...);
             }
 
             ClientPool<Client> pool;
@@ -239,22 +244,24 @@ namespace smooth::core::network
     }
 
     template<typename Client, typename Protocol>
+    template<typename ...ProtocolArguments>
     std::shared_ptr<ServerSocket<Client, Protocol>> ServerSocket<Client, Protocol>::create(
-            smooth::core::Task& task, int max_client_count, int backlog)
+            smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args)
     {
         // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
         class MakeSharedActivator
                 : public ServerSocket<Client, Protocol>
         {
             public:
-                explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count, int backlog)
-                        : ServerSocket<Client, Protocol>(task, max_client_count, backlog)
+                explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count, int backlog,
+                                             ProtocolArguments... proto_args)
+                        : ServerSocket<Client, Protocol>(task, max_client_count, backlog, proto_args...)
                 {
                 }
 
         };
 
-        return std::make_shared<MakeSharedActivator>(task, max_client_count, backlog);
+        return std::make_shared<MakeSharedActivator>(task, max_client_count, backlog, proto_args...);
     }
 
     template<typename Client, typename Protocol>
