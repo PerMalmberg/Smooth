@@ -23,7 +23,7 @@ namespace smooth::application::network::http::responses
     // Called at least once when sending a response and until ResponseStatus::AllSent is returned
     ResponseStatus FileContentResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res = ResponseStatus::AllSent;
+        auto res = ResponseStatus::EndOfData;
 
         if (sent < info.size())
         {
@@ -37,7 +37,7 @@ namespace smooth::application::network::http::responses
             else
             {
                 // Anything still left?
-                res = sent < info.size() ? ResponseStatus::HasMoreData : ResponseStatus::AllSent;
+                res = sent < info.size() ? ResponseStatus::HasMoreData : ResponseStatus::EndOfData;
                 sent += to_send;
             }
         }

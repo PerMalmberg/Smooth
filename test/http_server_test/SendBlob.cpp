@@ -20,7 +20,7 @@ namespace http_server_test
     ResponseStatus
     http_server_test::SendBlob::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res = ResponseStatus::AllSent;
+        auto res = ResponseStatus::EndOfData;
 
         if (amount_to_send > 0)
         {

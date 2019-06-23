@@ -10,7 +10,7 @@ namespace smooth::application::network::http::responses
     {
             Error,
             HasMoreData,
-            AllSent
+            EndOfData
     };
 
     // A request operation is responsible for providing outgoing data chunked into smaller pieces

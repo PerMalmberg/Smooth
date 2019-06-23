@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <smooth/core/logging/log.h>
 
-
 namespace smooth::application::network::http::responses
 {
     using namespace smooth::core::logging;
@@ -23,7 +22,7 @@ namespace smooth::application::network::http::responses
 
     ResponseStatus Response::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res = ResponseStatus::AllSent;
+        auto res = ResponseStatus::EndOfData;
 
         auto remaining = std::distance(data.begin(), data.end());
         if (remaining > 0)
@@ -38,7 +37,7 @@ namespace smooth::application::network::http::responses
 
             // Anything still left?
             remaining = std::distance(data.begin(), data.end());
-            res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::AllSent;
+            res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::EndOfData;
         }
 
         return res;

@@ -67,7 +67,7 @@ namespace smooth::application::network::http
                 Log::error(tag, "Current operation reported error, closing server client.");
                 this->close();
             }
-            else if (res == responses::ResponseStatus::AllSent)
+            else if (res == responses::ResponseStatus::EndOfData)
             {
                 current_operation.reset();
                 // Immediately send next
@@ -201,7 +201,7 @@ namespace smooth::application::network::http
                 auto& tx = this->get_buffers()->get_tx_buffer();
                 tx.put(p);
 
-                if (res == responses::ResponseStatus::AllSent)
+                if (res == responses::ResponseStatus::EndOfData)
                 {
                     current_operation.reset();
                     // Immediately send next
