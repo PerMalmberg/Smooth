@@ -29,11 +29,11 @@ namespace http_server_test
 #endif
 
             static constexpr int MaxHeaderSize = 1024;
-            static constexpr int ContentChuckSize = 1024;
-            using Client = smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>;
-            using Protocol = smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>;
+            static constexpr int ContentChuckSize = 8096;
+            using Client = smooth::application::network::http::HTTPServerClient;
+            using Protocol = smooth::application::network::http::HTTPProtocol;
 
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>> insecure_server{};
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>, MaxHeaderSize, ContentChuckSize>> secure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>>> insecure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>>> secure_server{};
     };
 }

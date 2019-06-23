@@ -41,8 +41,8 @@ namespace smooth::application::network::http
 
             HTTPServerConfig(smooth::core::filesystem::Path web_root,
                              std::vector<std::string> index_files,
-                             int max_header_size,
-                             int content_chunk_size)
+                             std::size_t max_header_size,
+                             std::size_t content_chunk_size)
                     : root_path(std::move(web_root)),
                       index(std::move(index_files)),
                       maximum_header_size(max_header_size),
@@ -60,12 +60,12 @@ namespace smooth::application::network::http
                 return index;
             }
 
-            int max_header_size() const
+            std::size_t max_header_size() const
             {
                 return maximum_header_size;
             }
 
-            int chunck_size() const
+            std::size_t chunck_size() const
             {
                 return content_chunk_size;
             }
@@ -73,20 +73,24 @@ namespace smooth::application::network::http
         private:
             smooth::core::filesystem::Path root_path{};
             std::vector<std::string> index{};
-            int maximum_header_size{};
-            int content_chunk_size{};
+            std::size_t maximum_header_size{};
+            std::size_t content_chunk_size{};
     };
 
-    template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+    template<typename ServerType>
     class HTTPServer
-            : private IRequestHandler<MaxHeaderSize, ContentChuckSize>
+            : private IRequestHandler
     {
         public:
             HTTPServer(smooth::core::Task& task, HTTPServerConfig configuration);
 
             void start(int max_client_count, int backlog, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
             {
-                server = ServerType::create(task, max_client_count, backlog);
+                server = ServerType::create(task,
+                                            max_client_count,
+                                            backlog,
+                                            config.max_header_size(),
+                                            config.chunck_size());
                 server->set_client_context(this);
                 server->start(std::move(bind_to));
             }
@@ -105,17 +109,19 @@ namespace smooth::application::network::http
                                             ca_chain,
                                             own_cert,
                                             private_key,
-                                            password);
+                                            password,
+                                            config.max_header_size(),
+                                            config.chunck_size());
 
                 server->set_client_context(this);
                 server->start(std::move(bind_to));
             }
 
             void on(HTTPMethod method, const std::string& url,
-                    const ResponseSignature<MaxHeaderSize, ContentChuckSize>& handler);
+                    const ResponseSignature& handler);
 
         private:
-            using HandlerByURL = std::unordered_map<std::string, ResponseSignature<MaxHeaderSize, ContentChuckSize>>;
+            using HandlerByURL = std::unordered_map<std::string, ResponseSignature>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
@@ -134,8 +140,8 @@ namespace smooth::application::network::http
 
             smooth::core::Task& task;
             std::shared_ptr<smooth::core::network::ServerSocket<
-                    smooth::application::network::http::HTTPServerClient<MaxHeaderSize, ContentChuckSize>,
-                    smooth::application::network::http::HTTPProtocol<MaxHeaderSize, ContentChuckSize>>> server{};
+                    smooth::application::network::http::HTTPServerClient,
+                    smooth::application::network::http::HTTPProtocol>> server{};
 
             HandlerByMethod handlers{};
             HTTPServerConfig config{};
@@ -143,28 +149,26 @@ namespace smooth::application::network::http
     };
 
 
-    template<typename ServerSocketType, int MaxHeaderSize, int ContentChuckSize>
-    HTTPServer<ServerSocketType, MaxHeaderSize, ContentChuckSize>::HTTPServer(smooth::core::Task& task,
-                                                                              HTTPServerConfig configuration)
+    template<typename ServerSocketType>
+    HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, HTTPServerConfig configuration)
             :
             task(task),
             config(std::move(configuration))
     {
     }
 
-    template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+    template<typename ServerType>
     void
-    HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::on(HTTPMethod method,
-                                                                const std::string& url,
-                                                                const ResponseSignature<MaxHeaderSize,
-                                                                        ContentChuckSize>& handler)
+    HTTPServer<ServerType>::on(HTTPMethod method,
+                               const std::string& url,
+                               const ResponseSignature& handler)
     {
         handlers[method][url] = handler;
     }
 
-    template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+    template<typename ServerType>
     void
-    HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::handle(
+    HTTPServer<ServerType>::handle(
             HTTPMethod method,
             IResponseQueue& response,
             const std::string& requested_url,
@@ -265,9 +269,9 @@ namespace smooth::application::network::http
         }
     }
 
-    template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
+    template<typename ServerType>
     smooth::core::filesystem::Path
-    HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::find_index(
+    HTTPServer<ServerType>::find_index(
             const smooth::core::filesystem::Path& search_path) const
     {
         smooth::core::filesystem::Path found_index{};
@@ -289,9 +293,9 @@ namespace smooth::application::network::http
         return found_index;
     }
 
-    template<typename ServerType, int MaxHeaderSize, int ContentChuckSize>
-    void HTTPServer<ServerType, MaxHeaderSize, ContentChuckSize>::reply_with(IResponseQueue& response,
-                                                                             std::unique_ptr<responses::IRequestResponseOperation> res)
+    template<typename ServerType>
+    void HTTPServer<ServerType>::reply_with(IResponseQueue& response,
+                                            std::unique_ptr<responses::IRequestResponseOperation> res)
     {
         Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));
         response.enqueue(std::move(res));

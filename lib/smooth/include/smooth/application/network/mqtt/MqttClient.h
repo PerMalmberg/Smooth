@@ -68,7 +68,7 @@ namespace smooth
                         /// \param address The address
                         /// \param auto_reconnect If true, the client will automatically reconnect when connection is lost.
                         void
-                        connect_to(std::shared_ptr<smooth::core::network::InetAddress> address, bool auto_reconnect);
+                        connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& address, bool auto_reconnect);
 
                         void reconnect() override
                         {

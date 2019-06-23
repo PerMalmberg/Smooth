@@ -31,7 +31,11 @@ namespace smooth::core::network
 
             void return_client(std::shared_ptr<Client> client);
 
+            template<typename ...Args>
+            void create_clients(Args ...args);
+
         private:
+            smooth::core::Task& task;
             std::deque<std::shared_ptr<Client>> clients{};
             std::vector<std::shared_ptr<Client>> in_use{};
     };
@@ -66,12 +70,18 @@ namespace smooth::core::network
 
     template<typename Client>
     ClientPool<Client>::ClientPool(smooth::core::Task& task, int count)
+        :task(task)
     {
         in_use.reserve(static_cast<typename decltype(in_use)::size_type>(count));
+    }
 
-        for (int i = 0; i < count; ++i)
+    template<typename Client>
+    template<typename... ProtocolArguments>
+    void ClientPool<Client>::create_clients(ProtocolArguments... args)
+    {
+        for (std::size_t i = 0; i < in_use.capacity(); ++i)
         {
-            clients.emplace_back(std::make_shared<Client>(task, *this));
+            clients.emplace_back(std::make_shared<Client>(task, *this, args...));
         }
     }
 }

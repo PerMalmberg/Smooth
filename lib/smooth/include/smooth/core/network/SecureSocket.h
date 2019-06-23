@@ -80,10 +80,8 @@ namespace smooth::core::network
 
         protected:
             SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                         std::unique_ptr<SSLContext> context,
-                         std::chrono::milliseconds send_timeout,
-                         std::chrono::milliseconds receive_timeout)
-                    : Socket<Protocol, Packet>(buffer_container, send_timeout, receive_timeout),
+                         std::unique_ptr<SSLContext> context)
+                    : Socket<Protocol, Packet>(buffer_container),
                       secure_context(std::move(context))
             {
                 mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
@@ -107,14 +105,15 @@ namespace smooth::core::network
 
 
             void do_handshake_step();
+
             bool needs_tls_transfer(int code) const
             {
                 return code == MBEDTLS_ERR_SSL_WANT_READ
-                || code == MBEDTLS_ERR_SSL_WANT_WRITE
+                       || code == MBEDTLS_ERR_SSL_WANT_WRITE
 #ifdef MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
-                || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
+                       || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
 #endif
-                ;
+                        ;
             }
     };
 
@@ -127,7 +126,9 @@ namespace smooth::core::network
                                            std::chrono::milliseconds send_timeout,
                                            std::chrono::milliseconds receive_timeout)
     {
-        auto s = create(buffer_container, std::move(context), send_timeout, receive_timeout);
+        auto s = create(buffer_container, std::move(context));
+        s->set_send_timeout(send_timeout);
+        s->set_receive_timeout(receive_timeout);
         s->set_existing_socket(ip, socket_id);
         return s;
     }
@@ -148,10 +149,10 @@ namespace smooth::core::network
                                     std::unique_ptr<SSLContext> context,
                                     std::chrono::milliseconds send_timeout,
                                     std::chrono::milliseconds receive_timeout)
-                        : SecureSocket<Protocol, Packet>(buffer_container, std::move(context),
-                                                         send_timeout,
-                                                         receive_timeout)
+                        : SecureSocket<Protocol, Packet>(buffer_container, std::move(context))
                 {
+                    this->set_send_timeout(send_timeout);
+                    this->set_receive_timeout(receive_timeout);
                 }
         };
 
@@ -286,10 +287,10 @@ namespace smooth::core::network
         do
         {
             amount_sent = mbedtls_ssl_write(*secure_context,
-                                                 data_to_send,
-                                                 static_cast<size_t>(length));
+                                            data_to_send,
+                                            static_cast<size_t>(length));
 
-            if(!needs_tls_transfer(amount_sent))
+            if (!needs_tls_transfer(amount_sent))
             {
                 if (amount_sent > 0)
                 {
@@ -315,7 +316,7 @@ namespace smooth::core::network
                 }
             }
         }
-        while(needs_tls_transfer(amount_sent));
+        while (needs_tls_transfer(amount_sent));
     }
 
     template<typename Protocol, typename Packet>

@@ -90,9 +90,7 @@ namespace smooth::core::network
             }
 
         protected:
-            Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                   std::chrono::milliseconds send_timeout,
-                   std::chrono::milliseconds receive_timeout);
+            Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container);
 
             virtual bool create_socket();
 
@@ -146,6 +144,8 @@ namespace smooth::core::network
                                      std::chrono::milliseconds receive_timeout)
     {
         auto s = create(buffer_container, send_timeout, receive_timeout);
+        s->set_send_timeout(send_timeout);
+        s->set_receive_timeout(receive_timeout);
         s->set_existing_socket(ip, socket_id);
         return s;
     }
@@ -153,7 +153,8 @@ namespace smooth::core::network
     template<typename Protocol, typename Packet>
     std::shared_ptr<Socket<Protocol>>
     Socket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
+                                     std::chrono::milliseconds send_timeout,
+                                     std::chrono::milliseconds receive_timeout)
     {
         // This class is solely used to enabled access to the protected Socket<Protocol, Packet> constructor from std::make_shared<>
         class MakeSharedActivator
@@ -162,8 +163,10 @@ namespace smooth::core::network
             public:
                 MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
-                        : Socket<Protocol, Packet>(buffer_container, send_timeout, receive_timeout)
+                        : Socket<Protocol, Packet>(buffer_container)
                 {
+                    set_send_timeout(send_timeout);
+                    set_receive_timeout(receive_timeout);
                 }
 
         };
@@ -172,10 +175,9 @@ namespace smooth::core::network
     }
 
     template<typename Protocol, typename Packet>
-    Socket<Protocol, Packet>::Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout
+    Socket<Protocol, Packet>::Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container
     )
-            : CommonSocket(send_timeout, receive_timeout),
+            : CommonSocket(),
               buffers(buffer_container)
     {
         // In case the buffers have been used by another socket previously (i.e. by another ServerClient),
