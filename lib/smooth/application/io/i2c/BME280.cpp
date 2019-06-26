@@ -123,7 +123,7 @@ namespace smooth
                             && read_16bit(DIG_P6_REG, trimming.dig_P6)
                             && read_16bit(DIG_P7_REG, trimming.dig_P7)
                             && read_16bit(DIG_P8_REG, trimming.dig_P8)
-                            && read_16bit(DIG_P9_REG, trimming.dig_P8)
+                            && read_16bit(DIG_P9_REG, trimming.dig_P9)
                             && read_8bit(DIG_H1_REG, trimming.dig_H1)
                             && read_16bit(DIG_H2_REG, trimming.dig_H2)
                             && read_8bit(DIG_H3_REG, trimming.dig_H3)
