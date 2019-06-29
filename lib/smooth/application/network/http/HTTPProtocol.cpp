@@ -178,7 +178,6 @@ namespace smooth::application::network::http
                         // Store method for use in continued packets.
                         last_method = m[1].str();
                         last_url = m[2].str();
-                        Log::info("QQQ ===> ", last_url);
                         last_request_version = m[3].str();
                         packet.set_request_data(last_method, last_url, last_request_version);
                     }
