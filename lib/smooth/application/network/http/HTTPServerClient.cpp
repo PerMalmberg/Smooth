@@ -45,7 +45,7 @@ namespace smooth::application::network::http
                     else
                     {
                         // Unsupported method.
-                        enqueue(std::make_unique<responses::Response>(ResponseCode::Method_Not_Allowed));
+                        reply(std::make_unique<responses::Response>(ResponseCode::Method_Not_Allowed));
                     }
                 }
             }
@@ -158,7 +158,7 @@ namespace smooth::application::network::http
     }
 
 
-    void HTTPServerClient::enqueue(
+    void HTTPServerClient::reply(
             std::unique_ptr<responses::IRequestResponseOperation> response)
     {
         using namespace std::chrono;

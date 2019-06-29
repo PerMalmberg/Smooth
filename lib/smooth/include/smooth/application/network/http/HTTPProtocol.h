@@ -61,10 +61,12 @@ namespace smooth::application::network::http
 
             const int max_header_size;
             const int content_chunk_size;
-            int incoming_content_length = 0;
-            int header_bytes_received{0};
-            int total_content_bytes_received = 0;
-            int content_bytes_received_in_current_package{0};
+
+            int total_bytes_received{0};
+            int content_bytes_received{0};
+            int incoming_content_length{0};
+            int actual_header_size{0};
+
             const std::regex response_line{R"!(HTTP\/(\d.\d)\ (\d+)\ (.+))!"}; // HTTP/1.1 200 OK
             const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
             const char* CONTENT_LENGTH = "content-length";

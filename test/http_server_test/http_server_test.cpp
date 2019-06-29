@@ -130,7 +130,7 @@ namespace http_server_test
     {
         std::stringstream ss;
 
-        const int max_client_count = 6;
+        const int max_client_count = 1;
         const int listen_backlog = 1;
 
         Application::init();
@@ -153,7 +153,7 @@ namespace http_server_test
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "static_content";
 #endif
-        HTTPServerConfig cfg{web_root, {"index.html"}, MaxHeaderSize, ContentChuckSize};
+        HTTPServerConfig cfg{web_root, {"index.html"}, MaxHeaderSize, ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>>>(*this, cfg);
 
@@ -194,12 +194,12 @@ namespace http_server_test
             if (first_part)
             {
                 (void) headers;
-                response.enqueue(std::make_unique<responses::Response>(ResponseCode::Continue));
+                response.reply(std::make_unique<responses::Response>(ResponseCode::Continue));
             }
 
             if (last_part)
             {
-                response.enqueue(
+                response.reply(
                         std::make_unique<responses::Response>(ResponseCode::OK, "You posted stuff!"));
             }
         };
@@ -219,16 +219,54 @@ namespace http_server_test
 
             if (last_part)
             {
-                response.enqueue(std::make_unique<SendBlob>(1024 * 1024));
+                response.reply(std::make_unique<SendBlob>(1024 * 1024));
+            }
+        };
+
+        auto upload = [web_root](
+                IResponseQueue& response,
+                const std::string& url,
+                bool first_part,
+                bool last_part,
+                const std::unordered_map<std::string, std::string>& headers,
+                const std::unordered_map<std::string, std::string>& request_parameters,
+                const std::vector<uint8_t>& content) {
+            (void) first_part;
+            (void) last_part;
+            (void)headers;
+            (void)request_parameters;
+            (void) url;
+            (void) content;
+
+            const auto upload_folder = web_root / "files";
+            try
+            {
+                auto content_type = headers.at("content-type");
+                auto c = std::string{content.begin(), content.end()};
+                if(content_type.empty())
+                {
+
+                }
+            }
+            catch(std::out_of_range& ex)
+            {
+
+            }
+            //smooth::core::filesystem::File f{upload_folder / };
+
+            if (last_part)
+            {
+                response.reply(std::make_unique<responses::Response>(ResponseCode::OK, "<html>OK</html>"));
             }
         };
 
         secure_server->on(HTTPMethod::POST, "/post", post_response);
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
+        secure_server->on(HTTPMethod::POST, "/upload", upload);
 
         insecure_server->on(HTTPMethod::POST, "/post", post_response);
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
+        insecure_server->on(HTTPMethod::POST, "/upload", upload);
     }
-
 }
 

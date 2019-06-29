@@ -132,7 +132,7 @@ namespace smooth::application::network::http
                 content.clear();
             }
 
-            auto get_header_ending() const
+            auto find_header_ending() const
             {
                 const auto end = std::search(content.cbegin(), content.cend(), ending.cbegin(), ending.cend());
 

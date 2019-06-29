@@ -53,7 +53,7 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void enqueue(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
 
         private:
             bool parse_url(std::string& raw_url);

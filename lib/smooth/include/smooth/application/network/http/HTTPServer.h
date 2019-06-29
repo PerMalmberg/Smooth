@@ -298,7 +298,7 @@ namespace smooth::application::network::http
                                             std::unique_ptr<responses::IRequestResponseOperation> res)
     {
         Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));
-        response.enqueue(std::move(res));
+        response.reply(std::move(res));
     }
 }
 
