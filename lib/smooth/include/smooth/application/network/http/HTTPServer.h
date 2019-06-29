@@ -18,7 +18,7 @@
 #include <smooth/application/network/http/http_utils.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/HTTPServerClient.h>
-#include <smooth/application/network/http/responses/EmptyResponse.h>
+#include <smooth/application/network/http/responses/ErrorResponse.h>
 #include <smooth/application/network/http/responses/FileContentResponse.h>
 #include "ResponseSignature.h"
 
@@ -223,7 +223,7 @@ namespace smooth::application::network::http
                         if (send_not_modified)
                         {
                             reply_with(response,
-                                       std::make_unique<responses::EmptyResponse>(ResponseCode::Not_Modified));
+                                       std::make_unique<responses::ErrorResponse>(ResponseCode::Not_Modified));
                         }
                         else
                         {
@@ -245,7 +245,7 @@ namespace smooth::application::network::http
 
                 if (!found)
                 {
-                    reply_with(response, std::make_unique<responses::EmptyResponse>(ResponseCode::Not_Found));
+                    reply_with(response, std::make_unique<responses::ErrorResponse>(ResponseCode::Not_Found));
                 }
             }
             else
@@ -265,7 +265,7 @@ namespace smooth::application::network::http
         else
         {
             // No handler for this method type
-            reply_with(response, std::make_unique<responses::EmptyResponse>(ResponseCode::Method_Not_Allowed));
+            reply_with(response, std::make_unique<responses::ErrorResponse>(ResponseCode::Method_Not_Allowed));
         }
     }
 

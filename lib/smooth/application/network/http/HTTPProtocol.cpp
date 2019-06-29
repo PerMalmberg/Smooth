@@ -1,5 +1,5 @@
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/EmptyResponse.h>
+#include <smooth/application/network/http/responses/ErrorResponse.h>
 #include <algorithm>
 
 namespace smooth::application::network::http
@@ -77,7 +77,7 @@ namespace smooth::application::network::http
             else if (total_bytes_received >= max_header_size)
             {
                 // Headers are too large
-                response.reply_error(std::make_unique<responses::EmptyResponse>(ResponseCode::Request_Header_Fields_Too_Large));
+                response.reply_error(std::make_unique<responses::ErrorResponse>(ResponseCode::Request_Header_Fields_Too_Large));
                 Log::error("HTTPProtocol",
                            Format("Headers larger than max header size of {1}: {2} bytes.", Int32(max_header_size), Int32(total_bytes_received)));
                 reset();

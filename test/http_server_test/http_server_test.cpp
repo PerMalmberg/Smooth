@@ -131,7 +131,7 @@ namespace http_server_test
         std::stringstream ss;
 
         const int max_client_count = 1;
-        const int listen_backlog = 1;
+        const int listen_backlog = 6;
 
         Application::init();
 #ifdef ESP_PLATFORM
@@ -178,32 +178,6 @@ namespace http_server_test
                              private_key,
                              password);
 
-        auto post_response = [](
-                IResponseQueue& response,
-                const std::string& url,
-                bool first_part,
-                bool last_part,
-                const std::unordered_map<std::string, std::string>& headers,
-                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                const std::vector<uint8_t>& content) {
-            (void) first_part;
-            (void) last_part;
-            (void) url;
-            (void) content;
-
-            if (first_part)
-            {
-                (void) headers;
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Continue));
-            }
-
-            if (last_part)
-            {
-                response.reply(
-                        std::make_unique<responses::StringResponse>(ResponseCode::OK, "You posted stuff!"));
-            }
-        };
-
         auto blob = [](
                 IResponseQueue& response,
                 const std::string& url,
@@ -233,8 +207,8 @@ namespace http_server_test
                 const std::vector<uint8_t>& content) {
             (void) first_part;
             (void) last_part;
-            (void)headers;
-            (void)request_parameters;
+            (void) headers;
+            (void) request_parameters;
             (void) url;
             (void) content;
 
@@ -243,16 +217,13 @@ namespace http_server_test
             {
                 auto content_type = headers.at(CONTENT_TYPE);
                 auto c = std::string{content.begin(), content.end()};
-                if(content_type.empty())
-                {
-
-                }
+              //  std::cout << c;
             }
-            catch(std::out_of_range& ex)
+            catch (std::out_of_range& ex)
             {
 
             }
-            //smooth::core::filesystem::File f{upload_folder / };
+
 
             if (last_part)
             {
@@ -260,11 +231,9 @@ namespace http_server_test
             }
         };
 
-        secure_server->on(HTTPMethod::POST, "/post", post_response);
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         secure_server->on(HTTPMethod::POST, "/upload", upload);
 
-        insecure_server->on(HTTPMethod::POST, "/post", post_response);
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::POST, "/upload", upload);
     }

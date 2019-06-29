@@ -15,7 +15,7 @@ set(SOURCES
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
         application/network/http/HTTPHeaderDef.cpp
-        application/network/http/responses/EmptyResponse.cpp
+        application/network/http/responses/ErrorResponse.cpp
         application/network/http/responses/FileContentResponse.cpp
         application/network/http/responses/StringResponse.cpp
         application/network/mqtt/packet/ConnAck.cpp
@@ -70,7 +70,7 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
-        include/smooth/application/network/http/responses/EmptyResponse.h
+        include/smooth/application/network/http/responses/ErrorResponse.h
         include/smooth/application/network/http/responses/FileContentResponse.h
         include/smooth/application/network/http/responses/IRequestResponeOperation.h
         include/smooth/application/network/http/responses/StringResponse.h
