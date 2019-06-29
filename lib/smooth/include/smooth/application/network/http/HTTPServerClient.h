@@ -5,7 +5,7 @@
 #include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/Response.h>
+#include <smooth/application/network/http/responses/StringResponse.h>
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
 

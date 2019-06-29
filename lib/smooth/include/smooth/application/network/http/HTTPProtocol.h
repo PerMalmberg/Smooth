@@ -7,6 +7,7 @@
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/util/string_util.h>
 #include "HTTPPacket.h"
+#include "HTTPHeaderDef.h"
 
 using namespace smooth::core;
 using namespace smooth::core::logging;
@@ -67,7 +68,6 @@ namespace smooth::application::network::http
 
             const std::regex response_line{R"!(HTTP\/(\d.\d)\ (\d+)\ (.+))!"}; // HTTP/1.1 200 OK
             const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
-            const char* CONTENT_LENGTH = "content-length";
 
             bool error = false;
             State state = State::reading_headers;

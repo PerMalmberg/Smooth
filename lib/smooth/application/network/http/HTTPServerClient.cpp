@@ -45,7 +45,7 @@ namespace smooth::application::network::http
                     else
                     {
                         // Unsupported method.
-                        reply(std::make_unique<responses::Response>(ResponseCode::Method_Not_Allowed));
+                        reply(std::make_unique<responses::StringResponse>(ResponseCode::Method_Not_Allowed));
                     }
                 }
             }

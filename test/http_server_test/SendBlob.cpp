@@ -4,6 +4,7 @@
 
 #include "SendBlob.h"
 #include <smooth/application/network/http/ResponseCodes.h>
+#include <smooth/application/network/http/HTTPHeaderDef.h>
 
 using namespace smooth::application::network::http;
 using namespace smooth::application::network::http::responses;
@@ -11,10 +12,10 @@ using namespace smooth::application::network::http::responses;
 namespace http_server_test
 {
     http_server_test::SendBlob::SendBlob(std::size_t amount)
-            : Response(ResponseCode::OK), amount_to_send(amount)
+            : StringResponse(ResponseCode::OK), amount_to_send(amount)
     {
-        headers["content-length"] = std::to_string(amount_to_send);
-        headers["content-type"] = "application/octet-stream";
+        headers[CONTENT_LENGTH] = std::to_string(amount_to_send);
+        headers[CONTENT_TYPE] = "application/octet-stream";
     }
 
     ResponseStatus

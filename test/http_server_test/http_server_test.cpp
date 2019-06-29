@@ -3,7 +3,7 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
-#include <smooth/application/network/http/responses/Response.h>
+#include <smooth/application/network/http/responses/StringResponse.h>
 #include "SendBlob.h"
 #include "wifi_creds.h"
 
@@ -194,13 +194,13 @@ namespace http_server_test
             if (first_part)
             {
                 (void) headers;
-                response.reply(std::make_unique<responses::Response>(ResponseCode::Continue));
+                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Continue));
             }
 
             if (last_part)
             {
                 response.reply(
-                        std::make_unique<responses::Response>(ResponseCode::OK, "You posted stuff!"));
+                        std::make_unique<responses::StringResponse>(ResponseCode::OK, "You posted stuff!"));
             }
         };
 
@@ -241,7 +241,7 @@ namespace http_server_test
             const auto upload_folder = web_root / "files";
             try
             {
-                auto content_type = headers.at("content-type");
+                auto content_type = headers.at(CONTENT_TYPE);
                 auto c = std::string{content.begin(), content.end()};
                 if(content_type.empty())
                 {
@@ -256,7 +256,7 @@ namespace http_server_test
 
             if (last_part)
             {
-                response.reply(std::make_unique<responses::Response>(ResponseCode::OK, "<html>OK</html>"));
+                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK, "OK"));
             }
         };
 
