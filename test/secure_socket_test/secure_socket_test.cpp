@@ -120,7 +120,7 @@ namespace secure_socket_test
     {
         if (!sock)
         {
-            buff = std::make_shared<BufferContainer<Proto>>(*this, *this, *this, *this, std::make_unique<smooth::application::network::http::HTTPProtocol>(1024, 4096));
+            buff = std::make_shared<BufferContainer<Proto>>(*this, *this, *this, *this, std::make_unique<smooth::application::network::http::HTTPProtocol>(1024, 4096, *this));
 
             // If no certificates are provided, no certificate verification will be performed.
             auto ca_cert = get_certs();

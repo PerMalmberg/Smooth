@@ -9,6 +9,7 @@
 #include <smooth/core/network/Socket.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
+#include <smooth/application/network/http/responses/IRequestResponeOperation.h>
 
 namespace secure_socket_test
 {
@@ -18,7 +19,8 @@ namespace secure_socket_test
             : public smooth::core::Application,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::TransmitBufferEmptyEvent>,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::DataAvailableEvent<Proto>>,
-              public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>
+              public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>,
+              public smooth::application::network::http::IResponseQueue
     {
         public:
             App();
@@ -32,6 +34,9 @@ namespace secure_socket_test
             void event(const smooth::core::network::event::DataAvailableEvent<Proto>&) override;
 
             void event(const smooth::core::network::event::ConnectionStatusEvent&) override;
+
+            void reply(std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>) override {};
+            void reply_error(std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>) override {};
 
         private:
             std::shared_ptr<smooth::core::network::BufferContainer<Proto>> buff;
