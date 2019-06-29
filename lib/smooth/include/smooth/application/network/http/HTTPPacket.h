@@ -111,15 +111,7 @@ namespace smooth::application::network::http
 
             void ensure_room(int total_space)
             {
-                if (static_cast<int>(content.capacity()) < total_space
-                    || static_cast<int>(content.size()) < total_space)
-                {
-                    content.reserve(static_cast<std::size_t>(total_space));
-                    while (content.size() < content.capacity())
-                    {
-                        content.push_back(0);
-                    }
-                }
+                content.resize(static_cast<std::size_t>(total_space));
             }
 
             std::unordered_map<std::string, std::string>& headers()

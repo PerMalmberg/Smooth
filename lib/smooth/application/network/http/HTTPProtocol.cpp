@@ -1,4 +1,5 @@
 #include <smooth/application/network/http/HTTPProtocol.h>
+#include <algorithm>
 
 namespace smooth::application::network::http
 {
@@ -21,7 +22,7 @@ namespace smooth::application::network::http
             auto remaining_of_content = incoming_content_length - total_content_bytes_received;
             amount_to_request = std::min(content_chunk_size, remaining_of_content);
 
-            packet.ensure_room(total_content_bytes_received + amount_to_request);
+            packet.ensure_room(content_bytes_received_in_current_part + amount_to_request);
         }
 
         return amount_to_request;
@@ -32,7 +33,7 @@ namespace smooth::application::network::http
     {
         total_bytes_received += length;
 
-        if(state == State::reading_headers)
+        if (state == State::reading_headers)
         {
             const auto end_of_header = packet.find_header_ending();
 
@@ -51,7 +52,7 @@ namespace smooth::application::network::http
                     incoming_content_length = packet.headers()[CONTENT_LENGTH].empty() ? 0 : std::stoi(
                             packet.headers()[CONTENT_LENGTH]);
 
-                    if(incoming_content_length < 0)
+                    if (incoming_content_length < 0)
                     {
                         error = true;
                         Log::error("HTTPProtocol",
@@ -68,13 +69,16 @@ namespace smooth::application::network::http
                     // There is more content to read, this packet will be followed by another packet.
                     packet.set_continued();
                 }
+
+                // When still reading the headers, the packet can never be a continuation, so don't check
+                // for that condition.
             }
-            else if(total_bytes_received >= max_header_size)
+            else if (total_bytes_received >= max_header_size)
             {
                 // Headers are too large
                 error = true;
                 Log::error("HTTPProtocol",
-                        Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(max_header_size)));
+                           Format("Headers larger than MaxHeaderSize of {1} bytes.", Int32(max_header_size)));
             }
         }
         else
@@ -95,7 +99,7 @@ namespace smooth::application::network::http
             }
         }
 
-        if(is_complete(packet))
+        if (is_complete(packet))
         {
             packet.set_request_data(last_method, last_url, last_request_version);
         }
@@ -104,7 +108,7 @@ namespace smooth::application::network::http
     uint8_t* HTTPProtocol::get_write_pos(HTTPPacket& packet)
     {
         int offset;
-        if(state == State::reading_headers)
+        if (state == State::reading_headers)
         {
             offset = total_bytes_received;
         }
@@ -121,9 +125,13 @@ namespace smooth::application::network::http
     {
         auto complete = state != State::reading_headers;
 
-        bool content_received = incoming_content_length == 0 // No content to read.
-                                 || total_content_bytes_received == incoming_content_length // All content received
-                                 || content_bytes_received_in_current_part >= content_chunk_size; // Packet filled, split into multiple.
+        bool content_received =
+                // No content to read.
+                incoming_content_length == 0
+                // All content received
+                || total_content_bytes_received == incoming_content_length
+                // Packet filled, split into multiple chunks.
+                || content_bytes_received_in_current_part >= content_chunk_size;
 
         return complete && content_received;
     }
@@ -152,7 +160,8 @@ namespace smooth::application::network::http
         header_ending += HTTPPacket::ending.size();
         // Update actual header size
         auto actual_header_bytes_received = static_cast<int>(std::distance(packet.data().cbegin(), header_ending));
-        // Erase header
+
+        // Erase headers from buffer
         packet.data().erase(packet.data().begin(), header_ending);
 
         std::string s;
@@ -206,15 +215,15 @@ namespace smooth::application::network::http
 
     void HTTPProtocol::packet_consumed()
     {
-        total_bytes_received = 0;
+        content_bytes_received_in_current_part = 0;
 
         if (error || total_content_bytes_received >= incoming_content_length)
         {
             // All chunks of the current request has been received.
+            total_bytes_received = 0;
             incoming_content_length = 0;
             total_content_bytes_received = 0;
             actual_header_size = 0;
-            content_bytes_received_in_current_part = 0;
             state = State::reading_headers;
         }
 
