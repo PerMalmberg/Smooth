@@ -1,23 +1,12 @@
 
 #include <smooth/application/network/http/responses/EmptyResponse.h>
+#include <smooth/application/network/http/HTTPHeaderDef.h>
 
-namespace smooth
+namespace smooth::application::network::http::responses
 {
-    namespace application
+    EmptyResponse::EmptyResponse(ResponseCode code)
+            : smooth::application::network::http::responses::StringResponse(code)
     {
-        namespace network
-        {
-            namespace http
-            {
-                namespace responses
-                {
-                    EmptyResponse::EmptyResponse(ResponseCode code)
-                            : smooth::application::network::http::responses::Response(code)
-                    {
-                        headers["content-length"] = "0";
-                    }
-                }
-            }
-        }
+        headers[CONTENT_LENGTH] = "0";
     }
 }

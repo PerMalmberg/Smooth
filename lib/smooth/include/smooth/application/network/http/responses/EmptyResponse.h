@@ -1,25 +1,13 @@
 #pragma once
 
-#include "Response.h"
+#include "StringResponse.h"
 
-namespace smooth
+namespace smooth::application::network::http::responses
 {
-    namespace application
+    class EmptyResponse
+            : public StringResponse
     {
-        namespace network
-        {
-            namespace http
-            {
-                namespace responses
-                {
-                    class EmptyResponse
-                            : public Response
-                    {
-                        public:
-                            explicit EmptyResponse(ResponseCode code);
-                    };
-                }
-            }
-        }
-    }
+        public:
+            explicit EmptyResponse(ResponseCode code);
+    };
 }

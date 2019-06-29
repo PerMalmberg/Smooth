@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Response.h"
+#include "StringResponse.h"
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/Fileinfo.h>
 
 namespace smooth::application::network::http::responses
 {
     class FileContentResponse
-            : public Response
+            : public StringResponse
     {
         public:
             explicit FileContentResponse(smooth::core::filesystem::Path full_path);

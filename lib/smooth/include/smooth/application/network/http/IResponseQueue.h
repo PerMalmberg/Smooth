@@ -2,22 +2,13 @@
 
 #include <memory>
 
-namespace smooth
+namespace smooth::application::network::http
 {
-    namespace application
+    class IResponseQueue
     {
-        namespace network
-        {
-            namespace http
-            {
-                class IResponseQueue
-                {
-                    public:
-                        virtual ~IResponseQueue() = default;
+        public:
+            virtual ~IResponseQueue() = default;
 
-                        virtual void enqueue(std::unique_ptr<responses::IRequestResponseOperation> response) = 0;
-                };
-            }
-        }
-    }
+            virtual void reply(std::unique_ptr<responses::IRequestResponseOperation> response) = 0;
+    };
 }

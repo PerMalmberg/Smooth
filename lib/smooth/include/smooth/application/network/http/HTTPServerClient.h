@@ -5,7 +5,7 @@
 #include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/Response.h>
+#include <smooth/application/network/http/responses/StringResponse.h>
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
 
@@ -53,7 +53,7 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void enqueue(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
 
         private:
             bool parse_url(std::string& raw_url);

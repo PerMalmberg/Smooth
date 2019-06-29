@@ -6,17 +6,17 @@
 
 namespace smooth::application::network::http::responses
 {
-    class Response
+    class StringResponse
             : public IRequestResponseOperation
     {
         public:
-            explicit Response(ResponseCode code, std::string content = "");
-            Response& operator=(Response&&) = default;
-            Response(Response&&) = default;
-            Response& operator=(const Response&) = delete;
-            Response(const Response&) = delete;
+            explicit StringResponse(ResponseCode code, std::string body = "");
+            StringResponse& operator=(StringResponse&&) = default;
+            StringResponse(StringResponse&&) = default;
+            StringResponse& operator=(const StringResponse&) = delete;
+            StringResponse(const StringResponse&) = delete;
 
-            ~Response() override = default;
+            ~StringResponse() override = default;
 
             ResponseCode get_response_code() override;
 
@@ -38,5 +38,6 @@ namespace smooth::application::network::http::responses
             ResponseCode code;
         private:
             std::vector<uint8_t> data{};
+            void add_string(std::string str);
     };
 }

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <smooth/application/network/http/responses/Response.h>
+#include <smooth/application/network/http/responses/StringResponse.h>
 
 namespace http_server_test
 {
     class SendBlob
-            : public smooth::application::network::http::responses::Response
+            : public smooth::application::network::http::responses::StringResponse
     {
         public:
             explicit SendBlob(std::size_t amount);

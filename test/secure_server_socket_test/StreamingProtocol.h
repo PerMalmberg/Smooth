@@ -28,7 +28,7 @@ namespace secure_server_socket_test
                 return packet.data().data();
             }
 
-            bool is_complete(StreamPacket& /*packet*/) override
+            bool is_complete(StreamPacket& /*packet*/) const override
             {
                 return complete;
             }

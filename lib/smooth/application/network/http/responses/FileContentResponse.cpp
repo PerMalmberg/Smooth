@@ -5,19 +5,20 @@
 #include <smooth/application/network/http/responses/FileContentResponse.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/core/filesystem/Path.h>
+#include <smooth/application/network/http/HTTPHeaderDef.h>
 
 using namespace smooth::core::filesystem;
 
 namespace smooth::application::network::http::responses
 {
     FileContentResponse::FileContentResponse(smooth::core::filesystem::Path full_path)
-            : smooth::application::network::http::responses::Response(ResponseCode::OK),
+            : smooth::application::network::http::responses::StringResponse(ResponseCode::OK),
               path(std::move(full_path)),
               info(path)
     {
-        headers["content-length"] = std::to_string(info.size());
-        headers["content-type"] = utils::get_content_type(info.path());
-        headers["Last-Modified"] = utils::make_http_time(info.last_modified());
+        headers[CONTENT_LENGTH] = std::to_string(info.size());
+        headers[CONTENT_TYPE] = utils::get_content_type(info.path());
+        headers[LAST_MODIFIED] = utils::make_http_time(info.last_modified());
     }
 
     // Called at least once when sending a response and until ResponseStatus::AllSent is returned

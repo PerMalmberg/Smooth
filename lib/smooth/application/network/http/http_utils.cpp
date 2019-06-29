@@ -13,6 +13,12 @@ namespace smooth::application::network::http::utils
     static const std::array<const char*, 12> month{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
                                                    "Nov", "Dec"};
 
+    std::string make_http_time(const std::chrono::system_clock::time_point& t)
+    {
+        auto tt = std::chrono::system_clock::to_time_t(t);
+        return make_http_time(tt);
+    }
+
     std::string make_http_time(const time_t& t)
     {
         tm time{};
