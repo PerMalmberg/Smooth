@@ -31,7 +31,6 @@ namespace smooth::application::network::http
                     : max_header_size(max_header_size),
                       content_chunk_size(content_chunk_size)
             {
-                remains.reserve(static_cast<decltype(remains)::size_type>(max_header_size));
             }
 
             int get_wanted_amount(HTTPPacket& packet) override;
@@ -40,7 +39,7 @@ namespace smooth::application::network::http
 
             uint8_t* get_write_pos(HTTPPacket& packet) override;
 
-            bool is_complete(HTTPPacket& packet) override;
+            bool is_complete(HTTPPacket& packet) const override;
 
             bool is_error() override;
 
@@ -50,8 +49,6 @@ namespace smooth::application::network::http
 
         private:
             int consume_headers(HTTPPacket& packet, std::vector<uint8_t>::const_iterator header_ending);
-
-            void set_continuation_indicators(HTTPPacket& packet) const;
 
             enum class State
             {
@@ -63,7 +60,8 @@ namespace smooth::application::network::http
             const int content_chunk_size;
 
             int total_bytes_received{0};
-            int content_bytes_received{0};
+            int total_content_bytes_received{0};
+            int content_bytes_received_in_current_part{0};
             int incoming_content_length{0};
             int actual_header_size{0};
 
@@ -77,8 +75,6 @@ namespace smooth::application::network::http
             std::string last_url{};
 
             std::string last_request_version{};
-
-            std::vector<uint8_t> remains{};
     };
 }
 
