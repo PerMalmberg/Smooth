@@ -20,7 +20,7 @@ namespace smooth::application::network::http
 
     class HTTPServerClient
             : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol>,
-              IResponseQueue
+              public IResponseQueue
     {
         public:
             HTTPServerClient(smooth::core::Task& task,
@@ -32,7 +32,8 @@ namespace smooth::application::network::http
                     task,
                     pool,
                     std::make_unique<smooth::application::network::http::HTTPProtocol>(max_header_size,
-                                                                                       content_chunk_size)),
+                                                                                       content_chunk_size,
+                                                                                       *this)),
                       content_chunk_size(content_chunk_size)
             {
             }
@@ -54,6 +55,7 @@ namespace smooth::application::network::http
             }
 
             void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) override;
 
         private:
             bool parse_url(std::string& raw_url);

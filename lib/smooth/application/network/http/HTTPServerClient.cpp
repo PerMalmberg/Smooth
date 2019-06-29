@@ -165,10 +165,21 @@ namespace smooth::application::network::http
         const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
         if (timeout.count() > 0)
         {
-            response->add_header("connection", "keep-alive");
-            response->add_header("keep-alive", "timeout=" + std::to_string(timeout.count()));
+            response->add_header(CONNECTION, "keep-alive");
+            response->add_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
         }
 
+        operations.emplace_back(std::move(response));
+        if (!current_operation)
+        {
+            send_first_part();
+        }
+    }
+
+    void HTTPServerClient::reply_error(std::unique_ptr<responses::IRequestResponseOperation> response)
+    {
+        operations.clear();
+        response->add_header(CONNECTION, "close");
         operations.emplace_back(std::move(response));
         if (!current_operation)
         {
