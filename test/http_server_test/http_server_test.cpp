@@ -179,7 +179,7 @@ namespace http_server_test
                              password);
 
         auto blob = [](
-                IResponseQueue& response,
+                IServerResponse& response,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -198,7 +198,7 @@ namespace http_server_test
         };
 
         auto upload = [web_root](
-                IResponseQueue& response,
+                IServerResponse& response,
                 const std::string& url,
                 bool first_part,
                 bool last_part,

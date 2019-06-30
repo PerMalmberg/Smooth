@@ -20,7 +20,7 @@ namespace secure_socket_test
               public smooth::core::ipc::IEventListener<smooth::core::network::event::TransmitBufferEmptyEvent>,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::DataAvailableEvent<Proto>>,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>,
-              public smooth::application::network::http::IResponseQueue
+              public smooth::application::network::http::IServerResponse
     {
         public:
             App();

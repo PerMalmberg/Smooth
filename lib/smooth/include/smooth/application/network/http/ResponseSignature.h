@@ -1,13 +1,13 @@
 #pragma once
 
 #include "responses/IRequestResponeOperation.h"
-#include "IResponseQueue.h"
+#include "IServerResponse.h"
 #include <memory>
 
 namespace smooth::application::network::http
 {
     using ResponseSignature = std::function<void(
-            IResponseQueue& response,
+            IServerResponse& response,
             const std::string& url,
             bool first_part,
             bool last_part,

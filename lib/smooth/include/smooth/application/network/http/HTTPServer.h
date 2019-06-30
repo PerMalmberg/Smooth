@@ -125,7 +125,7 @@ namespace smooth::application::network::http
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
-                        IResponseQueue& response,
+                        IServerResponse& response,
                         const std::string& requested_url,
                         const std::unordered_map<std::string, std::string>& request_headers,
                         const std::unordered_map<std::string, std::string>& request_parameters,
@@ -136,7 +136,7 @@ namespace smooth::application::network::http
             smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
 
             void
-            reply_with(IResponseQueue& response, std::unique_ptr<responses::IRequestResponseOperation> res);
+            reply_with(IServerResponse& response, std::unique_ptr<responses::IRequestResponseOperation> res);
 
             smooth::core::Task& task;
             std::shared_ptr<smooth::core::network::ServerSocket<
@@ -170,7 +170,7 @@ namespace smooth::application::network::http
     void
     HTTPServer<ServerType>::handle(
             HTTPMethod method,
-            IResponseQueue& response,
+            IServerResponse& response,
             const std::string& requested_url,
             const std::unordered_map<std::string, std::string>& request_headers,
             const std::unordered_map<std::string, std::string>& request_parameters,
@@ -294,7 +294,7 @@ namespace smooth::application::network::http
     }
 
     template<typename ServerType>
-    void HTTPServer<ServerType>::reply_with(IResponseQueue& response,
+    void HTTPServer<ServerType>::reply_with(IServerResponse& response,
                                             std::unique_ptr<responses::IRequestResponseOperation> res)
     {
         Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));

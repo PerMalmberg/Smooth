@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include "ResponseSignature.h"
-#include "IResponseQueue.h"
+#include "IServerResponse.h"
 
 namespace smooth::application::network::http
 {
@@ -13,7 +13,7 @@ namespace smooth::application::network::http
             virtual ~IRequestHandler() = default;
 
             virtual void handle(HTTPMethod method,
-                                IResponseQueue& response,
+                                IServerResponse& response,
                                 const std::string& requested_url,
                                 const std::unordered_map<std::string, std::string>& request_headers,
                                 const std::unordered_map<std::string, std::string>& request_parameters,

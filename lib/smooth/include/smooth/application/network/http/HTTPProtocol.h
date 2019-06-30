@@ -8,7 +8,7 @@
 #include <smooth/core/util/string_util.h>
 #include "HTTPPacket.h"
 #include "HTTPHeaderDef.h"
-#include "IResponseQueue.h"
+#include "IServerResponse.h"
 
 using namespace smooth::core;
 using namespace smooth::core::logging;
@@ -29,7 +29,7 @@ namespace smooth::application::network::http
         public:
             using packet_type = HTTPPacket;
 
-            HTTPProtocol(int max_header_size, int content_chunk_size, IResponseQueue& response)
+            HTTPProtocol(int max_header_size, int content_chunk_size, IServerResponse& response)
                     : max_header_size(max_header_size),
                       content_chunk_size(content_chunk_size),
                       response(response)
@@ -61,7 +61,7 @@ namespace smooth::application::network::http
 
             const int max_header_size;
             const int content_chunk_size;
-            IResponseQueue& response;
+            IServerResponse& response;
 
             int total_bytes_received{0};
             int total_content_bytes_received{0};

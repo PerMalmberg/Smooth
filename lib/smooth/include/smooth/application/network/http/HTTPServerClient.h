@@ -9,7 +9,7 @@
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
 
-#include "IResponseQueue.h"
+#include "IServerResponse.h"
 
 namespace smooth::application::network::http
 {
@@ -20,7 +20,7 @@ namespace smooth::application::network::http
 
     class HTTPServerClient
             : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol>,
-              public IResponseQueue
+              public IServerResponse
     {
         public:
             HTTPServerClient(smooth::core::Task& task,
