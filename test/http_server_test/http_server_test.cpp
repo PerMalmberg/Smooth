@@ -4,6 +4,7 @@
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/application/network/http/responses/StringResponse.h>
+#include <smooth/application/network/http/MIMEParser.h>
 #include "SendBlob.h"
 #include "wifi_creds.h"
 
@@ -130,7 +131,7 @@ namespace http_server_test
     {
         std::stringstream ss;
 
-        const int max_client_count = 1;
+        const int max_client_count = 6;
         const int listen_backlog = 6;
 
         Application::init();
@@ -185,11 +186,13 @@ namespace http_server_test
                 bool last_part,
                 const std::unordered_map<std::string, std::string>& /*headers*/,
                 const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                const std::vector<uint8_t>& content) {
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) {
             (void) first_part;
             (void) last_part;
             (void) url;
             (void) content;
+            (void) mime;
 
             if (last_part)
             {
@@ -204,20 +207,22 @@ namespace http_server_test
                 bool last_part,
                 const std::unordered_map<std::string, std::string>& headers,
                 const std::unordered_map<std::string, std::string>& request_parameters,
-                const std::vector<uint8_t>& content) {
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) {
             (void) first_part;
             (void) last_part;
             (void) headers;
             (void) request_parameters;
             (void) url;
             (void) content;
+            (void) mime;
 
             const auto upload_folder = web_root / "files";
             try
             {
                 auto content_type = headers.at(CONTENT_TYPE);
                 auto c = std::string{content.begin(), content.end()};
-              //  std::cout << c;
+                std::cout << c;
             }
             catch (std::out_of_range& ex)
             {

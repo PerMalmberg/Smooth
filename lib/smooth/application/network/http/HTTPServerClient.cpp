@@ -21,6 +21,8 @@ namespace smooth::application::network::http
                 requested_url = packet.get_request_url();
                 res = parse_url(requested_url);
                 set_keep_alive();
+
+                mime.reset();
             }
 
             if (res)
@@ -39,6 +41,7 @@ namespace smooth::application::network::http
                                         request_headers,
                                         request_parameters,
                                         packet.get_buffer(),
+                                        mime,
                                         first_packet,
                                         !packet.is_continued());
                     }

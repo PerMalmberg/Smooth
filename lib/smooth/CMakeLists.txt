@@ -14,6 +14,7 @@ set(SOURCES
         application/network/http/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
+        application/network/http/MIMEParser.cpp
         application/network/http/HTTPHeaderDef.cpp
         application/network/http/responses/ErrorResponse.cpp
         application/network/http/responses/FileContentResponse.cpp

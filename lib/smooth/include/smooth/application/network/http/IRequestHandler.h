@@ -2,11 +2,13 @@
 
 #include <unordered_map>
 #include <memory>
-#include "ResponseSignature.h"
+#include "RequestHandlerSignature.h"
 #include "IServerResponse.h"
 
 namespace smooth::application::network::http
 {
+    class MIMEParser;
+
     class IRequestHandler
     {
         public:
@@ -18,6 +20,7 @@ namespace smooth::application::network::http
                                 const std::unordered_map<std::string, std::string>& request_headers,
                                 const std::unordered_map<std::string, std::string>& request_parameters,
                                 const std::vector<uint8_t>& data,
+                                MIMEParser& mime,
                                 bool fist_part,
                                 bool last_part) = 0;
     };

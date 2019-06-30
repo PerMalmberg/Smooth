@@ -8,6 +8,7 @@
 #include <smooth/application/network/http/responses/StringResponse.h>
 #include "IRequestHandler.h"
 #include "URLEncoding.h"
+#include "MIMEParser.h"
 
 #include "IServerResponse.h"
 
@@ -73,6 +74,7 @@ namespace smooth::application::network::http
             URLEncoding encoding{};
             std::deque<std::unique_ptr<responses::IRequestResponseOperation>> operations{};
             std::unique_ptr<responses::IRequestResponseOperation> current_operation{};
+            MIMEParser mime{};
 
             void set_keep_alive();
     };
