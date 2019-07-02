@@ -16,13 +16,29 @@ namespace smooth::application::network::http
         if (std::regex_match(s.begin(), s.end(), match, form_data_pattern))
         {
             auto b = match[1].str();
+            // https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
+            // Note that the encapsulation boundary must occur at the beginning of a line, i.e., following a CRLF,
+            // and that that initial CRLF is considered to be part of the encapsulation boundary rather than part
+            // of the preceding part. The boundary must be followed immediately either by another CRLF and the header
+            // fields for the next part, or by two CRLFs, in which case there are no header fields for the next part
+            // (and it is therefore assumed to be of Content-Type text/plain).
+
+            // Note that we don't include the leading CRLF in the boundary pattern - that is handled separately
+            // so that we also match the very first boundary after the HTTP-headers.
             boundary = {b.begin(), b.end()};
+            boundary.insert(boundary.begin(), '-');
+            boundary.insert(boundary.begin(), '-');
 
             end_boundary = boundary;
-            end_boundary.insert(end_boundary.begin(), '\n');
-            end_boundary.insert(end_boundary.begin(), '\n');
+
+            boundary.emplace_back('\r');
+            boundary.emplace_back('\n');
+
+            // The ending boundary is the same as the normal one, but suffixed by "--\r\n" instead of just \r\n
             end_boundary.emplace_back('-');
             end_boundary.emplace_back('-');
+            end_boundary.emplace_back('\r');
+            end_boundary.emplace_back('\n');
             res = true;
         }
 
@@ -47,12 +63,15 @@ namespace smooth::application::network::http
             }
 
             // Is the last boundary the end-boundary?
-
             if (b.size() > 1)
             {
                 p = std::search(b[b.size() - 1], data.cend(), end_boundary.cbegin(), end_boundary.cend());
                 end_found = p != data.end();
             }
+
+            // Adjust for possible preceding CRLF on all but the ending found boundary
+            adjust_boundary_begining_for_crlf(data.begin(), b);
+
         }
 
         return std::make_tuple(b, end_found);
@@ -77,16 +96,16 @@ namespace smooth::application::network::http
         // Each content block is contained between two boundaries
         while (!bounds.empty() && bounds.size() % 2 == 0)
         {
-            auto start = get_end_of_boundary(bounds.front());
+            auto start_of_content = get_end_of_boundary(bounds.front());
             bounds.erase(bounds.cbegin());
-            auto end = bounds.front();
+            auto end_of_content = bounds.front();
             bounds.erase(bounds.cbegin());
-            last_consumed = end;
+            last_consumed = end_of_content;
 
-            parse_content(start, end, content_callback);
+            parse_content(start_of_content, end_of_content, content_callback);
         }
 
-        // Erase already consumed data
+        // Erase already consumed data to keep memory usage as low as possible.
         if (last_consumed != data.cend())
         {
             data.erase(data.begin(), last_consumed);
@@ -95,15 +114,73 @@ namespace smooth::application::network::http
         return res;
     }
 
-    MIMEParser::BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator start)
+    MIMEParser::BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
     {
-        return start + static_cast<Boundaries::difference_type>(boundary.size());
+        // Adjust for CRLF at beginning of boundary pattern
+        auto offset = is_crlf(begin) ? 2 : 0;
+        return begin + static_cast<Boundaries::difference_type>(boundary.size()) + offset;
     }
 
-    void MIMEParser::parse_content(BoundaryIterator begin, BoundaryIterator end, const ContentCallback& cb) const
+    void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content, const ContentCallback& cb) const
     {
-        std::string s{begin, end};
-        s += "";
+        // If the first data isn't a CRLF, then there are one or more Content-headers for this data.
+        if (is_crlf(start_of_content))
+        {
+            // All content is considered text/plain
+            cb("", start_of_content, end_of_content);
+        }
+        else
+        {
+            auto header_data = consume_headers(start_of_content, end_of_content);
+            start_of_content = std::get<0>(header_data);
+            auto& headers = std::get<1>(header_data);
+
+            if(start_of_content != end_of_content)
+            {
+
+            }
+
+            (void)headers;
+        }
+    }
+
+    void MIMEParser::adjust_boundary_begining_for_crlf(MIMEParser::BoundaryIterator start_of_data,
+                                                       MIMEParser::Boundaries& found_boundaries) const
+    {
+        for (auto& current : found_boundaries)
+        {
+            auto distance = static_cast<long>(std::distance(start_of_data, current));
+            auto offset = static_cast<long>(crlf.size());
+
+            if (distance > offset)
+            {
+                // Check if the boundary has a preceding CRLF
+                if (is_crlf(start_of_data + distance - offset))
+                {
+                    current = start_of_data + distance - offset;
+                }
+            }
+        }
+    }
+
+    bool MIMEParser::is_crlf(MIMEParser::BoundaryIterator start) const
+    {
+        return *start == '\r' && *(start + 1) == '\n';
+    }
+
+    std::tuple<MIMEParser::BoundaryIterator, std::unordered_map<std::string, std::string>>
+    MIMEParser::consume_headers(MIMEParser::BoundaryIterator begin, MIMEParser::BoundaryIterator end) const
+    {
+        std::unordered_map<std::string, std::string> headers{};
+        auto start_of_actual_content = end;
+
+        auto end_of_headers = std::search(begin, end, crlf_double.begin(), crlf_double.end());
+        if(end_of_headers != end)
+        {
+            start_of_actual_content = end_of_headers + static_cast<long>(crlf_double.size());
+        }
+
+        return std::make_tuple(start_of_actual_content, headers);
     }
 }
 

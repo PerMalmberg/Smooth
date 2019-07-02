@@ -222,7 +222,9 @@ namespace http_server_test
             {
                 auto content_type = headers.at(CONTENT_TYPE);
                 auto c = std::string{content.begin(), content.end()};
-                std::cout << c;
+
+                ofstream f{"/home/permal/Downloads/post.data", ios::app};
+                f << c;
             }
             catch (std::out_of_range& ex)
             {

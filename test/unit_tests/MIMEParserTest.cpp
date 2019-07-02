@@ -1,59 +1,18 @@
 #include <catch.hpp>
 #include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/core/filesystem/Path.h>
+#include <smooth/core/filesystem/File.h>
 
+using namespace smooth::core::filesystem;
 using namespace smooth::application::network::http;
 
-const std::string two_files = R"!(
------------------------------83469447617042511111590758916
-
-Content-Disposition: form-data; name="file_to_upload"; filename="text.txt"
-
-Content-Type: text/plain
-
-
-
-This is a text file
-with multiple lines.
-
-Lets count to 10:
-1
-2
-3
-4
-5
-6
-7
-8
-9
-0
-this is the last line of text.
-
-
------------------------------83469447617042511111590758916
-
-Content-Disposition: form-data; name="second_file_to_upload"; filename="text2.txt"
-
-Content-Type: text/plain
-
-
-
-This is the second file.
-It has no exciting content.
-
-
------------------------------83469447617042511111590758916
-
-Content-Disposition: form-data; name="submit"
-
-
-
-Upload file
-
------------------------------83469447617042511111590758916--
-)!";
+//const std::string post_data_result =
 
 SCENARIO("MIMEParser")
 {
+    // Setup file system locks.
+    FSLock::init(5);
+
     GIVEN("A mimeparser")
     {
         MIMEParser mime;
@@ -61,19 +20,32 @@ SCENARIO("MIMEParser")
         WHEN("Provided with chunks of content data")
         {
             REQUIRE(mime.find_boundary(
-                    "multipart/form-data; boundary=-----------------------------83469447617042511111590758916"));
+                    "multipart/form-data; boundary=---------------------------8819839691792623414370909194"));
+
+            const auto root =  Path{__FILE__}.parent();
+            auto file = root / "test_data" / "post_result_data.txt";
+            File f{file};
+            std::vector<uint8_t> data;
+            REQUIRE(f.read(data));
 
             THEN("Finds two files")
             {
                 int count = 0;
 
-                auto cb = [&count](std::string&& name, const std::vector<uint8_t>& content){count++;};
+                auto cb = [&count, &root](std::string&& name,
+                                   const MIMEParser::BoundaryIterator& begin,
+                                   const MIMEParser::BoundaryIterator& end) {
+                    count++;
 
-                //mime.parse(reinterpret_cast<const uint8_t*>(two_files.c_str()), two_files.length(), cb);
+                    auto output = Path{"/tmp"} / name;
+                    File o{output};
+                    MIMEParser::MimeData data{begin, end};
+                    o.write(data.data(), data.size());
+                };
 
-                for(const auto& c : two_files)
+                for (const auto& c : data)
                 {
-                    if(mime.parse(reinterpret_cast<const uint8_t*>(&c), 1, cb))
+                    if (mime.parse(&c, 1, cb))
                     {
                         ++count;
                     }
