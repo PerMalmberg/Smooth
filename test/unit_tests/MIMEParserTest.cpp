@@ -32,7 +32,7 @@ SCENARIO("MIMEParser")
             {
                 int count = 0;
 
-                auto cb = [&count, &root](std::string&& name,
+                auto cb = [&count, &root](const std::string& name,
                                    const MIMEParser::BoundaryIterator& begin,
                                    const MIMEParser::BoundaryIterator& end) {
                     count++;
@@ -43,12 +43,11 @@ SCENARIO("MIMEParser")
                     o.write(data.data(), data.size());
                 };
 
+                mime.parse(data.data(), data.size(), cb);
+
                 for (const auto& c : data)
                 {
-                    if (mime.parse(&c, 1, cb))
-                    {
-                        ++count;
-                    }
+                    //mime.parse(&c, 1, cb);
                 }
 
                 REQUIRE(count == 3);

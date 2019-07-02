@@ -14,14 +14,14 @@ namespace smooth::application::network::http
             using MimeData = std::vector<uint8_t>;
             using BoundaryIterator = MimeData::const_iterator;
             using Boundaries = std::vector<BoundaryIterator>;
-            using ContentCallback = std::function<void(std::string&& name, const BoundaryIterator& start,
+            using ContentCallback = std::function<void(const std::string& name, const BoundaryIterator& start,
                                                        const BoundaryIterator& end)>;
 
             bool find_boundary(const std::string&& s);
 
             void reset() noexcept;
 
-            bool parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback);
+            void parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback);
 
         private:
             auto find_boundaries() const;
@@ -36,7 +36,9 @@ namespace smooth::application::network::http
 
             bool is_crlf(BoundaryIterator start) const;
 
-            std::tuple<BoundaryIterator, std::unordered_map<std::string, std::string>>
+            std::tuple<BoundaryIterator,
+                    std::unordered_map<std::string, std::string>,
+                    std::unordered_map<std::string, std::string>>
             consume_headers(BoundaryIterator begin, BoundaryIterator end) const;
 
             std::vector<uint8_t> boundary{};
@@ -45,5 +47,8 @@ namespace smooth::application::network::http
             const std::regex form_data_pattern{R"!(multipart\/form-data;.*boundary=(.+?)( |$))!"};
             const std::vector<uint8_t> crlf{'\r', '\n'};
             const std::vector<uint8_t> crlf_double{'\r', '\n', '\r', '\n'};
+
+            void parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
+                                           std::unordered_map<std::string, std::string>& content_disposition) const;
     };
 }

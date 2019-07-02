@@ -1,5 +1,8 @@
 #include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/core/util/string_util.h>
+#include <smooth/application/network/http/HTTPHeaderDef.h>
 
+using namespace smooth::core::util;
 
 namespace smooth::application::network::http
 {
@@ -69,7 +72,7 @@ namespace smooth::application::network::http
                 end_found = p != data.end();
             }
 
-            // Adjust for possible preceding CRLF on all but the ending found boundary
+            // Adjust for possible preceding CRLF on all but the first found boundary
             adjust_boundary_begining_for_crlf(data.begin(), b);
 
         }
@@ -77,10 +80,8 @@ namespace smooth::application::network::http
         return std::make_tuple(b, end_found);
     }
 
-    bool MIMEParser::parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback)
+    void MIMEParser::parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback)
     {
-        bool res{false};
-
         for (std::size_t i = 0; i < length; ++i)
         {
             data.emplace_back(*(p + i));
@@ -94,24 +95,21 @@ namespace smooth::application::network::http
         auto last_consumed = data.cend();
 
         // Each content block is contained between two boundaries
-        while (!bounds.empty() && bounds.size() % 2 == 0)
+        while (!bounds.empty() && bounds.size() >= 2)
         {
             auto start_of_content = get_end_of_boundary(bounds.front());
             bounds.erase(bounds.cbegin());
             auto end_of_content = bounds.front();
-            bounds.erase(bounds.cbegin());
             last_consumed = end_of_content;
 
             parse_content(start_of_content, end_of_content, content_callback);
         }
 
-        // Erase already consumed data to keep memory usage as low as possible.
+        // Erase already consumed data
         if (last_consumed != data.cend())
         {
             data.erase(data.begin(), last_consumed);
         }
-
-        return res;
     }
 
     MIMEParser::BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
@@ -121,7 +119,8 @@ namespace smooth::application::network::http
         return begin + static_cast<Boundaries::difference_type>(boundary.size()) + offset;
     }
 
-    void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content, const ContentCallback& cb) const
+    void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
+                                   const ContentCallback& cb) const
     {
         // If the first data isn't a CRLF, then there are one or more Content-headers for this data.
         if (is_crlf(start_of_content))
@@ -134,13 +133,14 @@ namespace smooth::application::network::http
             auto header_data = consume_headers(start_of_content, end_of_content);
             start_of_content = std::get<0>(header_data);
             auto& headers = std::get<1>(header_data);
+            auto& content_dispositon = std::get<2>(header_data);
 
-            if(start_of_content != end_of_content)
+            if (start_of_content != end_of_content)
             {
-
+                cb(content_dispositon["name"], start_of_content, end_of_content);
             }
 
-            (void)headers;
+            (void) headers;
         }
     }
 
@@ -168,19 +168,75 @@ namespace smooth::application::network::http
         return *start == '\r' && *(start + 1) == '\n';
     }
 
-    std::tuple<MIMEParser::BoundaryIterator, std::unordered_map<std::string, std::string>>
+    std::tuple<MIMEParser::BoundaryIterator,
+            std::unordered_map<std::string, std::string>,
+            std::unordered_map<std::string, std::string>>
     MIMEParser::consume_headers(MIMEParser::BoundaryIterator begin, MIMEParser::BoundaryIterator end) const
     {
         std::unordered_map<std::string, std::string> headers{};
+        std::unordered_map<std::string, std::string> content_disp{};
         auto start_of_actual_content = end;
 
         auto end_of_headers = std::search(begin, end, crlf_double.begin(), crlf_double.end());
-        if(end_of_headers != end)
+        if (end_of_headers != end)
         {
             start_of_actual_content = end_of_headers + static_cast<long>(crlf_double.size());
+
+            std::stringstream ss;
+
+            std::for_each(begin, end_of_headers, [&ss](auto& c) {
+                if (c != '\n')
+                {
+                    ss << static_cast<char>(c);
+                }
+            });
+
+            std::string s;
+            while (std::getline(ss, s, '\r'))
+            {
+                auto colon = std::find(s.begin(), s.end(), ':');
+                if (colon != s.end() && !s.empty())
+                {
+                    if (std::distance(colon, s.end()) > 2)
+                    {
+                        headers[to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                    }
+                }
+
+                parse_content_disposition(headers, content_disp);
+            }
         }
 
-        return std::make_tuple(start_of_actual_content, headers);
+        return std::make_tuple(start_of_actual_content, headers, content_disp);
+    }
+
+    void MIMEParser::parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
+                                               std::unordered_map<std::string, std::string>& content_disposition) const
+    {
+        try
+        {
+            const auto& content_dis = headers.at(CONTENT_DISPOSITION);
+
+            auto part = split(content_dis, ";", true);
+
+            for (const auto& p : part)
+            {
+                auto key_value = split(p, "=", true);
+                if (key_value.size() > 1)
+                {
+                    // Remove leading and ending quotation mark
+                    auto filter = [](char c){ return c != '"'; };
+                    content_disposition[key_value[0]] = trim(key_value[1], filter);
+                }
+                else
+                {
+                    // Single-value data
+                    content_disposition[key_value[0]] = key_value[0];
+                }
+            }
+        }
+        catch (...)
+        {}
     }
 }
 

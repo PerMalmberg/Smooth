@@ -5,4 +5,5 @@ namespace smooth::application::network::http
     const char* LAST_MODIFIED = "last-modified";
     const char* CONNECTION = "connection";
     const char* KEEP_ALIVE = "keep-alive";
+    const char* CONTENT_DISPOSITION = "content-disposition";
 }
