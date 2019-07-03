@@ -43,11 +43,11 @@ SCENARIO("MIMEParser")
                     o.write(data.data(), data.size());
                 };
 
-                mime.parse(data.data(), data.size(), cb);
-
+                // Give the parser data in as small chunks as possible, i.e. one byte at a time
+                // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    //mime.parse(&c, 1, cb);
+                    mime.parse(&c, 1, cb);
                 }
 
                 REQUIRE(count == 3);

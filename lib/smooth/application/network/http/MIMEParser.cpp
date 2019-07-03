@@ -52,8 +52,6 @@ namespace smooth::application::network::http
     {
         Boundaries b{};
 
-        bool end_found = false;
-
         // Don't search until there are actually enough data
         if (data.size() > boundary.size() * 2)
         {
@@ -65,19 +63,19 @@ namespace smooth::application::network::http
                 p = std::search(p + 1, data.cend(), boundary.cbegin(), boundary.cend());
             }
 
-            // Is the last boundary the end-boundary?
-            if (b.size() > 1)
+            // Also find the end boundary
+            p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
+            if(p != data.end())
             {
-                p = std::search(b[b.size() - 1], data.cend(), end_boundary.cbegin(), end_boundary.cend());
-                end_found = p != data.end();
+                b.emplace_back(p);
             }
 
-            // Adjust for possible preceding CRLF on all but the first found boundary
+            // Adjust for possible preceding CRLF, as the CRLF is considered part of the boundary.
             adjust_boundary_begining_for_crlf(data.begin(), b);
 
         }
 
-        return std::make_tuple(b, end_found);
+        return b;
     }
 
     void MIMEParser::parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback)
@@ -87,10 +85,7 @@ namespace smooth::application::network::http
             data.emplace_back(*(p + i));
         }
 
-        auto boundaries = find_boundaries();
-        auto bounds = std::get<0>(boundaries);
-
-        //auto has_end = std::get<1>(boundaries);
+        auto bounds = find_boundaries();
 
         auto last_consumed = data.cend();
 
