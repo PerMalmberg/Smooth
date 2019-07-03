@@ -47,6 +47,7 @@ set(SOURCES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
+        application/hash/sha.cpp
         core/ipc/QueueNotification.cpp
         core/filesystem/File.cpp
         core/filesystem/FSLock.cpp

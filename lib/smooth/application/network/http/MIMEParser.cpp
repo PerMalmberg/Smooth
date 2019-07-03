@@ -8,7 +8,9 @@ namespace smooth::application::network::http
 {
     void MIMEParser::reset() noexcept
     {
-
+        boundary.clear();
+        end_boundary.clear();
+        data.clear();
     }
 
     bool MIMEParser::find_boundary(const std::string&& s)

@@ -46,6 +46,8 @@ namespace smooth::core::filesystem
             /// Gets the size of the file, in bytes
             static uint_fast64_t file_size(const char* full_path);
 
+            void remove();
+
         private:
             std::string name;
             FSLock lock{};
