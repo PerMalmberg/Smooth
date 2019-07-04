@@ -49,6 +49,7 @@ set(SOURCES
         application/network/mqtt/Subscription.cpp
         application/hash/sha.cpp
         core/ipc/QueueNotification.cpp
+        core/filesystem/filesystem.cpp
         core/filesystem/File.cpp
         core/filesystem/FSLock.cpp
         core/filesystem/Path.cpp

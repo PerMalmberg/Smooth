@@ -83,9 +83,15 @@ namespace smooth::core::filesystem
 
             bool operator==(const char*) const;
 
+            bool operator!=(const Path& p) const;
+
+            bool operator!=(const char* p) const;
+
             bool is_parent_of(const Path& child) const;
 
             Path parent() const;
+
+            bool has_parent() const;
 
             bool is_relative() const
             {
@@ -105,6 +111,11 @@ namespace smooth::core::filesystem
             std::string extension() const;
 
             bool has_extension() const;
+
+            const std::string str() const
+            {
+                return p;
+            }
 
         private:
             void append(const std::string& path);

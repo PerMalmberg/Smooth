@@ -14,13 +14,13 @@ namespace smooth::application::network::http
     {
         boundary.clear();
         end_boundary.clear();
-        url_encoded_data.clear();
+        form_url_encoded_data.clear();
         data.clear();
-        content_length = 0;
+        expected_content_length = 0;
         mode = Mode::None;
     }
 
-    bool MIMEParser::detect_mode(const std::string&& content_type, std::size_t content_length)
+    bool MIMEParser::detect_mode(const std::string& content_type, std::size_t content_length)
     {
         std::smatch match;
         if (std::regex_match(content_type.begin(), content_type.end(), match, form_data_pattern))
@@ -54,10 +54,10 @@ namespace smooth::application::network::http
         }
         else if (std::regex_match(content_type.begin(), content_type.end(), match, url_encoded_pattern))
         {
-            mode = Mode::URLEncoded;
+            mode = Mode::FormURLEncoded;
         }
 
-        this->content_length = content_length;
+        expected_content_length = content_length;
 
         return mode != Mode::None;
     }
@@ -91,7 +91,8 @@ namespace smooth::application::network::http
         return b;
     }
 
-    void MIMEParser::parse(const uint8_t* p, std::size_t length, const ContentCallback& content_callback)
+    void MIMEParser::parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
+                           const URLEncodedDataCallback& url_data)
     {
         for (std::size_t i = 0; i < length; ++i)
         {
@@ -121,10 +122,10 @@ namespace smooth::application::network::http
                 data.erase(data.begin(), last_consumed);
             }
         }
-        else if (mode == Mode::URLEncoded)
+        else if (mode == Mode::FormURLEncoded)
         {
             // URL encoded data can't be parsed in chunks, so wait until all data is received
-            if(data.size() >= content_length)
+            if (data.size() >= expected_content_length)
             {
                 // Split data on '&' as it comes in. Each part is then expected to contain X=Y, so split on '='.
                 // If a part doesn't contain a '=', put it back in the buffer to be used next time.
@@ -162,14 +163,14 @@ namespace smooth::application::network::http
 
                             if (key_res && value_res)
                             {
-                                url_encoded_data.emplace(key, value);
+                                form_url_encoded_data.emplace(key, value);
                             }
                         }
                     }
                 }
 
                 // Perform the callback to the response handler with the parsed and decoded data.
-
+                url_data(form_url_encoded_data);
             }
         }
     }
@@ -182,7 +183,7 @@ namespace smooth::application::network::http
     }
 
     void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                                   const ContentCallback& cb) const
+                                   const FormDataCallback& cb) const
     {
         // If the first data isn't a CRLF, then there are one or more Content-headers for this data.
         if (is_crlf(start_of_content))

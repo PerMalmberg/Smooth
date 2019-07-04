@@ -13,11 +13,6 @@ namespace smooth::application::network::http
         return decode(url, url.begin(), url.end());
     }
 
-    bool URLEncoding::has_two_left(std::size_t total_length, std::size_t current_ix) const
-    {
-        return (total_length - current_ix) >= 3;
-    }
-
     bool URLEncoding::decode(std::string& url, std::string::iterator begin, std::string::iterator end)
     {
         bool res = true;
@@ -74,6 +69,14 @@ namespace smooth::application::network::http
         {
             *write = '\0';
             url.erase(write, end);
+        }
+
+        for(auto& c : url)
+        {
+            if(c == '+')
+            {
+                c = ' ';
+            }
         }
 
         return res;

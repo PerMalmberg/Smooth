@@ -32,7 +32,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
             {
                 int count = 0;
 
-                auto cb = [&count, &root](const std::string& name,
+                auto form_data = [&count, &root](const std::string& name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
                     count++;
@@ -61,11 +61,13 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                     }
                 };
 
+                auto url_encoded_data = [](const std::unordered_map<std::string, std::string>&){};
+
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, cb);
+                    mime.parse(&c, 1, form_data, url_encoded_data);
                 }
 
                 REQUIRE(count == 3);
@@ -98,7 +100,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
             {
                 int count = 0;
 
-                auto cb = [&count, &root](const std::string& name,
+                auto form_data = [&count, &root](const std::string& name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
 
@@ -128,11 +130,13 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                     }
                 };
 
+                auto url_encoded_data = [](std::unordered_map<std::string, std::string>&){};
+
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, cb);
+                    mime.parse(&c, 1, form_data, url_encoded_data);
                 }
 
                 REQUIRE(count == 3);
@@ -164,25 +168,22 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
 
             THEN("Finds the url encoded data")
             {
-                int count = 0;
+                auto form_data = MIMEParser::FormDataCallback();
 
-                auto cb = [&count, &root](const std::string& name,
-                                          const MIMEParser::BoundaryIterator& begin,
-                                          const MIMEParser::BoundaryIterator& end) {
-
-
+                std::unordered_map<std::string, std::string> received{};
+                auto url_encoded_data = [&received](std::unordered_map<std::string, std::string>& url_data){
+                    received = std::move(url_data);
                 };
 
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, cb);
+                    mime.parse(&c, 1, form_data, url_encoded_data);
                 }
 
-                REQUIRE(mime.get_url_encoded_data().at("free_text") == "test text");
-
-                REQUIRE(count == 3);
+                REQUIRE(received.at("free_text") == "test text");
+                REQUIRE(received.at("submit") == "Send text");
             }
         }
     }

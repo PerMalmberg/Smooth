@@ -65,6 +65,5 @@ namespace smooth::application::network::http::responses
     {
         data.insert(data.end(), std::make_move_iterator(str.begin()),
                     std::make_move_iterator(str.end()));
-        str.erase(str.begin(), str.end());
     }
 }

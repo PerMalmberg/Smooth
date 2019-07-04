@@ -53,6 +53,7 @@ SCENARIO("Parent path")
             THEN("Parent path matches")
             {
                 REQUIRE(parent == "/a/b/c");
+                REQUIRE(parent.has_parent());
             }
         }
     }
@@ -65,6 +66,7 @@ SCENARIO("Parent path")
             THEN("Parent is current dir")
             {
                 REQUIRE(parent == ".");
+                REQUIRE_FALSE(p.has_parent());
             }
         }
     }
@@ -90,6 +92,7 @@ SCENARIO("Parent path")
             THEN("Parent is root dir")
             {
                 REQUIRE(parent == "/");
+                REQUIRE_FALSE(parent.has_parent());
             }
         }
     }

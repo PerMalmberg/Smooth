@@ -5,7 +5,6 @@
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/FSLock.h>
 
-
 namespace smooth::core::filesystem
 {
     /// Utility class to read/write an entire file.
