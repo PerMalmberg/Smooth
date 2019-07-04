@@ -1,7 +1,11 @@
 #include <smooth/application/network/http/MIMEParser.h>
+#include <vector>
+#include <smooth/core/util/split.h>
 #include <smooth/core/util/string_util.h>
+#include <smooth/application/network/http/URLEncoding.h>
 #include <smooth/application/network/http/HTTPHeaderDef.h>
 
+using namespace smooth::core;
 using namespace smooth::core::util;
 
 namespace smooth::application::network::http
@@ -10,15 +14,16 @@ namespace smooth::application::network::http
     {
         boundary.clear();
         end_boundary.clear();
+        url_encoded_data.clear();
         data.clear();
+        content_length = 0;
+        mode = Mode::None;
     }
 
-    bool MIMEParser::find_boundary(const std::string&& s)
+    bool MIMEParser::detect_mode(const std::string&& content_type, std::size_t content_length)
     {
-        bool res{false};
-
         std::smatch match;
-        if (std::regex_match(s.begin(), s.end(), match, form_data_pattern))
+        if (std::regex_match(content_type.begin(), content_type.end(), match, form_data_pattern))
         {
             auto b = match[1].str();
             // https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
@@ -44,10 +49,17 @@ namespace smooth::application::network::http
             end_boundary.emplace_back('-');
             end_boundary.emplace_back('\r');
             end_boundary.emplace_back('\n');
-            res = true;
+
+            mode = Mode::FormData;
+        }
+        else if (std::regex_match(content_type.begin(), content_type.end(), match, url_encoded_pattern))
+        {
+            mode = Mode::URLEncoded;
         }
 
-        return res;
+        this->content_length = content_length;
+
+        return mode != Mode::None;
     }
 
     auto MIMEParser::find_boundaries() const
@@ -67,14 +79,13 @@ namespace smooth::application::network::http
 
             // Also find the end boundary
             p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
-            if(p != data.end())
+            if (p != data.end())
             {
                 b.emplace_back(p);
             }
 
             // Adjust for possible preceding CRLF, as the CRLF is considered part of the boundary.
             adjust_boundary_begining_for_crlf(data.begin(), b);
-
         }
 
         return b;
@@ -84,28 +95,82 @@ namespace smooth::application::network::http
     {
         for (std::size_t i = 0; i < length; ++i)
         {
-            data.emplace_back(*(p + i));
+            data.emplace_back(p[i]);
         }
 
-        auto bounds = find_boundaries();
-
-        auto last_consumed = data.cend();
-
-        // Each content block is contained between two boundaries
-        while (!bounds.empty() && bounds.size() >= 2)
+        if (mode == Mode::FormData)
         {
-            auto start_of_content = get_end_of_boundary(bounds.front());
-            bounds.erase(bounds.cbegin());
-            auto end_of_content = bounds.front();
-            last_consumed = end_of_content;
+            auto bounds = find_boundaries();
 
-            parse_content(start_of_content, end_of_content, content_callback);
+            auto last_consumed = data.cend();
+
+            // Each content block is contained between two boundaries
+            while (!bounds.empty() && bounds.size() >= 2)
+            {
+                auto start_of_content = get_end_of_boundary(bounds.front());
+                bounds.erase(bounds.cbegin());
+                auto end_of_content = bounds.front();
+                last_consumed = end_of_content;
+
+                parse_content(start_of_content, end_of_content, content_callback);
+            }
+
+            // Erase already consumed data
+            if (last_consumed != data.cend())
+            {
+                data.erase(data.begin(), last_consumed);
+            }
         }
-
-        // Erase already consumed data
-        if (last_consumed != data.cend())
+        else if (mode == Mode::URLEncoded)
         {
-            data.erase(data.begin(), last_consumed);
+            // URL encoded data can't be parsed in chunks, so wait until all data is received
+            if(data.size() >= content_length)
+            {
+                // Split data on '&' as it comes in. Each part is then expected to contain X=Y, so split on '='.
+                // If a part doesn't contain a '=', put it back in the buffer to be used next time.
+                // The way this works is that split() places any leftovers last in the returned vector
+                // which means that it will be encountered last, thus the loops end at the same time.
+
+                auto parts = split(data, std::vector<uint8_t>{'&'});
+
+                if (!parts.empty())
+                {
+                    data.clear();
+                }
+
+                URLEncoding encoding{};
+
+                for (const auto& part : parts)
+                {
+                    auto equal_sign = std::find(part.cbegin(), part.cend(), '=');
+                    if (equal_sign == part.cend())
+                    {
+                        std::copy(std::make_move_iterator(part.begin()),
+                                  std::make_move_iterator(part.end()),
+                                  std::back_inserter(data));
+                    }
+                    else
+                    {
+                        auto key_value = split(part, std::vector<uint8_t>{'='});
+                        if (!key_value.empty())
+                        {
+                            std::string key{key_value[0].begin(), key_value[0].end()};
+                            auto key_res = encoding.decode(key, key.begin(), key.end());
+
+                            std::string value{key_value[1].begin(), key_value[1].end()};
+                            auto value_res = encoding.decode(value, value.begin(), value.end());
+
+                            if (key_res && value_res)
+                            {
+                                url_encoded_data.emplace(key, value);
+                            }
+                        }
+                    }
+                }
+
+                // Perform the callback to the response handler with the parsed and decoded data.
+
+            }
         }
     }
 
@@ -196,7 +261,7 @@ namespace smooth::application::network::http
                 {
                     if (std::distance(colon, s.end()) > 2)
                     {
-                        headers[to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                        headers[string_util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
                     }
                 }
 
@@ -214,16 +279,16 @@ namespace smooth::application::network::http
         {
             const auto& content_dis = headers.at(CONTENT_DISPOSITION);
 
-            auto part = split(content_dis, ";", true);
+            auto part = string_util::split(content_dis, ";", true);
 
             for (const auto& p : part)
             {
-                auto key_value = split(p, "=", true);
+                auto key_value = string_util::split(p, "=", true);
                 if (key_value.size() > 1)
                 {
                     // Remove leading and ending quotation mark
-                    auto filter = [](char c){ return c != '"'; };
-                    content_disposition[key_value[0]] = trim(key_value[1], filter);
+                    auto filter = [](char c) { return c != '"'; };
+                    content_disposition[key_value[0]] = string_util::trim(key_value[1], filter);
                 }
                 else
                 {

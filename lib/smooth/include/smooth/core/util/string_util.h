@@ -1,13 +1,12 @@
-#include <utility>
-
-#include <utility>
-
 #pragma once
 
+
+#include <utility>
 #include <algorithm>
 #include <string>
+#include "split.h"
 
-namespace smooth::core::util
+namespace smooth::core::string_util
 {
     inline std::string left_trim(std::string s, std::function<bool(char c)> filter = [](auto c) {return !std::isspace(c);})
     {
@@ -36,37 +35,13 @@ namespace smooth::core::util
 
     inline std::vector<std::string> split(const std::string& s, const std::string& token, bool trim_spaces = false)
     {
-        std::vector<std::string> res{};
+        auto res = util::split<std::string>(s, token);
 
-        auto start = s.begin();
-        auto pos = std::search(s.cbegin(), s.cend(), token.cbegin(), token.cend());
-
-        while (pos != s.end())
+        if(trim_spaces)
         {
-            if (trim_spaces)
+            for (auto& curr : res)
             {
-                res.emplace_back(trim(std::string{start, pos}));
-            }
-            else
-            {
-                res.emplace_back(std::string{start, pos});
-            }
-
-            start = pos + static_cast<long>(token.size());
-
-            pos = std::search(start, s.cend(), token.cbegin(), token.cend());
-        }
-
-        if(std::distance(start, s.end()) > static_cast<long>(token.size()))
-        {
-            // Input string didn't contain or end with a token, add remains.
-            if (trim_spaces)
-            {
-                res.emplace_back(trim(std::string{start, s.end()}));
-            }
-            else
-            {
-                res.emplace_back(std::string{start, s.end()});
+                curr = trim(curr);
             }
         }
 

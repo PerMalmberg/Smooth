@@ -105,9 +105,9 @@ namespace smooth::application::network::http
         {
             // As headers are parsed and delivered separately from the content, we can resize the data buffer to
             // exactly fit the received content in this specific packet. This also makes it easy to later parse
-            // the content since the exact size is known.  
+            // the content since the exact size is known.
             packet.data().resize(static_cast<std::vector<uint8_t>::size_type>(content_bytes_received_in_current_part));
-                        
+
             packet.set_request_data(last_method, last_url, last_request_version);
         }
     }
@@ -209,7 +209,7 @@ namespace smooth::application::network::http
                     if (std::distance(colon, s.end()) > 2)
                     {
                         // Headers are case-insensitive: https://tools.ietf.org/html/rfc7230#section-3.2
-                        packet.headers()[util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                        packet.headers()[string_util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
                     }
                 }
             }

@@ -3,11 +3,12 @@
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/application/hash/sha.h>
+#include <smooth/core/filesystem/Fileinfo.h>
 
 using namespace smooth::core::filesystem;
 using namespace smooth::application::network::http;
 
-SCENARIO("MIMEParser - Text files")
+SCENARIO("MIMEParser - multipart/form-data - Text files")
 {
     // Setup file system locks.
     FSLock::init(5);
@@ -18,8 +19,8 @@ SCENARIO("MIMEParser - Text files")
 
         WHEN("Provided with chunks of content data")
         {
-            REQUIRE(mime.find_boundary(
-                    "multipart/form-data; boundary=---------------------------8819839691792623414370909194"));
+            REQUIRE(mime.detect_mode(
+                    "multipart/form-data; boundary=---------------------------8819839691792623414370909194", 0));
 
             const auto root = Path{__FILE__}.parent();
             auto file = root / "test_data" / "post_result_data.txt";
@@ -73,7 +74,7 @@ SCENARIO("MIMEParser - Text files")
     }
 }
 
-SCENARIO("MIMEParser - Binary files")
+SCENARIO("MIMEParser - multipart/form-data - Binary files")
 {
     // Setup file system locks.
     FSLock::init(5);
@@ -84,8 +85,8 @@ SCENARIO("MIMEParser - Binary files")
 
         WHEN("Provided with chunks of content binary data")
         {
-            REQUIRE(mime.find_boundary(
-                    "multipart/form-data; boundary=---------------------------7184603361412956941791020073"));
+            REQUIRE(mime.detect_mode(
+                    "multipart/form-data; boundary=---------------------------7184603361412956941791020073", 0));
 
             const auto root = Path{__FILE__}.parent();
             auto file = root / "test_data" / "post_binary_data.bin";
@@ -133,6 +134,53 @@ SCENARIO("MIMEParser - Binary files")
                 {
                     mime.parse(&c, 1, cb);
                 }
+
+                REQUIRE(count == 3);
+            }
+        }
+    }
+}
+
+SCENARIO("MIMEParser - application/x-www-form-urlencoded")
+{
+    // Setup file system locks.
+    FSLock::init(5);
+
+    GIVEN("A mimeparser")
+    {
+        MIMEParser mime;
+
+        WHEN("Provided with chunks of url encoded data")
+        {
+            const auto root = Path{__FILE__}.parent();
+            auto file = root / "test_data" / "url_encoded.txt";
+            FileInfo info{file};
+
+            REQUIRE(mime.detect_mode("application/x-www-form-urlencoded", info.size()));
+
+            File f{file};
+            std::vector<uint8_t> data;
+            REQUIRE(f.read(data));
+
+            THEN("Finds the url encoded data")
+            {
+                int count = 0;
+
+                auto cb = [&count, &root](const std::string& name,
+                                          const MIMEParser::BoundaryIterator& begin,
+                                          const MIMEParser::BoundaryIterator& end) {
+
+
+                };
+
+                // Give the parser data in as small chunks as possible, i.e. one byte at a time
+                // to make sure we can handle such split data.
+                for (const auto& c : data)
+                {
+                    mime.parse(&c, 1, cb);
+                }
+
+                REQUIRE(mime.get_url_encoded_data().at("free_text") == "test text");
 
                 REQUIRE(count == 3);
             }
