@@ -64,15 +64,6 @@ namespace smooth::application::network::http
                 {
                     incoming_content_length = 0;
                 }
-
-                if (total_content_bytes_received < incoming_content_length)
-                {
-                    // There is more content to read, this packet will be followed by another packet.
-                    packet.set_continued();
-                }
-
-                // When still reading the headers, the packet can never be a continuation, so don't check
-                // for that condition.
             }
             else if (total_bytes_received >= max_header_size)
             {
@@ -87,18 +78,6 @@ namespace smooth::application::network::http
         {
             total_content_bytes_received += length;
             content_bytes_received_in_current_part += length;
-
-            if (total_content_bytes_received < incoming_content_length)
-            {
-                // There is more content to read, this packet will be followed by another packet.
-                packet.set_continued();
-            }
-
-            if (total_content_bytes_received > content_chunk_size)
-            {
-                // Packet continues a previous packet.
-                packet.set_continuation();
-            }
         }
 
         if (is_complete(packet))
@@ -109,6 +88,25 @@ namespace smooth::application::network::http
             packet.data().resize(static_cast<std::vector<uint8_t>::size_type>(content_bytes_received_in_current_part));
 
             packet.set_request_data(last_method, last_url, last_request_version);
+
+            // When there are more data expected, then this packet is "to be continued"
+            if (total_content_bytes_received < incoming_content_length)
+            {
+                packet.set_continued();
+            }
+
+            // When still reading the headers, the packet can never be a continuation.
+            if (state != State::reading_headers)
+            {
+                // If we've already received more data than what fits in a single chunk, then this packet
+                // is a continuation of an earlier packet.
+                if(total_content_bytes_received - content_bytes_received_in_current_part > content_chunk_size)
+                {
+                    // Packet continues a previous packet.
+                    packet.set_continuation();
+                }
+
+            }
         }
     }
 

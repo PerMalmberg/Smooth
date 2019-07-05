@@ -11,6 +11,8 @@ namespace smooth::application::network::http
         if (event.get(packet))
         {
             bool first_packet = !packet.is_continuation();
+            bool last_packet = !packet.is_continued();
+
             bool res = true;
 
             if (first_packet)
@@ -43,7 +45,7 @@ namespace smooth::application::network::http
                                         packet.get_buffer(),
                                         mime,
                                         first_packet,
-                                        !packet.is_continued());
+                                        last_packet);
                     }
                     else
                     {
