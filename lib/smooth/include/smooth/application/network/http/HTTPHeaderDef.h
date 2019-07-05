@@ -7,4 +7,5 @@ namespace smooth::application::network::http
     extern const char* LAST_MODIFIED;
     extern const char* CONNECTION;
     extern const char* KEEP_ALIVE;
+    extern const char* CONTENT_DISPOSITION;
 }

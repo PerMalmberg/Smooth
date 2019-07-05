@@ -3,131 +3,137 @@
 #include <string>
 #include <vector>
 
-namespace smooth
+namespace smooth::core::filesystem
 {
-    namespace core
+    class Path
     {
-        namespace filesystem
-        {
-            class Path
+        public:
+            Path() = default;
+
+            Path(const Path&) = default;
+
+            Path(Path&&) = default;
+
+            Path& operator=(const Path&) = default;
+
+            Path(const char* path)
+                    : p(path)
             {
-                public:
-                    Path() = default;
+                remove_ending_separator();
+                resolve();
+            }
 
-                    Path(const Path&) = default;
+            Path(std::string::const_iterator beg, std::string::const_iterator end)
+            {
+                std::copy(beg, end, std::back_inserter(p));
+                remove_ending_separator();
+                resolve();
+            }
 
-                    Path(Path&&) = default;
+            Path operator/(const char* path) const
+            {
+                Path tmp{*this};
+                tmp /= path;
+                return tmp;
+            }
 
-                    Path& operator=(const Path&) = default;
+            Path operator/(const std::string& path) const
+            {
+                Path tmp{*this};
+                tmp /= path.c_str();
+                return tmp;
+            }
 
-                    Path(const char* path)
-                            : p(path)
-                    {
-                        remove_ending_separator();
-                        resolve();
-                    }
+            Path operator/(const Path& path) const
+            {
+                Path tmp{*this};
+                tmp /= path;
+                return tmp;
+            }
 
-                    Path(std::string::const_iterator beg, std::string::const_iterator end)
-                    {
-                        std::copy(beg, end, std::back_inserter(p));
-                        remove_ending_separator();
-                        resolve();
-                    }
+            Path& operator/=(const char* path)
+            {
+                append(path);
+                return *this;
+            }
 
-                    Path operator/(const char* path) const
-                    {
-                        Path tmp{*this};
-                        tmp /= path;
-                        return tmp;
-                    }
+            Path& operator/=(const std::string& path)
+            {
+                append(path);
+                return *this;
+            }
 
-                    Path operator/(const std::string& path) const
-                    {
-                        Path tmp{*this};
-                        tmp /= path.c_str();
-                        return tmp;
-                    }
+            Path& operator/=(const Path& path)
+            {
+                append(path.p);
+                return *this;
+            }
 
-                    Path operator/(const Path& path) const
-                    {
-                        Path tmp{*this};
-                        tmp /= path;
-                        return tmp;
-                    }
+            operator std::string() const
+            {
+                return p;
+            }
 
-                    Path& operator/=(const char* path)
-                    {
-                        append(path);
-                        return *this;
-                    }
+            operator const char*() const
+            {
+                return p.c_str();
+            }
 
-                    Path& operator/=(const std::string& path)
-                    {
-                        append(path);
-                        return *this;
-                    }
+            bool operator==(const Path& p) const;
 
-                    Path& operator/=(const Path& path)
-                    {
-                        append(path.p);
-                        return *this;
-                    }
+            bool operator==(const char*) const;
 
-                    operator std::string() const
-                    {
-                        return p;
-                    }
+            bool operator!=(const Path& p) const;
 
-                    operator const char*() const
-                    {
-                        return p.c_str();
-                    }
+            bool operator!=(const char* p) const;
 
-                    bool operator==(const Path& p) const;
+            bool is_parent_of(const Path& child) const;
 
-                    bool operator==(const char*) const;
+            Path parent() const;
 
-                    bool is_parent_of(const Path& child) const;
+            bool has_parent() const;
 
-                    Path parent() const;
+            bool is_relative() const
+            {
+                return !is_absolute();
+            }
 
-                    bool is_relative() const
-                    {
-                        return !is_absolute();
-                    }
+            bool is_absolute() const
+            {
+                return !p.empty() && p[0] == '/';
+            }
 
-                    bool is_absolute() const
-                    {
-                        return !p.empty() && p[0] == '/';
-                    }
+            bool empty() const
+            {
+                return p.empty();
+            }
 
-                    bool empty() const
-                    {
-                        return p.empty();
-                    }
+            std::string extension() const;
 
-                    std::string extension() const;
-                    bool has_extension() const;
+            bool has_extension() const;
 
-                private:
-                    void append(const std::string& path);
+            const std::string str() const
+            {
+                return p;
+            }
 
-                    void remove_ending_separator();
+        private:
+            void append(const std::string& path);
 
-                    void resolve();
+            void remove_ending_separator();
 
-                    bool static equals_path_separator(char c)
-                    {
-                        return c == '/' || c == '\\';
-                    }
+            void resolve();
 
-                    bool contains_dots(const std::string& s);
+            bool static equals_path_separator(char c)
+            {
+                return c == '/' || c == '\\';
+            }
 
-                    static const std::string separator;
-                    static const std::string dot_token;
-                    static const std::string dot_dot_token;
-                    std::string p;
-            };
-        }
-    }
+            bool contains_dots(const std::string& s);
+
+            static const std::string separator;
+            static const std::string dot_token;
+            static const std::string dot_dot_token;
+            std::string p;
+    };
 }

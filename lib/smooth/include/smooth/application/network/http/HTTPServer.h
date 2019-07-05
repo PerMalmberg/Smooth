@@ -20,7 +20,7 @@
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/responses/ErrorResponse.h>
 #include <smooth/application/network/http/responses/FileContentResponse.h>
-#include "ResponseSignature.h"
+#include "RequestHandlerSignature.h"
 
 namespace smooth::application::network::http
 {
@@ -118,10 +118,10 @@ namespace smooth::application::network::http
             }
 
             void on(HTTPMethod method, const std::string& url,
-                    const ResponseSignature& handler);
+                    const RequestHandlerSignature& handler);
 
         private:
-            using HandlerByURL = std::unordered_map<std::string, ResponseSignature>;
+            using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
@@ -130,6 +130,7 @@ namespace smooth::application::network::http
                         const std::unordered_map<std::string, std::string>& request_headers,
                         const std::unordered_map<std::string, std::string>& request_parameters,
                         const std::vector<uint8_t>& data,
+                        MIMEParser& mime,
                         bool fist_part,
                         bool last_part) override;
 
@@ -161,7 +162,7 @@ namespace smooth::application::network::http
     void
     HTTPServer<ServerType>::on(HTTPMethod method,
                                const std::string& url,
-                               const ResponseSignature& handler)
+                               const RequestHandlerSignature& handler)
     {
         handlers[method][url] = handler;
     }
@@ -175,6 +176,7 @@ namespace smooth::application::network::http
             const std::unordered_map<std::string, std::string>& request_headers,
             const std::unordered_map<std::string, std::string>& request_parameters,
             const std::vector<uint8_t>& data,
+            MIMEParser& mime,
             bool fist_part,
             bool last_part)
     {
@@ -250,8 +252,8 @@ namespace smooth::application::network::http
             }
             else
             {
-                Log::info(tag, Format("Matching route: {1}: '{2}'", Str(utils::http_method_to_string(method)),
-                                      Str(requested_url)));
+//                Log::info(tag, Format("Matching route: {1}: '{2}'", Str(utils::http_method_to_string(method)),
+//                                      Str(requested_url)));
 
                 (*response_handler).second(response,
                                            requested_url,
@@ -259,7 +261,8 @@ namespace smooth::application::network::http
                                            last_part,
                                            request_headers,
                                            request_parameters,
-                                           data);
+                                           data,
+                                           mime);
             }
         }
         else

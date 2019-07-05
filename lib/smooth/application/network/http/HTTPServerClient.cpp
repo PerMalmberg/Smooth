@@ -11,6 +11,8 @@ namespace smooth::application::network::http
         if (event.get(packet))
         {
             bool first_packet = !packet.is_continuation();
+            bool last_packet = !packet.is_continued();
+
             bool res = true;
 
             if (first_packet)
@@ -21,6 +23,8 @@ namespace smooth::application::network::http
                 requested_url = packet.get_request_url();
                 res = parse_url(requested_url);
                 set_keep_alive();
+
+                mime.reset();
             }
 
             if (res)
@@ -39,8 +43,9 @@ namespace smooth::application::network::http
                                         request_headers,
                                         request_parameters,
                                         packet.get_buffer(),
+                                        mime,
                                         first_packet,
-                                        !packet.is_continued());
+                                        last_packet);
                     }
                     else
                     {
@@ -73,7 +78,8 @@ namespace smooth::application::network::http
                 // Immediately send next
                 send_first_part();
             }
-            else
+            else if (res == responses::ResponseStatus::HasMoreData
+                     || res == responses::ResponseStatus::LastData)
             {
                 HTTPPacket p{data};
                 auto& tx = this->get_buffers()->get_tx_buffer();

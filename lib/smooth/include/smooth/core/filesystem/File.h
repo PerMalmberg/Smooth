@@ -5,7 +5,6 @@
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/FSLock.h>
 
-
 namespace smooth::core::filesystem
 {
     /// Utility class to read/write an entire file.
@@ -45,6 +44,8 @@ namespace smooth::core::filesystem
 
             /// Gets the size of the file, in bytes
             static uint_fast64_t file_size(const char* full_path);
+
+            void remove();
 
         private:
             std::string name;

@@ -21,7 +21,7 @@ namespace smooth::application::network::http::responses
         headers[LAST_MODIFIED] = utils::make_http_time(info.last_modified());
     }
 
-    // Called at least once when sending a response and until ResponseStatus::AllSent is returned
+    // Called at least once when sending a response and until ResponseStatus::EndOfData is returned
     ResponseStatus FileContentResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
         auto res = ResponseStatus::EndOfData;
@@ -31,15 +31,14 @@ namespace smooth::application::network::http::responses
             auto to_send = std::min(info.size() - sent, max_amount);
 
             auto read_res = smooth::core::filesystem::File::read(path, target, sent, to_send);
-            if (!read_res)
+            if (read_res)
             {
-                res = ResponseStatus::Error;
+                sent += to_send;
+                res = sent < info.size() ? ResponseStatus::HasMoreData : ResponseStatus::LastData;
             }
             else
             {
-                // Anything still left?
-                res = sent < info.size() ? ResponseStatus::HasMoreData : ResponseStatus::EndOfData;
-                sent += to_send;
+                res = ResponseStatus::Error;
             }
         }
 

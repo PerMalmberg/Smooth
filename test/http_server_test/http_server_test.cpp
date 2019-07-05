@@ -3,13 +3,17 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
+#include <smooth/core/filesystem/filesystem.h>
+#include <smooth/core/filesystem/FSLock.h>
 #include <smooth/application/network/http/responses/StringResponse.h>
+#include <smooth/application/network/http/MIMEParser.h>
 #include "SendBlob.h"
 #include "wifi_creds.h"
 
 using namespace std;
 using namespace std::chrono;
 using namespace smooth::core;
+using namespace smooth::core::filesystem;
 using namespace smooth::core::network;
 using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
@@ -130,7 +134,7 @@ namespace http_server_test
     {
         std::stringstream ss;
 
-        const int max_client_count = 1;
+        const int max_client_count = 6;
         const int listen_backlog = 6;
 
         Application::init();
@@ -142,7 +146,8 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 
-        const smooth::core::filesystem::Path web_root("/sdcard/web_root");
+        Path web_root("/sdcard/web_root");
+        Path uploads{"/sdcard/uploads"};
 
         // Setup SD Card as per WROOVER Kit 3.x
         sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4,
@@ -152,7 +157,11 @@ namespace http_server_test
 #else
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "static_content";
+        Path uploads{test_path.parent() / "uploads"};
 #endif
+
+        FSLock::init(5);
+
         HTTPServerConfig cfg{web_root, {"index.html"}, MaxHeaderSize, ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>>>(*this, cfg);
@@ -185,11 +194,13 @@ namespace http_server_test
                 bool last_part,
                 const std::unordered_map<std::string, std::string>& /*headers*/,
                 const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                const std::vector<uint8_t>& content) {
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) {
             (void) first_part;
             (void) last_part;
             (void) url;
             (void) content;
+            (void) mime;
 
             if (last_part)
             {
@@ -197,37 +208,56 @@ namespace http_server_test
             }
         };
 
-        auto upload = [web_root](
+        auto upload = [web_root, uploads](
                 IServerResponse& response,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
                 const std::unordered_map<std::string, std::string>& headers,
                 const std::unordered_map<std::string, std::string>& request_parameters,
-                const std::vector<uint8_t>& content) {
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) {
             (void) first_part;
             (void) last_part;
             (void) headers;
             (void) request_parameters;
             (void) url;
-            (void) content;
 
-            const auto upload_folder = web_root / "files";
-            try
+            if(first_part)
             {
-                auto content_type = headers.at(CONTENT_TYPE);
-                auto c = std::string{content.begin(), content.end()};
-              //  std::cout << c;
+                // Prepare mime parser to receive data
+                mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
             }
-            catch (std::out_of_range& ex)
-            {
 
-            }
+            auto form_data = [uploads](const std::string& name, const MIMEParser::BoundaryIterator& begin,
+                                const MIMEParser::BoundaryIterator& end)
+            {
+                // Store the file in web_root/uploads
+                Path path{uploads / name};
+                create_directory(path.parent());
+                File to_save{path};
+                if(FileInfo{path}.exists())
+                {
+                    remove(path);
+                }
+
+                auto len = std::distance(begin, end);
+                to_save.write(&*begin, static_cast<int>(len));
+            };
+
+            auto url_encoded_data = [](std::unordered_map<std::string, std::string>& data)
+            {
+                (void)data;
+            };
+
+
+            // Pass content to mime parser with callbacks to handle the data.
+            mime.parse(content, form_data, url_encoded_data);
 
 
             if (last_part)
             {
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK, "OK"));
+                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK, "File have been stored in " + uploads.str()));
             }
         };
 

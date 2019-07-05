@@ -64,15 +64,6 @@ namespace smooth::application::network::http
                 {
                     incoming_content_length = 0;
                 }
-
-                if (total_content_bytes_received < incoming_content_length)
-                {
-                    // There is more content to read, this packet will be followed by another packet.
-                    packet.set_continued();
-                }
-
-                // When still reading the headers, the packet can never be a continuation, so don't check
-                // for that condition.
             }
             else if (total_bytes_received >= max_header_size)
             {
@@ -87,23 +78,35 @@ namespace smooth::application::network::http
         {
             total_content_bytes_received += length;
             content_bytes_received_in_current_part += length;
-
-            if (total_content_bytes_received < incoming_content_length)
-            {
-                // There is more content to read, this packet will be followed by another packet.
-                packet.set_continued();
-            }
-
-            if (total_content_bytes_received > content_chunk_size)
-            {
-                // Packet continues a previous packet.
-                packet.set_continuation();
-            }
         }
 
         if (is_complete(packet))
         {
+            // As headers are parsed and delivered separately from the content, we can resize the data buffer to
+            // exactly fit the received content in this specific packet. This also makes it easy to later parse
+            // the content since the exact size is known.
+            packet.data().resize(static_cast<std::vector<uint8_t>::size_type>(content_bytes_received_in_current_part));
+
             packet.set_request_data(last_method, last_url, last_request_version);
+
+            // When there are more data expected, then this packet is "to be continued"
+            if (total_content_bytes_received < incoming_content_length)
+            {
+                packet.set_continued();
+            }
+
+            // When still reading the headers, the packet can never be a continuation.
+            if (state != State::reading_headers)
+            {
+                // If we've already received more data than what fits in a single chunk, then this packet
+                // is a continuation of an earlier packet.
+                if(total_content_bytes_received - content_bytes_received_in_current_part > content_chunk_size)
+                {
+                    // Packet continues a previous packet.
+                    packet.set_continuation();
+                }
+
+            }
         }
     }
 
@@ -204,7 +207,7 @@ namespace smooth::application::network::http
                     if (std::distance(colon, s.end()) > 2)
                     {
                         // Headers are case-insensitive: https://tools.ietf.org/html/rfc7230#section-3.2
-                        packet.headers()[util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                        packet.headers()[string_util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
                     }
                 }
             }

@@ -14,6 +14,7 @@ set(SOURCES
         application/network/http/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
+        application/network/http/MIMEParser.cpp
         application/network/http/HTTPHeaderDef.cpp
         application/network/http/responses/ErrorResponse.cpp
         application/network/http/responses/FileContentResponse.cpp
@@ -46,7 +47,9 @@ set(SOURCES
         application/network/mqtt/MqttClient.cpp
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
+        application/hash/sha.cpp
         core/ipc/QueueNotification.cpp
+        core/filesystem/filesystem.cpp
         core/filesystem/File.cpp
         core/filesystem/FSLock.cpp
         core/filesystem/Path.cpp

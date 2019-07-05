@@ -141,8 +141,10 @@ namespace secure_server_socket_test
         // The server creates StreamingClients which are self-sufficient and never seen by the main
         // application (unless the implementor adds such bindings).
 
-        // Point your browser to http://localhost:8443 and watch the output.
-        // Or, if you're on linux, curl --verbose --cacert self_signed/root_ca.crt https://localhost:8443
+        // Point your browser to http://localhost:8443 and watch the debug output, or using curl:
+        // curl --verbose --cacert self_signed/root_ca.crt https://localhost:8443
+        //
+        // Note, the browser/curl will not receive a response.
 
         std::vector<unsigned char> ca_chain{};
         std::vector<unsigned char> own_certs{};

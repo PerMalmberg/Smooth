@@ -1,0 +1,32 @@
+-----------------------------8819839691792623414370909194
+Content-Disposition: form-data; name="file_to_upload"; filename="text.txt"
+Content-Type: text/plain
+
+This is a text file
+with multiple lines.
+
+Lets count to 10:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+this is the last line of text.
+
+-----------------------------8819839691792623414370909194
+Content-Disposition: form-data; name="second_file_to_upload"; filename="text2.txt"
+Content-Type: text/plain
+
+This is the second file.
+It has no exciting content.
+
+-----------------------------8819839691792623414370909194
+Content-Disposition: form-data; name="submit"
+
+Upload file
+-----------------------------8819839691792623414370909194--

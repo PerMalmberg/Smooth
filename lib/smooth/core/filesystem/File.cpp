@@ -117,4 +117,9 @@ namespace smooth::core::filesystem
         stat(full_path, &s);
         return static_cast<uint_fast64_t>(s.st_size);
     }
+
+    void File::remove()
+    {
+        std::remove(name.c_str());
+    }
 }
