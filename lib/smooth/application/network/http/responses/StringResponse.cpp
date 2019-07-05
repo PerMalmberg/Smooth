@@ -30,7 +30,7 @@ namespace smooth::application::network::http::responses
 
     ResponseStatus StringResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res = ResponseStatus::EndOfData;
+        auto res{ResponseStatus::EndOfData};
 
         auto remaining = std::distance(data.begin(), data.end());
         if (remaining > 0)
@@ -45,7 +45,7 @@ namespace smooth::application::network::http::responses
 
             // Anything still left?
             remaining = std::distance(data.begin(), data.end());
-            res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::EndOfData;
+            res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::LastData;
         }
 
         return res;

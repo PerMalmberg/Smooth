@@ -78,7 +78,8 @@ namespace smooth::application::network::http
                 // Immediately send next
                 send_first_part();
             }
-            else
+            else if (res == responses::ResponseStatus::HasMoreData
+                     || res == responses::ResponseStatus::LastData)
             {
                 HTTPPacket p{data};
                 auto& tx = this->get_buffers()->get_tx_buffer();

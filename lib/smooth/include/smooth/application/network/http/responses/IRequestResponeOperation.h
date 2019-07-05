@@ -10,6 +10,7 @@ namespace smooth::application::network::http::responses
     {
             Error,
             HasMoreData,
+            LastData,
             EndOfData
     };
 
