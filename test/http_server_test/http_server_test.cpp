@@ -192,19 +192,37 @@ namespace http_server_test
                 const std::string& url,
                 bool first_part,
                 bool last_part,
-                const std::unordered_map<std::string, std::string>& /*headers*/,
-                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+                const std::unordered_map<std::string, std::string>& headers,
+                const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
-            (void) first_part;
-            (void) last_part;
             (void) url;
+            (void) first_part;
+            (void) headers;
             (void) content;
             (void) mime;
 
             if (last_part)
             {
-                response.reply(std::make_unique<SendBlob>(1024 * 1024));
+                std::size_t size = 0;
+
+                try
+                {
+                    size = std::stoul(request_parameters.at("size"));
+                }
+                catch(...)
+                {
+                }
+
+                if(size == 0)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
+                                                                               "Request parameter 'size' must be > 0"));
+                }
+                else
+                {
+                    response.reply(std::make_unique<SendBlob>(size));
+                }
             }
         };
 
@@ -217,8 +235,6 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
-            (void) first_part;
-            (void) last_part;
             (void) headers;
             (void) request_parameters;
             (void) url;
@@ -264,8 +280,6 @@ namespace http_server_test
 
             // Pass content to mime parser with callbacks to handle the data.
             mime.parse(content, form_data, url_encoded_data);
-
-
         };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
