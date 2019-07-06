@@ -223,31 +223,42 @@ namespace http_server_test
             (void) request_parameters;
             (void) url;
 
-            if(first_part)
+            if (first_part)
             {
                 // Prepare mime parser to receive data
                 mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
             }
 
-            auto form_data = [uploads](const std::string& name, const MIMEParser::BoundaryIterator& begin,
-                                const MIMEParser::BoundaryIterator& end)
-            {
+            auto form_data = [uploads, &last_part, &response](const std::string& name,
+                                                              const MIMEParser::BoundaryIterator& begin,
+                                                              const MIMEParser::BoundaryIterator& end) {
                 // Store the file in web_root/uploads
                 Path path{uploads / name};
                 create_directory(path.parent());
                 File to_save{path};
-                if(FileInfo{path}.exists())
+                if (FileInfo{path}.exists())
                 {
                     remove(path);
                 }
 
                 auto len = std::distance(begin, end);
                 to_save.write(&*begin, static_cast<int>(len));
+
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+                                                                               "File have been stored in " +
+                                                                               uploads.str()));
+                }
             };
 
-            auto url_encoded_data = [](std::unordered_map<std::string, std::string>& data)
-            {
-                (void)data;
+            auto url_encoded_data = [&response, &last_part](std::unordered_map<std::string, std::string>& data) {
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+                                                                               "You entered '" + data["free_text"] +
+                                                                               "'"));
+                }
             };
 
 
@@ -255,10 +266,6 @@ namespace http_server_test
             mime.parse(content, form_data, url_encoded_data);
 
 
-            if (last_part)
-            {
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK, "File have been stored in " + uploads.str()));
-            }
         };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
