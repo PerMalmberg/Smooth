@@ -1,3 +1,19 @@
+// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 #pragma once
 
 #include <memory>
@@ -5,88 +21,103 @@
 #include <vector>
 #include <cJSON.h>
 
-namespace smooth
+namespace smooth::core::json
 {
-    namespace core
+    class Value
     {
-        namespace json
-        {
-            class Value
+        public:
+            Value();
+
+            explicit Value(cJSON* src, bool owning = false);
+
+            explicit Value(const std::string& src);
+
+            Value(cJSON* parent, cJSON* object);
+
+            // Note: The assignment operator and copy constructor both
+            // decouples the from the original JSON structure, creating a new
+            // independent memory structure.
+            Value(const Value& other);
+
+            Value& operator=(const Value& other);
+
+            ~Value()
             {
-                public:
-                    Value();
-                    explicit Value(cJSON* src, bool owning = false);
-                    explicit Value(const std::string& src);
-                    Value(cJSON* parent, cJSON* object);
+                if (owns_data && data)
+                {
+                    cJSON_Delete(data);
+                }
+            }
 
-                    // Note: The assignment operator and copy constructor both
-                    // decouples the from the original JSON structure, creating a new
-                    // independent memory structure.
-                    Value(const Value& other);
-                    Value& operator=(const Value& other);
+            // Object accessor
+            Value operator[](const std::string& key);
 
-                    ~Value()
-                    {
-                        if(owns_data && data)
-                        {
-                            cJSON_Delete(data);
-                        }
-                    }
+            // Array accessor
+            Value operator[](int index);
 
-                    // Object accessor
-                    Value operator[](const std::string& key);
-                    // Array accessor
-                    Value operator[](int index);
+            Value& operator=(const std::string& s)
+            { return operator=(s.c_str()); }
 
-                    Value& operator=(const std::string& s) { return operator=(s.c_str()); }
-                    Value& operator=(const char* s);
-                    Value& operator=(int value);
-                    Value& operator=(bool value);
-                    Value& operator=(double value);
+            Value& operator=(const char* s);
 
-                    bool operator==(const std::string& s) const;
+            Value& operator=(int value);
 
-                    bool operator!=(const std::string& s) const
-                    {
-                        return !(*this == s);
-                    }
+            Value& operator=(bool value);
 
-                    bool operator==(int value) const;
-                    bool operator!=(int value) const
-                    {
-                        return !(*this == value);
-                    }
+            Value& operator=(double value);
 
-                    bool operator==(double value) const;
-                    bool operator!=(double value) const
-                    {
-                        return !(*this == value);
-                    }
+            bool operator==(const std::string& s) const;
 
-                    explicit operator const char*() const;
-                    explicit operator int() const;
-                    explicit operator double() const;
-                    explicit operator bool() const;
+            bool operator!=(const std::string& s) const
+            {
+                return !(*this == s);
+            }
 
-                    std::string get_string(const std::string& default_value_value) const;
-                    int get_int(int default_value) const;
-                    bool get_bool(bool default_value) const;
+            bool operator==(int value) const;
 
-                    int get_array_size() const;
+            bool operator!=(int value) const
+            {
+                return !(*this == value);
+            }
 
-                    std::string get_name() const;
-                    void get_member_names(std::vector<std::string>& names) const;
-                    std::string to_string() const;
+            bool operator==(double value) const;
 
-                    // Deletes named object
-                    void erase(const std::string& name);
-                    // Delete item at index in array
-                    void erase(int index);
-                private:
-                    cJSON* parent = nullptr;
-                    cJSON* data = nullptr;
-                    bool owns_data = false;
-            };
-        }
-    }
+            bool operator!=(double value) const
+            {
+                return !(*this == value);
+            }
+
+            explicit operator const char*() const;
+
+            explicit operator int() const;
+
+            explicit operator double() const;
+
+            explicit operator bool() const;
+
+            std::string get_string(const std::string& default_value_value) const;
+
+            int get_int(int default_value) const;
+
+            bool get_bool(bool default_value) const;
+
+            int get_array_size() const;
+
+            std::string get_name() const;
+
+            void get_member_names(std::vector<std::string>& names) const;
+
+            std::string to_string() const;
+
+            // Deletes named object
+            void erase(const std::string& name);
+
+            // Delete item at index in array
+            void erase(int index);
+
+        private:
+            cJSON* parent = nullptr;
+            cJSON* data = nullptr;
+            bool owns_data = false;
+    };
 }

@@ -1,6 +1,18 @@
+// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
-// Created by permal on 10/22/17.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/core/timer/TimerService.h>
 #include <smooth/core/timer/Timer.h>
@@ -9,109 +21,103 @@
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
-namespace smooth
+namespace smooth::core::timer
 {
-    namespace core
+    TimerService::TimerService()
+            : Task("TimerService",
+                   1024 * 3,
+                   TIMER_SERVICE_PRIO,
+                   milliseconds(0)),
+              cmp([](SharedTimer left, SharedTimer right) {
+                  // We want the timer with the least time left to be first in the list
+                  return left->expires_at() > right->expires_at();
+              }),
+              queue(cmp),
+              guard()
     {
-        namespace timer
+        // Disable status printing to conserve stack size.
+        disable_status_print();
+    }
+
+    TimerService& TimerService::get()
+    {
+        static TimerService service;
+        return service;
+    }
+
+    void TimerService::start_service()
+    {
+        get().start();
+    }
+
+    void TimerService::add_timer(SharedTimer timer)
+    {
+        std::lock_guard<std::mutex> lock(guard);
+        timer->calculate_next_execution();
+        queue.push(timer);
+        cond.notify_one();
+    }
+
+    void TimerService::remove_timer(SharedTimer timer)
+    {
+        std::lock_guard<std::mutex> lock(guard);
+        queue.remove_timer(timer);
+        cond.notify_one();
+    }
+
+    void TimerService::tick()
+    {
+        std::unique_lock<std::mutex> lock(guard);
+
+        if (queue.empty())
         {
-            TimerService::TimerService()
-                    : Task("TimerService",
-                            1024 * 3,
-                            TIMER_SERVICE_PRIO,
-                            milliseconds(0)),
-                            cmp([](SharedTimer left, SharedTimer right) {
-                                // We want the timer with the least time left to be first in the list
-                                return left->expires_at() > right->expires_at();
-                            }),
-                            queue(cmp),
-                            guard()
-            {
-                // Disable status printing to conserve stack size.
-                disable_status_print();
-            }
+            // No timers, wait until one is added.
+            cond.wait_for(lock, seconds(1));
+        }
+        else
+        {
+            // Get a fixed 'now'
+            auto now = steady_clock::now();
 
-            TimerService& TimerService::get()
-            {
-                static TimerService service;
-                return service;
-            }
+            std::vector<SharedTimer> processed{};
 
-            void TimerService::start_service()
+            // Process any expired timers
+            while (!queue.empty() && now >= queue.top()->expires_at())
             {
-                get().start();
-            }
+                auto timer = queue.top();
+                timer->expired();
 
-            void TimerService::add_timer(SharedTimer timer)
-            {
-                std::lock_guard<std::mutex> lock(guard);
-                timer->calculate_next_execution();
-                queue.push(timer);
-                cond.notify_one();
-            }
+                // Timer expired, remove from queue
+                queue.pop();
 
-            void TimerService::remove_timer(SharedTimer timer)
-            {
-                std::lock_guard<std::mutex> lock(guard);
-                queue.remove_timer(timer);
-                cond.notify_one();
-            }
-
-            void TimerService::tick()
-            {
-                std::unique_lock<std::mutex> lock(guard);
-
-                if (queue.empty())
+                // Save timer to later add it, if repeating.
+                // Otherwise, simply forget about it.
+                if (timer->is_repeating())
                 {
-                    // No timers, wait until one is added.
-                    cond.wait_for(lock, seconds(1));
+                    processed.push_back(timer);
                 }
-                else
-                {
-                    // Get a fixed 'now'
-                    auto now = steady_clock::now();
+            }
 
-                    std::vector<SharedTimer> processed{};
+            for (auto& t : processed)
+            {
+                t->calculate_next_execution();
+                queue.push(t);
+            }
 
-                    // Process any expired timers
-                    while (!queue.empty() && now >= queue.top()->expires_at())
-                    {
-                        auto timer = queue.top();
-                        timer->expired();
+            if (!queue.empty())
+            {
+                // Get next timer to expire
+                auto timer = queue.top();
 
-                        // Timer expired, remove from queue
-                        queue.pop();
+                // Wait for the timer to expire, or a timer to be removed or added.
+                auto current_queue_length = queue.size();
 
-                        // Save timer to later add it, if repeating.
-                        // Otherwise, simply forget about it.
-                        if (timer->is_repeating())
-                        {
-                            processed.push_back(timer);
-                        }
-                    }
-
-                    for (auto& t : processed)
-                    {
-                        t->calculate_next_execution();
-                        queue.push(t);
-                    }
-
-                    if (!queue.empty())
-                    {
-                        // Get next timer to expire
-                        auto timer = queue.top();
-
-                        // Wait for the timer to expire, or a timer to be removed or added.
-                        auto current_queue_length = queue.size();
-
-                        cond.wait_until(lock,
-                                        timer->expires_at(),
-                                        [current_queue_length, this]() {
-                                            // Wake up if a timer has been added or removed.
-                                            return current_queue_length != queue.size();
-                                        });
-                    }
-                }
+                cond.wait_until(lock,
+                                timer->expires_at(),
+                                [current_queue_length, this]() {
+                                    // Wake up if a timer has been added or removed.
+                                    return current_queue_length != queue.size();
+                                });
             }
         }
     }

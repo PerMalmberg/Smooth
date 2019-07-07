@@ -1,38 +1,44 @@
+// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
-// Created by permal on 7/16/17.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include <smooth/core/timer/ITimer.h>
 
-namespace smooth
+namespace smooth::core::timer
 {
-    namespace core
+    /// Event sent when a timer expires
+    class TimerExpiredEvent
     {
-        namespace timer
-        {
-            /// Event sent when a timer expires
-            class TimerExpiredEvent
+        public:
+            TimerExpiredEvent() = default;
+
+            explicit TimerExpiredEvent(int id)
+                    : id(id)
             {
-                public:
-                    TimerExpiredEvent() = default;
+            }
 
-                    explicit TimerExpiredEvent(int id)
-                            : id(id)
-                    {
-                    }
+            /// Gets the timer that has expired
+            /// \return The timer that expired.
+            int get_id() const
+            {
+                return id;
+            }
 
-                    /// Gets the timer that has expired
-                    /// \return The timer that expired.
-                    int get_id() const
-                    {
-                        return id;
-                    }
-
-                private:
-                    int id = -1;
-            };
-        }
-    }
+        private:
+            int id = -1;
+    };
 }
