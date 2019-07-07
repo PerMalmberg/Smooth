@@ -1,6 +1,18 @@
+// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
-// Created by permal on 8/19/17.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <smooth/core/Task.h>
@@ -11,182 +23,174 @@
 
 using namespace smooth::core::logging;
 
-namespace smooth
+namespace smooth::core::io::i2c
 {
-    namespace core
+    // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
+    // I2C specification: http://www.nxp.com/docs/en/user-guide/UM10204.pdf
+
+    constexpr const char* log_tag = "I2CMasterDevice";
+    constexpr const std::chrono::milliseconds timeout(1000);
+
+    bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack)
     {
-        namespace io
+        I2CCommandLink link(*this);
+
+        // Set R/W bit to 0 for write.
+        address = static_cast<uint8_t>(address << 1);
+
+        auto res = i2c_master_start(link);
+        res |= i2c_master_write_byte(link, address, expect_ack);
+        res |= i2c_master_write(link, data.data(), data.size(), expect_ack);
+        res |= i2c_master_stop(link);
+
+        bool write_result = false;
+
+        if (res == ESP_OK)
         {
-            namespace i2c
+            res = i2c_master_cmd_begin(port, link, to_tick(timeout));
+            if (res == ESP_OK)
             {
-                // Understanding I2C: http://www.ti.com/lit/an/slva704/slva704.pdf
-                // I2C specification: http://www.nxp.com/docs/en/user-guide/UM10204.pdf
-
-                constexpr const char* log_tag = "I2CMasterDevice";
-                constexpr const std::chrono::milliseconds timeout(1000);
-
-                bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack)
-                {
-                    I2CCommandLink link(*this);
-
-                    // Set R/W bit to 0 for write.
-                    address = static_cast<uint8_t>(address << 1);
-
-                    auto res = i2c_master_start(link);
-                    res |= i2c_master_write_byte(link, address, expect_ack);
-                    res |= i2c_master_write(link, data.data(), data.size(), expect_ack);
-                    res |= i2c_master_stop(link);
-
-                    bool write_result = false;
-
-                    if (res == ESP_OK)
-                    {
-                        res = i2c_master_cmd_begin(port, link, to_tick(timeout));
-                        if(res == ESP_OK)
-                        {
-                            write_result = true;
-                        }
-                        else
-                        {
-                            std::stringstream ss;
-                            ss << "Error during write of address 0x" << std::hex << (address>>1);
-                            log_error(res, ss.str().c_str());
-                        }
-                    }
-                    else
-                    {
-                        log_error(res, "Failed to prepare write");
-                    }
-
-                    if (!write_result)
-                    {
-                        i2c_reset_tx_fifo(port);
-                        i2c_reset_rx_fifo(port);
-                    }
-
-                    return write_result;
-                }
-
-                bool I2CMasterDevice::read(uint8_t address, uint8_t slave_register,
-                                           core::util::FixedBufferBase<uint8_t>& data,
-                                           bool use_restart_signal,
-                                           bool end_with_nack)
-                {
-                    I2CCommandLink link(*this);
-
-                    // Set R/W bit to 0 for write.
-                    auto write_address = static_cast<uint8_t>(address << 1);
-                    // Set R/W bit to 1 for read.
-                    auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
-
-                    // Generate start condition
-                    auto res = i2c_master_start(link);
-                    // Write the slave write address followed by the register address.
-                    res |= i2c_master_write_byte(link, write_address, true);
-                    res |= i2c_master_write_byte(link, slave_register, true);
-                    // Generate another start condition or stop condition
-                    if (use_restart_signal)
-                    {
-                        res |= i2c_master_start(link);
-                    }
-                    else
-                    {
-                        // Finish the transmission without releasing the lock we have on the i2c master.
-                        res |= i2c_master_stop(link);
-                        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
-
-                        // Start a new transmission
-                        link.reset();
-                        res |= i2c_master_start(link);
-                    }
-
-                    // Write the read address, then read the desired amount,
-                    // ending the read with a NACK to signal the slave to stop sending data.
-                    res |= i2c_master_write_byte(link, read_address, true);
-
-                    if (data.size() > 1)
-                    {
-                        res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
-                    }
-
-                    res |= i2c_master_read_byte(link, data.data() + data.size() - 1, end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
-
-                    // Complete the read with a stop condition.
-                    res |= i2c_master_stop(link);
-                    res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
-
-                    if (res != ESP_OK)
-                    {
-                        std::stringstream ss;
-                        ss << "Error during read of address 0x" << std::hex << static_cast<int32_t>(address);
-                        log_error(res, ss.str().c_str());
-                        i2c_reset_tx_fifo(port);
-                        i2c_reset_rx_fifo(port);
-                    }
-
-                    return res == ESP_OK;
-                }
-
-                bool I2CMasterDevice::is_present() const
-                {
-                    std::vector<uint8_t> found;
-                    scan_i2c_bus(found);
-                    auto dev = std::find(found.begin(), found.end(), address);
-                    return dev != found.end();
-                }
-
-                void I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices) const
-                {
-                    // Write the address of each possible device and see if an ACK is received or not.
-                    for (uint8_t address = 2; address <= 127; ++address)
-                    {
-                        I2CCommandLink link(*this);
-                        auto read_address = static_cast<uint8_t>(address << 1);
-
-                        auto res = i2c_master_start(link);
-                        res |= i2c_master_write_byte(link, read_address, true);
-                        res |= i2c_master_stop(link);
-                        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
-
-                        if (res != ESP_OK)
-                        {
-                            // No ACK, no device on this address
-                        }
-                        else
-                        {
-                            found_devices.push_back(address);
-                        }
-                    }
-
-                    // Cleanup
-                    i2c_reset_tx_fifo(port);
-                    i2c_reset_rx_fifo(port);
-                }
-
-                void I2CMasterDevice::log_error(esp_err_t err, const char* msg)
-                {
-                    if (err == ESP_ERR_INVALID_ARG)
-                    {
-                        Log::error(log_tag, Format("{1} - Parameter error", Str(msg)));
-                    }
-                    else if (err == ESP_FAIL)
-                    {
-                        Log::error(log_tag, Format("{1} - Send command error, no ACK from slave", Str(msg)));
-                    }
-                    else if (err == ESP_ERR_INVALID_STATE)
-                    {
-                        Log::error(log_tag, Format("{1} - I2C driver not installed or not in master mode", Str(msg)));
-                    }
-                    else if (err == ESP_ERR_TIMEOUT)
-                    {
-                        Log::error(log_tag, Format("{1} - Operation timeout, bus busy", Str(msg)));
-                    }
-                    else if (err != ESP_OK)
-                    {
-                        Log::error(log_tag, Format("{1} - unknown error: {2}", Str(msg), Int32(err)));
-                    }
-                }
+                write_result = true;
             }
+            else
+            {
+                std::stringstream ss;
+                ss << "Error during write of address 0x" << std::hex << (address >> 1);
+                log_error(res, ss.str().c_str());
+            }
+        }
+        else
+        {
+            log_error(res, "Failed to prepare write");
+        }
+
+        if (!write_result)
+        {
+            i2c_reset_tx_fifo(port);
+            i2c_reset_rx_fifo(port);
+        }
+
+        return write_result;
+    }
+
+    bool I2CMasterDevice::read(uint8_t address, uint8_t slave_register,
+                               core::util::FixedBufferBase<uint8_t>& data,
+                               bool use_restart_signal,
+                               bool end_with_nack)
+    {
+        I2CCommandLink link(*this);
+
+        // Set R/W bit to 0 for write.
+        auto write_address = static_cast<uint8_t>(address << 1);
+        // Set R/W bit to 1 for read.
+        auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
+
+        // Generate start condition
+        auto res = i2c_master_start(link);
+        // Write the slave write address followed by the register address.
+        res |= i2c_master_write_byte(link, write_address, true);
+        res |= i2c_master_write_byte(link, slave_register, true);
+        // Generate another start condition or stop condition
+        if (use_restart_signal)
+        {
+            res |= i2c_master_start(link);
+        }
+        else
+        {
+            // Finish the transmission without releasing the lock we have on the i2c master.
+            res |= i2c_master_stop(link);
+            res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+
+            // Start a new transmission
+            link.reset();
+            res |= i2c_master_start(link);
+        }
+
+        // Write the read address, then read the desired amount,
+        // ending the read with a NACK to signal the slave to stop sending data.
+        res |= i2c_master_write_byte(link, read_address, true);
+
+        if (data.size() > 1)
+        {
+            res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
+        }
+
+        res |= i2c_master_read_byte(link, data.data() + data.size() - 1,
+                                    end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
+
+        // Complete the read with a stop condition.
+        res |= i2c_master_stop(link);
+        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+
+        if (res != ESP_OK)
+        {
+            std::stringstream ss;
+            ss << "Error during read of address 0x" << std::hex << static_cast<int32_t>(address);
+            log_error(res, ss.str().c_str());
+            i2c_reset_tx_fifo(port);
+            i2c_reset_rx_fifo(port);
+        }
+
+        return res == ESP_OK;
+    }
+
+    bool I2CMasterDevice::is_present() const
+    {
+        std::vector<uint8_t> found;
+        scan_i2c_bus(found);
+        auto dev = std::find(found.begin(), found.end(), address);
+        return dev != found.end();
+    }
+
+    void I2CMasterDevice::scan_i2c_bus(std::vector<uint8_t>& found_devices) const
+    {
+        // Write the address of each possible device and see if an ACK is received or not.
+        for (uint8_t address = 2; address <= 127; ++address)
+        {
+            I2CCommandLink link(*this);
+            auto read_address = static_cast<uint8_t>(address << 1);
+
+            auto res = i2c_master_start(link);
+            res |= i2c_master_write_byte(link, read_address, true);
+            res |= i2c_master_stop(link);
+            res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+
+            if (res != ESP_OK)
+            {
+                // No ACK, no device on this address
+            }
+            else
+            {
+                found_devices.push_back(address);
+            }
+        }
+
+        // Cleanup
+        i2c_reset_tx_fifo(port);
+        i2c_reset_rx_fifo(port);
+    }
+
+    void I2CMasterDevice::log_error(esp_err_t err, const char* msg)
+    {
+        if (err == ESP_ERR_INVALID_ARG)
+        {
+            Log::error(log_tag, Format("{1} - Parameter error", Str(msg)));
+        }
+        else if (err == ESP_FAIL)
+        {
+            Log::error(log_tag, Format("{1} - Send command error, no ACK from slave", Str(msg)));
+        }
+        else if (err == ESP_ERR_INVALID_STATE)
+        {
+            Log::error(log_tag, Format("{1} - I2C driver not installed or not in master mode", Str(msg)));
+        }
+        else if (err == ESP_ERR_TIMEOUT)
+        {
+            Log::error(log_tag, Format("{1} - Operation timeout, bus busy", Str(msg)));
+        }
+        else if (err != ESP_OK)
+        {
+            Log::error(log_tag, Format("{1} - unknown error: {2}", Str(msg), Int32(err)));
         }
     }
 }
