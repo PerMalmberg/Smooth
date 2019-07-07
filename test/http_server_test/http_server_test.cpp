@@ -192,19 +192,37 @@ namespace http_server_test
                 const std::string& url,
                 bool first_part,
                 bool last_part,
-                const std::unordered_map<std::string, std::string>& /*headers*/,
-                const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+                const std::unordered_map<std::string, std::string>& headers,
+                const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
-            (void) first_part;
-            (void) last_part;
             (void) url;
+            (void) first_part;
+            (void) headers;
             (void) content;
             (void) mime;
 
             if (last_part)
             {
-                response.reply(std::make_unique<SendBlob>(1024 * 1024));
+                std::size_t size = 0;
+
+                try
+                {
+                    size = std::stoul(request_parameters.at("size"));
+                }
+                catch(...)
+                {
+                }
+
+                if(size == 0)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
+                                                                               "Request parameter 'size' must be > 0"));
+                }
+                else
+                {
+                    response.reply(std::make_unique<SendBlob>(size));
+                }
             }
         };
 
@@ -217,48 +235,51 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
-            (void) first_part;
-            (void) last_part;
             (void) headers;
             (void) request_parameters;
             (void) url;
 
-            if(first_part)
+            if (first_part)
             {
                 // Prepare mime parser to receive data
                 mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
             }
 
-            auto form_data = [uploads](const std::string& name, const MIMEParser::BoundaryIterator& begin,
-                                const MIMEParser::BoundaryIterator& end)
-            {
+            auto form_data = [uploads, &last_part, &response](const std::string& name,
+                                                              const MIMEParser::BoundaryIterator& begin,
+                                                              const MIMEParser::BoundaryIterator& end) {
                 // Store the file in web_root/uploads
                 Path path{uploads / name};
                 create_directory(path.parent());
                 File to_save{path};
-                if(FileInfo{path}.exists())
+                if (FileInfo{path}.exists())
                 {
                     remove(path);
                 }
 
                 auto len = std::distance(begin, end);
                 to_save.write(&*begin, static_cast<int>(len));
+
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+                                                                               "File have been stored in " +
+                                                                               uploads.str()));
+                }
             };
 
-            auto url_encoded_data = [](std::unordered_map<std::string, std::string>& data)
-            {
-                (void)data;
+            auto url_encoded_data = [&response, &last_part](std::unordered_map<std::string, std::string>& data) {
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+                                                                               "You entered '" + data["free_text"] +
+                                                                               "'"));
+                }
             };
 
 
             // Pass content to mime parser with callbacks to handle the data.
             mime.parse(content, form_data, url_encoded_data);
-
-
-            if (last_part)
-            {
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK, "File have been stored in " + uploads.str()));
-            }
         };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
