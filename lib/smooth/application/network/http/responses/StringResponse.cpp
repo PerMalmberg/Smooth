@@ -23,16 +23,24 @@
 #include <smooth/application/network/http/HTTPHeaderDef.h>
 #include <smooth/application/network/http/http_utils.h>
 
+using namespace smooth::core::logging;
+
 namespace smooth::application::network::http::responses
 {
-    using namespace smooth::core::logging;
-
-    StringResponse::StringResponse(ResponseCode code, std::string body)
+    StringResponse::StringResponse(ResponseCode code, std::string body, bool add_surrounding_html)
             : code(code)
     {
-        add_string("<html><body>");
+        if(add_surrounding_html)
+        {
+            add_string("<html><body>");
+        }
+
         add_string(std::move(body));
-        add_string("</body></html>");
+
+        if(add_surrounding_html)
+        {
+            add_string("</body></html>");
+        }
 
         headers[CONTENT_LENGTH] = std::to_string(data.size());
         headers[CONTENT_TYPE] = "text/html";

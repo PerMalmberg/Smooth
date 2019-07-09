@@ -26,7 +26,7 @@
 #include <smooth/application/network/http/HTTPProtocol.h>
 
 #ifdef ESP_PLATFORM
-    #include <smooth/core/filesystem/MMCSDCard.h>
+#include <smooth/core/filesystem/MMCSDCard.h>
 #endif
 
 namespace http_server_test

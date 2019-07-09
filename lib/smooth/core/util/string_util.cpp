@@ -14,14 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#include <string>
 
-#include "Path.h"
-#include "Fileinfo.h"
-
-namespace smooth::core::filesystem
+namespace smooth::core::string_util
 {
-    bool create_directory(Path&& path);
-    bool exists(Path&& path);
-    bool exists(const Path& path);
+    void replace_all(std::string& s, const std::string& token, const std::string& replacement)
+    {
+        auto pos = s.find(token);
+        do
+        {
+            s.replace(pos, pos + token.length(), replacement);
+            pos = s.find(token);
+        }
+        while (pos != std::string::npos);
+    }
 }

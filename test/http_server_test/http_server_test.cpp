@@ -178,7 +178,7 @@ namespace http_server_test
 
         FSLock::init(5);
 
-        HTTPServerConfig cfg{web_root, {"index.html"}, MaxHeaderSize, ContentChunkSize};
+        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, MaxHeaderSize, ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>>>(*this, cfg);
 
@@ -226,11 +226,11 @@ namespace http_server_test
                 {
                     size = std::stoul(request_parameters.at("size"));
                 }
-                catch(...)
+                catch (...)
                 {
                 }
 
-                if(size == 0)
+                if (size == 0)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
                                                                                "Request parameter 'size' must be > 0"));

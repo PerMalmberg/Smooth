@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <functional>
+#include <set>
 #include <unordered_map>
 #include "HTTPProtocol.h"
 #include "HTTPMethod.h"
@@ -25,6 +26,7 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/core/filesystem/Fileinfo.h>
+#include <smooth/core/filesystem/filesystem.h>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/network/InetAddress.h>
 #include <smooth/core/network/ServerSocket.h>
@@ -34,6 +36,7 @@
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/responses/ErrorResponse.h>
 #include <smooth/application/network/http/responses/FileContentResponse.h>
+#include <smooth/application/network/http/TemplateProcessor.h>
 #include "RequestHandlerSignature.h"
 
 namespace smooth::application::network::http
@@ -43,11 +46,13 @@ namespace smooth::application::network::http
     class HTTPServerConfig
     {
         public:
+            using DataRetriever = std::function<std::string(void)>;
+
             HTTPServerConfig() = default;
 
             HTTPServerConfig(const HTTPServerConfig&) = default;
 
-            HTTPServerConfig(HTTPServerConfig&&) = default;
+            HTTPServerConfig(HTTPServerConfig&&) noexcept = default;
 
             HTTPServerConfig& operator=(const HTTPServerConfig&) = default;
 
@@ -55,10 +60,14 @@ namespace smooth::application::network::http
 
             HTTPServerConfig(smooth::core::filesystem::Path web_root,
                              std::vector<std::string> index_files,
+                             std::set<std::string> template_files,
+                             const std::unordered_map<std::string, DataRetriever>& template_data_retriever,
                              std::size_t max_header_size,
                              std::size_t content_chunk_size)
                     : root_path(std::move(web_root)),
                       index(std::move(index_files)),
+                      template_files(std::move(template_files)),
+                      template_data_retriever(template_data_retriever),
                       maximum_header_size(max_header_size),
                       content_chunk_size(content_chunk_size)
             {
@@ -74,6 +83,11 @@ namespace smooth::application::network::http
                 return index;
             }
 
+            const std::set<std::string>& templates() const
+            {
+                return template_files;
+            }
+
             std::size_t max_header_size() const
             {
                 return maximum_header_size;
@@ -84,9 +98,16 @@ namespace smooth::application::network::http
                 return content_chunk_size;
             }
 
+            const std::unordered_map<std::string, DataRetriever>& data_retriever() const
+            {
+                return template_data_retriever;
+            }
+
         private:
             smooth::core::filesystem::Path root_path{};
             std::vector<std::string> index{};
+            std::set<std::string> template_files{};
+            const std::unordered_map<std::string, DataRetriever>& template_data_retriever;
             std::size_t maximum_header_size{};
             std::size_t content_chunk_size{};
     };
@@ -161,6 +182,7 @@ namespace smooth::application::network::http
             HandlerByMethod handlers{};
             HTTPServerConfig config{};
             const char* tag = "HTTPServer";
+            TemplateProcessor template_processor;
     };
 
 
@@ -168,7 +190,8 @@ namespace smooth::application::network::http
     HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, HTTPServerConfig configuration)
             :
             task(task),
-            config(std::move(configuration))
+            config(std::move(configuration)),
+            template_processor(configuration.templates())
     {
     }
 
@@ -222,28 +245,38 @@ namespace smooth::application::network::http
 
                     if (info.is_regular_file())
                     {
-                        // Serve the requested file
-                        bool send_not_modified = false;
-                        auto if_modified_since = request_headers.find("if-modified-since");
+                        // Attempt to process the file as a template.
+                        auto processed_template = template_processor.process_template(info.path());
 
-                        if (if_modified_since != request_headers.end())
+                        if (processed_template)
                         {
-                            auto since = utils::parse_http_time((*if_modified_since).second);
-
-                            if (since >= info.last_modified_point())
-                            {
-                                send_not_modified = true;
-                            }
-                        }
-
-                        if (send_not_modified)
-                        {
-                            reply_with(response,
-                                       std::make_unique<responses::ErrorResponse>(ResponseCode::Not_Modified));
+                            reply_with(response, std::move(processed_template));
                         }
                         else
                         {
-                            reply_with(response, std::make_unique<responses::FileContentResponse>(search));
+                            // Not a template, simply serve the requested file
+                            bool send_not_modified = false;
+                            auto if_modified_since = request_headers.find("if-modified-since");
+
+                            if (if_modified_since != request_headers.end())
+                            {
+                                auto since = utils::parse_http_time((*if_modified_since).second);
+
+                                if (since >= info.last_modified_point())
+                                {
+                                    send_not_modified = true;
+                                }
+                            }
+
+                            if (send_not_modified)
+                            {
+                                reply_with(response,
+                                           std::make_unique<responses::ErrorResponse>(ResponseCode::Not_Modified));
+                            }
+                            else
+                            {
+                                reply_with(response, std::make_unique<responses::FileContentResponse>(search));
+                            }
                         }
 
                         found = true;
@@ -253,7 +286,17 @@ namespace smooth::application::network::http
                         auto index_path = find_index(search);
                         if (!index_path.empty())
                         {
-                            reply_with(response, std::make_unique<responses::FileContentResponse>(index_path));
+                            auto processed_template = template_processor.process_template(index_path);
+
+                            if (processed_template)
+                            {
+                                reply_with(response, std::move(processed_template));
+                            }
+                            else
+                            {
+                                reply_with(response, std::make_unique<responses::FileContentResponse>(index_path));
+                            }
+
                             found = true;
                         }
                     }
@@ -266,9 +309,6 @@ namespace smooth::application::network::http
             }
             else
             {
-//                Log::info(tag, Format("Matching route: {1}: '{2}'", Str(utils::http_method_to_string(method)),
-//                                      Str(requested_url)));
-
                 (*response_handler).second(response,
                                            requested_url,
                                            fist_part,
