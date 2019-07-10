@@ -24,6 +24,7 @@
 #include <smooth/core/network/SecureServerSocket.h>
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
+#include <smooth/application/network/http/ITemplateDataRetriever.h>
 
 #ifdef ESP_PLATFORM
 #include <smooth/core/filesystem/MMCSDCard.h>
@@ -31,6 +32,33 @@
 
 namespace http_server_test
 {
+    class DataRetriever : public smooth::application::network::http::ITemplateDataRetriever
+    {
+        public:
+            std::string get(const std::string& key) const override
+            {
+                std::string res;
+
+                try
+                {
+                    res = data.at(key);
+                }
+                catch(std::out_of_range&)
+                {
+                }
+
+                return res;
+            }
+
+            void add(const std::string&& key, std::string&& value)
+            {
+                data.emplace(key, value);
+            }
+
+        private:
+            std::unordered_map<std::string, std::string> data{};
+    };
+
     class App
             : public smooth::core::Application
     {
@@ -49,6 +77,7 @@ namespace http_server_test
             using Client = smooth::application::network::http::HTTPServerClient;
             using Protocol = smooth::application::network::http::HTTPProtocol;
 
+            DataRetriever template_data_retriever{};
             std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>>> insecure_server{};
             std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>>> secure_server{};
     };

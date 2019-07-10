@@ -1,5 +1,5 @@
-<html>
-    <head profile="http://www.w3.org/2005/10/profile">
+<html lang="en">
+    <head>
         <link rel="icon"
               type="image/png"
               href="img/star.png">
@@ -14,12 +14,15 @@
                 text-align: center;
             }
         </style>
+        <title>{{title}}</title>
     </head>
     <body style="background: black;">
         <div style="text-align: center; color: white">
-            <p>Congratulations, you're browsing a web page on your ESP32 via Smooth framework by
-                <a style="color: white;" href="https://github.com/PerMalmberg">Per Malmberg</a>
+            <p>{{message}}
+                <a style="color: white;" href="{{github_url}}">{{author}}</a>
             </p>
+            <br>
+            <p>{{from_template}}</p>
             <br/>
                 <a href="upload.html">Try uploading something</a>
             <br/>

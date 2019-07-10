@@ -26,6 +26,6 @@ function(set_compile_options target)
 
     if( NOT ESP_PLATFORM )
         target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
-        target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope)
+        #target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope)
     endif()
 endfunction()

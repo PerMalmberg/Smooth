@@ -21,11 +21,11 @@ namespace smooth::core::string_util
     void replace_all(std::string& s, const std::string& token, const std::string& replacement)
     {
         auto pos = s.find(token);
-        do
+
+        while (pos != std::string::npos)
         {
-            s.replace(pos, pos + token.length(), replacement);
+            s.replace(pos, token.length(), replacement);
             pos = s.find(token);
         }
-        while (pos != std::string::npos);
     }
 }

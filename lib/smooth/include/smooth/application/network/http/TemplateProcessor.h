@@ -19,6 +19,7 @@
 #include <memory>
 #include <set>
 #include <regex>
+#include <string>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/application/network/http/responses/StringResponse.h>
 #include "ITemplateDataRetriever.h"
@@ -28,17 +29,20 @@ namespace smooth::application::network::http
     class TemplateProcessor
     {
         public:
-            explicit TemplateProcessor(const std::set<std::string>& template_files,
+            explicit TemplateProcessor(std::set<std::string> template_files,
                                        const ITemplateDataRetriever& data_retriever);
 
             std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>
             process_template(const smooth::core::filesystem::Path& path);
 
-        private:
+#ifndef EXPOSE_PRIVATE_PARTS_FOR_TEST
+            private:
+#endif
+
             void process_template(std::string& template_data) const;
 
-            const std::set<std::string>& template_files;
+            std::set<std::string> template_files;
             const ITemplateDataRetriever& data_retriever;
-            const std::regex token{R"!({{[\da-zA-Z]+}})!", std::regex::ECMAScript};
+            const std::regex token{R"!(\{\{[\d\_\-a-zA-Z]+\}\})!", std::regex::ECMAScript};
     };
 }

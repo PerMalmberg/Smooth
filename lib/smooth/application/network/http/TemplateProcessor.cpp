@@ -1,3 +1,9 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
@@ -27,9 +33,9 @@ using namespace smooth::core::filesystem;
 
 namespace smooth::application::network::http
 {
-    TemplateProcessor::TemplateProcessor(const std::set<std::string>& template_files,
+    TemplateProcessor::TemplateProcessor(std::set<std::string> template_files,
                                          const ITemplateDataRetriever& data_retriever)
-            : template_files(template_files),
+            : template_files(std::move(template_files)),
               data_retriever(data_retriever)
     {
     }
@@ -47,7 +53,7 @@ namespace smooth::application::network::http
             std::string data;
             File src{path};
 
-            if (src.read(data) || data.empty())
+            if (!src.read(data) || data.empty())
             {
                 res = std::make_unique<responses::ErrorResponse>(ResponseCode::Internal_Server_Error);
             }
@@ -70,16 +76,12 @@ namespace smooth::application::network::http
         {
             // Find all tokens
             std::smatch match{};
-            if (std::regex_search(template_data, match, token))
+            while (std::regex_search(template_data, match, token))
             {
                 std::stringstream ss;
-
-                // Replace each token
-                for (const auto& m : match)
-                {
-                    const auto& found_token = m.str();
-                    replace_all(template_data, found_token, data_retriever.get(found_token));
-                }
+                const auto& found_token = match[0].str();
+                // Replaces any matched token, even if no corresponding data exists, in which case empty string is used.
+                replace_all(template_data, found_token, data_retriever.get(found_token));
             }
 
         }

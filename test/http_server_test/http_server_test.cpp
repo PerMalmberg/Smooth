@@ -172,13 +172,19 @@ namespace http_server_test
         sd_card->init("/sdcard", false, 5);
 #else
         const smooth::core::filesystem::Path test_path(__FILE__);
-        const smooth::core::filesystem::Path web_root = test_path.parent() / "static_content";
+        const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";
         Path uploads{test_path.parent() / "uploads"};
 #endif
 
+        template_data_retriever.add("{{title}}", "Smooth - a C++ framework for building apps on ESP-IDF");
+        template_data_retriever.add("{{message}}", "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
+        template_data_retriever.add("{{github_url}}", "https://github.com/PerMalmberg");
+        template_data_retriever.add("{{author}}", "Per Malmberg");
+        template_data_retriever.add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
+
         FSLock::init(5);
 
-        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, MaxHeaderSize, ContentChunkSize};
+        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize, ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>>>(*this, cfg);
 

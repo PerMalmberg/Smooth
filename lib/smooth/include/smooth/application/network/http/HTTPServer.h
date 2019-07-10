@@ -48,20 +48,18 @@ namespace smooth::application::network::http
         public:
             using DataRetriever = std::function<std::string(void)>;
 
-            HTTPServerConfig() = default;
-
             HTTPServerConfig(const HTTPServerConfig&) = default;
 
             HTTPServerConfig(HTTPServerConfig&&) noexcept = default;
 
-            HTTPServerConfig& operator=(const HTTPServerConfig&) = default;
+            HTTPServerConfig& operator=(const HTTPServerConfig&) = delete;
 
-            HTTPServerConfig& operator=(HTTPServerConfig&&) = default;
+            HTTPServerConfig& operator=(HTTPServerConfig&&) = delete;
 
             HTTPServerConfig(smooth::core::filesystem::Path web_root,
                              std::vector<std::string> index_files,
                              std::set<std::string> template_files,
-                             const std::unordered_map<std::string, DataRetriever>& template_data_retriever,
+                             const ITemplateDataRetriever& template_data_retriever,
                              std::size_t max_header_size,
                              std::size_t content_chunk_size)
                     : root_path(std::move(web_root)),
@@ -98,7 +96,7 @@ namespace smooth::application::network::http
                 return content_chunk_size;
             }
 
-            const std::unordered_map<std::string, DataRetriever>& data_retriever() const
+            const ITemplateDataRetriever& data_retriever() const
             {
                 return template_data_retriever;
             }
@@ -107,7 +105,7 @@ namespace smooth::application::network::http
             smooth::core::filesystem::Path root_path{};
             std::vector<std::string> index{};
             std::set<std::string> template_files{};
-            const std::unordered_map<std::string, DataRetriever>& template_data_retriever;
+            const ITemplateDataRetriever& template_data_retriever;
             std::size_t maximum_header_size{};
             std::size_t content_chunk_size{};
     };
@@ -117,7 +115,7 @@ namespace smooth::application::network::http
             : private IRequestHandler
     {
         public:
-            HTTPServer(smooth::core::Task& task, HTTPServerConfig configuration);
+            HTTPServer(smooth::core::Task& task, const HTTPServerConfig& configuration);
 
             void start(int max_client_count, int backlog, std::shared_ptr<smooth::core::network::InetAddress> bind_to)
             {
@@ -187,11 +185,11 @@ namespace smooth::application::network::http
 
 
     template<typename ServerSocketType>
-    HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, HTTPServerConfig configuration)
+    HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, const HTTPServerConfig& configuration)
             :
             task(task),
             config(std::move(configuration)),
-            template_processor(configuration.templates())
+            template_processor(configuration.templates(), config.data_retriever())
     {
     }
 
