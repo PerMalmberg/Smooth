@@ -42,7 +42,7 @@ without any special considerations.
 
 ### Application level
 
-- HTTP(s) Server (please enable PSRAM (`make menuconfig`) when using TLS; it uses ~23kb per connection, also make sure mbedTLS is configured to use PSRAM.)
+- HTTP(s) Server with simple template support (please enable PSRAM (`make menuconfig`) when using TLS; it uses ~23kb per connection, also make sure mbedTLS is configured to use PSRAM.)
 - MQTT Client
 - Sensor BME280
 - 16 channel I/O expander MCP23017
