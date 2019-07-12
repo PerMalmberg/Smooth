@@ -24,13 +24,13 @@
 
 namespace smooth::core::network
 {
-    template<typename Client, typename Protocol>
+    template<typename Client, typename Protocol, typename ClientContext>
     class SecureServerSocket
-            : public ServerSocket<Client, Protocol>
+            : public ServerSocket<Client, Protocol, ClientContext>
     {
         public:
             template<typename ...ProtocolArguments>
-            static std::shared_ptr<ServerSocket<Client, Protocol>>
+            static std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
             create(smooth::core::Task& task,
                    int max_client_count,
                    int backlog,
@@ -50,7 +50,7 @@ namespace smooth::core::network
                                const std::vector<unsigned char>& private_key,
                                const std::vector<unsigned char>& password,
                                ProtocolArguments... proto_args)
-                    : ServerSocket<Client, Protocol>(task,
+                    : ServerSocket<Client, Protocol, ClientContext>(task,
                                                      max_client_count,
                                                      backlog,
                                                      proto_args...)
@@ -64,10 +64,10 @@ namespace smooth::core::network
             MBedTLSContext server_context{};
     };
 
-    template<typename Client, typename Protocol>
+    template<typename Client, typename Protocol, typename ClientContext>
     template<typename ...ProtocolArguments>
-    std::shared_ptr<ServerSocket<Client, Protocol>>
-    SecureServerSocket<Client, Protocol>::create(smooth::core::Task& task,
+    std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
+    SecureServerSocket<Client, Protocol, ClientContext>::create(smooth::core::Task& task,
                                                  int max_client_count,
                                                  int backlog,
                                                  const std::vector<unsigned char>& ca_chain,
@@ -77,7 +77,7 @@ namespace smooth::core::network
                                                  ProtocolArguments... proto_args)
     {
         class MakeSharedActivator
-                : public SecureServerSocket<Client, Protocol>
+                : public SecureServerSocket<Client, Protocol, ClientContext>
         {
             public:
                 MakeSharedActivator(smooth::core::Task& task,
@@ -88,7 +88,7 @@ namespace smooth::core::network
                                     const std::vector<unsigned char>& private_key,
                                     const std::vector<unsigned char>& password,
                                     ProtocolArguments... proto_args)
-                        : SecureServerSocket<Client, Protocol>(task,
+                        : SecureServerSocket<Client, Protocol, ClientContext>(task,
                                                                max_client_count,
                                                                backlog,
                                                                ca_chain,
@@ -110,8 +110,8 @@ namespace smooth::core::network
                                                      proto_args...);
     }
 
-    template<typename Client, typename Protocol>
-    void SecureServerSocket<Client, Protocol>::readable(ISocketBackOff& ops)
+    template<typename Client, typename Protocol, typename ClientContext>
+    void SecureServerSocket<Client, Protocol, ClientContext>::readable(ISocketBackOff& ops)
     {
         auto accepted = this->accept_request(ops);
         auto ip = std::get<0>(accepted);

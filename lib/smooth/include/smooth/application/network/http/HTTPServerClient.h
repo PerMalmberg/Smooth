@@ -36,7 +36,7 @@ namespace smooth::application::network::http
     static const std::chrono::seconds SendTimeout{5};
 
     class HTTPServerClient
-            : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol>,
+            : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol, IRequestHandler>,
               public IServerResponse
     {
         public:
@@ -45,7 +45,7 @@ namespace smooth::application::network::http
                              std::size_t max_header_size,
                              std::size_t content_chunk_size)
                     : core::network::ServerClient<HTTPServerClient,
-                    smooth::application::network::http::HTTPProtocol>(
+                    smooth::application::network::http::HTTPProtocol, IRequestHandler>(
                     task,
                     pool,
                     std::make_unique<smooth::application::network::http::HTTPProtocol>(max_header_size,

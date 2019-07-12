@@ -186,7 +186,7 @@ namespace http_server_test
 
         HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize, ContentChunkSize};
 
-        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol>>>(*this, cfg);
+        insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol, IRequestHandler>>>(*this, cfg);
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
@@ -199,7 +199,7 @@ namespace http_server_test
         fill(server_cert_data, own_cert);
         fill(private_key_data, private_key);
 
-        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol>>>(*this, cfg);
+        secure_server = std::make_unique<HTTPServer<SecureServerSocket<Client, Protocol, IRequestHandler>>>(*this, cfg);
 
         secure_server->start(max_client_count,
                              listen_backlog,

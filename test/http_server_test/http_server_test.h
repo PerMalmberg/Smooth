@@ -32,7 +32,8 @@
 
 namespace http_server_test
 {
-    class DataRetriever : public smooth::application::network::http::ITemplateDataRetriever
+    class DataRetriever
+            : public smooth::application::network::http::ITemplateDataRetriever
     {
         public:
             std::string get(const std::string& key) const override
@@ -43,7 +44,7 @@ namespace http_server_test
                 {
                     res = data.at(key);
                 }
-                catch(std::out_of_range&)
+                catch (std::out_of_range&)
                 {
                 }
 
@@ -78,7 +79,13 @@ namespace http_server_test
             using Protocol = smooth::application::network::http::HTTPProtocol;
 
             DataRetriever template_data_retriever{};
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client, Protocol>>> insecure_server{};
-            std::unique_ptr<smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client, Protocol>>> secure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<
+                    smooth::core::network::ServerSocket<Client,
+                            Protocol,
+                            smooth::application::network::http::IRequestHandler>>> insecure_server{};
+            std::unique_ptr<smooth::application::network::http::HTTPServer<
+                    smooth::core::network::SecureServerSocket<Client,
+                            Protocol,
+                            smooth::application::network::http::IRequestHandler>>> secure_server{};
     };
 }

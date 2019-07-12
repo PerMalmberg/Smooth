@@ -45,8 +45,7 @@ namespace smooth::application::network::http
 
             if (res)
             {
-                auto* context = reinterpret_cast<IRequestHandler*>(
-                        this->get_client_context());
+                auto* context = this->get_client_context();
 
                 if (context)
                 {

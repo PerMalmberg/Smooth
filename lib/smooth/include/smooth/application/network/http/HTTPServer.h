@@ -175,7 +175,7 @@ namespace smooth::application::network::http
             smooth::core::Task& task;
             std::shared_ptr<smooth::core::network::ServerSocket<
                     smooth::application::network::http::HTTPServerClient,
-                    smooth::application::network::http::HTTPProtocol>> server{};
+                    smooth::application::network::http::HTTPProtocol, IRequestHandler>> server{};
 
             HandlerByMethod handlers{};
             HTTPServerConfig config{};
