@@ -218,7 +218,7 @@ namespace smooth::core::filesystem
 
         std::string extension{};
 
-        // The dot myst be after the /, i.e. /foo/bar/file.ext
+        // The dot must be after the /, i.e. /foo/bar/file.ext
         if (last_dot > last_separator)
         {
             extension = {last_dot, p.end()};

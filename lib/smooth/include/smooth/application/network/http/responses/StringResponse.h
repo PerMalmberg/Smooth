@@ -26,7 +26,7 @@ namespace smooth::application::network::http::responses
             : public IRequestResponseOperation
     {
         public:
-            explicit StringResponse(ResponseCode code, std::string body = "");
+            explicit StringResponse(ResponseCode code, std::string body = "", bool add_surrounding_html = true);
             StringResponse& operator=(StringResponse&&) = default;
             StringResponse(StringResponse&&) = default;
             StringResponse& operator=(const StringResponse&) = delete;

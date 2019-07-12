@@ -35,6 +35,7 @@ set(SOURCES
         application/network/http/responses/ErrorResponse.cpp
         application/network/http/responses/FileContentResponse.cpp
         application/network/http/responses/StringResponse.cpp
+        application/network/http/TemplateProcessor.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -77,6 +78,7 @@ set(SOURCES
         core/timer/ElapsedTime.cpp
         core/timer/Timer.cpp
         core/timer/TimerService.cpp
+        core/util/string_util.cpp
         core/Application.cpp
         core/json/Value.cpp
         core/json/JsonFile.cpp
@@ -88,6 +90,8 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
+        include/smooth/application/network/http/TemplateProcessor.h
+        include/smooth/application/network/http/ITemplateDataRetriever.h
         include/smooth/application/network/http/responses/ErrorResponse.h
         include/smooth/application/network/http/responses/FileContentResponse.h
         include/smooth/application/network/http/responses/IRequestResponeOperation.h
@@ -186,6 +190,3 @@ target_include_directories(
         ${PROJECT_NAME}
         PRIVATE ${CMAKE_BINARY_DIR}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include $ENV{IDF_PATH}/components/json/cJSON)
-
-
-

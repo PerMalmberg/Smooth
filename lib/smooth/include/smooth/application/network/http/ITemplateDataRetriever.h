@@ -16,12 +16,14 @@
 
 #pragma once
 
-#include "Path.h"
-#include "Fileinfo.h"
+#include <string>
 
-namespace smooth::core::filesystem
+namespace smooth::application::network::http
 {
-    bool create_directory(Path&& path);
-    bool exists(Path&& path);
-    bool exists(const Path& path);
+    class ITemplateDataRetriever
+    {
+        public:
+            virtual ~ITemplateDataRetriever() = default;
+            virtual std::string get(const std::string& key) const = 0;
+    };
 }

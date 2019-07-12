@@ -63,4 +63,6 @@ namespace smooth::core::string_util
 
         return res;
     }
+
+    void replace_all(std::string& s, const std::string& token, const std::string& replacement);
 }

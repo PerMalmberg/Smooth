@@ -19,6 +19,8 @@
 #include <vector>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/FSLock.h>
+#include <smooth/core/logging/log.h>
+#include <fstream>
 
 namespace smooth::core::filesystem
 {
@@ -32,7 +34,35 @@ namespace smooth::core::filesystem
             /// Reads the entire file contents into the vector.
             /// \param data The target container
             /// \return true on success, false on failure
-            bool read(std::vector<uint8_t>& data) const;
+            template<typename Container>
+            bool read(Container& data) const
+            {
+                bool res = false;
+
+                try
+                {
+                    std::fstream fs{name, std::ios::binary | std::ios::in};
+                    if (fs.is_open())
+                    {
+                        auto size = fs.seekg(0, std::ios::end).tellg();
+                        fs.seekg(0, std::ios::beg);
+                        // Reserve to ensure exact memory usage (i.e. no extra memory used)
+                        data.reserve(static_cast<unsigned int>(size));
+                        // Ensure that the vector thinks it has the number of elements we will write to it.
+                        data.resize(static_cast<unsigned long>(size));
+                        // std::vector has contiguous memory so we can write directly into it.
+                        res = fs.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(size)).gcount() ==
+                              size;
+                    }
+                }
+                catch (std::exception& ex)
+                {
+                    using namespace smooth::core::logging;
+                    Log::error("File", Format("Error reading file: {1}", Str(ex.what())));
+                }
+
+                return res;
+            }
 
             /// Reads a part of a file into the vector.
             /// \param data The target container

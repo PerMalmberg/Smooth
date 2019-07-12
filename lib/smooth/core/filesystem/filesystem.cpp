@@ -47,4 +47,16 @@ namespace smooth::core::filesystem
 
         return res == 0;
     }
+
+    bool exists(const Path& path)
+    {
+        FileInfo fi{path};
+        return fi.exists();
+    }
+
+    bool exists(const Path&& path)
+    {
+        FileInfo fi{path};
+        return fi.exists();
+    }
 }
