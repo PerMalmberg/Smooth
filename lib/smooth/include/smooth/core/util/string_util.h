@@ -20,6 +20,7 @@
 #include <utility>
 #include <algorithm>
 #include <string>
+#include <functional>
 #include "split.h"
 
 namespace smooth::core::string_util

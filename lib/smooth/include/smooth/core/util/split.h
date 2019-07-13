@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <vector>
+
 namespace smooth::core::util
 {
     template<typename Container>

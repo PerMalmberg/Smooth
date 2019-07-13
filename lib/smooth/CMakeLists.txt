@@ -25,11 +25,12 @@ smooth_verify_idf_path()
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
-        application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPServerClient.cpp
         application/network/http/regular/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
+        application/network/http/HTTPProtocol.cpp
+        application/network/http/regular/RegularHTTPProtocol.cpp
         application/network/http/regular/MIMEParser.cpp
         application/network/http/regular/HTTPHeaderDef.cpp
         application/network/http/regular/responses/ErrorResponse.cpp
@@ -90,6 +91,7 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
+        include/smooth/application/network/http/regular/RegularHTTPProtocol.h
         include/smooth/application/network/http/regular/TemplateProcessor.h
         include/smooth/application/network/http/regular/ITemplateDataRetriever.h
         include/smooth/application/network/http/regular/responses/ErrorResponse.h
