@@ -294,8 +294,7 @@ namespace http_server_test
                 if (last_part)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                                               "You entered '" + data["free_text"] +
-                                                                               "'"));
+                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" + data["edit_box"] + "</textarea>"));
                 }
             };
 
