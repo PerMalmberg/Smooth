@@ -20,6 +20,7 @@
 #include "HTTPPacket.h"
 #include "IServerResponse.h"
 #include <smooth/core/network/IPacketAssembly.h>
+#include "IUpgradeToWebsocket.h"
 
 namespace smooth::application::network::http::regular
 {
@@ -29,10 +30,11 @@ namespace smooth::application::network::http::regular
         public:
             using packet_type = HTTPPacket;
 
-            RegularHTTPProtocol(int max_header_size, int content_chunk_size, IServerResponse& response)
+            RegularHTTPProtocol(int max_header_size, int content_chunk_size, IServerResponse& response, IUpgradeToWebsocket &websocket_upgrade)
                     : max_header_size(max_header_size),
                       content_chunk_size(content_chunk_size),
-                      response(response)
+                      response(response),
+                      websocket_upgrade(websocket_upgrade)
             {
             }
 
@@ -78,5 +80,6 @@ namespace smooth::application::network::http::regular
             std::string last_url{};
 
             std::string last_request_version{};
+            IUpgradeToWebsocket &websocket_upgrade;
     };
 }

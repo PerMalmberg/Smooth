@@ -38,6 +38,13 @@ namespace smooth::application::network::http
 {
     int HTTPProtocol::get_wanted_amount(HTTPPacket& packet)
     {
+        if(desired_mode != Mode::Regular)
+        {
+            mode = Mode::Websocket;
+            regular.reset();
+            websocket = std::make_unique<websocket::WebsocketProtocol>(content_chunk_size, response);
+        }
+
         int res;
 
         if (mode == Mode::Regular)
@@ -46,7 +53,7 @@ namespace smooth::application::network::http
         }
         else
         {
-            res = 0;
+            res = websocket->get_wanted_amount(packet);
         }
 
         return res;
@@ -61,7 +68,7 @@ namespace smooth::application::network::http
         }
         else
         {
-
+            websocket->data_received(packet, length);
         }
     }
 
@@ -75,7 +82,7 @@ namespace smooth::application::network::http
         }
         else
         {
-            pos = nullptr;
+            pos = websocket->get_write_pos(packet);
         }
 
         return pos;
@@ -92,7 +99,7 @@ namespace smooth::application::network::http
         }
         else
         {
-            res = 0;
+            res = websocket->is_complete(packet);
         }
 
         return res;
@@ -109,7 +116,7 @@ namespace smooth::application::network::http
         }
         else
         {
-            res = false;
+            res = websocket->is_error();
         }
 
         return res;
@@ -124,7 +131,7 @@ namespace smooth::application::network::http
         }
         else
         {
-
+            websocket->packet_consumed();
         }
     }
 
@@ -137,8 +144,13 @@ namespace smooth::application::network::http
         }
         else
         {
-
+            websocket->reset();
         }
+    }
+
+    void HTTPProtocol::upgrade_to_websocket()
+    {
+        desired_mode = Mode::Websocket;
     }
 
 }
