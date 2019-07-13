@@ -20,18 +20,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <smooth/application/network/http/TemplateProcessor.h>
+#include <smooth/application/network/http/regular/TemplateProcessor.h>
 #include <regex>
-#include <smooth/application/network/http/responses/StringResponse.h>
-#include <smooth/application/network/http/responses/ErrorResponse.h>
-#include <smooth/application/network/http/ResponseCodes.h>
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include <smooth/application/network/http/regular/responses/ErrorResponse.h>
+#include <smooth/application/network/http/regular/ResponseCodes.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/core/util/string_util.h>
 
 using namespace smooth::core::string_util;
 using namespace smooth::core::filesystem;
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     TemplateProcessor::TemplateProcessor(std::set<std::string> template_files,
                                          const ITemplateDataRetriever& data_retriever)
@@ -40,10 +40,10 @@ namespace smooth::application::network::http
     {
     }
 
-    std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>
+    std::unique_ptr<responses::IRequestResponseOperation>
     TemplateProcessor::process_template(const smooth::core::filesystem::Path& path)
     {
-        std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation> res{};
+        std::unique_ptr<responses::IRequestResponseOperation> res{};
 
         const auto& ext = path.extension();
         bool is_template_file = template_files.find(ext) != template_files.end();

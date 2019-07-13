@@ -21,15 +21,16 @@
 #include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/StringResponse.h>
-#include "IRequestHandler.h"
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include "regular/IRequestHandler.h"
+#include "regular/MIMEParser.h"
 #include "URLEncoding.h"
-#include "MIMEParser.h"
-
-#include "IServerResponse.h"
+#include "regular/IServerResponse.h"
 
 namespace smooth::application::network::http
 {
+    using namespace smooth::application::network::http::regular;
+
     static const std::chrono::milliseconds DefaultKeepAlive{5000};
 
     // TLS handshake takes a long time

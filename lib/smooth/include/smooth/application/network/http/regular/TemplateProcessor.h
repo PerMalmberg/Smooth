@@ -21,10 +21,10 @@
 #include <regex>
 #include <string>
 #include <smooth/core/filesystem/Path.h>
-#include <smooth/application/network/http/responses/StringResponse.h>
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include "ITemplateDataRetriever.h"
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     class TemplateProcessor
     {
@@ -32,11 +32,11 @@ namespace smooth::application::network::http
             explicit TemplateProcessor(std::set<std::string> template_files,
                                        const ITemplateDataRetriever& data_retriever);
 
-            std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>
+            std::unique_ptr<smooth::application::network::http::regular::responses::IRequestResponseOperation>
             process_template(const smooth::core::filesystem::Path& path);
 
 #ifndef EXPOSE_PRIVATE_PARTS_FOR_TEST
-            private:
+        private:
 #endif
 
             void process_template(std::string& template_data) const;

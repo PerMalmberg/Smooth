@@ -18,17 +18,17 @@
 #include <iomanip>
 #include <sstream>
 #include <smooth/application/network/http/http_utils.h>
-#include <smooth/application/network/http/responses/FileContentResponse.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/core/filesystem/Path.h>
-#include <smooth/application/network/http/HTTPHeaderDef.h>
+#include <smooth/application/network/http/regular/responses/FileContentResponse.h>
+#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
 using namespace smooth::core::filesystem;
 
-namespace smooth::application::network::http::responses
+namespace smooth::application::network::http::regular::responses
 {
     FileContentResponse::FileContentResponse(smooth::core::filesystem::Path full_path)
-            : smooth::application::network::http::responses::StringResponse(ResponseCode::OK),
+            : StringResponse(ResponseCode::OK),
               path(std::move(full_path)),
               info(path)
     {

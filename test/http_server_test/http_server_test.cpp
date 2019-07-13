@@ -21,8 +21,8 @@
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/filesystem/filesystem.h>
 #include <smooth/core/filesystem/FSLock.h>
-#include <smooth/application/network/http/responses/StringResponse.h>
-#include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include <smooth/application/network/http/regular/MIMEParser.h>
 #include "SendBlob.h"
 #include "wifi_creds.h"
 

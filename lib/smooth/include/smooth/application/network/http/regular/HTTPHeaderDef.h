@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-namespace smooth::application::network::http
+#pragma once
+
+namespace smooth::application::network::http::regular
 {
-    const char* CONTENT_LENGTH = "content-length";
-    const char* CONTENT_TYPE = "content-type";
-    const char* LAST_MODIFIED = "last-modified";
-    const char* CONNECTION = "connection";
-    const char* KEEP_ALIVE = "keep-alive";
-    const char* CONTENT_DISPOSITION = "content-disposition";
+    extern const char* CONTENT_LENGTH;
+    extern const char* CONTENT_TYPE;
+    extern const char* LAST_MODIFIED;
+    extern const char* CONNECTION;
+    extern const char* KEEP_ALIVE;
+    extern const char* CONTENT_DISPOSITION;
 }

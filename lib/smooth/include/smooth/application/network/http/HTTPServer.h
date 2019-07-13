@@ -21,7 +21,7 @@
 #include <set>
 #include <unordered_map>
 #include "HTTPProtocol.h"
-#include "HTTPMethod.h"
+#include "regular/HTTPMethod.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/filesystem/File.h>
@@ -34,10 +34,10 @@
 #include <smooth/application/network/http/http_utils.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/HTTPServerClient.h>
-#include <smooth/application/network/http/responses/ErrorResponse.h>
-#include <smooth/application/network/http/responses/FileContentResponse.h>
-#include <smooth/application/network/http/TemplateProcessor.h>
-#include "RequestHandlerSignature.h"
+#include <smooth/application/network/http/regular/responses/ErrorResponse.h>
+#include <smooth/application/network/http/regular/responses/FileContentResponse.h>
+#include <smooth/application/network/http/regular/TemplateProcessor.h>
+#include "regular/RequestHandlerSignature.h"
 
 namespace smooth::application::network::http
 {

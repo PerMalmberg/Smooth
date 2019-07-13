@@ -15,11 +15,12 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SendBlob.h"
-#include <smooth/application/network/http/ResponseCodes.h>
-#include <smooth/application/network/http/HTTPHeaderDef.h>
+#include <smooth/application/network/http/regular/ResponseCodes.h>
+#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
 using namespace smooth::application::network::http;
-using namespace smooth::application::network::http::responses;
+using namespace smooth::application::network::http::regular;
+using namespace smooth::application::network::http::regular::responses;
 
 namespace http_server_test
 {

@@ -21,7 +21,7 @@
 #include "RequestHandlerSignature.h"
 #include "IServerResponse.h"
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     class MIMEParser;
 

@@ -20,7 +20,7 @@
 #include <vector>
 #include <smooth/core/timer/ElapsedTime.h>
 
-namespace smooth::application::network::http::responses
+namespace smooth::application::network::http::regular::responses
 {
     class StringResponse
             : public IRequestResponseOperation

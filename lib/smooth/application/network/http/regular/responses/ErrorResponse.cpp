@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#include <smooth/application/network/http/regular/responses/ErrorResponse.h>
+#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular::responses
 {
-    extern const char* CONTENT_LENGTH;
-    extern const char* CONTENT_TYPE;
-    extern const char* LAST_MODIFIED;
-    extern const char* CONNECTION;
-    extern const char* KEEP_ALIVE;
-    extern const char* CONTENT_DISPOSITION;
+    ErrorResponse::ErrorResponse(ResponseCode code)
+            : smooth::application::network::http::regular::responses::StringResponse(
+            code, std::string{std::to_string(static_cast<int>(code))} + " " + response_code_to_text.at(code))
+    {
+    }
 }

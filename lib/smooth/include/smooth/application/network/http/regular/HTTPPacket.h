@@ -21,10 +21,10 @@
 #include <unordered_map>
 #include <vector>
 #include <smooth/core/network/IPacketDisassembly.h>
-#include <smooth/application/network/http/ResponseCodes.h>
+#include <smooth/application/network/http/regular/ResponseCodes.h>
 #include "HTTPMethod.h"
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     class HTTPPacket
             : public smooth::core::network::IPacketDisassembly

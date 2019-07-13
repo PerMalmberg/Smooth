@@ -27,15 +27,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
         application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPServerClient.cpp
-        application/network/http/HTTPPacket.cpp
+        application/network/http/regular/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
-        application/network/http/MIMEParser.cpp
-        application/network/http/HTTPHeaderDef.cpp
-        application/network/http/responses/ErrorResponse.cpp
-        application/network/http/responses/FileContentResponse.cpp
-        application/network/http/responses/StringResponse.cpp
-        application/network/http/TemplateProcessor.cpp
+        application/network/http/regular/MIMEParser.cpp
+        application/network/http/regular/HTTPHeaderDef.cpp
+        application/network/http/regular/responses/ErrorResponse.cpp
+        application/network/http/regular/responses/FileContentResponse.cpp
+        application/network/http/regular/responses/StringResponse.cpp
+        application/network/http/regular/TemplateProcessor.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -90,12 +90,12 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
-        include/smooth/application/network/http/TemplateProcessor.h
-        include/smooth/application/network/http/ITemplateDataRetriever.h
-        include/smooth/application/network/http/responses/ErrorResponse.h
-        include/smooth/application/network/http/responses/FileContentResponse.h
-        include/smooth/application/network/http/responses/IRequestResponeOperation.h
-        include/smooth/application/network/http/responses/StringResponse.h
+        include/smooth/application/network/http/regular/TemplateProcessor.h
+        include/smooth/application/network/http/regular/ITemplateDataRetriever.h
+        include/smooth/application/network/http/regular/responses/ErrorResponse.h
+        include/smooth/application/network/http/regular/responses/FileContentResponse.h
+        include/smooth/application/network/http/regular/responses/IRequestResponeOperation.h
+        include/smooth/application/network/http/regular/responses/StringResponse.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h

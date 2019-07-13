@@ -18,9 +18,9 @@
 
 #include <unordered_map>
 #include <smooth/core/network/BufferContainer.h>
-#include <smooth/application/network/http/ResponseCodes.h>
+#include <smooth/application/network/http/regular/ResponseCodes.h>
 
-namespace smooth::application::network::http::responses
+namespace smooth::application::network::http::regular::responses
 {
     enum class ResponseStatus
     {

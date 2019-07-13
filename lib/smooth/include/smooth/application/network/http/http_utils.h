@@ -19,7 +19,7 @@
 #include <string>
 #include <chrono>
 #include <smooth/core/filesystem/Path.h>
-#include "HTTPMethod.h"
+#include "regular/HTTPMethod.h"
 
 namespace smooth::application::network::http::utils
 {
@@ -32,5 +32,5 @@ namespace smooth::application::network::http::utils
 
     time_t timegm(tm& tm);
 
-    std::string http_method_to_string(HTTPMethod m);
+    std::string http_method_to_string(regular::HTTPMethod m);
 }

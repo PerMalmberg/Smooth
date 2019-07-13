@@ -14,16 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "StringResponse.h"
-
-namespace smooth::application::network::http::responses
+namespace smooth::application::network::http::regular
 {
-    class ErrorResponse
-            : public StringResponse
-    {
-        public:
-            explicit ErrorResponse(ResponseCode code);
-    };
+    const char* CONTENT_LENGTH = "content-length";
+    const char* CONTENT_TYPE = "content-type";
+    const char* LAST_MODIFIED = "last-modified";
+    const char* CONNECTION = "connection";
+    const char* KEEP_ALIVE = "keep-alive";
+    const char* CONTENT_DISPOSITION = "content-disposition";
 }

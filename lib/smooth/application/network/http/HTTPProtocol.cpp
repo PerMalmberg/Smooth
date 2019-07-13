@@ -15,11 +15,12 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/ErrorResponse.h>
+#include <smooth/application/network/http/regular//responses/ErrorResponse.h>
 #include <algorithm>
 
 namespace smooth::application::network::http
 {
+    using namespace smooth::application::network::http::regular;
 
     int HTTPProtocol::get_wanted_amount(HTTPPacket& packet)
     {

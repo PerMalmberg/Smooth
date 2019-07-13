@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/application/network/http/regular/MIMEParser.h>
 #include <vector>
 #include <smooth/core/util/split.h>
 #include <smooth/core/util/string_util.h>
 #include <smooth/application/network/http/URLEncoding.h>
-#include <smooth/application/network/http/HTTPHeaderDef.h>
+#include <smooth/application/network/http/regular/HTTPMethod.h>
+#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
 using namespace smooth::core;
 using namespace smooth::core::util;
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     void MIMEParser::reset() noexcept
     {

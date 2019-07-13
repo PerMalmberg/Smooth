@@ -18,7 +18,7 @@
 
 #include <unordered_map>
 
-namespace smooth::application::network::http
+namespace smooth::application::network::http::regular
 {
     enum class ResponseCode
     {

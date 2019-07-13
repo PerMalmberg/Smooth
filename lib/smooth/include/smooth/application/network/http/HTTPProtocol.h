@@ -22,15 +22,17 @@
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/util/string_util.h>
-#include "HTTPPacket.h"
-#include "HTTPHeaderDef.h"
-#include "IServerResponse.h"
+#include "regular/HTTPPacket.h"
+#include "regular/HTTPHeaderDef.h"
+#include "regular/IServerResponse.h"
 
 using namespace smooth::core;
 using namespace smooth::core::logging;
 
 namespace smooth::application::network::http
 {
+
+    using namespace smooth::application::network::http::regular;
 
     class HTTPProtocol
             : public smooth::core::network::IPacketAssembly<HTTPProtocol, HTTPPacket>

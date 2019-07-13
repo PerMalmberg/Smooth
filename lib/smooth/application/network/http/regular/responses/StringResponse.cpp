@@ -17,15 +17,15 @@
 #include <utility>
 
 
-#include <smooth/application/network/http/responses/StringResponse.h>
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include <algorithm>
 #include <smooth/core/logging/log.h>
-#include <smooth/application/network/http/HTTPHeaderDef.h>
+#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 #include <smooth/application/network/http/http_utils.h>
 
 using namespace smooth::core::logging;
 
-namespace smooth::application::network::http::responses
+namespace smooth::application::network::http::regular::responses
 {
     StringResponse::StringResponse(ResponseCode code, std::string body, bool add_surrounding_html)
             : code(code)
