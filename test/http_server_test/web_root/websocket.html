@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script lang="javascript">
+        function connect() {
+            const socket = new WebSocket('ws://localhost:8080/chat');
+
+            // Connection opened
+            socket.addEventListener('open', function (event) {
+                socket.send('Hello Server!');
+            });
+
+            // Listen for messages
+            socket.addEventListener('message', function (event) {
+                console.log('Message from server ', event.data);
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <button onclick="connect();">Connect</button>
+
+</body>
+</html>

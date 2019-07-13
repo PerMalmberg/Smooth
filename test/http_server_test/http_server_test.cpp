@@ -308,6 +308,8 @@ namespace http_server_test
 
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::POST, "/upload", upload);
+
+        insecure_server->enable_websocket_on("/chat");
     }
 }
 

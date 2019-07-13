@@ -16,10 +16,18 @@
 
 namespace smooth::application::network::http::regular
 {
+    // Type all strings using lower-case; headers are all converted to lowercase in the response header maps.
     const char* CONTENT_LENGTH = "content-length";
     const char* CONTENT_TYPE = "content-type";
     const char* LAST_MODIFIED = "last-modified";
     const char* CONNECTION = "connection";
     const char* KEEP_ALIVE = "keep-alive";
+    const char* ORIGIN = "origin";
+    const char* HOST = "host";
     const char* CONTENT_DISPOSITION = "content-disposition";
+    const char* UPGRADE = "upgrade";
+    const char* SEC_WEBSOCKET_KEY = "sec-websocket-key";
+    const char* SEC_WEBSOCKET_PROTOCOL = "sec-websocket-protocol";
+    const char* SEC_WEBSOCKET_VERSION = "sec-websocket-version";
+    const char* SEC_WEBSOCKET_ACCEPT = "sec-websocket-accept";
 }

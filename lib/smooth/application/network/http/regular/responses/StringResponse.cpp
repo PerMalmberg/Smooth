@@ -28,7 +28,7 @@ using namespace smooth::core::logging;
 namespace smooth::application::network::http::regular::responses
 {
     StringResponse::StringResponse(ResponseCode code, std::string body, bool add_surrounding_html)
-            : code(code)
+            : HeaderOnlyResponse(code)
     {
         if(add_surrounding_html)
         {
@@ -45,11 +45,6 @@ namespace smooth::application::network::http::regular::responses
         headers[CONTENT_LENGTH] = std::to_string(data.size());
         headers[CONTENT_TYPE] = "text/html";
         headers[LAST_MODIFIED] = utils::make_http_time(std::chrono::system_clock::now());
-    }
-
-    ResponseCode StringResponse::get_response_code()
-    {
-        return code;
     }
 
     ResponseStatus StringResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
@@ -73,11 +68,6 @@ namespace smooth::application::network::http::regular::responses
         }
 
         return res;
-    }
-
-    void StringResponse::add_header(const std::string& key, const std::string& value)
-    {
-        headers[key] = value;
     }
 
     void StringResponse::dump() const

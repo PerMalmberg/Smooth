@@ -22,6 +22,8 @@
 #include <unordered_map>
 #include "HTTPProtocol.h"
 #include "regular/HTTPMethod.h"
+#include <smooth/application/hash/base64.h>
+#include <smooth/core/util/string_util.h>
 #include <smooth/core/Task.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/filesystem/File.h>
@@ -37,6 +39,7 @@
 #include <smooth/application/network/http/regular/responses/ErrorResponse.h>
 #include <smooth/application/network/http/regular/responses/FileContentResponse.h>
 #include <smooth/application/network/http/regular/TemplateProcessor.h>
+#include <smooth/application/hash/sha.h>
 #include "regular/RequestHandlerSignature.h"
 
 namespace smooth::application::network::http
@@ -153,6 +156,8 @@ namespace smooth::application::network::http
             void on(HTTPMethod method, const std::string& url,
                     const RequestHandlerSignature& handler);
 
+            void enable_websocket_on(const std::string& url);
+
         private:
             using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
@@ -166,6 +171,15 @@ namespace smooth::application::network::http
                         MIMEParser& mime,
                         bool fist_part,
                         bool last_part) override;
+
+            void websocket_detector(IServerResponse& response,
+                                    const std::string& url,
+                                    bool first_part,
+                                    bool last_part,
+                                    const std::unordered_map<std::string, std::string>& headers,
+                                    const std::unordered_map<std::string, std::string>& request_parameters,
+                                    const std::vector<uint8_t>& content,
+                                    MIMEParser& mime);
 
             smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
 
@@ -354,6 +368,75 @@ namespace smooth::application::network::http
     {
         Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));
         response.reply(std::move(res));
+    }
+
+    template<typename ServerType>
+    void HTTPServer<ServerType>::enable_websocket_on(const std::string& url)
+    {
+        auto f = [&](IServerResponse& response, const std::string& url, bool first_part,
+                    bool last_part,
+                    const std::unordered_map<std::string, std::string>& headers,
+                    const std::unordered_map<std::string, std::string>& request_parameters,
+                    const std::vector<uint8_t>& content, MIMEParser& mime)
+        {
+            websocket_detector(response, url, first_part, last_part, headers, request_parameters, content, mime);
+        };
+
+        on(HTTPMethod::GET, url, f);
+    }
+
+    template<typename ServerType>
+    void HTTPServer<ServerType>::websocket_detector(IServerResponse& response, const std::string& url, bool first_part,
+                                                    bool last_part,
+                                                    const std::unordered_map<std::string, std::string>& headers,
+                                                    const std::unordered_map<std::string, std::string>& request_parameters,
+                                                    const std::vector<uint8_t>& content, MIMEParser& mime)
+    {
+        (void)response;
+        (void)url;
+        (void)first_part;
+        (void)request_parameters;
+        (void)content;
+        (void)mime;
+
+        if(last_part)
+        {
+            auto did_upgrade = false;
+
+            try
+            {
+                const auto& upgrade = headers.at(UPGRADE);
+                const auto& connection = headers.at(CONNECTION);
+
+                if(string_util::iequals(upgrade, "websocket")
+                && string_util::icontains(connection, "upgrade"))
+                {
+                    const auto& key = headers.at(SEC_WEBSOCKET_KEY);
+                    const char* websocket_key_constant = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+                    const auto concat = string_util::trim(key) + websocket_key_constant;
+                    auto hash = hash::sha1(reinterpret_cast<const uint8_t*>(concat.data()), concat.length());
+
+                    auto reply_key = hash::base64::encode(reinterpret_cast<const uint8_t*>(hash.data()), hash.size());
+
+                    auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(ResponseCode::SwitchingProtocols);
+                    res->add_header(UPGRADE, "websocket");
+                    res->add_header(CONNECTION, "Upgrade");
+                    res->add_header(SEC_WEBSOCKET_KEY, reply_key);
+                    response.reply(std::move(res));
+                    did_upgrade = true;
+                }
+            }
+            catch (...)
+            {
+            }
+
+            if (!did_upgrade)
+            {
+                auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(ResponseCode::Bad_Request);
+                response.reply(std::move(res));
+            }
+        }
     }
 }
 

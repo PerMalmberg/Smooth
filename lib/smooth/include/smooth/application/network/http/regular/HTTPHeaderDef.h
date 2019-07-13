@@ -23,5 +23,12 @@ namespace smooth::application::network::http::regular
     extern const char* LAST_MODIFIED;
     extern const char* CONNECTION;
     extern const char* KEEP_ALIVE;
+    extern const char* ORIGIN;
+    extern const char* HOST;
     extern const char* CONTENT_DISPOSITION;
+    extern const char* UPGRADE;
+    extern const char* SEC_WEBSOCKET_KEY;
+    extern const char* SEC_WEBSOCKET_PROTOCOL;
+    extern const char* SEC_WEBSOCKET_VERSION;
+    extern const char* SEC_WEBSOCKET_ACCEPT;
 }

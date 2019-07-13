@@ -36,6 +36,7 @@ set(SOURCES
         application/network/http/regular/responses/ErrorResponse.cpp
         application/network/http/regular/responses/FileContentResponse.cpp
         application/network/http/regular/responses/StringResponse.cpp
+        application/network/http/regular/responses/HeaderOnlyResponse.cpp
         application/network/http/regular/TemplateProcessor.cpp
         application/network/http/websocket/WebsocketProtocol.cpp
         application/network/mqtt/packet/ConnAck.cpp
@@ -67,6 +68,7 @@ set(SOURCES
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
         application/hash/sha.cpp
+        application/hash/base64.cpp
         core/ipc/QueueNotification.cpp
         core/filesystem/filesystem.cpp
         core/filesystem/File.cpp

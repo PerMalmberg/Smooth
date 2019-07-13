@@ -38,7 +38,7 @@ namespace smooth::application::network::http
 {
     int HTTPProtocol::get_wanted_amount(HTTPPacket& packet)
     {
-        if(desired_mode != Mode::Regular)
+        if (desired_mode != Mode::Regular)
         {
             mode = Mode::Websocket;
             regular.reset();
