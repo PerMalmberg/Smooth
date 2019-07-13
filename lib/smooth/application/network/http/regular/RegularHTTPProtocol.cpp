@@ -125,7 +125,6 @@ namespace smooth::application::network::http
                     // Packet continues a previous packet.
                     packet.set_continuation();
                 }
-
             }
         }
     }
@@ -261,5 +260,4 @@ namespace smooth::application::network::http
         error = true;
         packet_consumed();
     }
-
 }

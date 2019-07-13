@@ -38,6 +38,6 @@ namespace server_socket_test
 
         private:
             std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
-                                                                StreamingProtocol>> server{};
+                                                                StreamingProtocol, void>> server{};
     };
 }

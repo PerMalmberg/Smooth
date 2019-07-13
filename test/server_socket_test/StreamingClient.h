@@ -26,14 +26,13 @@
 
 namespace server_socket_test
 {
-
     class StreamingClient
-            : public smooth::core::network::ServerClient<StreamingClient, StreamingProtocol>
+            : public smooth::core::network::ServerClient<StreamingClient, StreamingProtocol, void>
     {
         public:
             explicit StreamingClient(smooth::core::Task& task, smooth::core::network::ClientPool<StreamingClient>& pool)
-                    : ServerClient<StreamingClient, StreamingProtocol>(task, pool, std::make_unique<StreamingProtocol>())
-
+                    : ServerClient<StreamingClient, StreamingProtocol, void>(task, pool,
+                                                                       std::make_unique<StreamingProtocol>())
             {
             }
 
@@ -43,7 +42,7 @@ namespace server_socket_test
             {
                 // Print data as it is received.
                 StreamingProtocol::packet_type packet;
-                if(event.get(packet))
+                if (event.get(packet))
                 {
                     std::string s{static_cast<char>(packet.data()[0])};
                     smooth::core::logging::Log::debug("-->", s);

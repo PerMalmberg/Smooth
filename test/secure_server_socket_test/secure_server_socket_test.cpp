@@ -171,7 +171,7 @@ namespace secure_server_socket_test
         fill(private_key_data, private_key);
         fill(server_cert_data, own_certs);
 
-        server = SecureServerSocket<StreamingClient, StreamingProtocol>::create(*this,
+        server = SecureServerSocket<StreamingClient, StreamingProtocol, void>::create(*this,
                                                                                 5,
                                                                                 5,
                                                                                 ca_chain,
