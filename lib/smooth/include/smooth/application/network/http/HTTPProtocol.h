@@ -45,8 +45,7 @@ namespace smooth::application::network::http
                     : max_header_size(max_header_size),
                       content_chunk_size(content_chunk_size),
                       response(response),
-                      regular(
-                              std::make_unique<RegularHTTPProtocol>(max_header_size, content_chunk_size, response))
+                      regular(std::make_unique<RegularHTTPProtocol>(max_header_size, content_chunk_size, response))
             {
             }
 
