@@ -210,6 +210,11 @@ namespace smooth::application::network::http
         }
     }
 
+    void HTTPServerClient::upgrade_to_websocket()
+    {
+        container->clear();
+        container->get_protocol().upgrade_to_websocket();
+    }
 
     void HTTPServerClient::send_first_part()
     {

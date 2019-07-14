@@ -115,6 +115,11 @@ namespace smooth::core::network
                 return proto->is_error();
             }
 
+            Protocol& get_proto() const
+            {
+                return *proto;
+            }
+
         private:
             void ReplacePacketWithDefault()
             {

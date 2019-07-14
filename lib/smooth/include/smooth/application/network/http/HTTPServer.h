@@ -450,6 +450,8 @@ namespace smooth::application::network::http
                     // Remove socket receive timeouts
                     timeout_modifier.set_receive_timeout(std::chrono::milliseconds{0});
 
+                    // Finally change protocols.
+                    response.upgrade_to_websocket();
                 }
             }
             catch (std::exception& ex)

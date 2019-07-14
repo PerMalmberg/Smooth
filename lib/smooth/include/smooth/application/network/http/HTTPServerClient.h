@@ -78,6 +78,8 @@ namespace smooth::application::network::http
 
             void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) override;
 
+            void upgrade_to_websocket() override;
+
             void set_receive_timeout(const std::chrono::milliseconds& timeout) override
             {
                 socket->set_receive_timeout(timeout);

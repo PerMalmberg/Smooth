@@ -28,5 +28,6 @@ namespace smooth::application::network::http::regular
 
             virtual void reply(std::unique_ptr<regular::responses::IRequestResponseOperation> response) = 0;
             virtual void reply_error(std::unique_ptr<regular::responses::IRequestResponseOperation> response) = 0;
+            virtual void upgrade_to_websocket() = 0;
     };
 }

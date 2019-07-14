@@ -76,6 +76,11 @@ namespace smooth::core::network
                 connection_status.clear();
             }
 
+            Protocol& get_protocol() const
+            {
+                return rx_buffer.get_proto();
+            }
+
 
         private:
             smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent> tx_empty;

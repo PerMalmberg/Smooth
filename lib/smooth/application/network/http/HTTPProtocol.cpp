@@ -38,31 +38,13 @@ namespace smooth::application::network::http
 {
     int HTTPProtocol::get_wanted_amount(HTTPPacket& packet)
     {
-        if (desired_mode != Mode::Regular)
-        {
-            mode = Mode::Websocket;
-            regular.reset();
-            websocket = std::make_unique<websocket::WebsocketProtocol>(content_chunk_size, response);
-        }
-
-        int res;
-
-        if (mode == Mode::Regular)
-        {
-            res = regular->get_wanted_amount(packet);
-        }
-        else
-        {
-            res = websocket->get_wanted_amount(packet);
-        }
-
-        return res;
+        return regular ? regular->get_wanted_amount(packet) : websocket->get_wanted_amount(packet);
     }
 
 
     void HTTPProtocol::data_received(HTTPPacket& packet, int length)
     {
-        if (mode == Mode::Regular)
+        if (regular)
         {
             regular->data_received(packet, length);
         }
@@ -74,58 +56,25 @@ namespace smooth::application::network::http
 
     uint8_t* HTTPProtocol::get_write_pos(HTTPPacket& packet)
     {
-        uint8_t* pos;
-
-        if (mode == Mode::Regular)
-        {
-            pos = regular->get_write_pos(packet);
-        }
-        else
-        {
-            pos = websocket->get_write_pos(packet);
-        }
-
-        return pos;
+        return regular ? regular->get_write_pos(packet) : websocket->get_write_pos(packet);
     }
 
 
     bool HTTPProtocol::is_complete(HTTPPacket& packet) const
     {
-        bool res;
-
-        if (mode == Mode::Regular)
-        {
-            res = regular->is_complete(packet);
-        }
-        else
-        {
-            res = websocket->is_complete(packet);
-        }
-
-        return res;
+        return regular ? regular->is_complete(packet) : websocket->is_complete(packet);
     }
 
 
     bool HTTPProtocol::is_error()
     {
-        bool res;
-
-        if (mode == Mode::Regular)
-        {
-            res = regular->is_error();
-        }
-        else
-        {
-            res = websocket->is_error();
-        }
-
-        return res;
+        return regular ? regular->is_error() : websocket->is_error();
     }
 
 
     void HTTPProtocol::packet_consumed()
     {
-        if (mode == Mode::Regular)
+        if (regular)
         {
             regular->packet_consumed();
         }
@@ -138,7 +87,7 @@ namespace smooth::application::network::http
 
     void HTTPProtocol::reset()
     {
-        if (mode == Mode::Regular)
+        if (regular)
         {
             regular->reset();
         }
@@ -150,7 +99,8 @@ namespace smooth::application::network::http
 
     void HTTPProtocol::upgrade_to_websocket()
     {
-        desired_mode = Mode::Websocket;
+        regular.reset();
+        websocket = std::make_unique<websocket::WebsocketProtocol>(content_chunk_size, response);
     }
 
 }

@@ -101,6 +101,7 @@ namespace smooth::core::network
 
         protected:
             std::shared_ptr<smooth::core::network::ISocket> socket{};
+            std::shared_ptr<BufferContainer<Protocol>> container;
 
         private:
             friend ServerSocket<FinalClientTypeName, Protocol, ClientContext>;
@@ -121,7 +122,6 @@ namespace smooth::core::network
             }
 
             smooth::core::network::ClientPool<FinalClientTypeName>& pool;
-            std::shared_ptr<BufferContainer<Protocol>> container;
             ClientContext* client_context{nullptr};
     };
 
@@ -129,8 +129,8 @@ namespace smooth::core::network
     ServerClient<FinalClientTypeName, Protocol, ClientContext>::ServerClient(
             smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool,
             std::unique_ptr<Protocol> proto)
-            : pool(pool),
-              container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto)))
+            :container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto))),
+            pool(pool)
     {
     }
 }

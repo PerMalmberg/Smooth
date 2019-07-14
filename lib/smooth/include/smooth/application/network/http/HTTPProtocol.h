@@ -75,15 +75,6 @@ namespace smooth::application::network::http
             const int max_header_size;
             const int content_chunk_size;
             IServerResponse& response;
-            enum class Mode
-            {
-                    Regular,
-                    Websocket
-            };
-
-            Mode mode{Mode::Regular};
-            Mode desired_mode{Mode::Regular};
-
             std::unique_ptr<RegularHTTPProtocol> regular{};
             std::unique_ptr<websocket::WebsocketProtocol> websocket{};
     };
