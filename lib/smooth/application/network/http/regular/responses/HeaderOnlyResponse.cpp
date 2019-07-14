@@ -54,7 +54,11 @@ namespace smooth::application::network::http::regular::responses
     {
         auto& curr = headers[key];
 
-        if(!string_util::icontains(curr, value))
+        if(curr.empty())
+        {
+            set_header(key, value);
+        }
+        else if(!string_util::icontains(curr, value))
         {
             curr.append(", ").append(value);
         }
