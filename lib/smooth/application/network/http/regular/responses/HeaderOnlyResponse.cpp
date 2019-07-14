@@ -56,7 +56,7 @@ namespace smooth::application::network::http::regular::responses
 
         if(!string_util::icontains(curr, value))
         {
-            curr.append(" ").append(value);
+            curr.append(", ").append(value);
         }
     }
 

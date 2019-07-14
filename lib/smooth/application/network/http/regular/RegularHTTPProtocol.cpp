@@ -88,9 +88,11 @@ namespace smooth::application::network::http
             else if (total_bytes_received >= max_header_size)
             {
                 // Headers are too large
-                response.reply_error(std::make_unique<responses::ErrorResponse>(ResponseCode::Request_Header_Fields_Too_Large));
+                response.reply_error(
+                        std::make_unique<responses::ErrorResponse>(ResponseCode::Request_Header_Fields_Too_Large));
                 Log::error("HTTPProtocol",
-                           Format("Headers larger than max header size of {1}: {2} bytes.", Int32(max_header_size), Int32(total_bytes_received)));
+                           Format("Headers larger than max header size of {1}: {2} bytes.", Int32(max_header_size),
+                                  Int32(total_bytes_received)));
                 reset();
             }
         }
@@ -120,7 +122,7 @@ namespace smooth::application::network::http
             {
                 // If we've already received more data than what fits in a single chunk, then this packet
                 // is a continuation of an earlier packet.
-                if(total_content_bytes_received - content_bytes_received_in_current_part > content_chunk_size)
+                if (total_content_bytes_received - content_bytes_received_in_current_part > content_chunk_size)
                 {
                     // Packet continues a previous packet.
                     packet.set_continuation();
@@ -168,7 +170,7 @@ namespace smooth::application::network::http
 
 
     int RegularHTTPProtocol::consume_headers(HTTPPacket& packet,
-                                      std::vector<uint8_t>::const_iterator header_ending)
+                                             std::vector<uint8_t>::const_iterator header_ending)
     {
         std::stringstream ss;
 
@@ -226,7 +228,16 @@ namespace smooth::application::network::http
                     if (std::distance(colon, s.end()) > 2)
                     {
                         // Headers are case-insensitive: https://tools.ietf.org/html/rfc7230#section-3.2
-                        packet.headers()[string_util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                        // Headers may be split on several lines, so append data if header isn't empty.
+                        auto& curr_header = packet.headers()[string_util::to_lower_copy({s.begin(), colon})];
+                        if (curr_header.empty())
+                        {
+                            curr_header = {colon + 2, s.end()};
+                        }
+                        else
+                        {
+                            curr_header.append(", ").append({colon + 2, s.end()});
+                        }
                     }
                 }
             }
