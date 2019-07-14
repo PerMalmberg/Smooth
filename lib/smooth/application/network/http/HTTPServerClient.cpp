@@ -184,10 +184,11 @@ namespace smooth::application::network::http
     {
         using namespace std::chrono;
         const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
+
         if (timeout.count() > 0)
         {
             response->add_header(CONNECTION, "keep-alive");
-            response->add_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
+            response->set_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
         }
 
         operations.emplace_back(std::move(response));
@@ -286,7 +287,7 @@ namespace smooth::application::network::http
         if (connection != request_headers.end())
         {
             auto s = (*connection).second;
-            if (s.find("keep-alive") != std::string::npos)
+            if (string_util::icontains(s, "keep-alive"))
             {
                 this->socket->set_receive_timeout(DefaultKeepAlive);
             }

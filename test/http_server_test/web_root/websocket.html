@@ -7,7 +7,12 @@
 
             // Connection opened
             socket.addEventListener('open', function (event) {
+                console.log("Connected!");
                 socket.send('Hello Server!');
+            });
+
+            socket.addEventListener('close', function(event) {
+                console.log("Disconnected");
             });
 
             // Listen for messages

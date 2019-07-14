@@ -374,11 +374,10 @@ namespace smooth::application::network::http
     void HTTPServer<ServerType>::enable_websocket_on(const std::string& url)
     {
         auto f = [&](IServerResponse& response, const std::string& url, bool first_part,
-                    bool last_part,
-                    const std::unordered_map<std::string, std::string>& headers,
-                    const std::unordered_map<std::string, std::string>& request_parameters,
-                    const std::vector<uint8_t>& content, MIMEParser& mime)
-        {
+                     bool last_part,
+                     const std::unordered_map<std::string, std::string>& headers,
+                     const std::unordered_map<std::string, std::string>& request_parameters,
+                     const std::vector<uint8_t>& content, MIMEParser& mime) {
             websocket_detector(response, url, first_part, last_part, headers, request_parameters, content, mime);
         };
 
@@ -392,14 +391,14 @@ namespace smooth::application::network::http
                                                     const std::unordered_map<std::string, std::string>& request_parameters,
                                                     const std::vector<uint8_t>& content, MIMEParser& mime)
     {
-        (void)response;
-        (void)url;
-        (void)first_part;
-        (void)request_parameters;
-        (void)content;
-        (void)mime;
+        (void) response;
+        (void) url;
+        (void) first_part;
+        (void) request_parameters;
+        (void) content;
+        (void) mime;
 
-        if(last_part)
+        if (last_part)
         {
             auto did_upgrade = false;
 
@@ -407,9 +406,13 @@ namespace smooth::application::network::http
             {
                 const auto& upgrade = headers.at(UPGRADE);
                 const auto& connection = headers.at(CONNECTION);
+                const auto version = headers.at(SEC_WEBSOCKET_VERSION);
 
-                if(string_util::iequals(upgrade, "websocket")
-                && string_util::icontains(connection, "upgrade"))
+                // const auto& host = headers.at(HOST);
+
+                if (string_util::iequals(upgrade, "websocket")
+                    && string_util::icontains(connection, "upgrade")
+                    && string_util::equals(version, "13"))
                 {
                     const auto& key = headers.at(SEC_WEBSOCKET_KEY);
                     const char* websocket_key_constant = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -419,16 +422,18 @@ namespace smooth::application::network::http
 
                     auto reply_key = hash::base64::encode(reinterpret_cast<const uint8_t*>(hash.data()), hash.size());
 
-                    auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(ResponseCode::SwitchingProtocols);
+                    auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(
+                            ResponseCode::SwitchingProtocols);
                     res->add_header(UPGRADE, "websocket");
                     res->add_header(CONNECTION, "Upgrade");
-                    res->add_header(SEC_WEBSOCKET_KEY, reply_key);
+                    res->add_header(SEC_WEBSOCKET_ACCEPT, reply_key);
                     response.reply(std::move(res));
                     did_upgrade = true;
                 }
             }
-            catch (...)
+            catch (std::exception& ex)
             {
+                Log::warning(tag, Format("Websocket upgrade request failed: {1}", Str(ex.what())));
             }
 
             if (!did_upgrade)

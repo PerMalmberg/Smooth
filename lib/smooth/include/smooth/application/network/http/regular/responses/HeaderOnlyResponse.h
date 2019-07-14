@@ -43,6 +43,7 @@ namespace smooth::application::network::http::regular::responses
             // Called at least once when sending a response and until ResponseStatus::AllSent is returned
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
+            void set_header(const std::string& key, const std::string& value) override;
             void add_header(const std::string& key, const std::string& value) override;
 
             void dump() const override;

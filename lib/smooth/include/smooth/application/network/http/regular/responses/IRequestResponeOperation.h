@@ -45,7 +45,9 @@ namespace smooth::application::network::http::regular::responses
             // Called at least once when sending a response and until ResponseStatus::AllSent is returned
             virtual ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) = 0;
 
-            /// Adds a header to the reply.
+            /// Sets a header, replacing any existing value
+            virtual void set_header(const std::string& key, const std::string& value) = 0;
+            /// Adds a header value, appending to any existing value.
             virtual void add_header(const std::string& key, const std::string& value) = 0;
 
             virtual void dump() const = 0;

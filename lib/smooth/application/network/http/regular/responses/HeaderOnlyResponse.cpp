@@ -22,7 +22,9 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 #include <smooth/application/network/http/http_utils.h>
+#include <smooth/core/util/string_util.h>
 
+using namespace smooth::core;
 using namespace smooth::core::logging;
 
 namespace smooth::application::network::http::regular::responses
@@ -43,9 +45,19 @@ namespace smooth::application::network::http::regular::responses
         return ResponseStatus::EndOfData;
     }
 
-    void HeaderOnlyResponse::add_header(const std::string& key, const std::string& value)
+    void HeaderOnlyResponse::set_header(const std::string& key, const std::string& value)
     {
         headers[key] = value;
+    }
+
+    void HeaderOnlyResponse::add_header(const std::string& key, const std::string& value)
+    {
+        auto& curr = headers[key];
+
+        if(!string_util::icontains(curr, value))
+        {
+            curr.append(" ").append(value);
+        }
     }
 
     void HeaderOnlyResponse::dump() const
