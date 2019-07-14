@@ -172,14 +172,14 @@ namespace smooth::application::network::http
                         bool fist_part,
                         bool last_part) override;
 
-            void websocket_detector(IServerResponse& response,
-                                    const std::string& url,
-                                    bool first_part,
-                                    bool last_part,
-                                    const std::unordered_map<std::string, std::string>& headers,
-                                    const std::unordered_map<std::string, std::string>& request_parameters,
-                                    const std::vector<uint8_t>& content,
-                                    MIMEParser& mime);
+            void websocket_upgrade_detector(IServerResponse& response,
+                                            const std::string& url,
+                                            bool first_part,
+                                            bool last_part,
+                                            const std::unordered_map<std::string, std::string>& headers,
+                                            const std::unordered_map<std::string, std::string>& request_parameters,
+                                            const std::vector<uint8_t>& content,
+                                            MIMEParser& mime);
 
             smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
 
@@ -192,7 +192,7 @@ namespace smooth::application::network::http
                     smooth::application::network::http::HTTPProtocol, IRequestHandler>> server{};
 
             HandlerByMethod handlers{};
-            HTTPServerConfig config{};
+            HTTPServerConfig config;
             const char* tag = "HTTPServer";
             TemplateProcessor template_processor;
     };
@@ -202,7 +202,7 @@ namespace smooth::application::network::http
     HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, const HTTPServerConfig& configuration)
             :
             task(task),
-            config(std::move(configuration)),
+            config(configuration),
             template_processor(configuration.templates(), config.data_retriever())
     {
     }
@@ -378,18 +378,19 @@ namespace smooth::application::network::http
                      const std::unordered_map<std::string, std::string>& headers,
                      const std::unordered_map<std::string, std::string>& request_parameters,
                      const std::vector<uint8_t>& content, MIMEParser& mime) {
-            websocket_detector(response, url, first_part, last_part, headers, request_parameters, content, mime);
+            websocket_upgrade_detector(response, url, first_part, last_part, headers, request_parameters, content, mime);
         };
 
         on(HTTPMethod::GET, url, f);
     }
 
     template<typename ServerType>
-    void HTTPServer<ServerType>::websocket_detector(IServerResponse& response, const std::string& url, bool first_part,
-                                                    bool last_part,
-                                                    const std::unordered_map<std::string, std::string>& headers,
-                                                    const std::unordered_map<std::string, std::string>& request_parameters,
-                                                    const std::vector<uint8_t>& content, MIMEParser& mime)
+    void HTTPServer<ServerType>::websocket_upgrade_detector(IServerResponse& response, const std::string& url,
+                                                            bool first_part,
+                                                            bool last_part,
+                                                            const std::unordered_map<std::string, std::string>& headers,
+                                                            const std::unordered_map<std::string, std::string>& request_parameters,
+                                                            const std::vector<uint8_t>& content, MIMEParser& mime)
     {
         (void) response;
         (void) url;
@@ -429,6 +430,8 @@ namespace smooth::application::network::http
                     res->add_header(SEC_WEBSOCKET_ACCEPT, reply_key);
                     response.reply(std::move(res));
                     did_upgrade = true;
+
+
                 }
             }
             catch (std::exception& ex)
