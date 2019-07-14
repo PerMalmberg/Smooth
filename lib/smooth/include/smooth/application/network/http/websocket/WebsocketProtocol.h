@@ -62,7 +62,56 @@ namespace smooth::application::network::http::websocket
             void reset() override;
 
         private:
+            enum class State
+            {
+                    Header,
+                    ExtendedPayloadLength_2,
+                    ExtendedPayloadLength_8,
+                    MaskingKey,
+                    Payload
+            };
+
+            enum class OpCode
+            {
+                Continuation,
+                Text,
+                Binary,
+                Reserved3,
+                Reserved4,
+                Reserved5,
+                Reserved6,
+                Reserved7,
+                // Control frames below (MSB is set)
+                Close,
+                Ping,
+                Pong,
+                ReservedA,
+                ReservedB,
+                ReservedC,
+                ReservedD,
+                ReservedE,
+                ReservedF,
+            };
+
+
+            State state{State::Header};
+
             int content_chunk_size;
+            bool fin{false};
+            bool RSV1{false};
+            bool RSV2{false};
+            bool RSV3{false};
+            OpCode op_code{OpCode::Continuation};
+            bool masked{false};
             regular::IServerResponse& response;
+
+            bool error{false};
+            int total_byte_count{0};
+            int payload_length{0};
+            int received_payload{0};
+            int decode_index{0};
+
+            std::array<uint8_t, 4> mask_key{};
+            std::array<uint8_t, 11> frame_data{};
     };
 }

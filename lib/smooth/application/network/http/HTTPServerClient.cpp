@@ -212,7 +212,8 @@ namespace smooth::application::network::http
 
     void HTTPServerClient::upgrade_to_websocket()
     {
-        container->clear();
+        // Don't clear TX buffer - the upgrade response is being sent.
+        container->get_rx_buffer().clear();
         container->get_protocol().upgrade_to_websocket();
     }
 
