@@ -54,6 +54,7 @@ namespace smooth::application::network::http
                     {
                         context->handle(method,
                                         *this,
+                                        *this,
                                         requested_url,
                                         request_headers,
                                         request_parameters,

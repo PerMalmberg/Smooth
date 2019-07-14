@@ -19,6 +19,7 @@
 #include "responses/IRequestResponeOperation.h"
 #include "IServerResponse.h"
 #include <memory>
+#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
 
 namespace smooth::application::network::http::regular
 {
@@ -26,6 +27,7 @@ namespace smooth::application::network::http::regular
 
     using RequestHandlerSignature = std::function<void(
             IServerResponse& response,
+            IConnectionTimeoutModifier& timeout_modifier,
             const std::string& url,
             bool first_part,
             bool last_part,

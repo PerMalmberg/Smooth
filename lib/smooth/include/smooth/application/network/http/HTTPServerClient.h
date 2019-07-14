@@ -26,6 +26,7 @@
 #include "regular/MIMEParser.h"
 #include "URLEncoding.h"
 #include "regular/IServerResponse.h"
+#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
 
 namespace smooth::application::network::http
 {
@@ -38,7 +39,8 @@ namespace smooth::application::network::http
 
     class HTTPServerClient
             : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol, IRequestHandler>,
-              public IServerResponse
+              public IServerResponse,
+              public IConnectionTimeoutModifier
     {
         public:
             HTTPServerClient(smooth::core::Task& task,
@@ -73,7 +75,13 @@ namespace smooth::application::network::http
             }
 
             void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+
             void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+
+            void set_receive_timeout(const std::chrono::milliseconds& timeout) override
+            {
+                socket->set_receive_timeout(timeout);
+            }
 
         private:
             bool parse_url(std::string& raw_url);

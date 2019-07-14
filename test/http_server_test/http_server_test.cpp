@@ -177,14 +177,17 @@ namespace http_server_test
 #endif
 
         template_data_retriever.add("{{title}}", "Smooth - a C++ framework for building apps on ESP-IDF");
-        template_data_retriever.add("{{message}}", "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
+        template_data_retriever.add("{{message}}",
+                                    "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
         template_data_retriever.add("{{github_url}}", "https://github.com/PerMalmberg");
         template_data_retriever.add("{{author}}", "Per Malmberg");
-        template_data_retriever.add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
+        template_data_retriever
+                .add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
 
         FSLock::init(5);
 
-        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize, ContentChunkSize};
+        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize,
+                             ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol, IRequestHandler>>>(*this, cfg);
 
@@ -211,6 +214,7 @@ namespace http_server_test
 
         auto blob = [](
                 IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -218,6 +222,7 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
+            (void) timeout_modifier;
             (void) url;
             (void) first_part;
             (void) headers;
@@ -250,6 +255,7 @@ namespace http_server_test
 
         auto upload = [web_root, uploads](
                 IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -257,6 +263,7 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
+            (void) timeout_modifier;
             (void) headers;
             (void) request_parameters;
             (void) url;
@@ -294,7 +301,8 @@ namespace http_server_test
                 if (last_part)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" + data["edit_box"] + "</textarea>"));
+                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" +
+                                                                               data["edit_box"] + "</textarea>"));
                 }
             };
 

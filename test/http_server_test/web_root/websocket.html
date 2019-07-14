@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <script lang="javascript">
+        let socket = null;
+
         function connect() {
-            const socket = new WebSocket('ws://localhost:8080/chat');
+            socket = new WebSocket('ws://localhost:8080/chat');
 
             // Connection opened
             socket.addEventListener('open', function (event) {
                 console.log("Connected!");
-                socket.send('Hello Server!');
             });
 
             socket.addEventListener('close', function(event) {
@@ -21,10 +22,15 @@
             });
         }
 
+        function send() {
+            socket.send("Hello!");
+        }
+
     </script>
 </head>
 <body>
     <button onclick="connect();">Connect</button>
+    <button onclick="send();">Send</button>
 
 </body>
 </html>
