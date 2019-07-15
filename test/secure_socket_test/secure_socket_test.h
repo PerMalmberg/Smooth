@@ -25,7 +25,7 @@
 #include <smooth/core/network/Socket.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/regular/responses/IResponeOperation.h>
+#include <smooth/application/network/http/IResponseOperation.h>
 
 namespace secure_socket_test
 {
@@ -51,8 +51,9 @@ namespace secure_socket_test
 
             void event(const smooth::core::network::event::ConnectionStatusEvent&) override;
 
-            void reply(std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>) override {};
-            void reply_error(std::unique_ptr<smooth::application::network::http::responses::IRequestResponseOperation>) override {};
+            void reply(std::unique_ptr<smooth::application::network::http::IResponseOperation>) override {};
+            void reply_error(std::unique_ptr<smooth::application::network::http::IResponseOperation>) override {};
+            void upgrade_to_websocket() override {}
 
         private:
             std::shared_ptr<smooth::core::network::BufferContainer<Proto>> buff;
