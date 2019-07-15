@@ -104,10 +104,9 @@ namespace smooth::application::network::http
 
         if (is_complete(packet))
         {
-            // As headers are parsed and delivered separately from the content, we can resize the data buffer to
-            // exactly fit the received content in this specific packet. This also makes it easy to later parse
-            // the content since the exact size is known.
-            packet.data().resize(static_cast<std::vector<uint8_t>::size_type>(content_bytes_received_in_current_part));
+            // Resize buffer to deliver exactly the number of received bytes to the application.
+            using vector_type = std::remove_reference<decltype(packet.data())>::type;
+            packet.data().resize(static_cast<vector_type::size_type>(content_bytes_received_in_current_part));
 
             packet.set_request_data(last_method, last_url, last_request_version);
 
