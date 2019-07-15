@@ -144,18 +144,29 @@ namespace smooth::application::network::http
 
 
     void HTTPServerClient::reply(
-            std::unique_ptr<IResponseOperation> response)
+            std::unique_ptr<IResponseOperation> response, bool place_first)
     {
-        using namespace std::chrono;
-        const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
-
-        if (timeout.count() > 0)
+        if (mode == Mode::HTTP)
         {
-            response->add_header(CONNECTION, "keep-alive");
-            response->set_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
+            using namespace std::chrono;
+            const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
+
+            if (timeout.count() > 0)
+            {
+                response->add_header(CONNECTION, "keep-alive");
+                response->set_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
+            }
         }
 
-        operations.emplace_back(std::move(response));
+        if (place_first)
+        {
+            operations.insert(operations.begin(), std::move(response));
+        }
+        else
+        {
+            operations.emplace_back(std::move(response));
+        }
+
         if (!current_operation)
         {
             send_first_part();
@@ -339,8 +350,8 @@ namespace smooth::application::network::http
                 }
                 else if (ws_op == WebsocketProtocol::OpCode::Ping)
                 {
-                    // Reply with a ping
-                    reply(std::make_unique<WSResponse>(WebsocketProtocol::OpCode::Pong));
+                    // Reply with a ping and place it first in the queue.
+                    reply(std::make_unique<WSResponse>(WebsocketProtocol::OpCode::Pong), true);
                 }
             }
             else

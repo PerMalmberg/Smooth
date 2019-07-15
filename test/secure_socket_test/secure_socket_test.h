@@ -51,7 +51,7 @@ namespace secure_socket_test
 
             void event(const smooth::core::network::event::ConnectionStatusEvent&) override;
 
-            void reply(std::unique_ptr<smooth::application::network::http::IResponseOperation>) override {};
+            void reply(std::unique_ptr<smooth::application::network::http::IResponseOperation>, bool) override {};
             void reply_error(std::unique_ptr<smooth::application::network::http::IResponseOperation>) override {};
             void upgrade_to_websocket() override {}
 

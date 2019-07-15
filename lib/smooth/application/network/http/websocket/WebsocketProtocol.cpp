@@ -73,7 +73,7 @@ namespace smooth::application::network::http::websocket
         else
         {
             // Websockets can use up to 64 bits (well, 63 since MSB MUST always be 0,
-            // see https://tools.ietf.org/html/rfc6455#section-5.2) bits to specify the size.
+            // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
             // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
 
             // First get the maximum number of bytes to read, this limits the value to fit in the type of

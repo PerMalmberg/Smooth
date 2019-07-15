@@ -78,7 +78,7 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void reply(std::unique_ptr<IResponseOperation> response) override;
+            void reply(std::unique_ptr<IResponseOperation> response, bool place_first = false) override;
 
             void reply_error(std::unique_ptr<IResponseOperation> response) override;
 
