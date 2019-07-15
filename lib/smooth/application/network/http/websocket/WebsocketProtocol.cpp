@@ -98,7 +98,7 @@ namespace smooth::application::network::http::websocket
             RSV1 = first[6];
             RSV2 = first[5];
             RSV3 = first[4];
-            op_code = static_cast<OpCode>((frame_data[0] >> 1) & 0x0F);
+            op_code = static_cast<OpCode>((frame_data[0]) & 0x0F);
 
             std::bitset<8> second(frame_data[1]);
 
@@ -223,7 +223,7 @@ namespace smooth::application::network::http::websocket
             packet.set_continuation();
         }
 
-        if (!fin)
+        if (!fin || received_payload < payload_length)
         {
             packet.set_continued();
         }
