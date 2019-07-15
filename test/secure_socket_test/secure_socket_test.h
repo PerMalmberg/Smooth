@@ -25,7 +25,7 @@
 #include <smooth/core/network/Socket.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/regular/responses/IRequestResponeOperation.h>
+#include <smooth/application/network/http/regular/responses/IResponeOperation.h>
 
 namespace secure_socket_test
 {

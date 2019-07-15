@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "responses/IRequestResponeOperation.h"
-#include "IServerResponse.h"
 #include <memory>
+#include "smooth/application/network/http/IResponseOperation.h"
 #include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include "IServerResponse.h"
 
 namespace smooth::application::network::http::regular
 {

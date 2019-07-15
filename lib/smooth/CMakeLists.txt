@@ -38,6 +38,7 @@ set(SOURCES
         application/network/http/regular/responses/StringResponse.cpp
         application/network/http/regular/responses/HeaderOnlyResponse.cpp
         application/network/http/regular/TemplateProcessor.cpp
+        application/network/http/websocket/responses/WSResponse.cpp
         application/network/http/websocket/WebsocketProtocol.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
@@ -94,12 +95,12 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
+        include/smooth/application/network/http/IResponseOperation.h
         include/smooth/application/network/http/regular/RegularHTTPProtocol.h
         include/smooth/application/network/http/regular/TemplateProcessor.h
         include/smooth/application/network/http/regular/ITemplateDataRetriever.h
         include/smooth/application/network/http/regular/responses/ErrorResponse.h
         include/smooth/application/network/http/regular/responses/FileContentResponse.h
-        include/smooth/application/network/http/regular/responses/IRequestResponeOperation.h
         include/smooth/application/network/http/regular/responses/StringResponse.h
         include/smooth/application/network/http/websocket/WebsocketProtocol.h
         include/smooth/application/network/mqtt/event/BaseEvent.h

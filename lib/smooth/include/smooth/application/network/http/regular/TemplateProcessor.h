@@ -32,7 +32,7 @@ namespace smooth::application::network::http::regular
             explicit TemplateProcessor(std::set<std::string> template_files,
                                        const ITemplateDataRetriever& data_retriever);
 
-            std::unique_ptr<smooth::application::network::http::regular::responses::IRequestResponseOperation>
+            std::unique_ptr<smooth::application::network::http::IResponseOperation>
             process_template(const smooth::core::filesystem::Path& path);
 
 #ifndef EXPOSE_PRIVATE_PARTS_FOR_TEST

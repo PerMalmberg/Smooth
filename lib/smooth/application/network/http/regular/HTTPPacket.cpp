@@ -14,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <smooth/application/network/http/regular/HTTPPacket.h>
+#include <smooth/application/network/http/HTTPPacket.h>
 
 #include <string>
 #include <unordered_map>
 #include <algorithm>
 #include <smooth/application/network/http/http_utils.h>
 
-namespace smooth::application::network::http::regular
+namespace smooth::application::network::http
 {
+    using namespace smooth::application::network::http::regular;
+
     HTTPPacket::HTTPPacket(ResponseCode code, const std::string& version,
                            const std::unordered_map<std::string, std::string>& new_headers,
                            const std::vector<uint8_t>& response_content)

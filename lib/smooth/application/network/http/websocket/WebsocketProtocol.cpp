@@ -157,6 +157,8 @@ namespace smooth::application::network::http::websocket
             // Resize buffer to deliver exactly the number of received bytes to the application.
             using vector_type = std::remove_reference<decltype(packet.data())>::type;
             packet.data().resize(static_cast<vector_type::size_type>(received_payload_in_current_package));
+
+            set_message_properties(packet);
         }
     }
 
@@ -183,7 +185,6 @@ namespace smooth::application::network::http::websocket
         return received_payload == payload_length
                || received_payload_in_current_package ==
                   static_cast<decltype(received_payload_in_current_package)>(content_chunk_size);
-
     }
 
     bool WebsocketProtocol::is_error()
@@ -213,5 +214,20 @@ namespace smooth::application::network::http::websocket
         payload_length = 0;
         received_payload = 0;
         received_payload_in_current_package = 0;
+    }
+
+    void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
+    {
+        if(op_code == OpCode::Continuation)
+        {
+            packet.set_continuation();
+        }
+
+        if(!fin)
+        {
+            packet.set_continued();
+        }
+
+        packet.set_ws_control_code(op_code);
     }
 }

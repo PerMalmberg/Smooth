@@ -40,10 +40,10 @@ namespace smooth::application::network::http::regular
     {
     }
 
-    std::unique_ptr<responses::IRequestResponseOperation>
+    std::unique_ptr<IResponseOperation>
     TemplateProcessor::process_template(const smooth::core::filesystem::Path& path)
     {
-        std::unique_ptr<responses::IRequestResponseOperation> res{};
+        std::unique_ptr<IResponseOperation> res{};
 
         const auto& ext = path.extension();
         bool is_template_file = template_files.find(ext) != template_files.end();

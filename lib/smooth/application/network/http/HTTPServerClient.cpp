@@ -15,10 +15,14 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/application/network/http/HTTPServerClient.h>
+#include <smooth/application/network/http/IResponseOperation.h>
+#include <smooth/application/network/http/websocket/responses/WSResponse.h>
 
 namespace smooth::application::network::http
 {
     static const char* tag = "HTTPServerClient";
+    using namespace websocket;
+    using namespace websocket::responses;
 
     void HTTPServerClient::event(
             const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
@@ -42,19 +46,19 @@ namespace smooth::application::network::http
             std::vector<uint8_t> data;
             auto res = current_operation->get_data(content_chunk_size, data);
 
-            if (res == responses::ResponseStatus::Error)
+            if (res == ResponseStatus::Error)
             {
                 Log::error(tag, "Current operation reported error, closing server client.");
                 this->close();
             }
-            else if (res == responses::ResponseStatus::EndOfData)
+            else if (res == ResponseStatus::EndOfData)
             {
                 current_operation.reset();
                 // Immediately send next
                 send_first_part();
             }
-            else if (res == responses::ResponseStatus::HasMoreData
-                     || res == responses::ResponseStatus::LastData)
+            else if (res == ResponseStatus::HasMoreData
+                     || res == ResponseStatus::LastData)
             {
                 HTTPPacket p{data};
                 auto& tx = this->get_buffers()->get_tx_buffer();
@@ -140,7 +144,7 @@ namespace smooth::application::network::http
 
 
     void HTTPServerClient::reply(
-            std::unique_ptr<responses::IRequestResponseOperation> response)
+            std::unique_ptr<IResponseOperation> response)
     {
         using namespace std::chrono;
         const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
@@ -158,7 +162,7 @@ namespace smooth::application::network::http
         }
     }
 
-    void HTTPServerClient::reply_error(std::unique_ptr<responses::IRequestResponseOperation> response)
+    void HTTPServerClient::reply_error(std::unique_ptr<IResponseOperation> response)
     {
         operations.clear();
         response->add_header(CONNECTION, "close");
@@ -189,19 +193,27 @@ namespace smooth::application::network::http
             std::vector<uint8_t> data{};
             auto res = current_operation->get_data(content_chunk_size, data);
 
-            if (res == responses::ResponseStatus::Error)
+            if (res == ResponseStatus::Error)
             {
                 Log::error(tag, "Current operation reported error, closing server client.");
                 this->close();
             }
             else
             {
-                // Whether or not everything is sent, send the current (possibly header-only) packet.
-                HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
                 auto& tx = this->get_buffers()->get_tx_buffer();
-                tx.put(p);
+                if(mode == Mode::HTTP)
+                {
+                    // Whether or not everything is sent, send the current (possibly header-only) packet.
+                    HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                    tx.put(p);
+                }
+                else
+                {
+                    HTTPPacket p{data};
+                    tx.put(p);
+                }
 
-                if (res == responses::ResponseStatus::EndOfData)
+                if (res == ResponseStatus::EndOfData)
                 {
                     current_operation.reset();
                     // Immediately send next
@@ -306,7 +318,7 @@ namespace smooth::application::network::http
                     else
                     {
                         // Unsupported method.
-                        reply(std::make_unique<responses::StringResponse>(ResponseCode::Method_Not_Allowed));
+                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed));
                     }
                 }
             }
@@ -318,16 +330,36 @@ namespace smooth::application::network::http
         typename HTTPProtocol::packet_type packet;
         if (event.get(packet))
         {
-            Log::info(tag, Format("Size: {1}", UInt64(packet.data().size())));
-            for(auto& c : packet.data())
+            auto ws_op = packet.ws_control_code();
+            if(ws_op >= WebsocketProtocol::OpCode::Close)
             {
-                std::cout << (char)c;
+                if(ws_op == WebsocketProtocol::OpCode::Close)
+                {
+                    close();
+                }
+                else if(ws_op == WebsocketProtocol::OpCode::Ping)
+                {
+                    // Reply with a ping
+                    reply(std::make_unique<WSResponse>(WebsocketProtocol::OpCode::Pong));
+                }
             }
-            std::cout << std::endl;
-            bool first_packet = !packet.is_continuation();
-            //bool last_packet = !packet.is_continued();
-            (void)first_packet;
+            else
+            {
+                Log::info(tag, Format("Size: {1}", UInt64(packet.data().size())));
+                for (auto& c : packet.data())
+                {
+                    std::cout << (char) c;
+                }
+                std::cout << std::endl;
+                bool first_packet = !packet.is_continuation();
+                bool last_packet = !packet.is_continued();
+                (void) first_packet;
+
+                if(last_packet)
+                {
+                    reply(std::make_unique<WSResponse>("From server!!!!"));
+                }
+            }
         }
     }
-
 }

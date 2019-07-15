@@ -30,16 +30,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#pragma once
+
 #include <smooth/core/network/IPacketAssembly.h>
-#include <smooth/application/network/http/regular/HTTPPacket.h>
 #include <smooth/application/network/http/regular/IServerResponse.h>
+
+namespace smooth::application::network::http
+{
+    class HTTPPacket;
+}
 
 namespace smooth::application::network::http::websocket
 {
     class WebsocketProtocol
-            : public smooth::core::network::IPacketAssembly<WebsocketProtocol, regular::HTTPPacket>
+    : public smooth::core::network::IPacketAssembly<WebsocketProtocol, smooth::application::network::http::HTTPPacket>
     {
-            using packet_type = regular::HTTPPacket;
+            using packet_type = smooth::application::network::http::HTTPPacket;
         public:
             WebsocketProtocol(int content_chunk_size, regular::IServerResponse& response)
                     : content_chunk_size(content_chunk_size),
@@ -47,19 +53,41 @@ namespace smooth::application::network::http::websocket
             {
             }
 
-            int get_wanted_amount(regular::HTTPPacket& packet) override;
+            int get_wanted_amount(HTTPPacket& packet) override;
 
-            void data_received(regular::HTTPPacket& packet, int length) override;
+            void data_received(HTTPPacket& packet, int length) override;
 
-            uint8_t* get_write_pos(regular::HTTPPacket& packet) override;
+            uint8_t* get_write_pos(HTTPPacket& packet) override;
 
-            bool is_complete(regular::HTTPPacket& packet) const override;
+            bool is_complete(HTTPPacket& packet) const override;
 
             bool is_error() override;
 
             void packet_consumed() override;
 
             void reset() override;
+
+            enum class OpCode
+            {
+                    Continuation,
+                    Text,
+                    Binary,
+                    Reserved3,
+                    Reserved4,
+                    Reserved5,
+                    Reserved6,
+                    Reserved7,
+                    // Control frames below (MSB is set)
+                            Close,
+                    Ping,
+                    Pong,
+                    ReservedA,
+                    ReservedB,
+                    ReservedC,
+                    ReservedD,
+                    ReservedE,
+                    ReservedF,
+            };
 
         private:
             enum class State
@@ -70,29 +98,6 @@ namespace smooth::application::network::http::websocket
                     MaskingKey,
                     Payload
             };
-
-            enum class OpCode
-            {
-                Continuation,
-                Text,
-                Binary,
-                Reserved3,
-                Reserved4,
-                Reserved5,
-                Reserved6,
-                Reserved7,
-                // Control frames below (MSB is set)
-                Close,
-                Ping,
-                Pong,
-                ReservedA,
-                ReservedB,
-                ReservedC,
-                ReservedD,
-                ReservedE,
-                ReservedF,
-            };
-
 
             State state{State::Header};
 
@@ -113,5 +118,7 @@ namespace smooth::application::network::http::websocket
 
             std::array<uint8_t, 4> mask_key{};
             std::array<uint8_t, 11> frame_data{};
+
+            void set_message_properties(HTTPPacket& packet);
     };
 }

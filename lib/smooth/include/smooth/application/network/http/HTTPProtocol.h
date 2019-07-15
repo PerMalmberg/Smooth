@@ -23,7 +23,7 @@
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/core/util/string_util.h>
-#include "regular/HTTPPacket.h"
+#include "HTTPPacket.h"
 #include "regular/HTTPHeaderDef.h"
 #include "regular/IServerResponse.h"
 #include "regular/RegularHTTPProtocol.h"

@@ -22,11 +22,12 @@
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
 #include "regular/IRequestHandler.h"
 #include "regular/MIMEParser.h"
 #include "URLEncoding.h"
 #include "regular/IServerResponse.h"
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include "IResponseOperation.h"
 
 namespace smooth::application::network::http
 {
@@ -77,9 +78,9 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply(std::unique_ptr<IResponseOperation> response) override;
 
-            void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply_error(std::unique_ptr<IResponseOperation> response) override;
 
             void upgrade_to_websocket() override;
 
@@ -110,8 +111,8 @@ namespace smooth::application::network::http
             std::unordered_map<std::string, std::string> request_headers{};
             std::string requested_url{};
             URLEncoding encoding{};
-            std::deque<std::unique_ptr<responses::IRequestResponseOperation>> operations{};
-            std::unique_ptr<responses::IRequestResponseOperation> current_operation{};
+            std::deque<std::unique_ptr<IResponseOperation>> operations{};
+            std::unique_ptr<IResponseOperation> current_operation{};
             MIMEParser mime{};
 
             void set_keep_alive();

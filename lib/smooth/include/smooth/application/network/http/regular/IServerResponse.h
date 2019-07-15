@@ -17,7 +17,7 @@
 #pragma once
 
 #include <memory>
-#include "responses/IRequestResponeOperation.h"
+#include "smooth/application/network/http/IResponseOperation.h"
 
 namespace smooth::application::network::http::regular
 {
@@ -26,8 +26,8 @@ namespace smooth::application::network::http::regular
         public:
             virtual ~IServerResponse() = default;
 
-            virtual void reply(std::unique_ptr<regular::responses::IRequestResponseOperation> response) = 0;
-            virtual void reply_error(std::unique_ptr<regular::responses::IRequestResponseOperation> response) = 0;
+            virtual void reply(std::unique_ptr<IResponseOperation> response) = 0;
+            virtual void reply_error(std::unique_ptr<IResponseOperation> response) = 0;
             virtual void upgrade_to_websocket() = 0;
     };
 }

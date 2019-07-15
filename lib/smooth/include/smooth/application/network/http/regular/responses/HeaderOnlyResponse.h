@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "IRequestResponeOperation.h"
+#include <smooth/application/network/http/IResponseOperation.h>
 
 namespace smooth::application::network::http::regular::responses
 {
     class HeaderOnlyResponse
-            : public IRequestResponseOperation
+            : public IResponseOperation
     {
         public:
             explicit HeaderOnlyResponse(ResponseCode code);
@@ -34,12 +34,6 @@ namespace smooth::application::network::http::regular::responses
 
             ResponseCode get_response_code() override;
 
-            // Called once when beginning to send a response.
-            const std::unordered_map<std::string, std::string>& get_headers() const override
-            {
-                return headers;
-            };
-
             // Called at least once when sending a response and until ResponseStatus::AllSent is returned
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
@@ -49,7 +43,6 @@ namespace smooth::application::network::http::regular::responses
             void dump() const override;
 
         protected:
-            std::unordered_map<std::string, std::string> headers{};
             ResponseCode code;
     };
 }

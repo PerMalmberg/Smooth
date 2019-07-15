@@ -186,7 +186,7 @@ namespace smooth::application::network::http
             smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
 
             void
-            reply_with(IServerResponse& response, std::unique_ptr<responses::IRequestResponseOperation> res);
+            reply_with(IServerResponse& response, std::unique_ptr<IResponseOperation> res);
 
             smooth::core::Task& task;
             std::shared_ptr<smooth::core::network::ServerSocket<
@@ -368,7 +368,7 @@ namespace smooth::application::network::http
 
     template<typename ServerType>
     void HTTPServer<ServerType>::reply_with(IServerResponse& response,
-                                            std::unique_ptr<responses::IRequestResponseOperation> res)
+                                            std::unique_ptr<IResponseOperation> res)
     {
         Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));
         response.reply(std::move(res));
