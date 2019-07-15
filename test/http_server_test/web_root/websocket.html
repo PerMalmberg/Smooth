@@ -13,7 +13,7 @@
             });
 
             socket.addEventListener('close', function(event) {
-                console.log("Disconnected");
+                console.log("Disconnected: " + event.reason);
             });
 
             // Listen for messages

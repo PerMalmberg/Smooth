@@ -138,17 +138,25 @@ namespace smooth::application::network::http::websocket
         }
         else
         {
-            auto len = static_cast<decltype(received_payload)>(length);
+            auto len = static_cast<decltype(received_payload_in_current_package)>(length);
             if (masked)
             {
                 for (auto i = 0u; i < len; ++i)
                 {
-                    packet.data()[received_payload_in_current_package + i] =
-                            packet.data()[received_payload + i] ^ mask_key[(received_payload + i) % 4];
+                    packet.data()[i] = packet.data()[received_payload_in_current_package + i] ^
+                                       (mask_key[(received_payload + i) % 4]);
                 }
             }
+
             received_payload += len;
             received_payload_in_current_package += len;
+        }
+
+        if (is_complete(packet))
+        {
+            // Resize buffer to deliver exactly the number of received bytes to the application.
+            using vector_type = std::remove_reference<decltype(packet.data())>::type;
+            packet.data().resize(static_cast<vector_type::size_type>(received_payload_in_current_package));
         }
     }
 
@@ -172,10 +180,9 @@ namespace smooth::application::network::http::websocket
 
     bool WebsocketProtocol::is_complete(HTTPPacket& /*packet*/) const
     {
-        return state == State::Payload && (
-                received_payload == payload_length
-                || received_payload_in_current_package ==
-                   static_cast<decltype(received_payload_in_current_package)>(content_chunk_size));
+        return received_payload == payload_length
+               || received_payload_in_current_package ==
+                  static_cast<decltype(received_payload_in_current_package)>(content_chunk_size);
 
     }
 
@@ -188,6 +195,14 @@ namespace smooth::application::network::http::websocket
     {
         error = false;
         received_payload_in_current_package = 0;
+
+        if (error || received_payload >= payload_length)
+        {
+            // All parts received
+            received_payload = 0;
+            total_byte_count = 0;
+            state = State::Header;
+        }
     }
 
     void WebsocketProtocol::reset()
@@ -199,5 +214,4 @@ namespace smooth::application::network::http::websocket
         received_payload = 0;
         received_payload_in_current_package = 0;
     }
-
 }

@@ -61,6 +61,9 @@ namespace smooth::application::network::http
             void
             event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event) override;
 
+            void http_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
+            void websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
+
             void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override;
 
             void disconnected() override;
@@ -86,6 +89,14 @@ namespace smooth::application::network::http
             }
 
         private:
+            enum class Mode
+            {
+                    HTTP,
+                    Websocket
+            };
+
+            Mode mode{Mode::HTTP};
+
             bool parse_url(std::string& raw_url);
 
             void separate_request_parameters(std::string& url);

@@ -23,56 +23,15 @@ namespace smooth::application::network::http
     void HTTPServerClient::event(
             const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
-        typename HTTPProtocol::packet_type packet;
-        if (event.get(packet))
+        if(mode == Mode::HTTP)
         {
-            bool first_packet = !packet.is_continuation();
-            bool last_packet = !packet.is_continued();
-
-            bool res = true;
-
-            if (first_packet)
-            {
-                // First packet, parse URL etc.
-                request_headers.clear();
-                std::swap(request_headers, packet.headers());
-                requested_url = packet.get_request_url();
-                res = parse_url(requested_url);
-                set_keep_alive();
-
-                mime.reset();
-            }
-
-            if (res)
-            {
-                auto* context = this->get_client_context();
-
-                if (context)
-                {
-                    HTTPMethod method{};
-                    if (translate_method(packet, method))
-                    {
-                        context->handle(method,
-                                        *this,
-                                        *this,
-                                        requested_url,
-                                        request_headers,
-                                        request_parameters,
-                                        packet.get_buffer(),
-                                        mime,
-                                        first_packet,
-                                        last_packet);
-                    }
-                    else
-                    {
-                        // Unsupported method.
-                        reply(std::make_unique<responses::StringResponse>(ResponseCode::Method_Not_Allowed));
-                    }
-                }
-            }
+            http_event(event);
+        }
+        else
+        {
+            websocket_event(event);
         }
     }
-
 
     void
     HTTPServerClient::event(
@@ -111,7 +70,6 @@ namespace smooth::application::network::http
 
     void HTTPServerClient::disconnected()
     {
-
     }
 
 
@@ -125,6 +83,7 @@ namespace smooth::application::network::http
     {
         operations.clear();
         current_operation.reset();
+        mode = Mode::HTTP;
     }
 
 
@@ -215,6 +174,7 @@ namespace smooth::application::network::http
         // Don't clear TX buffer - the upgrade response is being sent.
         container->get_rx_buffer().clear();
         container->get_protocol().upgrade_to_websocket();
+        mode = Mode::Websocket;
     }
 
     void HTTPServerClient::send_first_part()
@@ -300,4 +260,74 @@ namespace smooth::application::network::http
             }
         }
     }
+
+    void HTTPServerClient::http_event(const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
+    {
+        typename HTTPProtocol::packet_type packet;
+        if (event.get(packet))
+        {
+            bool first_packet = !packet.is_continuation();
+            bool last_packet = !packet.is_continued();
+
+            bool res = true;
+
+            if (first_packet)
+            {
+                // First packet, parse URL etc.
+                request_headers.clear();
+                std::swap(request_headers, packet.headers());
+                requested_url = packet.get_request_url();
+                res = parse_url(requested_url);
+                set_keep_alive();
+
+                mime.reset();
+            }
+
+            if (res)
+            {
+                auto* context = this->get_client_context();
+
+                if (context)
+                {
+                    HTTPMethod method{};
+                    if (translate_method(packet, method))
+                    {
+                        context->handle(method,
+                                        *this,
+                                        *this,
+                                        requested_url,
+                                        request_headers,
+                                        request_parameters,
+                                        packet.get_buffer(),
+                                        mime,
+                                        first_packet,
+                                        last_packet);
+                    }
+                    else
+                    {
+                        // Unsupported method.
+                        reply(std::make_unique<responses::StringResponse>(ResponseCode::Method_Not_Allowed));
+                    }
+                }
+            }
+        }
+    }
+
+    void HTTPServerClient::websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event)
+    {
+        typename HTTPProtocol::packet_type packet;
+        if (event.get(packet))
+        {
+            Log::info(tag, Format("Size: {1}", UInt64(packet.data().size())));
+            for(auto& c : packet.data())
+            {
+                std::cout << (char)c;
+            }
+            std::cout << std::endl;
+            bool first_packet = !packet.is_continuation();
+            //bool last_packet = !packet.is_continued();
+            (void)first_packet;
+        }
+    }
+
 }
