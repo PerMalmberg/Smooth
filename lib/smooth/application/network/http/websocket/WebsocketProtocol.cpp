@@ -218,12 +218,12 @@ namespace smooth::application::network::http::websocket
 
     void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
     {
-        if(op_code == OpCode::Continuation)
+        if (op_code == OpCode::Continuation)
         {
             packet.set_continuation();
         }
 
-        if(!fin)
+        if (!fin)
         {
             packet.set_continued();
         }

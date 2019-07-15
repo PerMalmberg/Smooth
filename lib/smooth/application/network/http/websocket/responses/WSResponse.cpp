@@ -40,14 +40,37 @@ namespace smooth::application::network::http::websocket::responses
         auto res{ResponseStatus::EndOfData};
 
         auto remaining = std::distance(data.begin(), data.end());
+
         if (remaining > 0)
         {
             auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);
             auto begin = data.begin();
             auto end = data.begin() + static_cast<long>(to_send);
 
-            std::copy(std::make_move_iterator(begin), std::make_move_iterator(end),
-                      std::back_inserter(target));
+            auto more_to_send = to_send < data.size();
+
+            if (!first_frame)
+            {
+                op_code = WebsocketProtocol::OpCode::Continuation;
+            }
+
+            first_frame = false;
+
+            if (more_to_send)
+            {
+                auto val = static_cast<uint8_t>(op_code);
+                target.emplace_back(val);
+            }
+            else
+            {
+                // Set fin-bit
+                auto val = 0x80 | static_cast<uint8_t>(op_code);
+                target.emplace_back(val);
+            }
+
+            set_length(to_send, target);
+
+            std::copy(begin, end, std::back_inserter(target));
             data.erase(begin, end);
 
             // Anything still left?
@@ -59,44 +82,39 @@ namespace smooth::application::network::http::websocket::responses
     }
 
     WSResponse::WSResponse(WebsocketProtocol::OpCode code)
+            : op_code(code)
     {
-        // Set fin-bit
-        auto val = 0x80 | static_cast<uint8_t>(code);
-        data.emplace_back(val);
-        // No payload.
-        data.emplace_back(0);
     }
 
     WSResponse::WSResponse(const std::string& text)
+            : op_code(WebsocketProtocol::OpCode::Text)
     {
-        auto val = 0x80 | static_cast<uint8_t>(WebsocketProtocol::OpCode::Text);
-        data.emplace_back(val);
-        if(text.size() <= 125)
+        std::copy(std::make_move_iterator(text.begin()), std::make_move_iterator(text.end()), std::back_inserter(data));
+    }
+
+    void WSResponse::set_length(uint64_t len, std::vector<uint8_t>& buff) const
+    {
+        if (len <= 125)
         {
-            data.emplace_back(text.size());
+            buff.emplace_back(len);
         }
-        else if(text.size() > std::numeric_limits<uint16_t>::max())
+        else if (len > std::numeric_limits<uint16_t>::max())
         {
             std::array<uint8_t, 8> size{};
             auto p = reinterpret_cast<uint64_t*>(&size[0]);
-            *p = static_cast<uint64_t>(text.size());
+            *p = static_cast<uint64_t>(len);
             *p = smooth::core::network::hton(*p);
-            data.emplace_back(127);
-            std::copy(size.begin(), size.end(), std::back_inserter(data));
-            data.emplace_back(text.size());
+            buff.emplace_back(127);
+            std::copy(size.begin(), size.end(), std::back_inserter(buff));
         }
         else
         {
             std::array<uint8_t, 2> size{};
             auto p = reinterpret_cast<uint16_t*>(&size[0]);
-            *p = static_cast<uint16_t>(text.size());
+            *p = static_cast<uint16_t>(len);
             *p = smooth::core::network::hton(*p);
-            data.emplace_back(126);
-            std::copy(size.begin(), size.end(), std::back_inserter(data));
-            data.emplace_back(text.size());
+            buff.emplace_back(126);
+            std::copy(size.begin(), size.end(), std::back_inserter(buff));
         }
-
-
-        std::copy(text.begin(), text.end(), std::back_inserter(data));
     }
 }

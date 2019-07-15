@@ -27,7 +27,7 @@ namespace smooth::application::network::http
     void HTTPServerClient::event(
             const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
-        if(mode == Mode::HTTP)
+        if (mode == Mode::HTTP)
         {
             http_event(event);
         }
@@ -201,7 +201,7 @@ namespace smooth::application::network::http
             else
             {
                 auto& tx = this->get_buffers()->get_tx_buffer();
-                if(mode == Mode::HTTP)
+                if (mode == Mode::HTTP)
                 {
                     // Whether or not everything is sent, send the current (possibly header-only) packet.
                     HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
@@ -331,13 +331,13 @@ namespace smooth::application::network::http
         if (event.get(packet))
         {
             auto ws_op = packet.ws_control_code();
-            if(ws_op >= WebsocketProtocol::OpCode::Close)
+            if (ws_op >= WebsocketProtocol::OpCode::Close)
             {
-                if(ws_op == WebsocketProtocol::OpCode::Close)
+                if (ws_op == WebsocketProtocol::OpCode::Close)
                 {
                     close();
                 }
-                else if(ws_op == WebsocketProtocol::OpCode::Ping)
+                else if (ws_op == WebsocketProtocol::OpCode::Ping)
                 {
                     // Reply with a ping
                     reply(std::make_unique<WSResponse>(WebsocketProtocol::OpCode::Pong));
@@ -350,12 +350,13 @@ namespace smooth::application::network::http
                 {
                     std::cout << (char) c;
                 }
+
                 std::cout << std::endl;
                 bool first_packet = !packet.is_continuation();
                 bool last_packet = !packet.is_continued();
                 (void) first_packet;
 
-                if(last_packet)
+                if (last_packet)
                 {
                     reply(std::make_unique<WSResponse>("From server!!!!"));
                 }
