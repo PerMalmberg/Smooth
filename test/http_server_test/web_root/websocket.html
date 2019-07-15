@@ -22,15 +22,29 @@
             });
         }
 
-        function send() {
-            socket.send("Hello!");
+        function send_short() {
+            let s = "A".repeat(124);
+            socket.send(s + "-");
+        }
+
+        function send_65k() {
+            let s = "B".repeat(65534);
+            socket.send(s + "-");
+        }
+
+        function send_80k() {
+            let s = "C".repeat(79999);
+            socket.send(s + "-");
         }
 
     </script>
 </head>
 <body>
     <button onclick="connect();">Connect</button>
-    <button onclick="send();">Send</button>
+    <button onclick="send_short();">Send short</button>
+    <button onclick="send_65k();">Send 65k</button>
+    <button onclick="send_80k();">Send 80k</button>
+
 
 </body>
 </html>

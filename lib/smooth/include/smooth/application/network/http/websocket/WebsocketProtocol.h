@@ -107,9 +107,9 @@ namespace smooth::application::network::http::websocket
 
             bool error{false};
             int total_byte_count{0};
-            int payload_length{0};
-            int received_payload{0};
-            int decode_index{0};
+            uint64_t payload_length{0};
+            uint64_t received_payload{0};
+            uint64_t received_payload_in_current_package{0};
 
             std::array<uint8_t, 4> mask_key{};
             std::array<uint8_t, 11> frame_data{};

@@ -19,6 +19,7 @@
 #include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 #include <smooth/application/network/http/regular/RegularHTTPProtocol.h>
 #include <smooth/application/network/http/regular/responses/ErrorResponse.h>
+#include <smooth/core/network/util.h>
 
 // https://tools.ietf.org/html/rfc6455#section-5.2
 
@@ -47,6 +48,7 @@
 namespace smooth::application::network::http::websocket
 {
     using namespace smooth::core;
+    using namespace smooth::core::network;
     using namespace smooth::application::network::http::regular;
 
     int WebsocketProtocol::get_wanted_amount(HTTPPacket& packet)
@@ -62,7 +64,7 @@ namespace smooth::application::network::http::websocket
         }
         else if (state == State::ExtendedPayloadLength_8)
         {
-            len = 2;
+            len = 8;
         }
         else if (state == State::MaskingKey)
         {
@@ -70,8 +72,16 @@ namespace smooth::application::network::http::websocket
         }
         else
         {
-            packet.ensure_room(payload_length);
-            len = payload_length - received_payload;
+            // Websockets can use up to 64 bits (well, 63 since MSB MUST always be 0,
+            // see https://tools.ietf.org/html/rfc6455#section-5.2) bits to specify the size.
+            // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
+
+            // First get the maximum number of bytes to read, this limits the value to fit in the type of
+            // content_chunk_size, making the following cast safe too.
+            auto size = std::min(payload_length - received_payload,
+                                 static_cast<decltype(payload_length)>(content_chunk_size));
+            len = static_cast<decltype(content_chunk_size)>(size);
+            packet.ensure_room(len);
         }
 
         return len;
@@ -101,9 +111,7 @@ namespace smooth::application::network::http::websocket
             }
             else if (payload_length == 127)
             {
-                // Can't handle such large data.
-                Log::error("WebsocketProtocol", "Too large data size");
-                error = true;
+                state = State::ExtendedPayloadLength_8;
             }
             else if (masked)
             {
@@ -111,35 +119,36 @@ namespace smooth::application::network::http::websocket
             }
             else
             {
-                decode_index = 0;
                 state = State::Payload;
             }
         }
         else if (state == State::ExtendedPayloadLength_2)
         {
-            auto len = reinterpret_cast<uint16_t*>(&frame_data[2]);
-            payload_length = *len;
+            payload_length = ntoh(*reinterpret_cast<uint16_t*>(&frame_data[2]));
+            state = State::MaskingKey;
         }
         else if (state == State::ExtendedPayloadLength_8)
         {
-            //auto len = reinterpret_cast<uint64_t*>(&frame_data[2]);
-            //payload_length = *len;
+            payload_length = ntoh(*reinterpret_cast<uint64_t*>(&frame_data[2]));
+            state = State::MaskingKey;
         }
         else if (state == State::MaskingKey)
         {
-            decode_index = 0;
             state = State::Payload;
         }
         else
         {
+            auto len = static_cast<decltype(received_payload)>(length);
             if (masked)
             {
-                for (auto i = static_cast<unsigned long>(received_payload); i < static_cast<unsigned long>(received_payload + length); ++i)
+                for (auto i = 0u; i < len; ++i)
                 {
-                    packet.data()[i] = packet.data()[i] ^ mask_key[i % 4];
+                    packet.data()[received_payload_in_current_package + i] =
+                            packet.data()[received_payload + i] ^ mask_key[(received_payload + i) % 4];
                 }
             }
-            received_payload += length;
+            received_payload += len;
+            received_payload_in_current_package += len;
         }
     }
 
@@ -157,13 +166,17 @@ namespace smooth::application::network::http::websocket
         }
         else
         {
-            return packet.data().data() + received_payload;
+            return packet.data().data() + received_payload_in_current_package;
         }
     }
 
     bool WebsocketProtocol::is_complete(HTTPPacket& /*packet*/) const
     {
-        return state == State::Payload && received_payload == payload_length;
+        return state == State::Payload && (
+                received_payload == payload_length
+                || received_payload_in_current_package ==
+                   static_cast<decltype(received_payload_in_current_package)>(content_chunk_size));
+
     }
 
     bool WebsocketProtocol::is_error()
@@ -174,6 +187,7 @@ namespace smooth::application::network::http::websocket
     void WebsocketProtocol::packet_consumed()
     {
         error = false;
+        received_payload_in_current_package = 0;
     }
 
     void WebsocketProtocol::reset()
@@ -183,6 +197,7 @@ namespace smooth::application::network::http::websocket
         total_byte_count = 0;
         payload_length = 0;
         received_payload = 0;
+        received_payload_in_current_package = 0;
     }
 
 }
