@@ -43,7 +43,7 @@ namespace smooth::application::network::http
 namespace smooth::application::network::http::websocket
 {
     class WebsocketProtocol
-    : public smooth::core::network::IPacketAssembly<WebsocketProtocol, smooth::application::network::http::HTTPPacket>
+            : public smooth::core::network::IPacketAssembly<WebsocketProtocol, smooth::application::network::http::HTTPPacket>
     {
             using packet_type = smooth::application::network::http::HTTPPacket;
         public:
@@ -89,6 +89,42 @@ namespace smooth::application::network::http::websocket
                     ReservedF,
             };
 
+            /* https://tools.ietf.org/html/rfc6455#section-5.2
+
+              0                   1                   2                   3
+              0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+             +-+-+-+-+-------+-+-------------+-------------------------------+
+             |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+             |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+             |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+             | |1|2|3|       |K|             |                               |
+             +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+             |     Extended payload length continued, if payload len == 127  |
+             + - - - - - - - - - - - - - - - +-------------------------------+
+             |                               |Masking-key, if MASK set to 1  |
+             +-------------------------------+-------------------------------+
+             | Masking-key (continued)       |          Payload Data         |
+             +-------------------------------- - - - - - - - - - - - - - - - +
+             :                     Payload Data continued ...                :
+             + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+             |                     Payload Data continued ...                |
+             +---------------------------------------------------------------+ */
+
+#pragma pack(push, 1)
+            struct FrameData
+            {
+                uint8_t header[2];
+                union
+                {
+                    uint16_t len_16;
+                    uint64_t len_64;
+                } ext_len;
+                uint8_t mask_key[4];
+            };
+
+            FrameData frame_data{};
+#pragma pack(pop)
+
         private:
             enum class State
             {
@@ -102,12 +138,7 @@ namespace smooth::application::network::http::websocket
             State state{State::Header};
 
             int content_chunk_size;
-            bool fin{false};
-            bool RSV1{false};
-            bool RSV2{false};
-            bool RSV3{false};
             OpCode op_code{OpCode::Continuation};
-            bool masked{false};
             regular::IServerResponse& response;
 
             bool error{false};
@@ -116,9 +147,14 @@ namespace smooth::application::network::http::websocket
             uint64_t received_payload{0};
             uint64_t received_payload_in_current_package{0};
 
-            std::array<uint8_t, 4> mask_key{};
-            std::array<uint8_t, 11> frame_data{};
-
             void set_message_properties(HTTPPacket& packet);
+
+            uint64_t get_initial_payload_length() const;
+
+            int is_data_masked() const;
+
+            OpCode get_opcode() const;
+
+            bool is_fin_frame() const;
     };
 }

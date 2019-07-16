@@ -100,21 +100,15 @@ namespace smooth::application::network::http::websocket::responses
         }
         else if (len > std::numeric_limits<uint16_t>::max())
         {
-            std::array<uint8_t, 8> size{};
-            auto p = reinterpret_cast<uint64_t*>(&size[0]);
-            *p = static_cast<uint64_t>(len);
-            *p = smooth::core::network::hton(*p);
+            auto size = smooth::core::network::hton(len);
             buff.emplace_back(127);
-            std::copy(size.begin(), size.end(), std::back_inserter(buff));
+            std::copy(&size, &size + sizeof(size), std::back_inserter(buff));
         }
         else
         {
-            std::array<uint8_t, 2> size{};
-            auto p = reinterpret_cast<uint16_t*>(&size[0]);
-            *p = static_cast<uint16_t>(len);
-            *p = smooth::core::network::hton(*p);
+            auto size = static_cast<uint16_t>(smooth::core::network::hton(len));
             buff.emplace_back(126);
-            std::copy(size.begin(), size.end(), std::back_inserter(buff));
+            std::copy(&size, &size + sizeof(size), std::back_inserter(buff));
         }
     }
 }

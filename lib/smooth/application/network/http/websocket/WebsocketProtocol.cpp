@@ -21,30 +21,6 @@
 #include <smooth/application/network/http/regular/responses/ErrorResponse.h>
 #include <smooth/core/network/util.h>
 
-// https://tools.ietf.org/html/rfc6455#section-5.2
-
-/*
-  0                   1                   2                   3
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- +-+-+-+-+-------+-+-------------+-------------------------------+
- |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
- |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
- |N|V|V|V|       |S|             |   (if payload len==126/127)   |
- | |1|2|3|       |K|             |                               |
- +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
- |     Extended payload length continued, if payload len == 127  |
- + - - - - - - - - - - - - - - - +-------------------------------+
- |                               |Masking-key, if MASK set to 1  |
- +-------------------------------+-------------------------------+
- | Masking-key (continued)       |          Payload Data         |
- +-------------------------------- - - - - - - - - - - - - - - - +
- :                     Payload Data continued ...                :
- + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
- |                     Payload Data continued ...                |
- +---------------------------------------------------------------+
-
- */
-
 namespace smooth::application::network::http::websocket
 {
     using namespace smooth::core;
@@ -93,17 +69,9 @@ namespace smooth::application::network::http::websocket
 
         if (state == State::Header)
         {
-            std::bitset<8> first(frame_data[0]);
-            fin = first[7];
-            RSV1 = first[6];
-            RSV2 = first[5];
-            RSV3 = first[4];
-            op_code = static_cast<OpCode>((frame_data[0]) & 0x0F);
+            op_code = static_cast<OpCode>(get_opcode());
 
-            std::bitset<8> second(frame_data[1]);
-
-            masked = second[7];
-            payload_length = frame_data[1] & 0x7F;
+            payload_length = get_initial_payload_length();
 
             if (payload_length == 126)
             {
@@ -113,7 +81,7 @@ namespace smooth::application::network::http::websocket
             {
                 state = State::ExtendedPayloadLength_8;
             }
-            else if (masked)
+            else if (is_data_masked())
             {
                 state = State::MaskingKey;
             }
@@ -124,12 +92,12 @@ namespace smooth::application::network::http::websocket
         }
         else if (state == State::ExtendedPayloadLength_2)
         {
-            payload_length = ntoh(*reinterpret_cast<uint16_t*>(&frame_data[2]));
+            payload_length = ntoh(frame_data.ext_len.len_16);
             state = State::MaskingKey;
         }
         else if (state == State::ExtendedPayloadLength_8)
         {
-            payload_length = ntoh(*reinterpret_cast<uint64_t*>(&frame_data[2]));
+            payload_length = ntoh(frame_data.ext_len.len_64);
             state = State::MaskingKey;
         }
         else if (state == State::MaskingKey)
@@ -139,12 +107,15 @@ namespace smooth::application::network::http::websocket
         else
         {
             auto len = static_cast<decltype(received_payload_in_current_package)>(length);
-            if (masked)
+            if (is_data_masked())
             {
                 for (auto i = 0u; i < len; ++i)
                 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
                     packet.data()[i] = packet.data()[received_payload_in_current_package + i] ^
-                                       (mask_key[(received_payload + i) % 4]);
+                                       (frame_data.mask_key[(received_payload + i) % 4]);
+#pragma GCC diagnostic pop
                 }
             }
 
@@ -162,17 +133,34 @@ namespace smooth::application::network::http::websocket
         }
     }
 
+    WebsocketProtocol::OpCode WebsocketProtocol::get_opcode() const
+    {
+        return static_cast<WebsocketProtocol::OpCode>(frame_data.header[0] & 0x0F);
+    }
+
+    int WebsocketProtocol::is_data_masked() const
+    {
+        return frame_data.header[1] & 0x80;
+    }
+
+    uint64_t WebsocketProtocol::get_initial_payload_length() const
+    {
+        return frame_data.header[1] & 0x7F;
+    }
+
     uint8_t* WebsocketProtocol::get_write_pos(HTTPPacket& packet)
     {
-        if (state == State::Header
-            || state == State::ExtendedPayloadLength_2
-            || state == State::ExtendedPayloadLength_8)
+        if (state == State::Header)
         {
-            return frame_data.data() + total_byte_count;
+            return frame_data.header;
+        }
+        else if (state == State::ExtendedPayloadLength_2 || state == State::ExtendedPayloadLength_8)
+        {
+            return reinterpret_cast<uint8_t*>(&frame_data.ext_len);
         }
         else if (state == State::MaskingKey)
         {
-            return mask_key.data();
+            return frame_data.mask_key;
         }
         else
         {
@@ -182,9 +170,12 @@ namespace smooth::application::network::http::websocket
 
     bool WebsocketProtocol::is_complete(HTTPPacket& /*packet*/) const
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
         return received_payload == payload_length
                || received_payload_in_current_package ==
                   static_cast<decltype(received_payload_in_current_package)>(content_chunk_size);
+#pragma GCC diagnostic pop
     }
 
     bool WebsocketProtocol::is_error()
@@ -223,11 +214,16 @@ namespace smooth::application::network::http::websocket
             packet.set_continuation();
         }
 
-        if (!fin || received_payload < payload_length)
+        if (!(is_fin_frame()) || received_payload < payload_length)
         {
             packet.set_continued();
         }
 
         packet.set_ws_control_code(op_code);
+    }
+
+    bool WebsocketProtocol::is_fin_frame() const
+    {
+        return frame_data.header[0] & 0x80;
     }
 }
