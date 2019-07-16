@@ -26,7 +26,6 @@
         function send_short() {
             let s = "A".repeat(124);
             socket.send(s + "-");
-
         }
 
         function send_65k() {
@@ -39,6 +38,10 @@
             socket.send(s + "-");
         }
 
+        function send_custom() {
+            let s = "D".repeat(document.getElementById("custom_size").value);
+            socket.send(s);
+        }
     </script>
 </head>
 <body>
@@ -46,7 +49,10 @@
     <button onclick="send_short();">Send short</button>
     <button onclick="send_65k();">Send 65k</button>
     <button onclick="send_80k();">Send 80k</button>
-
-
+    <br/>
+    <br/>
+    <input type="number" id="custom_size"/>
+    <button onclick="send_custom();">Send custom size</button>
 </body>
 </html>
+

@@ -10,6 +10,7 @@ include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
 set(selected_test_project http_server_test)
 
 list(APPEND available_tests hello_world
+                            asan_test
                             logging
                             json_test
                             mqtt
