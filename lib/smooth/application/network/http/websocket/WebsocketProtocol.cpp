@@ -152,7 +152,7 @@ namespace smooth::application::network::http::websocket
     {
         if (state == State::Header)
         {
-            return frame_data.header;
+            return frame_data.header + total_byte_count;
         }
         else if (state == State::ExtendedPayloadLength_2 || state == State::ExtendedPayloadLength_8)
         {
@@ -172,9 +172,10 @@ namespace smooth::application::network::http::websocket
     {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-        return received_payload == payload_length
-               || received_payload_in_current_package ==
-                  static_cast<decltype(received_payload_in_current_package)>(content_chunk_size);
+        return state == State::Payload
+               && (received_payload == payload_length
+                   || received_payload_in_current_package ==
+                      static_cast<decltype(received_payload_in_current_package)>(content_chunk_size));
 #pragma GCC diagnostic pop
     }
 
