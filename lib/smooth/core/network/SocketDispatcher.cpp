@@ -125,7 +125,7 @@ namespace smooth::core::network
     void SocketDispatcher::set_timeout()
     {
         tv.tv_sec = 0;
-        tv.tv_usec = 1000;
+        tv.tv_usec = 10000;
     }
 
     void SocketDispatcher::clear_sets()
