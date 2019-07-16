@@ -16,25 +16,32 @@
 
 #pragma once
 
-#include <memory>
-#include "smooth/application/network/http/IResponseOperation.h"
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
-#include "smooth/application/network/http/IServerResponse.h"
+#include <smooth/core/Task.h>
 
-namespace smooth::application::network::http::regular
+namespace smooth::application::network::http
 {
-    class MIMEParser;
+    class IServerResponse;
+}
 
-    using RequestHandlerSignature = std::function<void(
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime
-    )>;
+namespace smooth::application::network::http::websocket
+{
 
+
+    class WebsocketServer
+    {
+        public:
+            WebsocketServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task)
+                    : response(response), task(task)
+            {
+            }
+
+            virtual ~WebsocketServer() = default;
+
+            virtual void data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data) = 0;
+
+        protected:
+            IServerResponse& response;
+            smooth::core::Task& task;
+
+    };
 }

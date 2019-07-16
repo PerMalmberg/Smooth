@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include <memory>
 #include "RequestHandlerSignature.h"
-#include "IServerResponse.h"
+#include "smooth/application/network/http/IServerResponse.h"
 #include <smooth/application/network/http/IConnectionTimeoutModifier.h>
 
 namespace smooth::application::network::http::regular

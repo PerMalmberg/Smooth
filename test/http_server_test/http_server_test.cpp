@@ -24,6 +24,7 @@
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include <smooth/application/network/http/regular/MIMEParser.h>
 #include "SendBlob.h"
+#include "WSEchoServer.h"
 #include "wifi_creds.h"
 
 using namespace std;
@@ -244,11 +245,11 @@ namespace http_server_test
                 if (size == 0)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
-                                                                               "Request parameter 'size' must be > 0"));
+                                                                               "Request parameter 'size' must be > 0"), false);
                 }
                 else
                 {
-                    response.reply(std::make_unique<SendBlob>(size));
+                    response.reply(std::make_unique<SendBlob>(size), false);
                 }
             }
         };
@@ -293,7 +294,7 @@ namespace http_server_test
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                                                                                "File have been stored in " +
-                                                                               uploads.str()));
+                                                                               uploads.str()), false);
                 }
             };
 
@@ -302,7 +303,7 @@ namespace http_server_test
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                                                                                R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" +
-                                                                               data["edit_box"] + "</textarea>"));
+                                                                               data["edit_box"] + "</textarea>"), false);
                 }
             };
 
@@ -313,11 +314,11 @@ namespace http_server_test
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         secure_server->on(HTTPMethod::POST, "/upload", upload);
-        secure_server->enable_websocket_on("/chat");
+        secure_server->enable_websocket_on<WSEchoServer>("/chat");
 
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::POST, "/upload", upload);
-        insecure_server->enable_websocket_on("/chat");
+        insecure_server->enable_websocket_on<WSEchoServer>("/chat");
     }
 }
 

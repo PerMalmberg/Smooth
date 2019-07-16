@@ -25,7 +25,7 @@
 #include <smooth/core/util/string_util.h>
 #include "HTTPPacket.h"
 #include "regular/HTTPHeaderDef.h"
-#include "regular/IServerResponse.h"
+#include "IServerResponse.h"
 #include "regular/RegularHTTPProtocol.h"
 #include "websocket/WebsocketProtocol.h"
 

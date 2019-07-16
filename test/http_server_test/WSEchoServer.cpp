@@ -14,27 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
 #include <memory>
-#include "smooth/application/network/http/IResponseOperation.h"
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
-#include "smooth/application/network/http/IServerResponse.h"
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
+#include <smooth/application/network/http/websocket/responses/WSResponse.h>
+#include "WSEchoServer.h"
 
-namespace smooth::application::network::http::regular
+using namespace smooth::application::network::http::websocket::responses;
+
+namespace http_server_test
 {
-    class MIMEParser;
 
-    using RequestHandlerSignature = std::function<void(
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime
-    )>;
-
+    void
+    http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data)
+    {
+        (void)first_part;
+        (void)last_part;
+        response.reply(std::make_unique<WSResponse>(data, is_text), false);
+    }
 }

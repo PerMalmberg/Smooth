@@ -88,6 +88,7 @@ namespace smooth::application::network::http
         operations.clear();
         current_operation.reset();
         mode = Mode::HTTP;
+        ws_server.reset();
     }
 
 
@@ -182,14 +183,6 @@ namespace smooth::application::network::http
         {
             send_first_part();
         }
-    }
-
-    void HTTPServerClient::upgrade_to_websocket()
-    {
-        // Don't clear TX buffer - the upgrade response is being sent.
-        container->get_rx_buffer().clear();
-        container->get_protocol().upgrade_to_websocket();
-        mode = Mode::Websocket;
     }
 
     void HTTPServerClient::send_first_part()
@@ -329,7 +322,7 @@ namespace smooth::application::network::http
                     else
                     {
                         // Unsupported method.
-                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed));
+                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed), false);
                     }
                 }
             }
@@ -356,20 +349,12 @@ namespace smooth::application::network::http
             }
             else
             {
-                Log::info(tag, Format("Size: {1}", UInt64(packet.data().size())));
-                for (auto& c : packet.data())
+                if(ws_server)
                 {
-                    std::cout << (char) c;
-                }
-
-                std::cout << std::endl;
-                bool first_packet = !packet.is_continuation();
-                bool last_packet = !packet.is_continued();
-                (void) first_packet;
-
-                if (last_packet)
-                {
-                    reply(std::make_unique<WSResponse>("From server!!!!"));
+                    bool first_part = !packet.is_continuation();
+                    bool last_part = !packet.is_continued();
+                    const auto& data = packet.data();
+                    ws_server->data_received(first_part, last_part, packet.ws_control_code() == WebsocketProtocol::OpCode::Text, data);
                 }
             }
         }

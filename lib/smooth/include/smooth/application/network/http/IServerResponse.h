@@ -17,17 +17,30 @@
 #pragma once
 
 #include <memory>
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
 #include "smooth/application/network/http/IResponseOperation.h"
 
-namespace smooth::application::network::http::regular
+namespace smooth::application::network::http
 {
     class IServerResponse
     {
         public:
             virtual ~IServerResponse() = default;
 
-            virtual void reply(std::unique_ptr<IResponseOperation> response, bool place_first = false) = 0;
+            virtual void reply(std::unique_ptr<IResponseOperation> response, bool place_first) = 0;
             virtual void reply_error(std::unique_ptr<IResponseOperation> response) = 0;
-            virtual void upgrade_to_websocket() = 0;
+
+            template<typename WSServerType>
+            void upgrade_to_websocket()
+            {
+                upgrade_to_websocket_internal();
+                ws_server = std::make_unique<WSServerType>(*this, get_task());
+            }
+
+        protected:
+            virtual smooth::core::Task& get_task() = 0;
+            virtual void upgrade_to_websocket_internal() = 0;
+
+            std::unique_ptr<websocket::WebsocketServer> ws_server{};
     };
 }

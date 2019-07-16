@@ -23,10 +23,11 @@
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
 #include "regular/IRequestHandler.h"
 #include "regular/MIMEParser.h"
 #include "URLEncoding.h"
-#include "regular/IServerResponse.h"
+#include "IServerResponse.h"
 #include "IResponseOperation.h"
 
 namespace smooth::application::network::http
@@ -55,7 +56,8 @@ namespace smooth::application::network::http
                     std::make_unique<smooth::application::network::http::HTTPProtocol>(max_header_size,
                                                                                        content_chunk_size,
                                                                                        *this)),
-                      content_chunk_size(content_chunk_size)
+                      content_chunk_size(content_chunk_size),
+                      task(task)
             {
             }
 
@@ -63,6 +65,7 @@ namespace smooth::application::network::http
             event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event) override;
 
             void http_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
+
             void websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
 
             void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override;
@@ -78,15 +81,27 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void reply(std::unique_ptr<IResponseOperation> response, bool place_first = false) override;
+            void reply(std::unique_ptr<IResponseOperation> response, bool place_first) override;
 
             void reply_error(std::unique_ptr<IResponseOperation> response) override;
-
-            void upgrade_to_websocket() override;
 
             void set_receive_timeout(const std::chrono::milliseconds& timeout) override
             {
                 socket->set_receive_timeout(timeout);
+            }
+
+        protected:
+            smooth::core::Task& get_task() override
+            {
+                return task;
+            }
+
+            void upgrade_to_websocket_internal() override
+            {
+                // Don't clear TX buffer - the upgrade response is being sent.
+                container->get_rx_buffer().clear();
+                container->get_protocol().upgrade_to_websocket();
+                mode = Mode::Websocket;
             }
 
         private:
@@ -107,6 +122,7 @@ namespace smooth::application::network::http
             bool translate_method(const HTTPPacket& packet, HTTPMethod& method);
 
             const std::size_t content_chunk_size;
+            smooth::core::Task& task;
             std::unordered_map<std::string, std::string> request_parameters{};
             std::unordered_map<std::string, std::string> request_headers{};
             std::string requested_url{};
@@ -114,6 +130,7 @@ namespace smooth::application::network::http
             std::deque<std::unique_ptr<IResponseOperation>> operations{};
             std::unique_ptr<IResponseOperation> current_operation{};
             MIMEParser mime{};
+
 
             void set_keep_alive();
     };

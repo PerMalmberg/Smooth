@@ -33,7 +33,7 @@
 #pragma once
 
 #include <smooth/core/network/IPacketAssembly.h>
-#include <smooth/application/network/http/regular/IServerResponse.h>
+#include <smooth/application/network/http/IServerResponse.h>
 
 namespace smooth::application::network::http
 {
@@ -47,7 +47,7 @@ namespace smooth::application::network::http::websocket
     {
             using packet_type = smooth::application::network::http::HTTPPacket;
         public:
-            WebsocketProtocol(int content_chunk_size, regular::IServerResponse& response)
+            WebsocketProtocol(int content_chunk_size, IServerResponse& response)
                     : content_chunk_size(content_chunk_size),
                       response(response)
             {
@@ -139,7 +139,7 @@ namespace smooth::application::network::http::websocket
 
             int content_chunk_size;
             OpCode op_code{OpCode::Continuation};
-            regular::IServerResponse& response;
+            IServerResponse& response;
 
             bool error{false};
             int total_byte_count{0};

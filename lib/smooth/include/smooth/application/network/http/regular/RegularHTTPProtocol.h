@@ -19,7 +19,7 @@
 #include <regex>
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/application/network/http/HTTPPacket.h>
-#include "IServerResponse.h"
+#include <smooth/application/network/http/IServerResponse.h>
 #include "IUpgradeToWebsocket.h"
 
 namespace smooth::application::network::http::regular

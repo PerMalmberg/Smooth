@@ -103,6 +103,7 @@ set(SOURCES
         include/smooth/application/network/http/regular/responses/FileContentResponse.h
         include/smooth/application/network/http/regular/responses/StringResponse.h
         include/smooth/application/network/http/websocket/WebsocketProtocol.h
+        include/smooth/application/network/http/websocket/WebsocketServer.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
