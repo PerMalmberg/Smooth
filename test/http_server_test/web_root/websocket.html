@@ -19,7 +19,9 @@
 
             // Listen for messages
             socket.addEventListener('message', function (event) {
-                console.log('Message from server ', event.data);
+                console.log('Received ' + event.data.length, event.data);
+                document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(event.data.length);
+                document.getElementById("last_count").innerText = event.data.length;
             });
         }
 
@@ -42,6 +44,11 @@
             let s = "D".repeat(document.getElementById("custom_size").value);
             socket.send(s);
         }
+
+        function reset_total() {
+            document.getElementById("total_count").innerText = 0;
+        }
+
     </script>
 </head>
 <body>
@@ -53,6 +60,14 @@
     <br/>
     <input type="number" id="custom_size"/>
     <button onclick="send_custom();">Send custom size</button>
+    <br/>
+    Total count:
+    <div id="total_count">0</div>
+    <button onclick="reset_total();">Reset total</button>
+    <br/>
+    <br/>
+    Last count:
+    <div id="last_count">0</div>
 </body>
 </html>
 
