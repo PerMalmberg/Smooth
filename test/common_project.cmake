@@ -17,7 +17,7 @@ if(${ESP_PLATFORM})
     include($ENV{IDF_PATH}/tools/cmake/project.cmake)
     __project_info("")
 else()
-    #target_link_libraries(${PROJECT_NAME} asan)
+    target_link_libraries(${PROJECT_NAME} asan)
 endif()
 
 target_include_directories(${TEST_PROJECT} PRIVATE $ENV{IDF_PATH}/components ${CMAKE_CURRENT_SOURCE_DIR} ${SMOOTH_TEST_ROOT})
