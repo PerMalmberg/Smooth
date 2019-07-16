@@ -42,6 +42,9 @@ namespace smooth::application::network::http::websocket::responses
         public:
             explicit WSResponse(WebsocketProtocol::OpCode code);
             explicit WSResponse(const std::string& text);
+            explicit WSResponse(std::string&& text);
+            explicit WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text);
+            explicit WSResponse(std::vector<uint8_t>&& binary);
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
         private:
             void set_length(uint64_t len, std::vector<uint8_t>& buff) const;

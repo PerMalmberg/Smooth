@@ -89,7 +89,29 @@ namespace smooth::application::network::http::websocket::responses
     WSResponse::WSResponse(const std::string& text)
             : op_code(WebsocketProtocol::OpCode::Text)
     {
-        std::copy(std::make_move_iterator(text.begin()), std::make_move_iterator(text.end()), std::back_inserter(data));
+        std::copy(text.begin(), text.end(), std::back_inserter(data));
+    }
+
+    WSResponse::WSResponse(std::string&& text)
+            : op_code(WebsocketProtocol::OpCode::Text)
+    {
+        std::copy(std::make_move_iterator(text.begin()),
+                  std::make_move_iterator(text.end()),
+                  std::back_inserter(data));
+    }
+
+    WSResponse::WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text)
+            : op_code(treat_as_text ? WebsocketProtocol::OpCode::Text : WebsocketProtocol::OpCode::Binary)
+    {
+        std::copy(binary.begin(), binary.end(), std::back_inserter(data));
+    }
+
+    WSResponse::WSResponse(std::vector<uint8_t>&& binary)
+            : op_code(WebsocketProtocol::OpCode::Binary)
+    {
+        std::copy(std::make_move_iterator(binary.begin()),
+                  std::make_move_iterator(binary.end()),
+                  std::back_inserter(data));
     }
 
     void WSResponse::set_length(uint64_t len, std::vector<uint8_t>& buff) const
@@ -102,13 +124,16 @@ namespace smooth::application::network::http::websocket::responses
         {
             auto size = smooth::core::network::hton(len);
             buff.emplace_back(127);
-            std::copy(&size, &size + sizeof(size), std::back_inserter(buff));
+            auto p = reinterpret_cast<uint8_t*>(&size);
+            std::copy(p, p + sizeof(size), std::back_inserter(buff));
         }
         else
         {
-            auto size = static_cast<uint16_t>(smooth::core::network::hton(len));
+            auto l = static_cast<uint16_t>(len);
+            std::uint16_t size = smooth::core::network::hton(l);
             buff.emplace_back(126);
-            std::copy(&size, &size + sizeof(size), std::back_inserter(buff));
+            auto p = reinterpret_cast<uint8_t*>(&size);
+            std::copy(p, p + sizeof(size), std::back_inserter(buff));
         }
     }
 }
