@@ -87,14 +87,14 @@ namespace smooth::application::network::http
 
     void HTTPProtocol::reset()
     {
-        if (regular)
-        {
-            regular->reset();
-        }
-        else
+        if (websocket)
         {
             websocket->reset();
         }
+        regular = std::make_unique<RegularHTTPProtocol>(max_header_size,
+                                                        content_chunk_size,
+                                                        response,
+                                                        *this);
     }
 
     void HTTPProtocol::upgrade_to_websocket()
