@@ -16,7 +16,26 @@
 
 #pragma once
 
-#include <endian.h>
+#ifdef ESP_PLATFORM
+    #include <machine/endian.h>
+    #if _BYTE_ORDER == _LITTLE_ENDIAN
+        #define SMOOTH_LITTLE_ENDIAN
+    #else
+        #define SMOOTH_BIG_ENDIAN
+    #endif
+#else
+    #include <endian.h>
+    #if __BYTE_ORDER == __LITTLE_ENDIAN
+        #define SMOOTH_LITTLE_ENDIAN
+    #else
+        #define SMOOTH_BIG_ENDIAN
+    #endif
+#endif
+
+#if !defined(SMOOTH_LITTLE_ENDIAN) && !defined(SMOOTH_BIG_ENDIAN)
+    #error "Could not determine endianness."
+#endif
+
 #include <algorithm>
 
 namespace smooth::core::network
@@ -24,7 +43,7 @@ namespace smooth::core::network
     template<typename T>
     constexpr T hton(T value) noexcept
     {
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#ifdef SMOOTH_LITTLE_ENDIAN
         auto* ptr = reinterpret_cast<uint8_t*>(&value);
         std::reverse(ptr, ptr + sizeof(T));
 #endif
@@ -37,3 +56,5 @@ namespace smooth::core::network
         return hton(value);
     }
 }
+
+#undef LITTLE_ENDIAN
