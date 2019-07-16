@@ -42,6 +42,7 @@
 
         function send_custom() {
             let s = "D".repeat(document.getElementById("custom_size").value);
+            console.log("Sending " + s.length);
             socket.send(s);
         }
 
