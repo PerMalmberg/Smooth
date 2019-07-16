@@ -5,7 +5,8 @@
         let socket = null;
 
         function connect() {
-            socket = new WebSocket('ws://localhost:8080/chat');
+            let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/chat";
+            socket = new WebSocket(url);
 
             // Connection opened
             socket.addEventListener('open', function (event) {
