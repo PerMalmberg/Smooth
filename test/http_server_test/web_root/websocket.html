@@ -5,24 +5,36 @@
         let socket = null;
 
         function connect() {
-            let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/chat";
-            socket = new WebSocket(url);
+            if(socket == null) {
+                let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/chat";
+                socket = new WebSocket(url);
 
-            // Connection opened
-            socket.addEventListener('open', function (event) {
-                console.log("Connected!");
-            });
+                // Connection opened
+                socket.addEventListener('open', function (event) {
+                    console.log("Connected!");
+                    document.getElementById("status").innerText = "Connected";
+                });
 
-            socket.addEventListener('close', function(event) {
-                console.log("Disconnected: " + event.reason);
-            });
+                socket.addEventListener('close', function (event) {
+                    console.log("Disconnected: " + event.reason);
+                    document.getElementById("status").innerText = "Disconnected";
+                    socket = null;
+                });
 
-            // Listen for messages
-            socket.addEventListener('message', function (event) {
-                console.log('Received ' + event.data.length, event.data);
-                document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(event.data.length);
-                document.getElementById("last_count").innerText = event.data.length;
-            });
+                // Listen for messages
+                socket.addEventListener('message', function (event) {
+                    console.log('Received ' + event.data.length, event.data);
+                    document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(event.data.length);
+                    document.getElementById("last_count").innerText = event.data.length;
+                });
+            }
+        }
+
+        function disconnect()
+        {
+            if(socket != null) {
+                socket.close();
+            }
         }
 
         function send_short() {
@@ -54,9 +66,12 @@
 </head>
 <body>
     <button onclick="connect();">Connect</button>
+    <button onclick="disconnect();">Disonnect</button>
     <button onclick="send_short();">Send short</button>
     <button onclick="send_65k();">Send 65k</button>
     <button onclick="send_80k();">Send 80k</button>
+    <br/>
+    <div id="status">Disconnected</div>
     <br/>
     <br/>
     <input type="number" id="custom_size"/>
