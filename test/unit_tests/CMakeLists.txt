@@ -11,5 +11,9 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${SMOOTH_TEST_ROOT})
-target_link_libraries(${PROJECT_NAME} smooth asan)
+
+target_link_libraries(${PROJECT_NAME} smooth)
+if(${SMOOTH_ENABLE_ASAN})
+    target_link_libraries(${PROJECT_NAME} asan)
+endif()
 

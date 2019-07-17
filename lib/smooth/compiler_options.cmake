@@ -25,6 +25,13 @@ function(set_compile_options target)
 
     if( NOT ESP_PLATFORM )
         target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
-        target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope)
+
+        if(NOT DEFINED SMOOTH_ENABLE_ASAN OR NOT DEFINED SMOOTH_ASAN_OPTIMIZATION_LEVEL)
+            message(FATAL_ERROR "Missing ASAN related settings.")
+        endif()
+
+        if(${SMOOTH_ENABLE_ASAN})
+            target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -g -O${SMOOTH_ASAN_OPTIMIZATION_LEVEL})
+        endif()
     endif()
 endfunction()
