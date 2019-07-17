@@ -14,35 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include <smooth/core/Task.h>
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
 #include <smooth/application/network/http/websocket/responses/WSResponse.h>
-
-namespace smooth::application::network::http
-{
-    class IServerResponse;
-}
+#include <smooth/application/network/http/IServerResponse.h>
 
 namespace smooth::application::network::http::websocket
 {
-    class WebsocketServer
+    void WebsocketServer::close_connection()
     {
-        public:
-            WebsocketServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task)
-                    : response(response), task(task)
-            {
-            }
-
-            virtual ~WebsocketServer() = default;
-
-            virtual void data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data) = 0;
-
-            void close_connection();
-
-        protected:
-            IServerResponse& response;
-            smooth::core::Task& task;
-
-    };
+        response.reply(std::make_unique<responses::WSResponse>(OpCode::Close), false);
+    }
 }

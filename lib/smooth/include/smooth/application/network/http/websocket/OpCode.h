@@ -1,5 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
-// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
+// Copyright (C) 2019 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,25 +32,28 @@
 
 #pragma once
 
-#include <smooth/application/network/http/IResponseOperation.h>
-#include <smooth/application/network/http/websocket/OpCode.h>
-
-namespace smooth::application::network::http::websocket::responses
+namespace smooth::application::network::http::websocket
 {
-    class WSResponse : public IResponseOperation
+    enum class OpCode
     {
-        public:
-            explicit WSResponse(smooth::application::network::http::websocket::OpCode code);
-            explicit WSResponse(const std::string& text);
-            explicit WSResponse(std::string&& text);
-            explicit WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text);
-            explicit WSResponse(std::vector<uint8_t>&& binary);
-            ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
-        private:
-            void set_length(uint64_t len, std::vector<uint8_t>& buff) const;
-            smooth::application::network::http::websocket::OpCode op_code;
-
-            std::vector<uint8_t> data{};
-            bool first_frame{true};
+            Continuation,
+            Text,
+            Binary,
+            Reserved3,
+            Reserved4,
+            Reserved5,
+            Reserved6,
+            Reserved7,
+            // Control frames below (MSB is set)
+                    Close,
+            Ping,
+            Pong,
+            ReservedA,
+            ReservedB,
+            ReservedC,
+            ReservedD,
+            ReservedE,
+            ReservedF,
     };
+
 }

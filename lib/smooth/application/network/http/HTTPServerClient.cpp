@@ -335,16 +335,16 @@ namespace smooth::application::network::http
         if (event.get(packet))
         {
             auto ws_op = packet.ws_control_code();
-            if (ws_op >= WebsocketProtocol::OpCode::Close)
+            if (ws_op >= OpCode::Close)
             {
-                if (ws_op == WebsocketProtocol::OpCode::Close)
+                if (ws_op == OpCode::Close)
                 {
                     close();
                 }
-                else if (ws_op == WebsocketProtocol::OpCode::Ping)
+                else if (ws_op == OpCode::Ping)
                 {
                     // Reply with a ping and place it first in the queue.
-                    reply(std::make_unique<WSResponse>(WebsocketProtocol::OpCode::Pong), true);
+                    reply(std::make_unique<WSResponse>(OpCode::Pong), true);
                 }
             }
             else
@@ -354,7 +354,7 @@ namespace smooth::application::network::http
                     bool first_part = !packet.is_continuation();
                     bool last_part = !packet.is_continued();
                     const auto& data = packet.data();
-                    ws_server->data_received(first_part, last_part, packet.ws_control_code() == WebsocketProtocol::OpCode::Text, data);
+                    ws_server->data_received(first_part, last_part, packet.ws_control_code() == OpCode::Text, data);
                 }
             }
         }

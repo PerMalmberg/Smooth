@@ -40,6 +40,7 @@ set(SOURCES
         application/network/http/regular/TemplateProcessor.cpp
         application/network/http/websocket/responses/WSResponse.cpp
         application/network/http/websocket/WebsocketProtocol.cpp
+        application/network/http/websocket/WebSocketServer.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp

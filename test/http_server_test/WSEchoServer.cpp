@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <memory>
-#include <smooth/application/network/http/websocket/WebsocketServer.h>
+#include <smooth/application/network/http/IServerResponse.h>
 #include <smooth/application/network/http/websocket/responses/WSResponse.h>
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
 #include "WSEchoServer.h"
 
 using namespace smooth::application::network::http::websocket::responses;

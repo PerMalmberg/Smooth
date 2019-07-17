@@ -133,9 +133,9 @@ namespace smooth::application::network::http::websocket
         }
     }
 
-    WebsocketProtocol::OpCode WebsocketProtocol::get_opcode() const
+    OpCode WebsocketProtocol::get_opcode() const
     {
-        return static_cast<WebsocketProtocol::OpCode>(frame_data.header[0] & 0x0F);
+        return static_cast<OpCode>(frame_data.header[0] & 0x0F);
     }
 
     int WebsocketProtocol::is_data_masked() const

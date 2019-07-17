@@ -51,7 +51,7 @@ namespace smooth::application::network::http::websocket::responses
 
             if (!first_frame)
             {
-                op_code = WebsocketProtocol::OpCode::Continuation;
+                op_code = OpCode::Continuation;
             }
 
             first_frame = false;
@@ -81,19 +81,19 @@ namespace smooth::application::network::http::websocket::responses
         return res;
     }
 
-    WSResponse::WSResponse(WebsocketProtocol::OpCode code)
+    WSResponse::WSResponse(OpCode code)
             : op_code(code)
     {
     }
 
     WSResponse::WSResponse(const std::string& text)
-            : op_code(WebsocketProtocol::OpCode::Text)
+            : op_code(OpCode::Text)
     {
         std::copy(text.begin(), text.end(), std::back_inserter(data));
     }
 
     WSResponse::WSResponse(std::string&& text)
-            : op_code(WebsocketProtocol::OpCode::Text)
+            : op_code(OpCode::Text)
     {
         std::copy(std::make_move_iterator(text.begin()),
                   std::make_move_iterator(text.end()),
@@ -101,13 +101,13 @@ namespace smooth::application::network::http::websocket::responses
     }
 
     WSResponse::WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text)
-            : op_code(treat_as_text ? WebsocketProtocol::OpCode::Text : WebsocketProtocol::OpCode::Binary)
+            : op_code(treat_as_text ? OpCode::Text : OpCode::Binary)
     {
         std::copy(binary.begin(), binary.end(), std::back_inserter(data));
     }
 
     WSResponse::WSResponse(std::vector<uint8_t>&& binary)
-            : op_code(WebsocketProtocol::OpCode::Binary)
+            : op_code(OpCode::Binary)
     {
         std::copy(std::make_move_iterator(binary.begin()),
                   std::make_move_iterator(binary.end()),

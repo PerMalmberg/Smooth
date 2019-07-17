@@ -23,7 +23,7 @@
 #include <smooth/core/network/IPacketDisassembly.h>
 #include <smooth/application/network/http/regular/ResponseCodes.h>
 #include "regular/HTTPMethod.h"
-#include "websocket/WebsocketProtocol.h"
+#include "websocket/OpCode.h"
 
 namespace smooth::application::network::http
 {
@@ -151,12 +151,12 @@ namespace smooth::application::network::http
                 return end;
             }
 
-            void set_ws_control_code(websocket::WebsocketProtocol::OpCode code)
+            void set_ws_control_code(websocket::OpCode code)
             {
                 ws_opcode = code;
             }
 
-            websocket::WebsocketProtocol::OpCode ws_control_code() const
+            websocket::OpCode ws_control_code() const
             {
                 return ws_opcode;
             }
@@ -176,6 +176,6 @@ namespace smooth::application::network::http
             regular::ResponseCode resp_code{};
             bool continuation = false;
             bool continued = false;
-            websocket::WebsocketProtocol::OpCode ws_opcode{websocket::WebsocketProtocol::OpCode::Continuation};
+            websocket::OpCode ws_opcode{websocket::OpCode::Continuation};
     };
 }

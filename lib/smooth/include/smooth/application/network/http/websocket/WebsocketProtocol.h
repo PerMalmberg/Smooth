@@ -34,6 +34,7 @@
 
 #include <smooth/core/network/IPacketAssembly.h>
 #include <smooth/application/network/http/IServerResponse.h>
+#include "OpCode.h"
 
 namespace smooth::application::network::http
 {
@@ -66,28 +67,6 @@ namespace smooth::application::network::http::websocket
             void packet_consumed() override;
 
             void reset() override;
-
-            enum class OpCode
-            {
-                    Continuation,
-                    Text,
-                    Binary,
-                    Reserved3,
-                    Reserved4,
-                    Reserved5,
-                    Reserved6,
-                    Reserved7,
-                    // Control frames below (MSB is set)
-                            Close,
-                    Ping,
-                    Pong,
-                    ReservedA,
-                    ReservedB,
-                    ReservedC,
-                    ReservedD,
-                    ReservedE,
-                    ReservedF,
-            };
 
             /* https://tools.ietf.org/html/rfc6455#section-5.2
 
