@@ -20,15 +20,36 @@
 #include "WSEchoServer.h"
 
 using namespace smooth::application::network::http::websocket::responses;
+using namespace smooth::application::network::http::websocket;
 
 namespace http_server_test
 {
+    using namespace smooth::core::timer;
+    using namespace std::chrono;
 
-    void
-    http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data)
+    WSEchoServer::WSEchoServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task)
+            : WebsocketServer(response, task)/*,
+              timer_queue("time_queue", 1, task, *this),
+              timer(Timer::create("Ping", 0, timer_queue, true, seconds{1}))*/
     {
-        (void)first_part;
-        (void)last_part;
+        //timer->start();
+    }
+
+    void http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text,
+                                                       const std::vector<uint8_t>& data)
+    {
+        (void) first_part;
+        (void) last_part;
         response.reply(std::make_unique<WSResponse>(data, is_text), false);
+    }
+
+    void WSEchoServer::event(const smooth::core::timer::TimerExpiredEvent&)
+    {
+        response.reply(std::make_unique<WSResponse>(OpCode::Ping), true);
+    }
+
+    WSEchoServer::~WSEchoServer()
+    {
+        //timer->stop();
     }
 }
