@@ -57,7 +57,9 @@ namespace smooth::application::network::http::websocket
             auto size = std::min(payload_length - received_payload,
                                  static_cast<decltype(payload_length)>(content_chunk_size));
             len = static_cast<decltype(content_chunk_size)>(size);
-            packet.ensure_room(len);
+            // Actual space needed is what whe already have, plus what we want to read.
+            auto space_needed = static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len;
+            packet.ensure_room(space_needed);
         }
 
         return len;
