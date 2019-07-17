@@ -257,14 +257,16 @@ namespace smooth::core::network
                     // Underlying socket closed
                     this->stop();
                 }
-                else if (read_amount < 0 && !needs_tls_transfer(read_amount))
+                else if (read_amount < 0)
                 {
-                    if (read_amount != MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
+                    if(!needs_tls_transfer(read_amount))
                     {
-                        log_mbedtls_error("SecureSocket", "mbedtls_ssl_read", read_amount);
+                        if (read_amount != MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
+                        {
+                            log_mbedtls_error("SecureSocket", "mbedtls_ssl_read", read_amount);
+                        }
+                        this->stop();
                     }
-
-                    this->stop();
                 }
                 else
                 {
