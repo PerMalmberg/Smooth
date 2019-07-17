@@ -41,11 +41,12 @@ namespace smooth::application::network::http::websocket::responses
 
         auto remaining = std::distance(data.begin(), data.end());
 
-        if (remaining > 0)
+        if (remaining > 0 || !header_sent)
         {
+            header_sent = true;
+
             auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);
-            auto begin = data.begin();
-            auto end = data.begin() + static_cast<long>(to_send);
+
 
             auto more_to_send = to_send < data.size();
 
@@ -69,6 +70,9 @@ namespace smooth::application::network::http::websocket::responses
             }
 
             set_length(to_send, target);
+
+            auto begin = data.begin();
+            auto end = data.begin() + static_cast<long>(to_send);
 
             std::copy(begin, end, std::back_inserter(target));
             data.erase(begin, end);

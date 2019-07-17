@@ -37,17 +37,27 @@
 
 namespace smooth::application::network::http::websocket::responses
 {
-    class WSResponse : public IResponseOperation
+    class WSResponse
+            : public IResponseOperation
     {
         public:
             explicit WSResponse(smooth::application::network::http::websocket::OpCode code);
+
             explicit WSResponse(const std::string& text);
+
             explicit WSResponse(std::string&& text);
+
             explicit WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text);
+
             explicit WSResponse(std::vector<uint8_t>&& binary);
+
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
+
         private:
+            bool header_sent{false};
+
             void set_length(uint64_t len, std::vector<uint8_t>& buff) const;
+
             smooth::application::network::http::websocket::OpCode op_code;
 
             std::vector<uint8_t> data{};
