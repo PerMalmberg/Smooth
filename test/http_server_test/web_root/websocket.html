@@ -7,7 +7,7 @@
 
         function connect() {
             if(socket == null) {
-                let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/chat";
+                let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/echo";
                 socket = new WebSocket(url);
 
                 // Connection opened

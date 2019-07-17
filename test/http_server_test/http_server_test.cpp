@@ -314,11 +314,11 @@ namespace http_server_test
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         secure_server->on(HTTPMethod::POST, "/upload", upload);
-        secure_server->enable_websocket_on<WSEchoServer>("/chat");
+        secure_server->enable_websocket_on<WSEchoServer>("/echo");
 
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::POST, "/upload", upload);
-        insecure_server->enable_websocket_on<WSEchoServer>("/chat");
+        insecure_server->enable_websocket_on<WSEchoServer>("/echo");
     }
 }
 
