@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head title="Websocket tests">
+    <title>Websocket tests</title>
     <script lang="javascript">
         let socket = null;
 
@@ -37,29 +38,33 @@
             }
         }
 
-        function send_short() {
-            let s = "A".repeat(124);
-            socket.send(s + "-");
+        function send_length(length)
+        {
+            document.getElementById("to_send").value = length;
+            send();
         }
 
-        function send_65k() {
-            let s = "B".repeat(65534);
-            socket.send(s + "-");
-        }
+        function send() {
+            let block_size = parseInt(document.getElementById("block_size").innerText);
 
-        function send_80k() {
-            let s = "C".repeat(79999);
-            socket.send(s + "-");
-        }
+            let remaining = parseInt(document.getElementById("to_send").value);
 
-        function send_custom() {
-            let s = "D".repeat(document.getElementById("custom_size").value);
-            console.log("Sending " + s.length);
-            socket.send(s);
+            console.log("Sending " + remaining + " bytes");
+
+            while(remaining > block_size)
+            {
+                socket.send("a".repeat(block_size));
+                remaining -= block_size;
+            }
+
+            if(remaining > 0)
+            {
+                socket.send("a".repeat(remaining));
+            }
         }
 
         function reset_total() {
-            document.getElementById("total_count").innerText = 0;
+            document.getElementById("total_count").innerText = "0";
         }
 
     </script>
@@ -67,15 +72,19 @@
 <body>
     <button onclick="connect();">Connect</button>
     <button onclick="disconnect();">Disonnect</button>
-    <button onclick="send_short();">Send short</button>
-    <button onclick="send_65k();">Send 65k</button>
-    <button onclick="send_80k();">Send 80k</button>
+    <button onclick="send_length(125);">Send 125</button>
+    <button onclick="send_length(65535);">Send 65k</button>
+    <button onclick="send_length(80*1024);">Send 80k</button>
+    <button onclick="send_length(1024*1024);">Send 1M</button>
+    <button onclick="send_length(1024*1024*10);">Send 10M</button>
     <br/>
     <div id="status">Disconnected</div>
     <br/>
     <br/>
-    <input type="number" id="custom_size"/>
-    <button onclick="send_custom();">Send custom size</button>
+    Block size:<input type="text" id="block_size" value="4096"/>
+    <br/>
+    Amount to send: <input type="text" id="to_send" value="65535"/>
+    <button onclick="send();">Send</button>
     <br/>
     Total count:
     <div id="total_count">0</div>
