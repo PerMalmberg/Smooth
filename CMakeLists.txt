@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 # These settings controls the use of Adress Sanitizer.
 # Please note that an optimization level of 0 does have a significant negative impact
 # on the performance of the application when ASAN is enabled.
-set(SMOOTH_ENABLE_ASAN 1)
+set(SMOOTH_ENABLE_ASAN 0)
 set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
 
