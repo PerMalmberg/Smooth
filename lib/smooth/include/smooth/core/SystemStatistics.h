@@ -65,7 +65,9 @@ namespace smooth::core
             void dump() const noexcept;
 
         private:
+#ifdef ESP_PLATFORM
             void dump_mem_stats(uint32_t caps) const noexcept;
+#endif
 
             mutable std::mutex lock{};
             std::unordered_map<std::string, TaskStats> task_info{};

@@ -44,11 +44,12 @@ namespace smooth::core
     {
         //auto current_free = esp_get_free_heap_size();
         //auto all_time_free_low = esp_get_minimum_free_heap_size();
-
+#ifdef ESP_PLATFORM
         Log::info(tag, "[INTERNAL]");
         dump_mem_stats(MALLOC_CAP_INTERNAL);
         Log::info(tag, "[SPIRAM]");
         dump_mem_stats(MALLOC_CAP_SPIRAM);
+#endif
 
         { // Only need to lock while accessing the shared data
             synch guard{lock};
@@ -61,6 +62,7 @@ namespace smooth::core
         }
     }
 
+#ifdef ESP_PLATFORM
     void SystemStatistics::dump_mem_stats(uint32_t caps) const noexcept
     {
         Log::info(tag, Format("8-bit F:{1} LB:{2} M:{3} | 32-bit: F:{4} LB:{5} M:{6}",
@@ -71,4 +73,5 @@ namespace smooth::core
                               UInt32(heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT)),
                               UInt32(heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT))));
     }
+#endif
 }
