@@ -191,7 +191,7 @@ namespace secure_socket_test
         if (!p.is_continued())
         {
             // Last packet
-            sock->stop();
+            sock->stop("Last packet received");
 
             std::stringstream ss;
             for (auto c : received_content)

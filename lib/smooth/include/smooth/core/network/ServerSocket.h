@@ -252,7 +252,7 @@ namespace smooth::core::network
 
             if (!res)
             {
-                stop();
+                stop("ServerSocket failed to start");
             }
         }
 

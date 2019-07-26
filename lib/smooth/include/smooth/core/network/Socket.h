@@ -348,15 +348,13 @@ namespace smooth::core::network
 
         if (read_count == 0)
         {
-            log("Socket closed");
-            stop();
+            stop("Underlying socket closed (recv returned 0)");
         }
         else if (read_count < 0)
         {
             if (errno != EWOULDBLOCK)
             {
-                loge("Error during receive");
-                stop();
+                stop("Error during receive");
             }
         }
         else
@@ -364,9 +362,8 @@ namespace smooth::core::network
             rx.data_received(socket_cast(read_count));
             if (rx.is_error())
             {
-                log("Assembly error");
                 rx.prepare_new_packet();
-                stop();
+                stop("Assembly error");
             }
             else if (rx.is_packet_complete())
             {
@@ -397,8 +394,7 @@ namespace smooth::core::network
 
         if (amount_sent == -1)
         {
-            loge("Failure during send");
-            stop();
+            stop("Failure during send");
         }
         else
         {
@@ -443,7 +439,7 @@ namespace smooth::core::network
 
             if (!active)
             {
-                stop();
+                stop("Not active");
             }
         }
 
@@ -505,7 +501,7 @@ namespace smooth::core::network
         {
             // If the buffer container has expired, it means the client
             // has let it go, meaning this socket also can close.
-            stop();
+            stop("Could not get buffer container");
         }
 
         return cont;

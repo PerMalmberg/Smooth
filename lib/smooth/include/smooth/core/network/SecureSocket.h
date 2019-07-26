@@ -254,8 +254,7 @@ namespace smooth::core::network
 
                 if (read_amount == 0)
                 {
-                    // Underlying socket closed
-                    this->stop();
+                    this->stop("Underlying socket closed (mbedtls_ssl_read returned 0)");
                 }
                 else if (read_amount < 0)
                 {
@@ -265,7 +264,9 @@ namespace smooth::core::network
                         {
                             log_mbedtls_error("SecureSocket", "mbedtls_ssl_read", read_amount);
                         }
-                        this->stop();
+                        std::string msg{"Read amount: "};
+                        msg += std::to_string(read_amount);
+                        this->stop(msg.c_str());
                     }
                 }
                 else
@@ -275,7 +276,7 @@ namespace smooth::core::network
                     {
                         Log::error(tag, "Assembly error");
                         rx.prepare_new_packet();
-                        this->stop();
+                        this->stop("Assembly error");
                     }
                     else if (rx.is_packet_complete())
                     {
@@ -330,7 +331,7 @@ namespace smooth::core::network
                 if (amount_sent < 0 && !needs_tls_transfer(amount_sent))
                 {
                     log_mbedtls_error("SecureSocket", "mbedtls_ssl_write", amount_sent);
-                    this->stop();
+                    this->stop("Error writing");
                 }
             }
         }
@@ -359,7 +360,7 @@ namespace smooth::core::network
         {
             // Handshake failed
             log_mbedtls_error("SecureSocket", "mbedtls_ssl_handshake_step", res);
-            this->stop();
+            this->stop("Error during handshake");
         }
     }
 

@@ -45,7 +45,7 @@ namespace smooth::core::network
 
             int get_socket_id() const override;
 
-            void stop() override;
+            void stop(const char* reason) override;
 
             bool is_active() const override;
 

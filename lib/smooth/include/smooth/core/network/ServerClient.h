@@ -91,13 +91,15 @@ namespace smooth::core::network
                 return client_context;
             }
 
-            std::shared_ptr<BufferContainer<Protocol>> get_buffers()
+            std::shared_ptr<BufferContainer < Protocol>> get_buffers()
             {
                 return container;
             }
 
             void close()
-            { socket->stop(); }
+            {
+                socket->stop("Server client closing");
+            }
 
         protected:
             std::shared_ptr<smooth::core::network::ISocket> socket{};
