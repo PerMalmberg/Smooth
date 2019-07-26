@@ -5,8 +5,14 @@
     <script lang="javascript">
         let socket = null;
 
+        window.addEventListener('beforeunload', function () {
+            if (socket != null) {
+                socket.close();
+            }
+        });
+
         function connect() {
-            if(socket == null) {
+            if (socket == null) {
                 let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/echo";
                 socket = new WebSocket(url);
 
@@ -31,34 +37,30 @@
             }
         }
 
-        function disconnect()
-        {
-            if(socket != null) {
+        function disconnect() {
+            if (socket != null) {
                 socket.close();
             }
         }
 
-        function send_length(length)
-        {
+        function send_length(length) {
             document.getElementById("to_send").value = length;
             send();
         }
 
         function send() {
-            let block_size = parseInt(document.getElementById("block_size").innerText);
+            var block_size = parseInt(document.getElementById("block_size").value);
 
-            let remaining = parseInt(document.getElementById("to_send").value);
+            var remaining = parseInt(document.getElementById("to_send").value);
 
             console.log("Sending " + remaining + " bytes");
 
-            while(remaining > block_size)
-            {
+            while (remaining > block_size) {
                 socket.send("a".repeat(block_size));
                 remaining -= block_size;
             }
 
-            if(remaining > 0)
-            {
+            if (remaining > 0) {
                 socket.send("a".repeat(remaining));
             }
         }
@@ -68,31 +70,31 @@
         }
 
     </script>
-</head>
-<body>
-    <button onclick="connect();">Connect</button>
-    <button onclick="disconnect();">Disonnect</button>
-    <button onclick="send_length(125);">Send 125</button>
-    <button onclick="send_length(65535);">Send 65k</button>
-    <button onclick="send_length(80*1024);">Send 80k</button>
-    <button onclick="send_length(1024*1024);">Send 1M</button>
-    <button onclick="send_length(1024*1024*10);">Send 10M</button>
-    <br/>
-    <div id="status">Disconnected</div>
-    <br/>
-    <br/>
-    Block size:<input type="text" id="block_size" value="4096"/>
-    <br/>
-    Amount to send: <input type="text" id="to_send" value="65535"/>
-    <button onclick="send();">Send</button>
-    <br/>
-    Total count:
-    <div id="total_count">0</div>
-    <button onclick="reset_total();">Reset total</button>
-    <br/>
-    <br/>
-    Last count:
-    <div id="last_count">0</div>
-</body>
+    </head>
+    <body>
+        <button onclick="connect();">Connect</button>
+        <button onclick="disconnect();">Disconnect</button>
+        <button onclick="send_length(125);">Send 125</button>
+        <button onclick="send_length(65535);">Send 65k</button>
+        <button onclick="send_length(80*1024);">Send 80k</button>
+        <button onclick="send_length(1024*1024);">Send 1M</button>
+        <button onclick="send_length(1024*1024*10);">Send 10M</button>
+        <br/>
+        <div id="status">Disconnected</div>
+        <br/>
+        <br/>
+        Block size:<input type="text" id="block_size" value="4096"/>
+        <br/>
+        Amount to send: <input type="text" id="to_send" value="65535"/>
+        <button onclick="send();">Send</button>
+        <br/>
+        Total count:
+        <div id="total_count">0</div>
+        <button onclick="reset_total();">Reset total</button>
+        <br/>
+        <br/>
+        Last count:
+        <div id="last_count">0</div>
+    </body>
 </html>
 

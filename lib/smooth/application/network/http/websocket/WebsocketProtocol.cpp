@@ -212,14 +212,25 @@ namespace smooth::application::network::http::websocket
 
     void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
     {
-        if (op_code == OpCode::Continuation)
+        if(received_payload <= static_cast<decltype(received_payload)>(content_chunk_size))
         {
-            packet.set_continuation();
+            // This is the first part of the fragment we're forwarding to the application.
+            if(received_payload < payload_length)
+            {
+                // There is more to come
+                packet.set_continued();
+            }
         }
-
-        if (!(is_fin_frame()) || received_payload < payload_length)
+        else
         {
-            packet.set_continued();
+            // Second or later fragment
+            packet.set_continuation();
+
+            if(received_payload < payload_length)
+            {
+                // Still more fragments coming.
+                packet.set_continued();
+            }
         }
 
         packet.set_ws_control_code(op_code);

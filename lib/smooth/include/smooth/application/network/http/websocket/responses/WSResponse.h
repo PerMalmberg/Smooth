@@ -43,13 +43,14 @@ namespace smooth::application::network::http::websocket::responses
         public:
             explicit WSResponse(smooth::application::network::http::websocket::OpCode code);
 
-            explicit WSResponse(const std::string& text);
+            explicit WSResponse(const std::string& text, bool first_fragment, bool last_fragment);
 
-            explicit WSResponse(std::string&& text);
+            explicit WSResponse(std::string&& text, bool first_fragment, bool last_fragment);
 
-            explicit WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text);
+            explicit WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text, bool first_fragment,
+                                bool last_fragment);
 
-            explicit WSResponse(std::vector<uint8_t>&& binary);
+            explicit WSResponse(std::vector<uint8_t>&& binary, bool first_fragment, bool last_fragment);
 
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
@@ -60,7 +61,9 @@ namespace smooth::application::network::http::websocket::responses
 
             smooth::application::network::http::websocket::OpCode op_code;
 
+            bool first_fragment{false};
+            bool last_fragment{false};
+
             std::vector<uint8_t> data{};
-            bool first_frame{true};
     };
 }

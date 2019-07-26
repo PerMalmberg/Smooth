@@ -260,13 +260,9 @@ namespace smooth::core::network
                 {
                     if(!needs_tls_transfer(read_amount))
                     {
-                        if (read_amount != MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
-                        {
-                            log_mbedtls_error("SecureSocket", "mbedtls_ssl_read", read_amount);
-                        }
-                        std::string msg{"Read amount: "};
-                        msg += std::to_string(read_amount);
-                        this->stop(msg.c_str());
+                        char buf[128];
+                        mbedtls_strerror(read_amount, buf, sizeof(buf));
+                        this->stop(buf);
                     }
                 }
                 else

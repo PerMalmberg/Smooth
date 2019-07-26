@@ -37,37 +37,43 @@ namespace smooth::application::network::http::websocket::responses
 {
     ResponseStatus WSResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
+        // Portion data in such a way that at most max_amount of *data* is moved into target.
+
         auto res{ResponseStatus::EndOfData};
 
         auto remaining = std::distance(data.begin(), data.end());
 
-        if (remaining > 0 || !header_sent)
+        if (!header_sent)
         {
             header_sent = true;
+            uint8_t val;
 
-            auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);
-
-
-            auto more_to_send = to_send < data.size();
-
-            if (!first_frame)
+            if (!first_fragment)
             {
-                op_code = OpCode::Continuation;
-            }
-
-            first_frame = false;
-
-            if (more_to_send)
-            {
-                auto val = static_cast<uint8_t>(op_code);
-                target.emplace_back(val);
+                val = static_cast<uint8_t>(OpCode::Continuation);
             }
             else
             {
-                // Set fin-bit
-                auto val = 0x80 | static_cast<uint8_t>(op_code);
-                target.emplace_back(val);
+                val = static_cast<uint8_t>(op_code);
             }
+
+            if (last_fragment)
+            {
+                // Set fin-bit
+                val |= 0x80;
+            }
+
+            target.emplace_back(val);
+            if(remaining == 0)
+            {
+                set_length(0, target);
+                res = ResponseStatus::LastData;
+            }
+        }
+
+        if (remaining > 0 )
+        {
+            auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);
 
             set_length(to_send, target);
 
@@ -90,28 +96,30 @@ namespace smooth::application::network::http::websocket::responses
     {
     }
 
-    WSResponse::WSResponse(const std::string& text)
-            : op_code(OpCode::Text)
+    WSResponse::WSResponse(const std::string& text, bool first_fragment, bool last_fragment)
+            : op_code(OpCode::Text), first_fragment(first_fragment), last_fragment(last_fragment)
     {
         std::copy(text.begin(), text.end(), std::back_inserter(data));
     }
 
-    WSResponse::WSResponse(std::string&& text)
-            : op_code(OpCode::Text)
+    WSResponse::WSResponse(std::string&& text, bool first_fragment, bool last_fragment)
+            : op_code(OpCode::Text), first_fragment(first_fragment), last_fragment(last_fragment)
     {
         std::copy(std::make_move_iterator(text.begin()),
                   std::make_move_iterator(text.end()),
                   std::back_inserter(data));
     }
 
-    WSResponse::WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text)
-            : op_code(treat_as_text ? OpCode::Text : OpCode::Binary)
+    WSResponse::WSResponse(const std::vector<uint8_t>& binary, bool treat_as_text, bool first_fragment,
+                           bool last_fragment)
+            : op_code(treat_as_text ? OpCode::Text : OpCode::Binary), first_fragment(first_fragment),
+              last_fragment(last_fragment)
     {
         std::copy(binary.begin(), binary.end(), std::back_inserter(data));
     }
 
-    WSResponse::WSResponse(std::vector<uint8_t>&& binary)
-            : op_code(OpCode::Binary)
+    WSResponse::WSResponse(std::vector<uint8_t>&& binary, bool first_fragment, bool last_fragment)
+            : op_code(OpCode::Binary), first_fragment(first_fragment), last_fragment(last_fragment)
     {
         std::copy(std::make_move_iterator(binary.begin()),
                   std::make_move_iterator(binary.end()),

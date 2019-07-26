@@ -38,9 +38,7 @@ namespace http_server_test
     void http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text,
                                                        const std::vector<uint8_t>& data)
     {
-        (void) first_part;
-        (void) last_part;
-        response.reply(std::make_unique<WSResponse>(data, is_text), false);
+        response.reply(std::make_unique<WSResponse>(data, is_text, first_part, last_part), false);
     }
 
     void WSEchoServer::event(const smooth::core::timer::TimerExpiredEvent&)
