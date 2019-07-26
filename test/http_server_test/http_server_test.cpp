@@ -16,13 +16,13 @@
 
 #include "http_server_test.h"
 #include <memory>
-#include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/filesystem/filesystem.h>
 #include <smooth/core/filesystem/FSLock.h>
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include <smooth/application/network/http/regular/MIMEParser.h>
+#include <smooth/core/SystemStatistics.h>
 #include "SendBlob.h"
 #include "WSEchoServer.h"
 #include "wifi_creds.h"
@@ -130,7 +130,6 @@ namespace http_server_test
 
     void fill(const char* src, std::vector<unsigned char>& target)
     {
-
         for (size_t i = 0; i < strlen(src); ++i)
         {
             target.push_back(static_cast<unsigned char>(src[i]));
@@ -143,8 +142,13 @@ namespace http_server_test
 
 
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(5000))
     {
+    }
+
+    void App::tick()
+    {
+        smooth::core::SystemStatistics::instance().dump();
     }
 
     void App::init()
@@ -245,7 +249,8 @@ namespace http_server_test
                 if (size == 0)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
-                                                                               "Request parameter 'size' must be > 0"), false);
+                                                                               "Request parameter 'size' must be > 0"),
+                                   false);
                 }
                 else
                 {
@@ -303,7 +308,8 @@ namespace http_server_test
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                                                                                R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" +
-                                                                               data["edit_box"] + "</textarea>"), false);
+                                                                               data["edit_box"] + "</textarea>"),
+                                   false);
                 }
             };
 

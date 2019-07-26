@@ -89,6 +89,7 @@ set(SOURCES
         core/json/Value.cpp
         core/json/JsonFile.cpp
         core/Task.cpp
+        core/SystemStatistics.cpp
         include/smooth/application/io/i2c/ADS1115.h
         include/smooth/application/io/i2c/MCP23017.h
         include/smooth/application/network/http/HTTPServerClient.h
@@ -144,6 +145,7 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
+        include/smooth/core/SystemStatistics.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )

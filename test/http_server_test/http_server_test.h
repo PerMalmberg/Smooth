@@ -68,6 +68,8 @@ namespace http_server_test
 
             void init() override;
 
+            void tick() override;
+
         private:
 #ifdef ESP_PLATFORM
             std::unique_ptr<smooth::core::filesystem::MMCSDCard> sd_card{};
