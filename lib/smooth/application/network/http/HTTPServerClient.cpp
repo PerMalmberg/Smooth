@@ -61,7 +61,7 @@ namespace smooth::application::network::http
                      || res == ResponseStatus::LastData)
             {
                 HTTPPacket p{data};
-                auto& tx = this->get_buffers()->get_tx_buffer();
+                auto& tx = this->container->get_tx_buffer();
                 tx.put(p);
             }
         }
@@ -204,7 +204,7 @@ namespace smooth::application::network::http
             }
             else
             {
-                auto& tx = this->get_buffers()->get_tx_buffer();
+                auto& tx = this->container->get_tx_buffer();
                 if (mode == Mode::HTTP)
                 {
                     // Whether or not everything is sent, send the current (possibly header-only) packet.

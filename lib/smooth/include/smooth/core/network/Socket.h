@@ -72,7 +72,7 @@ namespace smooth::core::network
             /// \return a std::shared_ptr pointing to an instance of a ISocket object, or nullptr if no socket could be
             /// created.
             static std::shared_ptr<Socket<Protocol>>
-            create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+            create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::chrono::milliseconds send_timeout = DefaultSendTimeout,
                    std::chrono::milliseconds receive_timeout = DefaultReceiveTimeout);
 
@@ -80,7 +80,7 @@ namespace smooth::core::network
             static std::shared_ptr<Socket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                    int socket_id,
-                   std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                   std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::chrono::milliseconds send_timeout = DefaultSendTimeout,
                    std::chrono::milliseconds receive_timeout = DefaultReceiveTimeout);
 
@@ -102,7 +102,7 @@ namespace smooth::core::network
             }
 
         protected:
-            Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container);
+            Socket(std::weak_ptr<BufferContainer<Protocol>> buffer_container);
 
             virtual bool create_socket();
 
@@ -151,7 +151,7 @@ namespace smooth::core::network
     std::shared_ptr<Socket<Protocol>>
     Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                                      int socket_id,
-                                     std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                     std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                      std::chrono::milliseconds send_timeout,
                                      std::chrono::milliseconds receive_timeout)
     {
@@ -164,7 +164,7 @@ namespace smooth::core::network
 
     template<typename Protocol, typename Packet>
     std::shared_ptr<Socket<Protocol>>
-    Socket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+    Socket<Protocol, Packet>::create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                      std::chrono::milliseconds send_timeout,
                                      std::chrono::milliseconds receive_timeout)
     {
@@ -173,7 +173,7 @@ namespace smooth::core::network
                 : public Socket<Protocol, Packet>
         {
             public:
-                MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                MakeSharedActivator(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                     std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
                         : Socket<Protocol, Packet>(buffer_container)
                 {
@@ -187,10 +187,9 @@ namespace smooth::core::network
     }
 
     template<typename Protocol, typename Packet>
-    Socket<Protocol, Packet>::Socket(std::shared_ptr<BufferContainer<Protocol>> buffer_container
-    )
+    Socket<Protocol, Packet>::Socket(std::weak_ptr<BufferContainer<Protocol>> buffer_container)
             : CommonSocket(),
-              buffers(buffer_container)
+              buffers(std::move(buffer_container))
     {
         // In case the buffers have been used by another socket previously (i.e. by another ServerClient),
         // we make sure they are empty before we start using them.

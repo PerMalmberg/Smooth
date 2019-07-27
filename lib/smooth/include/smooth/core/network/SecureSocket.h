@@ -79,7 +79,7 @@ namespace smooth::core::network
             /// \return a std::shared_ptr pointing to an instance of a ISocket object, or nullptr if no socket could be
             /// created.
             static std::shared_ptr<SecureSocket<Protocol>>
-            create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+            create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
                    std::chrono::milliseconds send_timeout = std::chrono::milliseconds(5000),
                    std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
@@ -87,7 +87,7 @@ namespace smooth::core::network
             static std::shared_ptr<SecureSocket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                    int socket_id,
-                   std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                   std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
                    std::chrono::milliseconds timeout = std::chrono::milliseconds(5000),
                    std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
@@ -95,9 +95,9 @@ namespace smooth::core::network
             void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id) override;
 
         protected:
-            SecureSocket(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+            SecureSocket(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                          std::unique_ptr<SSLContext> context)
-                    : Socket<Protocol, Packet>(buffer_container),
+                    : Socket<Protocol, Packet>(std::move(buffer_container)),
                       secure_context(std::move(context))
             {
                 mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
@@ -137,7 +137,7 @@ namespace smooth::core::network
     std::shared_ptr<SecureSocket<Protocol>>
     SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
                                            int socket_id,
-                                           std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                                           std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                            std::unique_ptr<SSLContext> context,
                                            std::chrono::milliseconds send_timeout,
                                            std::chrono::milliseconds receive_timeout)
@@ -151,7 +151,7 @@ namespace smooth::core::network
 
     template<typename Protocol, typename Packet>
     std::shared_ptr<SecureSocket<Protocol>>
-    SecureSocket<Protocol, Packet>::create(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+    SecureSocket<Protocol, Packet>::create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                            std::unique_ptr<SSLContext> context,
                                            std::chrono::milliseconds send_timeout,
                                            std::chrono::milliseconds receive_timeout)
@@ -161,7 +161,7 @@ namespace smooth::core::network
                 : public SecureSocket<Protocol, Packet>
         {
             public:
-                MakeSharedActivator(std::shared_ptr<BufferContainer<Protocol>> buffer_container,
+                MakeSharedActivator(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                                     std::unique_ptr<SSLContext> context,
                                     std::chrono::milliseconds send_timeout,
                                     std::chrono::milliseconds receive_timeout)

@@ -91,7 +91,7 @@ namespace smooth::core::network
                 return client_context;
             }
 
-            std::shared_ptr<BufferContainer < Protocol>> get_buffers()
+            std::weak_ptr<BufferContainer<Protocol>> get_buffers()
             {
                 return container;
             }
@@ -120,7 +120,7 @@ namespace smooth::core::network
             {
                 reset_client();
                 socket.reset();
-                get_buffers()->clear();
+                container->clear();
             }
 
             smooth::core::network::ClientPool<FinalClientTypeName>& pool;
