@@ -47,6 +47,8 @@ namespace smooth::core
 #ifdef ESP_PLATFORM
         Log::info(tag, "[INTERNAL]");
         dump_mem_stats(MALLOC_CAP_INTERNAL);
+        Log::info(tag, "[INTERNAL | DMA]");
+        dump_mem_stats(MALLOC_CAP_INTERNAL|MALLOC_CAP_DMA);
         Log::info(tag, "[SPIRAM]");
         dump_mem_stats(MALLOC_CAP_SPIRAM);
 #endif
