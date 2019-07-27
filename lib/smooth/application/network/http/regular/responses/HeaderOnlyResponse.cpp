@@ -42,7 +42,7 @@ namespace smooth::application::network::http::regular::responses
 
     ResponseStatus HeaderOnlyResponse::get_data(std::size_t /*max_amount*/, std::vector<uint8_t>& /*target*/)
     {
-        return ResponseStatus::EndOfData;
+        return ResponseStatus::NoData;
     }
 
     void HeaderOnlyResponse::set_header(const std::string& key, const std::string& value)

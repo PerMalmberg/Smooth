@@ -37,10 +37,10 @@ namespace smooth::application::network::http::regular::responses
         headers[LAST_MODIFIED] = utils::make_http_time(info.last_modified());
     }
 
-    // Called at least once when sending a response and until ResponseStatus::EndOfData is returned
+    // Called at least once when sending a response and until ResponseStatus::NoData is returned
     ResponseStatus FileContentResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res = ResponseStatus::EndOfData;
+        auto res = ResponseStatus::NoData;
 
         if (sent < info.size())
         {

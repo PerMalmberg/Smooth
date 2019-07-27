@@ -39,9 +39,11 @@ namespace smooth::application::network::http::websocket::responses
     {
         // Portion data in such a way that at most max_amount of *data* is moved into target.
 
-        auto res{ResponseStatus::EndOfData};
+        auto res{ResponseStatus::NoData};
 
         auto remaining = std::distance(data.begin(), data.end());
+
+        Log::info("WSR", Format("R:{1}", Int64(remaining)));
 
         if (!header_sent)
         {
@@ -64,14 +66,14 @@ namespace smooth::application::network::http::websocket::responses
             }
 
             target.emplace_back(val);
-            if(remaining == 0)
+            if (remaining == 0)
             {
                 set_length(0, target);
                 res = ResponseStatus::LastData;
             }
         }
 
-        if (remaining > 0 )
+        if (remaining > 0)
         {
             auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);
 
@@ -87,6 +89,10 @@ namespace smooth::application::network::http::websocket::responses
             remaining = std::distance(data.begin(), data.end());
             res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::LastData;
         }
+
+        Log::info("WSR",
+                  Format("F:{1} L:{2} R{3} RES:{4}", Bool(first_fragment), Bool(last_fragment),
+                         Int64(remaining), Int32(static_cast<int32_t>(res))));
 
         return res;
     }

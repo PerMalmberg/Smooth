@@ -27,7 +27,7 @@ namespace smooth::application::network::http
             Error,
             HasMoreData,
             LastData,
-            EndOfData
+            NoData
     };
 
     // A request operation is responsible for providing outgoing data chunked into smaller pieces

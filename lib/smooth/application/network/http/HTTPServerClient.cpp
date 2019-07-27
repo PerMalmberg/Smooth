@@ -51,7 +51,7 @@ namespace smooth::application::network::http
                 Log::error(tag, "Current operation reported error, closing server client.");
                 this->close();
             }
-            else if (res == ResponseStatus::EndOfData)
+            else if (res == ResponseStatus::NoData)
             {
                 current_operation.reset();
                 // Immediately send next
@@ -187,44 +187,49 @@ namespace smooth::application::network::http
 
     void HTTPServerClient::send_first_part()
     {
-        if (!operations.empty())
+        ResponseStatus res = ResponseStatus::Error;
+
+        do
         {
-            current_operation = std::move(operations.front());
-            operations.pop_front();
-
-            const auto& headers = current_operation->get_headers();
-
-            std::vector<uint8_t> data{};
-            auto res = current_operation->get_data(content_chunk_size, data);
-
-            if (res == ResponseStatus::Error)
+            if (!operations.empty())
             {
-                Log::error(tag, "Current operation reported error, closing server client.");
-                this->close();
-            }
-            else
-            {
-                auto& tx = this->container->get_tx_buffer();
-                if (mode == Mode::HTTP)
+                current_operation = std::move(operations.front());
+                operations.pop_front();
+
+                const auto& headers = current_operation->get_headers();
+
+                std::vector<uint8_t> data{};
+                res = current_operation->get_data(content_chunk_size, data);
+
+                if (res == ResponseStatus::Error)
                 {
-                    // Whether or not everything is sent, send the current (possibly header-only) packet.
-                    HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
-                    tx.put(p);
+                    Log::error(tag, "Current operation reported error, closing server client.");
+                    this->close();
                 }
                 else
                 {
-                    HTTPPacket p{data};
-                    tx.put(p);
-                }
+                    auto& tx = this->container->get_tx_buffer();
+                    if (mode == Mode::HTTP)
+                    {
+                        // Whether or not everything is sent, send the current (possibly header-only) packet.
+                        HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                        tx.put(p);
+                    }
+                    else
+                    {
+                        HTTPPacket p{data};
+                        tx.put(p);
+                    }
 
-                if (res == ResponseStatus::EndOfData)
-                {
-                    current_operation.reset();
-                    // Immediately send next
-                    send_first_part();
+                    if (res == ResponseStatus::NoData)
+                    {
+                        current_operation.reset();
+                    }
                 }
             }
         }
+        while (!operations.empty() &&
+               res == ResponseStatus::NoData); // Process next operation as long as no data is sent.
     }
 
 
@@ -322,7 +327,8 @@ namespace smooth::application::network::http
                     else
                     {
                         // Unsupported method.
-                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed), false);
+                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed),
+                              false);
                     }
                 }
             }
@@ -349,7 +355,7 @@ namespace smooth::application::network::http
             }
             else
             {
-                if(ws_server)
+                if (ws_server)
                 {
                     bool first_part = !packet.is_continuation();
                     bool last_part = !packet.is_continued();

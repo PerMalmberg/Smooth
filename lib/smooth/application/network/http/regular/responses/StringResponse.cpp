@@ -49,7 +49,7 @@ namespace smooth::application::network::http::regular::responses
 
     ResponseStatus StringResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res{ResponseStatus::EndOfData};
+        auto res{ResponseStatus::NoData};
 
         auto remaining = std::distance(data.begin(), data.end());
         if (remaining > 0)
