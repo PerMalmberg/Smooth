@@ -43,8 +43,6 @@ namespace smooth::application::network::http::websocket::responses
 
         auto remaining = std::distance(data.begin(), data.end());
 
-        Log::info("WSR", Format("R:{1}", Int64(remaining)));
-
         if (!header_sent)
         {
             header_sent = true;
@@ -89,10 +87,6 @@ namespace smooth::application::network::http::websocket::responses
             remaining = std::distance(data.begin(), data.end());
             res = remaining > 0 ? ResponseStatus::HasMoreData : ResponseStatus::LastData;
         }
-
-        Log::info("WSR",
-                  Format("F:{1} L:{2} R{3} RES:{4}", Bool(first_fragment), Bool(last_fragment),
-                         Int64(remaining), Int32(static_cast<int32_t>(res))));
 
         return res;
     }
