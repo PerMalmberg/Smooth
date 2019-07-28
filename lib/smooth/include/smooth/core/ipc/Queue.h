@@ -61,6 +61,7 @@ namespace smooth::core::ipc
             {
                 std::lock_guard<std::mutex> lock(guard);
                 items.clear();
+                Log::verbose("Queue", Format("Destructing '{1}'", Str(name)));
             }
 
             /// Gets the size of the queue.

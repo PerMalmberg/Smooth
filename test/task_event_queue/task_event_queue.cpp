@@ -19,6 +19,8 @@
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 
+#include <utility>
+
 using namespace smooth;
 using namespace smooth::core;
 using namespace smooth::core::ipc;
@@ -31,7 +33,7 @@ namespace task_event_queue
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           std::chrono::milliseconds(1000)),
-              queue("string queue", 10, *this, *this),
+              queue(ElapsedTimeQueue::create("string queue", 10, *this, *this)),
               sender(queue)
     {
     }
@@ -57,9 +59,10 @@ namespace task_event_queue
         }
     }
 
-    SenderTask::SenderTask(TaskEventQueue <timer::ElapsedTime>& out) :
+    SenderTask::SenderTask(std::weak_ptr<TaskEventQueue<timer::ElapsedTime>> out)
+            :
             core::Task("SenderTask", 4096, 10, milliseconds(1)),
-            out(out)
+            out(std::move(out))
     {
     }
 
@@ -67,6 +70,10 @@ namespace task_event_queue
     {
         timer::ElapsedTime e;
         e.start();
-        out.push(e);
+        auto q = out.lock();
+        if (q)
+        {
+            q->push(e);
+        }
     }
 }

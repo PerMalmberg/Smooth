@@ -220,7 +220,7 @@ namespace smooth::application::network::mqtt
         }
     }
 
-    void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt)
+    void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt) const
     {
         Log::debug(mqtt_log_tag, Format("Reception of QoS {1} complete", Int32(publish.get_qos())));
         // Grab the payload
@@ -229,8 +229,13 @@ namespace smooth::application::network::mqtt
         std::copy(std::make_move_iterator(publish.get_payload_cbegin()),
                   std::make_move_iterator(publish.get_payload_cend()),
                   std::back_inserter(payload));
+
         // Enqueue data to application. Can't avoid a copy here.
-        mqtt.get_application_queue().push(std::make_pair(publish.get_topic(), payload));
+        const auto& app_queue = mqtt.get_application_queue().lock();
+        if(app_queue)
+        {
+            app_queue->push(std::make_pair(publish.get_topic(), payload));
+        }
     }
 }
 

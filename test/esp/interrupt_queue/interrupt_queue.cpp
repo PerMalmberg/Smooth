@@ -24,7 +24,7 @@ namespace interrupt_queue
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              queue(*this, *this),
+              queue(IntrQueue::create(*this, *this)),
               input(queue, GPIO_NUM_21, true, false, GPIO_INTR_ANYEDGE)
     {
     }

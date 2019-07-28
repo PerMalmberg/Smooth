@@ -57,7 +57,7 @@ namespace smooth::application::network::mqtt
             void handle_disconnect();
 
         private:
-            void forward_to_application(const packet::Publish& publish, IMqttClient& mqtt);
+            void forward_to_application(const packet::Publish& publish, IMqttClient& mqtt) const;
 
             template<typename T>
             bool send_control_packet(std::vector<InFlight<T>>& in_flight, PacketType wait_for, IMqttClient& mqtt,

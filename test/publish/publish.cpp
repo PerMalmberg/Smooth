@@ -53,7 +53,7 @@ namespace publish
 
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(1)),
-              sub("sub", 10, *this, *this)
+              sub(SubscribeQueue::create("sub", 10, *this, *this))
     {
     }
 

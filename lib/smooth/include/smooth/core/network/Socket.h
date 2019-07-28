@@ -312,7 +312,7 @@ namespace smooth::core::network
                 {
                     // Let the application know it may send a packet.
                     smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
-                    cont->get_tx_empty().push(event);
+                    cont->get_tx_empty()->push(event);
                 }
                 else
                 {
@@ -367,7 +367,7 @@ namespace smooth::core::network
             else if (rx.is_packet_complete())
             {
                 event::DataAvailableEvent<Protocol> d(&rx);
-                container->get_data_available().push(d);
+                container->get_data_available()->push(d);
                 rx.prepare_new_packet();
             }
         }
@@ -408,7 +408,7 @@ namespace smooth::core::network
             {
                 // Let the application know it may now send another packet.
                 smooth::core::network::event::TransmitBufferEmptyEvent event(shared_from_this());
-                container->get_tx_empty().push(event);
+                container->get_tx_empty()->push(event);
             }
         }
     }
@@ -472,8 +472,7 @@ namespace smooth::core::network
         auto cont = get_container_or_close();
         if (cont)
         {
-            cont->get_connection_status()
-                .push(event::ConnectionStatusEvent(shared_from_this(), is_connected()));
+            cont->get_connection_status()->push(event::ConnectionStatusEvent(shared_from_this(), is_connected()));
         }
     }
 

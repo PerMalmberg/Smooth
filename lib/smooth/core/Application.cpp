@@ -85,7 +85,7 @@ namespace smooth::core
 
     IDFApplication::IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval)
             : POSIXApplication(priority, tick_interval),
-              system_event("system_event", 10, *this, *this)
+              system_event(SystemEventQueue::create("system_event", 10, *this, *this))
     {
         nvs_flash_init();
         gpio_install_isr_service(0);

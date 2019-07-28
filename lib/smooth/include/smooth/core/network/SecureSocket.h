@@ -277,7 +277,7 @@ namespace smooth::core::network
                     else if (rx.is_packet_complete())
                     {
                         event::DataAvailableEvent<Protocol> d(&rx);
-                        container->get_data_available().push(d);
+                        container->get_data_available()->push(d);
                         rx.prepare_new_packet();
                     }
                 }
@@ -320,7 +320,7 @@ namespace smooth::core::network
                     {
                         // Let the application know it may now send another packet.
                         event::TransmitBufferEmptyEvent event(this->shared_from_this());
-                        container->get_tx_empty().push(event);
+                        container->get_tx_empty()->push(event);
                     }
                 }
 

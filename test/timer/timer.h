@@ -49,7 +49,8 @@ namespace timer
             std::chrono::milliseconds total = std::chrono::milliseconds(0);
         };
 
-        smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> queue;
+        using ExpiredQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
+        std::shared_ptr<ExpiredQueue> queue;
         std::vector<TimerInfo> timers;
     };
 }

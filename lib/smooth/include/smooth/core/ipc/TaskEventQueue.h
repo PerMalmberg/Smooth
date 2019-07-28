@@ -21,6 +21,7 @@
 #include "ITaskEventQueue.h"
 #include "IEventListener.h"
 #include "QueueNotification.h"
+#include <smooth/core/util/create_protected.h>
 
 namespace smooth::core::ipc
 {
@@ -30,7 +31,8 @@ namespace smooth::core::ipc
     /// \tparam T The type of events to receive.
     template<typename T>
     class TaskEventQueue
-            : public ITaskEventQueue
+            : public ITaskEventQueue,
+              public std::enable_shared_from_this<TaskEventQueue<T>>
     {
         public:
             friend core::Task;
@@ -38,36 +40,29 @@ namespace smooth::core::ipc
             static_assert(std::is_default_constructible<T>::value, "DataType must be default-constructible");
             static_assert(std::is_assignable<T, T>::value, "DataType must be a assignable");
 
-            /// Constructor
-            /// \param name The name of the event queue, mainly used for debugging and logging.
-            /// \param size The size of the queue, i.e. the number of items it can hold.
-            /// \param task The Task to which to signal when an event is available.
-            /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
-            /// any object instance.
-            TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
-                    :
-                    queue(name + std::string("-TaskEventQueue"), size),
-                    task(task),
-                    listener(listener)
+            static auto
+            create(const std::string& name, int size, Task& owner_task, IEventListener<T>& event_listener)
             {
-                task.register_queue_with_task(this);
+                return smooth::core::util::create_protected_shared<TaskEventQueue<T>>(name, size, owner_task,
+                                                                                      event_listener);
             }
 
-            // Not unregistrering queue with task?! - Nope, we're only hold a QueueNotification*,
+            // Not unregistrering queue with task?! - Nope, we're only holding a QueueNotification*,
             // and since we're destructing, there's no need to clear that pointer.
             ~TaskEventQueue() override = default;
+
+            TaskEventQueue() = delete;
+            TaskEventQueue(const TaskEventQueue&) = delete;
+            TaskEventQueue(TaskEventQueue&&) = delete;
+            TaskEventQueue& operator=(const TaskEventQueue&) = delete;
+            TaskEventQueue& operator=(const TaskEventQueue&&) = delete;
 
             /// Pushes an item into the queue
             /// \param item The item of which a copy will be placed on the queue.
             /// \return true if the queue could accept the item, otherwise false.
-            bool push(const T& item)
+            virtual bool push(const T& item)
             {
-                auto res = queue.push(item);
-                if (res)
-                {
-                    notif->notify(this);
-                }
-                return res;
+                return push_internal(item, this->shared_from_this());
             }
 
             /// Gets the size of the queue.
@@ -99,10 +94,44 @@ namespace smooth::core::ipc
             }
 
         protected:
+            /// Constructor
+            /// \param name The name of the event queue, mainly used for debugging and logging.
+            /// \param size The size of the queue, i.e. the number of items it can hold.
+            /// \param task The Task to which to signal when an event is available.
+            /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
+            /// any object instance.
+            TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
+                    :
+                    queue(name + std::string("-TaskEventQueue"), size),
+                    task(task),
+                    listener(listener)
+            {
+                task.register_queue_with_task(this);
+            }
+
+            bool push_internal(const T& item, const std::weak_ptr<ITaskEventQueue>& receiver)
+            {
+                auto res = queue.push(item);
+
+                if (res)
+                {
+                    notif->notify(receiver);
+                }
+
+                return res;
+            }
+
+            template <typename Derived>
+            std::shared_ptr<Derived> shared_from_base()
+            {
+                return std::static_pointer_cast<Derived>(this->shared_from_this());
+            }
+
             Queue<T> queue;
             QueueNotification* notif = nullptr;
 
         private:
+
             void forward_to_event_listener() override
             {
                 // All messages passed via a queue needs a default constructor

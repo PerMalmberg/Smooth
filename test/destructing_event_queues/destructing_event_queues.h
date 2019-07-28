@@ -16,36 +16,18 @@
 
 #pragma once
 
-#include <condition_variable>
-#include <mutex>
-#include <deque>
-#include <memory>
-#include "ITaskEventQueue.h"
+#include <smooth/core/Application.h>
+#include <smooth/core/task_priorities.h>
+#include <iostream>
 
-namespace smooth::core::ipc
+namespace destructing_event_queues
 {
-    class QueueNotification
+    class App : public smooth::core::Application
     {
-        public:
-            QueueNotification() = default;
+    public:
+        App();
 
-            ~QueueNotification() = default;
-
-            void notify(const std::weak_ptr<ITaskEventQueue>& queue);
-
-            void remove(const std::weak_ptr<ITaskEventQueue>& queue);
-
-            std::weak_ptr<ITaskEventQueue> wait_for_notification(std::chrono::milliseconds timeout);
-
-            void clear()
-            {
-                std::lock_guard<std::mutex> lock(guard);
-                queues.clear();
-            }
-
-        private:
-            std::deque<std::weak_ptr<ITaskEventQueue>> queues{};
-            std::mutex guard{};
-            std::condition_variable cond{};
+        void init() override;
+        void tick() override;
     };
 }

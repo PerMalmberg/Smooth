@@ -7,7 +7,7 @@ set(SMOOTH_TEST_ROOT ${CMAKE_CURRENT_LIST_DIR})
 include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
 
 # Select the test project to build for ESP
-set(selected_test_project http_server_test)
+set(selected_test_project destructing_event_queues)
 
 list(APPEND available_tests hello_world
                             asan_test
@@ -20,7 +20,9 @@ list(APPEND available_tests hello_world
                             secure_socket_test
                             server_socket_test
                             secure_server_socket_test
-                            http_server_test)
+                            http_server_test
+                            destructing_event_queues
+                            destructing_subscribing_event_queues)
 
 # These tests needs actual hardware to run
 if(${ESP_PLATFORM})

@@ -22,16 +22,18 @@
 
 namespace task_event_queue
 {
+    using ElapsedTimeQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::ElapsedTime>;
+
     class SenderTask
             : public smooth::core::Task
     {
     public:
-        explicit SenderTask(smooth::core::ipc::TaskEventQueue<smooth::core::timer::ElapsedTime>& out);
+        explicit SenderTask(std::weak_ptr<ElapsedTimeQueue> out);
 
         void tick() override;
 
     private:
-        smooth::core::ipc::TaskEventQueue<smooth::core::timer::ElapsedTime>& out;
+            std::weak_ptr<smooth::core::ipc::TaskEventQueue<smooth::core::timer::ElapsedTime>> out;
     };
 
     class App
@@ -50,7 +52,7 @@ namespace task_event_queue
         void event(const smooth::core::timer::ElapsedTime& event) override;
 
     private:
-        smooth::core::ipc::TaskEventQueue<smooth::core::timer::ElapsedTime> queue;
+        std::shared_ptr<ElapsedTimeQueue> queue;
         SenderTask sender;
     };
 }

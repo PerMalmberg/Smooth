@@ -18,6 +18,7 @@
 
 #include "Input.h"
 #include <smooth/core/ipc/IISRTaskEventQueue.h>
+#include <memory>
 
 namespace smooth::core::io
 {
@@ -31,12 +32,12 @@ namespace smooth::core::io
             {
             }
 
-            bool get_state() const
+            [[nodiscard]] bool get_state() const
             {
                 return state;
             }
 
-            gpio_num_t get_io() const
+            [[nodiscard]] gpio_num_t get_io() const
             {
                 return io;
             }
@@ -57,7 +58,7 @@ namespace smooth::core::io
             /// \param pull_up Set to true if the input has a pull-up (also enables the internal pull up)
             /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
             /// \param interrupt_trigger When the interrupt should trigger
-            InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
+            InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue, gpio_num_t io,
                            bool pull_up,
                            bool pull_down,
                            gpio_int_type_t interrupt_trigger
@@ -65,12 +66,12 @@ namespace smooth::core::io
 
             void update();
 
-            gpio_num_t get_io() const
+            [[nodiscard]] gpio_num_t get_io() const
             {
                 return io;
             }
 
         private:
-            core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue;
+            std::weak_ptr<ipc::IISRTaskEventQueue<InterruptInputEvent>> queue;
     };
 }

@@ -17,14 +17,20 @@
 #include <smooth/core/timer/Timer.h>
 #include <smooth/core/timer/TimerService.h>
 
+#include <utility>
+
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
 namespace smooth::core::timer
 {
-    Timer::Timer(const std::string& name, int id, ipc::TaskEventQueue<TimerExpiredEvent>& event_queue,
+    Timer::Timer(std::string name, int id, std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> event_queue,
                  bool repeating, milliseconds interval)
-            : name(name), id(id), repeating(repeating), interval(interval), event_queue(event_queue),
+            : timer_name(std::move(name)),
+              id(id),
+              repeating(repeating),
+              timer_interval(interval),
+              queue(std::move(event_queue)),
               expire_time(steady_clock::now())
     {
         // Start the timer service when a timer is fist used.
@@ -39,7 +45,7 @@ namespace smooth::core::timer
 
     void Timer::start(milliseconds interval)
     {
-        this->interval = interval;
+        this->timer_interval = interval;
         start();
     }
 
@@ -61,13 +67,17 @@ namespace smooth::core::timer
 
     const std::string& Timer::get_name()
     {
-        return name;
+        return timer_name;
     }
 
     void Timer::expired()
     {
         TimerExpiredEvent ev(id);
-        event_queue.push(ev);
+        const auto& q = queue.lock();
+        if(q)
+        {
+            q->push(ev);
+        }
     }
 
     // This class is only used to allow std::make_shared to create an instance of Timer.
@@ -77,17 +87,17 @@ namespace smooth::core::timer
         public:
             ConstructableTimer(const std::string& name,
                                int id,
-                               ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                               std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
                                bool auto_reload,
                                std::chrono::milliseconds interval)
-                    : Timer(name, id, event_queue, auto_reload, interval)
+                    : Timer(name, id, std::move(event_queue), auto_reload, interval)
             {
             }
     };
 
     std::shared_ptr<Timer> Timer::create(const std::string& name,
                                          int id,
-                                         ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                                         const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                          bool auto_reload,
                                          std::chrono::milliseconds interval)
     {
@@ -101,6 +111,6 @@ namespace smooth::core::timer
 
     void Timer::calculate_next_execution()
     {
-        expire_time = steady_clock::now() + interval;
+        expire_time = steady_clock::now() + timer_interval;
     }
 }

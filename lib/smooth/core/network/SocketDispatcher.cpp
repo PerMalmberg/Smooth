@@ -52,12 +52,13 @@ namespace smooth::core::network
               active_sockets(),
               inactive_sockets(),
               socket_guard(),
-              network_events(tag, 10, *this, *this),
-              socket_op("SocketOperations",
-                      // Note: If there are more than 20 sockets, this queue is too small.
-                        20,
-                        *this,
-                        *this)
+              network_events(NetworkEventQueue::create(tag, 10, *this, *this)),
+              socket_op(SocketOperationQueue::create("SocketOperations",
+                      // TODO: When compiled for IDF, get proper value based on number of allowed sockets in sdkconfig
+                      //  Note: If there are more than 20 sockets, this queue is too small.
+                                                     20,
+                                                     *this,
+                                                     *this))
     {
         clear_sets();
     }
@@ -322,7 +323,7 @@ namespace smooth::core::network
 
     void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
     {
-        socket_op.push(SocketOperation(op, std::move(socket)));
+        socket_op->push(SocketOperation(op, std::move(socket)));
     }
 
     void SocketDispatcher::check_socket_timeouts()

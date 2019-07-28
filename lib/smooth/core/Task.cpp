@@ -138,6 +138,8 @@ namespace smooth::core
 
         delayed.start();
 
+        report_stack_status();
+
         for (;;)
         {
             // Try to keep the tick alive even when there are lots of incoming messages
@@ -157,9 +159,17 @@ namespace smooth::core
                 }
 
                 // Wait for data to become available, or a timeout to occur.
-                auto* queue = notification.wait_for_notification(tick_interval);
+                auto queue_ptr = notification.wait_for_notification(tick_interval);
 
-                if (queue == nullptr)
+                // Check if the weak_ptr we got back is uninitialized using the defined behaviour here:
+                // https://en.cppreference.com/w/cpp/memory/weak_ptr/owner_before
+                //
+                // Quote: The order is such that two smart pointers compare equivalent only
+                // if they are both empty or if they both own the same object, even if the
+                // values of the pointers obtained by get() are different (e.g. because they
+                // point at different subobjects within the same object)
+                decltype(queue_ptr) empty_ptr{};
+                if (!queue_ptr.owner_before(empty_ptr) && !empty_ptr.owner_before(queue_ptr))
                 {
                     // Timeout - no messages.
                     tick();
@@ -171,7 +181,11 @@ namespace smooth::core
                     // Note: Do not retrieve all messages from the the queue;
                     // it will prevent messages to arrive in the same order
                     // they were sent when there are more than one receiver queue.
-                    queue->forward_to_event_listener();
+                    auto queue = queue_ptr.lock();
+                    if(queue)
+                    {
+                        queue->forward_to_event_listener();
+                    }
                 }
             }
 
