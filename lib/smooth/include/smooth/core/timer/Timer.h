@@ -55,6 +55,7 @@ namespace smooth::core::timer
             // you should be aware that timers that are recurring always are held via a shared_ptr<> by the TimerService
             // until they are stopped.
             // Likewise, non-recurring timers are held by the TimerService until they expire or stopped.
+            // Use a TimerOwner for RAII-style destruction.
             ~Timer() override = default;
 
             void start() override;
@@ -87,7 +88,7 @@ namespace smooth::core::timer
             /// \param event_queue The vent queue to send events on.
             /// \param auto_reload If true, the timer will restart itself when it expires.
             /// \param interval The interval between the start time and when the timer expiers.
-            Timer(std::string  name, int id, std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
+            Timer(std::string name, int id, std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
                   bool auto_reload, std::chrono::milliseconds interval);
 
         private:
@@ -100,5 +101,23 @@ namespace smooth::core::timer
 
             std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> queue;
             std::chrono::steady_clock::time_point expire_time;
+    };
+
+    class TimerOwner
+    {
+        public:
+            explicit TimerOwner(std::shared_ptr<Timer> t) noexcept;
+
+            TimerOwner(const std::string& name,
+                       int id,
+                       const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
+                       bool auto_reload,
+                       std::chrono::milliseconds interval);
+
+            ~TimerOwner();
+            std::shared_ptr<Timer> operator->() const noexcept;
+
+        private:
+            std::shared_ptr<Timer> t;
     };
 }

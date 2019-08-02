@@ -74,7 +74,7 @@ namespace smooth::core::timer
     {
         TimerExpiredEvent ev(id);
         const auto& q = queue.lock();
-        if(q)
+        if (q)
         {
             q->push(ev);
         }
@@ -112,5 +112,29 @@ namespace smooth::core::timer
     void Timer::calculate_next_execution()
     {
         expire_time = steady_clock::now() + timer_interval;
+    }
+
+    TimerOwner::TimerOwner(std::shared_ptr<Timer> t) noexcept
+            : t(std::move(t))
+    {}
+
+    TimerOwner::TimerOwner(const std::string& name,
+                           int id,
+                           const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
+                           bool auto_reload,
+                           std::chrono::milliseconds interval)
+            :
+            t(Timer::create(name, id, event_queue, auto_reload, interval))
+    {
+    }
+
+    TimerOwner::~TimerOwner()
+    {
+        t->stop();
+    }
+
+    std::shared_ptr<Timer> TimerOwner::operator->() const noexcept
+    {
+        return t;
     }
 }

@@ -42,7 +42,7 @@ namespace destructing_event_queues
         public:
             explicit TimerUser(Task& task)
                     : queue(TimerExpiredQueue_t::create("", 10, task, *this)),
-                      timer(Timer::create("", 0, queue, true, milliseconds{100}))
+                      timer("", 0, queue, true, milliseconds{100})
             {
                 timer->start();
             }
@@ -55,7 +55,7 @@ namespace destructing_event_queues
         private:
             using TimerExpiredQueue_t = TaskEventQueue<TimerExpiredEvent>;
             std::shared_ptr<TimerExpiredQueue_t> queue;
-            std::shared_ptr<Timer> timer;
+            TimerOwner timer;
     };
 
     class Worker
