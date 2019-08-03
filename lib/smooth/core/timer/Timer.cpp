@@ -16,11 +16,11 @@
 
 #include <smooth/core/timer/Timer.h>
 #include <smooth/core/timer/TimerService.h>
-
-#include <utility>
+#include <smooth/core/util/create_protected.h>
 
 using namespace smooth::core::logging;
 using namespace std::chrono;
+using namespace smooth::core::util;
 
 namespace smooth::core::timer
 {
@@ -80,28 +80,13 @@ namespace smooth::core::timer
         }
     }
 
-    // This class is only used to allow std::make_shared to create an instance of Timer.
-    class ConstructableTimer
-            : public Timer
-    {
-        public:
-            ConstructableTimer(const std::string& name,
-                               int id,
-                               std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
-                               bool auto_reload,
-                               std::chrono::milliseconds interval)
-                    : Timer(name, id, std::move(event_queue), auto_reload, interval)
-            {
-            }
-    };
-
     std::shared_ptr<Timer> Timer::create(const std::string& name,
                                          int id,
                                          const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                          bool auto_reload,
                                          std::chrono::milliseconds interval)
     {
-        return std::make_shared<ConstructableTimer>(name, id, event_queue, auto_reload, interval);
+        return create_protected_shared<Timer>(name, id, event_queue, auto_reload, interval);
     }
 
     std::chrono::steady_clock::time_point Timer::expires_at() const
