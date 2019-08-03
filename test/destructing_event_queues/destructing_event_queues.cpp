@@ -74,7 +74,7 @@ namespace destructing_event_queues
 
                 if (adding)
                 {
-                    for (int i = 0; i < 50 && users.size() <= 400; ++i)
+                    for (int i = 0; i < 50 && users.size() < 400; ++i)
                     {
                         users.emplace_back(std::make_shared<TimerUser>(*this));
                     }
