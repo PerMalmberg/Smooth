@@ -31,20 +31,16 @@ namespace smooth::core::ipc
         cond.notify_one();
     }
 
-    void QueueNotification::remove(const std::weak_ptr<smooth::core::ipc::ITaskEventQueue>& queue)
+    void QueueNotification::remove_expired_queues()
     {
         std::unique_lock<std::mutex> lock{guard};
-        auto pos = std::find_if(queues.begin(), queues.end(), [&queue](auto& o) {
-            // Determine if the referenced queues are the same instances.
-            auto a = queue.lock();
-            auto b = o.lock();
-            return a && b && a.get() == b.get();
+
+        auto new_end = std::remove_if(queues.begin(), queues.end(), [&](const auto& o)
+        {
+            return o.expired();
         });
 
-        if (pos != queues.end())
-        {
-            queues.erase(pos);
-        }
+        queues.erase(new_end, queues.end());
     }
 
     std::weak_ptr<ITaskEventQueue> QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)

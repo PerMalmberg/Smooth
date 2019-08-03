@@ -47,9 +47,10 @@ namespace smooth::core::ipc
                                                                                       event_listener);
             }
 
-            // Not unregistrering queue with task?! - Nope, we're only holding a QueueNotification*,
-            // and since we're destructing, there's no need to clear that pointer.
-            ~TaskEventQueue() override = default;
+            ~TaskEventQueue() override
+            {
+                notif->remove_expired_queues();
+            }
 
             TaskEventQueue() = delete;
             TaskEventQueue(const TaskEventQueue&) = delete;
