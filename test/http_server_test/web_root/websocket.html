@@ -30,9 +30,13 @@
 
                 // Listen for messages
                 socket.addEventListener('message', function (event) {
-                    console.log('Received ' + event.data.length, event.data);
-                    document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(event.data.length);
-                    document.getElementById("last_count").innerText = event.data.length;
+                    var json = JSON.parse(event.data);
+                    document.getElementById("data").value = json["data"];
+                    document.getElementById("id").value = json["message_id"];
+                    document.getElementById("length").value = json["length"];
+
+
+                    document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(json["length"]);
                 });
             }
         }
@@ -55,13 +59,26 @@
 
             console.log("Sending " + remaining + " bytes");
 
+            var i = 0;
+
+            var msg = {};
+
             while (remaining > block_size) {
-                socket.send("a".repeat(block_size));
+                msg["message_id"] = i;
+                msg["data"] = "a".repeat(block_size);
+                msg["length"] = block_size;
+
+                socket.send(JSON.stringify(msg));
+
                 remaining -= block_size;
+                ++i;
             }
 
             if (remaining > 0) {
-                socket.send("a".repeat(remaining));
+                msg["message_id"] = i;
+                msg["data"] = "a".repeat(remaining);
+                msg["length"] = remaining;
+                socket.send(JSON.stringify(msg));
             }
         }
 
@@ -93,8 +110,9 @@
         <button onclick="reset_total();">Reset total</button>
         <br/>
         <br/>
-        Last count:
-        <div id="last_count">0</div>
+        <label for="id">ID</label><textarea id="id"></textarea>
+        <label for="length">Length</label><textarea id="length"></textarea>
+        <label for="data">Data</label><textarea id="data"></textarea>
     </body>
 </html>
 
