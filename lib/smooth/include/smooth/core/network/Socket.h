@@ -32,6 +32,7 @@
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/network/event/ConnectionStatusEvent.h>
 #include <smooth/core/logging/log.h>
+#include <smooth/core/util/create_protected.h>
 
 namespace smooth::core::network
 {
@@ -168,22 +169,10 @@ namespace smooth::core::network
                                      std::chrono::milliseconds send_timeout,
                                      std::chrono::milliseconds receive_timeout)
     {
-        // This class is solely used to enabled access to the protected Socket<Protocol, Packet> constructor from std::make_shared<>
-        class MakeSharedActivator
-                : public Socket<Protocol, Packet>
-        {
-            public:
-                MakeSharedActivator(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                    std::chrono::milliseconds send_timeout, std::chrono::milliseconds receive_timeout)
-                        : Socket<Protocol, Packet>(buffer_container)
-                {
-                    set_send_timeout(send_timeout);
-                    set_receive_timeout(receive_timeout);
-                }
-
-        };
-
-        return std::make_shared<MakeSharedActivator>(buffer_container, send_timeout, receive_timeout);
+        auto s = smooth::core::util::create_protected_shared<Socket<Protocol, Packet>>(buffer_container);
+        s->set_send_timeout(send_timeout);
+        s->set_receive_timeout(receive_timeout);
+        return s;
     }
 
     template<typename Protocol, typename Packet>
