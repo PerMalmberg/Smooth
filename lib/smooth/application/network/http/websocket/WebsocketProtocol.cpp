@@ -122,11 +122,14 @@ namespace smooth::application::network::http::websocket
             // De-mask data
             if (is_data_masked())
             {
+                // Start at the length we had before receiving the current part.
+                auto start_length =
+                        received_payload - static_cast<decltype(received_payload_in_current_package)>(length);
                 for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i)
                 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[i % 4];
+                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[(start_length + i) % 4];
 #pragma GCC diagnostic pop
                 }
             }
