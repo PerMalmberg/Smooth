@@ -52,14 +52,14 @@ namespace smooth::application::network::http::websocket
             // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
             // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
 
-            // First get the maximum number of bytes to read, this limits the value to fit in the type of
-            // content_chunk_size, making the following cast safe too.
-            auto size = std::min(payload_length - received_payload,
-                                 static_cast<decltype(payload_length)>(content_chunk_size));
-            len = static_cast<decltype(content_chunk_size)>(size);
-            // Actual space needed is what whe already have, plus what we want to read.
-            auto space_needed = static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len;
-            packet.ensure_room(space_needed);
+            auto remaining_to_read = payload_length - received_payload;
+            auto remaining_to_fill_current =
+                    static_cast<decltype(received_payload_in_current_package)>(content_chunk_size) -
+                    received_payload_in_current_package;
+
+            auto size_needed = std::min(remaining_to_read, remaining_to_fill_current);
+            len = static_cast<decltype(len)>(size_needed);
+            packet.ensure_room(static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len);
         }
 
         return len;
@@ -111,7 +111,7 @@ namespace smooth::application::network::http::websocket
             auto len = static_cast<decltype(received_payload_in_current_package)>(length);
             if (is_data_masked())
             {
-                for (auto i = 0u; i < len; ++i)
+                for (decltype(len) i = 0; i < len; ++i)
                 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -212,10 +212,10 @@ namespace smooth::application::network::http::websocket
 
     void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
     {
-        if(received_payload <= static_cast<decltype(received_payload)>(content_chunk_size))
+        if (received_payload <= static_cast<decltype(received_payload)>(content_chunk_size))
         {
             // This is the first part of the fragment we're forwarding to the application.
-            if(received_payload < payload_length)
+            if (received_payload < payload_length)
             {
                 // There is more to come
                 packet.set_continued();
@@ -226,7 +226,7 @@ namespace smooth::application::network::http::websocket
             // Second or later fragment
             packet.set_continuation();
 
-            if(received_payload < payload_length)
+            if (received_payload < payload_length)
             {
                 // Still more fragments coming.
                 packet.set_continued();
