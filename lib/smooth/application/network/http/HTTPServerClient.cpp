@@ -228,8 +228,8 @@ namespace smooth::application::network::http
                 }
             }
         }
-        while (!operations.empty() &&
-               res == ResponseStatus::NoData); // Process next operation as long as no data is sent.
+        while (!operations.empty()
+               && res == ResponseStatus::NoData); // Process next operation as long as no data is sent.
     }
 
 

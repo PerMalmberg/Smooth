@@ -53,30 +53,42 @@
         }
 
         function send() {
+            document.getElementById("total_count").innerText = "0";
             var block_size = parseInt(document.getElementById("block_size").value);
 
             var remaining = parseInt(document.getElementById("to_send").value);
 
             console.log("Sending " + remaining + " bytes");
 
-            var i = 0;
+            let id = 0;
+            let i = 0;
 
-            var msg = {};
+            let msg = {};
+
+            let characters = "abcdefghijklmonpqrstuvwxyz1234567890";
 
             while (remaining > block_size) {
-                msg["message_id"] = i;
-                msg["data"] = "a".repeat(block_size);
+                msg["message_id"] = id;
+                msg["data"] = "";
+                for(i = 0; i < block_size; ++i) {
+                    msg["data"] += characters.charAt(i%characters.length);
+                }
                 msg["length"] = block_size;
 
                 socket.send(JSON.stringify(msg));
 
                 remaining -= block_size;
-                ++i;
+                ++id;
             }
 
             if (remaining > 0) {
-                msg["message_id"] = i;
-                msg["data"] = "a".repeat(remaining);
+                msg["message_id"] = id;
+                if(msg["data"] === undefined) {
+                    msg["data"] = "";
+                }
+                for(; i < remaining; ++i) {
+                    msg["data"] += characters.charAt(i%characters.length);
+                }
                 msg["length"] = remaining;
                 socket.send(JSON.stringify(msg));
             }
@@ -84,6 +96,25 @@
 
         function reset_total() {
             document.getElementById("total_count").innerText = "0";
+        }
+
+        function cont_send() {
+
+            const interval = 5000;
+
+            if(document.getElementById("continuous").checked)
+            {
+                let f = function() {
+                    if(document.getElementById("continuous").checked) {
+                        send();
+                        setTimeout(f, interval);
+                    }
+                };
+
+                if(document.getElementById("continuous").checked) {
+                    setTimeout(f, interval);
+                }
+            }
         }
 
     </script>
@@ -104,10 +135,10 @@
         <br/>
         Amount to send: <input type="text" id="to_send" value="65535"/>
         <button onclick="send();">Send</button>
+        <label for="continuous">Continuous</label><input type="checkbox" id="continuous" onchange="cont_send();"/>
         <br/>
         Total count:
         <div id="total_count">0</div>
-        <button onclick="reset_total();">Reset total</button>
         <br/>
         <br/>
         <label for="id">ID</label><textarea id="id"></textarea>
