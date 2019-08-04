@@ -44,7 +44,7 @@ namespace smooth::application::network::http::websocket
         }
         else if (state == State::MaskingKey)
         {
-            len = 4;
+            len = sizeof(frame_data.mask_key);
         }
         else
         {
@@ -122,14 +122,11 @@ namespace smooth::application::network::http::websocket
             // De-mask data
             if (is_data_masked())
             {
-                // Start at the length we had before receiving the current part.
-                auto start_length =
-                        received_payload - static_cast<decltype(received_payload_in_current_package)>(length);
-                for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i)
+                for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i, ++demask_ix)
                 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[(start_length + i) % 4];
+                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[(demask_ix) % 4];
 #pragma GCC diagnostic pop
                 }
             }
@@ -199,6 +196,7 @@ namespace smooth::application::network::http::websocket
             // All parts received
             received_payload = 0;
             total_byte_count = 0;
+            demask_ix = 0;
             state = State::Header;
         }
     }
@@ -211,6 +209,7 @@ namespace smooth::application::network::http::websocket
         payload_length = 0;
         received_payload = 0;
         received_payload_in_current_package = 0;
+        demask_ix = 0;
     }
 
     void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
