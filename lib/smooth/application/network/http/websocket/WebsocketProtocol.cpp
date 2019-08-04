@@ -109,18 +109,6 @@ namespace smooth::application::network::http::websocket
         else
         {
             auto len = static_cast<decltype(received_payload_in_current_package)>(length);
-            if (is_data_masked())
-            {
-                for (decltype(len) i = 0; i < len; ++i)
-                {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-                    packet.data()[i] = packet.data()[received_payload_in_current_package + i] ^
-                                       (frame_data.mask_key[(received_payload + i) % 4]);
-#pragma GCC diagnostic pop
-                }
-            }
-
             received_payload += len;
             received_payload_in_current_package += len;
         }
@@ -130,6 +118,18 @@ namespace smooth::application::network::http::websocket
             // Resize buffer to deliver exactly the number of received bytes to the application.
             using vector_type = std::remove_reference<decltype(packet.data())>::type;
             packet.data().resize(static_cast<vector_type::size_type>(received_payload_in_current_package));
+
+            // De-mask data
+            if (is_data_masked())
+            {
+                for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i)
+                {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[i % 4];
+#pragma GCC diagnostic pop
+                }
+            }
 
             set_message_properties(packet);
         }
