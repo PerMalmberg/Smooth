@@ -124,6 +124,7 @@ namespace smooth::application::network::http::websocket
             int total_byte_count{0};
             uint64_t payload_length{0};
             uint64_t received_payload{0};
+            uint64_t demask_ix{0};
             uint64_t received_payload_in_current_package{0};
 
             void set_message_properties(HTTPPacket& packet);
