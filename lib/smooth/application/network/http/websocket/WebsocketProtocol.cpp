@@ -30,109 +30,171 @@ namespace smooth::application::network::http::websocket
     int WebsocketProtocol::get_wanted_amount(HTTPPacket& packet)
     {
         int len;
-        if (state == State::Header)
+
+        if (amount_wanted_in_current_state > 0)
         {
-            len = 2;
-        }
-        else if (state == State::ExtendedPayloadLength_2)
-        {
-            len = 2;
-        }
-        else if (state == State::ExtendedPayloadLength_8)
-        {
-            len = 8;
-        }
-        else if (state == State::MaskingKey)
-        {
-            len = sizeof(frame_data.mask_key);
+            // Still waiting for data in current state.
+            Log::info("waiting", Format("{1}", Int32(amount_wanted_in_current_state)));
+            len = amount_wanted_in_current_state;
         }
         else
         {
-            // Websockets can use up to 64 bits (well, 63 since MSB MUST always be 0,
-            // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
-            // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
+            current_offset = 0;
 
-            auto remaining_to_read = payload_length - received_payload;
-            auto remaining_to_fill_current =
-                    static_cast<decltype(received_payload_in_current_package)>(content_chunk_size) -
-                    received_payload_in_current_package;
+            if (state == State::Header)
+            {
+                len = 2;
+            }
+            else if (state == State::ExtendedPayloadLength_2)
+            {
+                len = 2;
+            }
+            else if (state == State::ExtendedPayloadLength_8)
+            {
+                len = 8;
+            }
+            else if (state == State::MaskingKey)
+            {
+                len = sizeof(frame_data.mask_key);
+            }
+            else
+            {
+                // Websockets can use up to 64 bits (well, 63 since MSB MUST always be 0,
+                // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
+                // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
 
-            auto size_needed = std::min(remaining_to_read, remaining_to_fill_current);
-            len = static_cast<decltype(len)>(size_needed);
-            packet.ensure_room(static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len);
+                auto remaining_to_read = payload_length - received_payload;
+                auto remaining_to_fill_current =
+                        static_cast<decltype(received_payload_in_current_package)>(content_chunk_size) -
+                        received_payload_in_current_package;
+
+                auto size_needed = std::min(remaining_to_read, remaining_to_fill_current);
+                len = static_cast<decltype(len)>(size_needed);
+                packet.ensure_room(
+                        static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len);
+            }
+
+            Log::info("WA", Format("{1}", Int32(len)));
+            amount_wanted_in_current_state = len;
         }
 
         return len;
     }
 
-    void WebsocketProtocol::data_received(HTTPPacket& packet, int length)
+    uint8_t* WebsocketProtocol::get_write_pos(HTTPPacket& packet)
     {
-        total_byte_count += length;
-
         if (state == State::Header)
         {
-            op_code = static_cast<OpCode>(get_opcode());
-
-            payload_length = get_initial_payload_length();
-
-            if (payload_length == 126)
-            {
-                state = State::ExtendedPayloadLength_2;
-            }
-            else if (payload_length == 127)
-            {
-                state = State::ExtendedPayloadLength_8;
-            }
-            else if (is_data_masked())
-            {
-                state = State::MaskingKey;
-            }
-            else
-            {
-                state = State::Payload;
-            }
+            return frame_data.header + current_offset;
         }
-        else if (state == State::ExtendedPayloadLength_2)
+        else if (state == State::ExtendedPayloadLength_2 || state == State::ExtendedPayloadLength_8)
         {
-            payload_length = ntoh(frame_data.ext_len.len_16);
-            state = State::MaskingKey;
-        }
-        else if (state == State::ExtendedPayloadLength_8)
-        {
-            payload_length = ntoh(frame_data.ext_len.len_64);
-            state = State::MaskingKey;
+            return reinterpret_cast<uint8_t*>(&frame_data.ext_len);
         }
         else if (state == State::MaskingKey)
         {
-            state = State::Payload;
+            return frame_data.mask_key + current_offset;
         }
         else
         {
-            auto len = static_cast<decltype(received_payload_in_current_package)>(length);
-            received_payload += len;
-            received_payload_in_current_package += len;
+            return packet.data().data() + current_offset;
         }
+    }
 
-        if (is_complete(packet))
+    void WebsocketProtocol::data_received(HTTPPacket& packet, int length)
+    {
+        Log::info("DR", Format("{1}", Int32(length)));
+        current_offset += length;
+        amount_wanted_in_current_state -= length;
+
+        // Have we received all the data we want yet?
+        if (amount_wanted_in_current_state == 0)
         {
-            // Resize buffer to deliver exactly the number of received bytes to the application.
-            using vector_type = std::remove_reference<decltype(packet.data())>::type;
-            packet.data().resize(static_cast<vector_type::size_type>(received_payload_in_current_package));
-
-            // De-mask data
-            if (is_data_masked())
+            if (state == State::Header)
             {
-                for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i, ++demask_ix)
+                op_code = static_cast<OpCode>(get_opcode());
+
+                payload_length = get_initial_payload_length();
+
+                if (payload_length == 126)
                 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-                    packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[(demask_ix) % 4];
-#pragma GCC diagnostic pop
+                    state = State::ExtendedPayloadLength_2;
+                }
+                else if (payload_length == 127)
+                {
+                    state = State::ExtendedPayloadLength_8;
+                }
+                else if (is_data_masked())
+                {
+                    state = State::MaskingKey;
+                }
+                else
+                {
+                    state = State::Payload;
                 }
             }
+            else if (state == State::ExtendedPayloadLength_2)
+            {
+                payload_length = ntoh(frame_data.ext_len.len_16);
+                state = State::MaskingKey;
+            }
+            else if (state == State::ExtendedPayloadLength_8)
+            {
+                payload_length = ntoh(frame_data.ext_len.len_64);
+                state = State::MaskingKey;
+            }
+            else if (state == State::MaskingKey)
+            {
+                state = State::Payload;
+            }
+            else
+            {
+                update_received_payload(length);
+            }
 
-            set_message_properties(packet);
+            if (is_complete(packet))
+            {
+                // Resize buffer to deliver exactly the number of received bytes to the application.
+                using vector_type = std::remove_reference<decltype(packet.data())>::type;
+                packet.data().resize(static_cast<vector_type::size_type>(received_payload_in_current_package));
+
+                // De-mask data
+                if (is_data_masked())
+                {
+                    std::stringstream ss;
+                    ss << static_cast<int>(frame_data.mask_key[0]) << " " << static_cast<int>(frame_data.mask_key[1])
+                       << " " << static_cast<int>(frame_data.mask_key[2]) << " "
+                       << static_cast<int>(frame_data.mask_key[3]) << " ";
+                    Log::info("WP", ss.str());
+                    ss.str("");
+                    ss.clear();
+
+                    Log::info("WP", Format("demask_ix: {1}", UInt64(demask_ix)));
+                    for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i, ++demask_ix)
+                    {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+                        packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[demask_ix % 4];
+                        ss << (char) packet.data()[i];
+#pragma GCC diagnostic pop
+                    }
+                    Log::info("WP", ss.str());
+                }
+
+                set_message_properties(packet);
+            }
         }
+        else if(state == State::Payload)
+        {
+            update_received_payload(length);
+        }
+    }
+
+    void WebsocketProtocol::update_received_payload(int length)
+    {
+        auto len = static_cast<decltype(received_payload_in_current_package)>(length);
+        received_payload += len;
+        received_payload_in_current_package += len;
     }
 
     OpCode WebsocketProtocol::get_opcode() const
@@ -148,26 +210,6 @@ namespace smooth::application::network::http::websocket
     uint64_t WebsocketProtocol::get_initial_payload_length() const
     {
         return frame_data.header[1] & 0x7F;
-    }
-
-    uint8_t* WebsocketProtocol::get_write_pos(HTTPPacket& packet)
-    {
-        if (state == State::Header)
-        {
-            return frame_data.header + total_byte_count;
-        }
-        else if (state == State::ExtendedPayloadLength_2 || state == State::ExtendedPayloadLength_8)
-        {
-            return reinterpret_cast<uint8_t*>(&frame_data.ext_len);
-        }
-        else if (state == State::MaskingKey)
-        {
-            return frame_data.mask_key;
-        }
-        else
-        {
-            return packet.data().data() + received_payload_in_current_package;
-        }
     }
 
     bool WebsocketProtocol::is_complete(HTTPPacket& /*packet*/) const
@@ -188,16 +230,16 @@ namespace smooth::application::network::http::websocket
 
     void WebsocketProtocol::packet_consumed()
     {
-        error = false;
         received_payload_in_current_package = 0;
 
-        if (error || received_payload >= payload_length)
+        if (received_payload >= payload_length)
         {
             // All parts received
-            received_payload = 0;
-            total_byte_count = 0;
-            demask_ix = 0;
             state = State::Header;
+            received_payload = 0;
+            current_offset = 0;
+            demask_ix = 0;
+            amount_wanted_in_current_state = 0;
         }
     }
 
@@ -205,11 +247,12 @@ namespace smooth::application::network::http::websocket
     {
         state = State::Header;
         error = false;
-        total_byte_count = 0;
+        current_offset = 0;
         payload_length = 0;
         received_payload = 0;
         received_payload_in_current_package = 0;
         demask_ix = 0;
+        amount_wanted_in_current_state = 0;
     }
 
     void WebsocketProtocol::set_message_properties(HTTPPacket& packet)
@@ -236,10 +279,5 @@ namespace smooth::application::network::http::websocket
         }
 
         packet.set_ws_control_code(op_code);
-    }
-
-    bool WebsocketProtocol::is_fin_frame() const
-    {
-        return frame_data.header[0] & 0x80;
     }
 }
