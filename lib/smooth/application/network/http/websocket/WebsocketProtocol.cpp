@@ -29,33 +29,22 @@ namespace smooth::application::network::http::websocket
 
     int WebsocketProtocol::get_wanted_amount(HTTPPacket& packet)
     {
-        int len;
-
-        if (amount_wanted_in_current_state > 0)
+        if (amount_wanted_in_current_state == 0)
         {
-            // Still waiting for data in current state.
-            Log::info("waiting", Format("{1}", Int32(amount_wanted_in_current_state)));
-            len = amount_wanted_in_current_state;
-        }
-        else
-        {
-            current_offset = 0;
+            data_received_in_current_state = 0;
 
-            if (state == State::Header)
+            if (state == State::Header
+            || state == State::ExtendedPayloadLength_2)
             {
-                len = 2;
-            }
-            else if (state == State::ExtendedPayloadLength_2)
-            {
-                len = 2;
+                amount_wanted_in_current_state = 2;
             }
             else if (state == State::ExtendedPayloadLength_8)
             {
-                len = 8;
+                amount_wanted_in_current_state = 8;
             }
             else if (state == State::MaskingKey)
             {
-                len = sizeof(frame_data.mask_key);
+                amount_wanted_in_current_state = sizeof(frame_data.mask_key);
             }
             else
             {
@@ -63,53 +52,50 @@ namespace smooth::application::network::http::websocket
                 // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
                 // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
 
-                auto remaining_to_read = payload_length - received_payload;
+                auto remaining_payload = payload_length - received_payload;
+
                 auto remaining_to_fill_current =
                         static_cast<decltype(received_payload_in_current_package)>(content_chunk_size) -
                         received_payload_in_current_package;
 
-                auto size_needed = std::min(remaining_to_read, remaining_to_fill_current);
-                len = static_cast<decltype(len)>(size_needed);
-                packet.ensure_room(
-                        static_cast<decltype(content_chunk_size)>(received_payload_in_current_package) + len);
-            }
+                auto amount_left = std::min(remaining_payload, remaining_to_fill_current);
+                amount_wanted_in_current_state = static_cast<decltype(amount_wanted_in_current_state)>(amount_left);
 
-            Log::info("WA", Format("{1}", Int32(len)));
-            amount_wanted_in_current_state = len;
+                packet.expand_by(static_cast<int>(amount_left));
+            }
         }
 
-        return len;
+        return amount_wanted_in_current_state;
     }
 
     uint8_t* WebsocketProtocol::get_write_pos(HTTPPacket& packet)
     {
         if (state == State::Header)
         {
-            return frame_data.header + current_offset;
+            return frame_data.header + data_received_in_current_state;
         }
         else if (state == State::ExtendedPayloadLength_2 || state == State::ExtendedPayloadLength_8)
         {
-            return reinterpret_cast<uint8_t*>(&frame_data.ext_len);
+            return reinterpret_cast<uint8_t*>(&frame_data.ext_len) + data_received_in_current_state;
         }
         else if (state == State::MaskingKey)
         {
-            return frame_data.mask_key + current_offset;
+            return frame_data.mask_key + data_received_in_current_state;
         }
         else
         {
-            return packet.data().data() + current_offset;
+            return packet.data().data() + data_received_in_current_state;
         }
     }
 
     void WebsocketProtocol::data_received(HTTPPacket& packet, int length)
     {
-        Log::info("DR", Format("{1}", Int32(length)));
-        current_offset += length;
         amount_wanted_in_current_state -= length;
+        data_received_in_current_state += length;
 
-        // Have we received all the data we want yet?
-        if (amount_wanted_in_current_state == 0)
+        if(amount_wanted_in_current_state == 0)
         {
+            // All requested data received
             if (state == State::Header)
             {
                 op_code = static_cast<OpCode>(get_opcode());
@@ -161,24 +147,13 @@ namespace smooth::application::network::http::websocket
                 // De-mask data
                 if (is_data_masked())
                 {
-                    std::stringstream ss;
-                    ss << static_cast<int>(frame_data.mask_key[0]) << " " << static_cast<int>(frame_data.mask_key[1])
-                       << " " << static_cast<int>(frame_data.mask_key[2]) << " "
-                       << static_cast<int>(frame_data.mask_key[3]) << " ";
-                    Log::info("WP", ss.str());
-                    ss.str("");
-                    ss.clear();
-
-                    Log::info("WP", Format("demask_ix: {1}", UInt64(demask_ix)));
                     for (decltype(packet.data().size()) i = 0; i < packet.data().size(); ++i, ++demask_ix)
                     {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
                         packet.data()[i] = packet.data()[i] ^ frame_data.mask_key[demask_ix % 4];
-                        ss << (char) packet.data()[i];
 #pragma GCC diagnostic pop
                     }
-                    Log::info("WP", ss.str());
                 }
 
                 set_message_properties(packet);
@@ -237,7 +212,7 @@ namespace smooth::application::network::http::websocket
             // All parts received
             state = State::Header;
             received_payload = 0;
-            current_offset = 0;
+            data_received_in_current_state = 0;
             demask_ix = 0;
             amount_wanted_in_current_state = 0;
         }
@@ -247,7 +222,7 @@ namespace smooth::application::network::http::websocket
     {
         state = State::Header;
         error = false;
-        current_offset = 0;
+        data_received_in_current_state = 0;
         payload_length = 0;
         received_payload = 0;
         received_payload_in_current_package = 0;

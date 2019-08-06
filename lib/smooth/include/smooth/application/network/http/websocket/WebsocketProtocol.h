@@ -97,7 +97,7 @@ namespace smooth::application::network::http::websocket
                 {
                     uint16_t len_16;
                     uint64_t len_64;
-                } ext_len;
+                } ext_len{0};
                 uint8_t mask_key[4];
             };
 
@@ -121,7 +121,7 @@ namespace smooth::application::network::http::websocket
             IServerResponse& response;
 
             bool error{false};
-            int current_offset{0};
+            int data_received_in_current_state{0};
             uint64_t payload_length{0};
             uint64_t received_payload{0};
             uint64_t demask_ix{0};

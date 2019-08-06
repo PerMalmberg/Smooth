@@ -35,7 +35,7 @@ namespace smooth::application::network::http
             // How much left until we reach max header size?
             amount_to_request = max_header_size - total_bytes_received;
             // Make sure there is room for what he have received and what we ask for.
-            packet.ensure_room(total_bytes_received + amount_to_request);
+            packet.expand_by(amount_to_request);
         }
         else
         {
@@ -43,7 +43,7 @@ namespace smooth::application::network::http
             auto remaining_of_content = incoming_content_length - total_content_bytes_received;
             amount_to_request = std::min(content_chunk_size, remaining_of_content);
 
-            packet.ensure_room(content_bytes_received_in_current_part + amount_to_request);
+            packet.expand_by(amount_to_request);
         }
 
         return amount_to_request;

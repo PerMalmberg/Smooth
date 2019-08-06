@@ -100,7 +100,7 @@
 
         function cont_send() {
 
-            const interval = 5000;
+            const interval = 50000;
 
             if(document.getElementById("continuous").checked)
             {
@@ -111,9 +111,7 @@
                     }
                 };
 
-                if(document.getElementById("continuous").checked) {
-                    setTimeout(f, interval);
-                }
+                setTimeout(f, interval);
             }
         }
 
@@ -127,6 +125,7 @@
         <button onclick="send_length(80*1024);">Send 80k</button>
         <button onclick="send_length(1024*1024);">Send 1M</button>
         <button onclick="send_length(1024*1024*10);">Send 10M</button>
+        <button onclick="send_length(1024*1024*100);">Send 100M</button>
         <br/>
         <div id="status">Disconnected</div>
         <br/>
