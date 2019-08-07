@@ -219,7 +219,7 @@ namespace smooth::application::network::mqtt
 
             if (mqtt_socket)
             {
-                mqtt_socket->stop();
+                mqtt_socket->stop("MQTT disconnect");
                 mqtt_socket.reset();
             }
         }
@@ -227,7 +227,7 @@ namespace smooth::application::network::mqtt
         {
             if (mqtt_socket)
             {
-                mqtt_socket->stop();
+                mqtt_socket->stop("MQTT (re)connect event");
             }
 
             buff->clear();

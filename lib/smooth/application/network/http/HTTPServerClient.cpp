@@ -15,63 +15,27 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/application/network/http/HTTPServerClient.h>
+#include <smooth/application/network/http/IResponseOperation.h>
+#include <smooth/application/network/http/websocket/responses/WSResponse.h>
 
 namespace smooth::application::network::http
 {
     static const char* tag = "HTTPServerClient";
+    using namespace websocket;
+    using namespace websocket::responses;
 
     void HTTPServerClient::event(
             const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
-        typename HTTPProtocol::packet_type packet;
-        if (event.get(packet))
+        if (mode == Mode::HTTP)
         {
-            bool first_packet = !packet.is_continuation();
-            bool last_packet = !packet.is_continued();
-
-            bool res = true;
-
-            if (first_packet)
-            {
-                // First packet, parse URL etc.
-                request_headers.clear();
-                std::swap(request_headers, packet.headers());
-                requested_url = packet.get_request_url();
-                res = parse_url(requested_url);
-                set_keep_alive();
-
-                mime.reset();
-            }
-
-            if (res)
-            {
-                auto* context = this->get_client_context();
-
-                if (context)
-                {
-                    HTTPMethod method{};
-                    if (translate_method(packet, method))
-                    {
-                        context->handle(method,
-                                        *this,
-                                        requested_url,
-                                        request_headers,
-                                        request_parameters,
-                                        packet.get_buffer(),
-                                        mime,
-                                        first_packet,
-                                        last_packet);
-                    }
-                    else
-                    {
-                        // Unsupported method.
-                        reply(std::make_unique<responses::StringResponse>(ResponseCode::Method_Not_Allowed));
-                    }
-                }
-            }
+            http_event(event);
+        }
+        else
+        {
+            websocket_event(event);
         }
     }
-
 
     void
     HTTPServerClient::event(
@@ -82,22 +46,22 @@ namespace smooth::application::network::http
             std::vector<uint8_t> data;
             auto res = current_operation->get_data(content_chunk_size, data);
 
-            if (res == responses::ResponseStatus::Error)
+            if (res == ResponseStatus::Error)
             {
                 Log::error(tag, "Current operation reported error, closing server client.");
                 this->close();
             }
-            else if (res == responses::ResponseStatus::EndOfData)
+            else if (res == ResponseStatus::NoData)
             {
                 current_operation.reset();
                 // Immediately send next
                 send_first_part();
             }
-            else if (res == responses::ResponseStatus::HasMoreData
-                     || res == responses::ResponseStatus::LastData)
+            else if (res == ResponseStatus::HasMoreData
+                     || res == ResponseStatus::LastData)
             {
                 HTTPPacket p{data};
-                auto& tx = this->get_buffers()->get_tx_buffer();
+                auto& tx = this->container->get_tx_buffer();
                 tx.put(p);
             }
         }
@@ -110,7 +74,6 @@ namespace smooth::application::network::http
 
     void HTTPServerClient::disconnected()
     {
-
     }
 
 
@@ -124,6 +87,8 @@ namespace smooth::application::network::http
     {
         operations.clear();
         current_operation.reset();
+        mode = Mode::HTTP;
+        ws_server.reset();
     }
 
 
@@ -180,24 +145,36 @@ namespace smooth::application::network::http
 
 
     void HTTPServerClient::reply(
-            std::unique_ptr<responses::IRequestResponseOperation> response)
+            std::unique_ptr<IResponseOperation> response, bool place_first)
     {
-        using namespace std::chrono;
-        const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
-        if (timeout.count() > 0)
+        if (mode == Mode::HTTP)
         {
-            response->add_header(CONNECTION, "keep-alive");
-            response->add_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
+            using namespace std::chrono;
+            const auto timeout = duration_cast<seconds>(this->socket->get_receive_timeout());
+
+            if (timeout.count() > 0)
+            {
+                response->add_header(CONNECTION, "keep-alive");
+                response->set_header(KEEP_ALIVE, "timeout=" + std::to_string(timeout.count()));
+            }
         }
 
-        operations.emplace_back(std::move(response));
+        if (place_first)
+        {
+            operations.insert(operations.begin(), std::move(response));
+        }
+        else
+        {
+            operations.emplace_back(std::move(response));
+        }
+
         if (!current_operation)
         {
             send_first_part();
         }
     }
 
-    void HTTPServerClient::reply_error(std::unique_ptr<responses::IRequestResponseOperation> response)
+    void HTTPServerClient::reply_error(std::unique_ptr<IResponseOperation> response)
     {
         operations.clear();
         response->add_header(CONNECTION, "close");
@@ -208,39 +185,51 @@ namespace smooth::application::network::http
         }
     }
 
-
     void HTTPServerClient::send_first_part()
     {
-        if (!operations.empty())
+        ResponseStatus res = ResponseStatus::Error;
+
+        do
         {
-            current_operation = std::move(operations.front());
-            operations.pop_front();
-
-            const auto& headers = current_operation->get_headers();
-
-            std::vector<uint8_t> data{};
-            auto res = current_operation->get_data(content_chunk_size, data);
-
-            if (res == responses::ResponseStatus::Error)
+            if (!operations.empty())
             {
-                Log::error(tag, "Current operation reported error, closing server client.");
-                this->close();
-            }
-            else
-            {
-                // Whether or not everything is sent, send the current (possibly header-only) packet.
-                HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
-                auto& tx = this->get_buffers()->get_tx_buffer();
-                tx.put(p);
+                current_operation = std::move(operations.front());
+                operations.pop_front();
 
-                if (res == responses::ResponseStatus::EndOfData)
+                const auto& headers = current_operation->get_headers();
+
+                std::vector<uint8_t> data{};
+                res = current_operation->get_data(content_chunk_size, data);
+
+                if (res == ResponseStatus::Error)
                 {
-                    current_operation.reset();
-                    // Immediately send next
-                    send_first_part();
+                    Log::error(tag, "Current operation reported error, closing server client.");
+                    this->close();
+                }
+                else
+                {
+                    auto& tx = this->container->get_tx_buffer();
+                    if (mode == Mode::HTTP)
+                    {
+                        // Whether or not everything is sent, send the current (possibly header-only) packet.
+                        HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                        tx.put(p);
+                    }
+                    else
+                    {
+                        HTTPPacket p{data};
+                        tx.put(p);
+                    }
+
+                    if (res == ResponseStatus::NoData)
+                    {
+                        current_operation.reset();
+                    }
                 }
             }
         }
+        while (!operations.empty()
+               && res == ResponseStatus::NoData); // Process next operation as long as no data is sent.
     }
 
 
@@ -286,9 +275,93 @@ namespace smooth::application::network::http
         if (connection != request_headers.end())
         {
             auto s = (*connection).second;
-            if (s.find("keep-alive") != std::string::npos)
+            if (string_util::icontains(s, "keep-alive"))
             {
                 this->socket->set_receive_timeout(DefaultKeepAlive);
+            }
+        }
+    }
+
+    void HTTPServerClient::http_event(const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
+    {
+        typename HTTPProtocol::packet_type packet;
+        if (event.get(packet))
+        {
+            bool first_packet = !packet.is_continuation();
+            bool last_packet = !packet.is_continued();
+
+            bool res = true;
+
+            if (first_packet)
+            {
+                // First packet, parse URL etc.
+                request_headers.clear();
+                std::swap(request_headers, packet.headers());
+                requested_url = packet.get_request_url();
+                res = parse_url(requested_url);
+                set_keep_alive();
+
+                mime.reset();
+            }
+
+            if (res)
+            {
+                auto* context = this->get_client_context();
+
+                if (context)
+                {
+                    HTTPMethod method{};
+                    if (translate_method(packet, method))
+                    {
+                        context->handle(method,
+                                        *this,
+                                        *this,
+                                        requested_url,
+                                        request_headers,
+                                        request_parameters,
+                                        packet.get_buffer(),
+                                        mime,
+                                        first_packet,
+                                        last_packet);
+                    }
+                    else
+                    {
+                        // Unsupported method.
+                        reply(std::make_unique<regular::responses::StringResponse>(ResponseCode::Method_Not_Allowed),
+                              false);
+                    }
+                }
+            }
+        }
+    }
+
+    void HTTPServerClient::websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event)
+    {
+        typename HTTPProtocol::packet_type packet;
+        if (event.get(packet))
+        {
+            auto ws_op = packet.ws_control_code();
+            if (ws_op >= OpCode::Close)
+            {
+                if (ws_op == OpCode::Close)
+                {
+                    close();
+                }
+                else if (ws_op == OpCode::Ping)
+                {
+                    // Reply with a ping and place it first in the queue.
+                    reply(std::make_unique<WSResponse>(OpCode::Pong), true);
+                }
+            }
+            else
+            {
+                if (ws_server)
+                {
+                    bool first_part = !packet.is_continuation();
+                    bool last_part = !packet.is_continued();
+                    const auto& data = packet.data();
+                    ws_server->data_received(first_part, last_part, packet.ws_control_code() == OpCode::Text, data);
+                }
             }
         }
     }

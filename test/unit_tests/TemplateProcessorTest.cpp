@@ -19,9 +19,10 @@
 
 #define EXPOSE_PRIVATE_PARTS_FOR_TEST
 
-#include <smooth/application/network/http/TemplateProcessor.h>
+#include <smooth/application/network/http/regular/TemplateProcessor.h>
+#include <smooth/application/network/http/regular/ITemplateDataRetriever.h>
 
-using namespace smooth::application::network::http;
+using namespace smooth::application::network::http::regular;
 
 class DataRetriever
         : public ITemplateDataRetriever

@@ -50,7 +50,7 @@ namespace smooth::core::network
             virtual bool start(std::shared_ptr<InetAddress> ip) = 0;
 
             /// Stops the socket, disconnected if currently connected.
-            virtual void stop() = 0;
+            virtual void stop(const char* reason) = 0;
 
             /// Restarts the socket, disconnecting if currently connected.
             /// \return true if the internal call to start() succeeds.
@@ -59,42 +59,42 @@ namespace smooth::core::network
             /// Returns a value static if the socket is active (true) or not (false). Says nothing about if the
             /// socket is connected or not (use the response method for ConnectionStatusEvent for that).
             /// \return true or false, depending on status.
-            virtual bool is_active() const = 0;
+            [[nodiscard]] virtual bool is_active() const = 0;
 
             /// Returns true if the last send attempt has expired
             /// \return true if the socket has not been able to send the data within the set limit.
-            virtual bool has_send_expired() const = 0;
+            [[nodiscard]] virtual bool has_send_expired() const = 0;
 
             /// Returns true if the last send attempt has expired
             /// \return true if the socket has not been able to send the data within the set limit.
-            virtual bool has_receive_expired() const = 0;
+            [[nodiscard]] virtual bool has_receive_expired() const = 0;
 
             /// Returns the socket id.
             /// \return The socket id, possibly INVALID_SOCKET.
-            virtual int get_socket_id() const = 0;
+            [[nodiscard]] virtual int get_socket_id() const = 0;
 
             /// Return true if the socket is a server-socket
             /// \return true if the socket is a server socket, otherwise false.
-            virtual bool is_server() const = 0;
+            [[nodiscard]] virtual bool is_server() const = 0;
 
             virtual void set_send_timeout(std::chrono::milliseconds timeout) = 0;
 
             virtual void set_receive_timeout(std::chrono::milliseconds timeout) = 0;
 
-            virtual std::chrono::milliseconds get_receive_timeout() const = 0;
+            [[nodiscard]] virtual std::chrono::milliseconds get_receive_timeout() const = 0;
 
-            virtual std::chrono::milliseconds get_send_timeout() const = 0;
+            [[nodiscard]] virtual std::chrono::milliseconds get_send_timeout() const = 0;
 
         protected:
-            virtual bool is_connected() const = 0;
+            [[nodiscard]] virtual bool is_connected() const = 0;
 
             virtual void readable(ISocketBackOff& ops) = 0;
 
             virtual void writable() = 0;
 
-            virtual bool has_data_to_transmit() = 0;
+            [[nodiscard]] virtual bool has_data_to_transmit() = 0;
 
-            virtual bool internal_start() = 0;
+            [[nodiscard]] virtual bool internal_start() = 0;
 
             virtual void publish_connected_status() = 0;
 

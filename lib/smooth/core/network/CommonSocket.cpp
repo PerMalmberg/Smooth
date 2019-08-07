@@ -82,8 +82,9 @@ namespace smooth::core::network
                           Int32(errno)));
     }
 
-    void CommonSocket::stop()
+    void CommonSocket::stop(const char* reason)
     {
+        log(reason);
         stop_internal();
         SocketDispatcher::instance().perform_op(SocketOperation::Op::Stop, shared_from_this());
     }
@@ -95,7 +96,7 @@ namespace smooth::core::network
 
     bool CommonSocket::restart()
     {
-        stop();
+        stop("Restarting");
         return start(ip);
     }
 }

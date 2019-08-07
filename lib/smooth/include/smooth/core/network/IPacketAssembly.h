@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace smooth::core::network
 {
     /// Interface for a data packet that can be assembled

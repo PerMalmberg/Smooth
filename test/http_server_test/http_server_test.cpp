@@ -16,14 +16,15 @@
 
 #include "http_server_test.h"
 #include <memory>
-#include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
 #include <smooth/core/filesystem/filesystem.h>
 #include <smooth/core/filesystem/FSLock.h>
-#include <smooth/application/network/http/responses/StringResponse.h>
-#include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include <smooth/application/network/http/regular/MIMEParser.h>
+#include <smooth/core/SystemStatistics.h>
 #include "SendBlob.h"
+#include "WSEchoServer.h"
 #include "wifi_creds.h"
 
 using namespace std;
@@ -129,7 +130,6 @@ namespace http_server_test
 
     void fill(const char* src, std::vector<unsigned char>& target)
     {
-
         for (size_t i = 0; i < strlen(src); ++i)
         {
             target.push_back(static_cast<unsigned char>(src[i]));
@@ -142,8 +142,13 @@ namespace http_server_test
 
 
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(5000))
     {
+    }
+
+    void App::tick()
+    {
+        smooth::core::SystemStatistics::instance().dump();
     }
 
     void App::init()
@@ -177,14 +182,17 @@ namespace http_server_test
 #endif
 
         template_data_retriever.add("{{title}}", "Smooth - a C++ framework for building apps on ESP-IDF");
-        template_data_retriever.add("{{message}}", "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
+        template_data_retriever.add("{{message}}",
+                                    "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
         template_data_retriever.add("{{github_url}}", "https://github.com/PerMalmberg");
         template_data_retriever.add("{{author}}", "Per Malmberg");
-        template_data_retriever.add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
+        template_data_retriever
+                .add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
 
         FSLock::init(5);
 
-        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize, ContentChunkSize};
+        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, template_data_retriever, MaxHeaderSize,
+                             ContentChunkSize};
 
         insecure_server = std::make_unique<HTTPServer<ServerSocket<Client, Protocol, IRequestHandler>>>(*this, cfg);
 
@@ -211,6 +219,7 @@ namespace http_server_test
 
         auto blob = [](
                 IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -218,6 +227,7 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
+            (void) timeout_modifier;
             (void) url;
             (void) first_part;
             (void) headers;
@@ -239,17 +249,19 @@ namespace http_server_test
                 if (size == 0)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
-                                                                               "Request parameter 'size' must be > 0"));
+                                                                               "Request parameter 'size' must be > 0"),
+                                   false);
                 }
                 else
                 {
-                    response.reply(std::make_unique<SendBlob>(size));
+                    response.reply(std::make_unique<SendBlob>(size), false);
                 }
             }
         };
 
         auto upload = [web_root, uploads](
                 IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
                 const std::string& url,
                 bool first_part,
                 bool last_part,
@@ -257,6 +269,7 @@ namespace http_server_test
                 const std::unordered_map<std::string, std::string>& request_parameters,
                 const std::vector<uint8_t>& content,
                 MIMEParser& mime) {
+            (void) timeout_modifier;
             (void) headers;
             (void) request_parameters;
             (void) url;
@@ -286,7 +299,7 @@ namespace http_server_test
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                                                                                "File have been stored in " +
-                                                                               uploads.str()));
+                                                                               uploads.str()), false);
                 }
             };
 
@@ -294,7 +307,9 @@ namespace http_server_test
                 if (last_part)
                 {
                     response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" + data["edit_box"] + "</textarea>"));
+                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" +
+                                                                               data["edit_box"] + "</textarea>"),
+                                   false);
                 }
             };
 
@@ -305,9 +320,11 @@ namespace http_server_test
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         secure_server->on(HTTPMethod::POST, "/upload", upload);
+        secure_server->enable_websocket_on<WSEchoServer>("/echo");
 
         insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
         insecure_server->on(HTTPMethod::POST, "/upload", upload);
+        insecure_server->enable_websocket_on<WSEchoServer>("/echo");
     }
 }
 

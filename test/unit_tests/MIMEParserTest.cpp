@@ -15,7 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <catch.hpp>
-#include <smooth/application/network/http/MIMEParser.h>
+#include <smooth/application/network/http/regular/MIMEParser.h>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/File.h>
 #include <smooth/application/hash/sha.h>
@@ -23,6 +23,7 @@
 
 using namespace smooth::core::filesystem;
 using namespace smooth::application::network::http;
+using namespace smooth::application::network::http::regular;
 
 SCENARIO("MIMEParser - multipart/form-data - Text files")
 {

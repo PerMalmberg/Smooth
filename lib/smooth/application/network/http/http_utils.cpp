@@ -22,6 +22,7 @@
 #include <mutex>
 
 using namespace std::chrono;
+using namespace smooth::application::network::http::regular;
 
 namespace smooth::application::network::http::utils
 {

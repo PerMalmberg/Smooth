@@ -1,4 +1,4 @@
-// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+// Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.smooth::application::network::http
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,8 @@
 #pragma once
 
 #include <memory>
-#include "responses/IRequestResponeOperation.h"
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
+#include "smooth/application/network/http/IResponseOperation.h"
 
 namespace smooth::application::network::http
 {
@@ -26,7 +27,20 @@ namespace smooth::application::network::http
         public:
             virtual ~IServerResponse() = default;
 
-            virtual void reply(std::unique_ptr<responses::IRequestResponseOperation> response) = 0;
-            virtual void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) = 0;
+            virtual void reply(std::unique_ptr<IResponseOperation> response, bool place_first) = 0;
+            virtual void reply_error(std::unique_ptr<IResponseOperation> response) = 0;
+
+            template<typename WSServerType>
+            void upgrade_to_websocket()
+            {
+                upgrade_to_websocket_internal();
+                ws_server = std::make_unique<WSServerType>(*this, get_task());
+            }
+
+        protected:
+            virtual smooth::core::Task& get_task() = 0;
+            virtual void upgrade_to_websocket_internal() = 0;
+
+            std::unique_ptr<websocket::WebsocketServer> ws_server{};
     };
 }

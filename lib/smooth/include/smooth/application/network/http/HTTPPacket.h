@@ -21,11 +21,16 @@
 #include <unordered_map>
 #include <vector>
 #include <smooth/core/network/IPacketDisassembly.h>
-#include <smooth/application/network/http/ResponseCodes.h>
-#include "HTTPMethod.h"
+#include <smooth/application/network/http/regular/ResponseCodes.h>
+#include "regular/HTTPMethod.h"
+#include "websocket/OpCode.h"
 
 namespace smooth::application::network::http
 {
+    // This class acts as a carrier for two types of data:
+    // 1: Regular HTTP response/request data
+    // 2: Websocket data
+
     class HTTPPacket
             : public smooth::core::network::IPacketDisassembly
     {
@@ -39,16 +44,15 @@ namespace smooth::application::network::http
 
             HTTPPacket(HTTPPacket&&) = default;
 
-            HTTPPacket(ResponseCode code, const std::string& version,
+            HTTPPacket(regular::ResponseCode code, const std::string& version,
                        const std::unordered_map<std::string, std::string>& new_headers,
                        const std::vector<uint8_t>& response_content);
 
-            HTTPPacket(HTTPMethod method, const std::string& url,
+            HTTPPacket(regular::HTTPMethod method, const std::string& url,
                        const std::unordered_map<std::string, std::string>& new_headers,
                        const std::vector<uint8_t>& response_content);
 
             explicit HTTPPacket(std::vector<uint8_t>& response_content);
-
 
             // Must return the total amount of bytes to send
             int get_send_length() override
@@ -95,12 +99,12 @@ namespace smooth::application::network::http
                 request_version = version;
             }
 
-            void set_response_data(ResponseCode code)
+            void set_response_data(regular::ResponseCode code)
             {
                 resp_code = code;
             }
 
-            ResponseCode response_code() const
+            regular::ResponseCode response_code() const
             {
                 return resp_code;
             }
@@ -125,9 +129,10 @@ namespace smooth::application::network::http
                 return content;
             }
 
-            void ensure_room(int total_space)
+            void expand_by(int additional_space)
             {
-                content.resize(static_cast<std::size_t>(total_space));
+                content.resize(static_cast<std::size_t>(content.size()
+                                                        + static_cast<decltype(content.size())>(additional_space)));
             }
 
             std::unordered_map<std::string, std::string>& headers()
@@ -147,6 +152,16 @@ namespace smooth::application::network::http
                 return end;
             }
 
+            void set_ws_control_code(websocket::OpCode code)
+            {
+                ws_opcode = code;
+            }
+
+            websocket::OpCode ws_control_code() const
+            {
+                return ws_opcode;
+            }
+
             static constexpr std::array<uint8_t, 4> ending{'\r', '\n', '\r', '\n'};
 
         private:
@@ -159,8 +174,9 @@ namespace smooth::application::network::http
             std::string request_url{};
             std::string request_version{};
             std::vector<uint8_t> content{};
-            ResponseCode resp_code{};
+            regular::ResponseCode resp_code{};
             bool continuation = false;
             bool continued = false;
+            websocket::OpCode ws_opcode{websocket::OpCode::Continuation};
     };
 }

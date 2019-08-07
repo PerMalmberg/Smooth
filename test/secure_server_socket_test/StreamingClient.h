@@ -26,13 +26,12 @@
 
 namespace secure_server_socket_test
 {
-
     class StreamingClient
-            : public smooth::core::network::ServerClient<StreamingClient, StreamingProtocol>
+            : public smooth::core::network::ServerClient<StreamingClient, StreamingProtocol, void>
     {
         public:
             explicit StreamingClient(smooth::core::Task& task, smooth::core::network::ClientPool<StreamingClient>& pool)
-                    : ServerClient<StreamingClient, StreamingProtocol>(task, pool, std::make_unique<StreamingProtocol>())
+                    : ServerClient<StreamingClient, StreamingProtocol, void>(task, pool, std::make_unique<StreamingProtocol>())
 
             {
             }

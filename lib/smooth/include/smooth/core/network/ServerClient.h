@@ -91,16 +91,19 @@ namespace smooth::core::network
                 return client_context;
             }
 
-            std::shared_ptr<BufferContainer<Protocol>> get_buffers()
+            std::weak_ptr<BufferContainer<Protocol>> get_buffers()
             {
                 return container;
             }
 
             void close()
-            { socket->stop(); }
+            {
+                socket->stop("Server client closing");
+            }
 
         protected:
             std::shared_ptr<smooth::core::network::ISocket> socket{};
+            std::shared_ptr<BufferContainer<Protocol>> container;
 
         private:
             friend ServerSocket<FinalClientTypeName, Protocol, ClientContext>;
@@ -117,11 +120,10 @@ namespace smooth::core::network
             {
                 reset_client();
                 socket.reset();
-                get_buffers()->clear();
+                container->clear();
             }
 
             smooth::core::network::ClientPool<FinalClientTypeName>& pool;
-            std::shared_ptr<BufferContainer<Protocol>> container;
             ClientContext* client_context{nullptr};
     };
 
@@ -129,8 +131,8 @@ namespace smooth::core::network
     ServerClient<FinalClientTypeName, Protocol, ClientContext>::ServerClient(
             smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool,
             std::unique_ptr<Protocol> proto)
-            : pool(pool),
-              container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto)))
+            :container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto))),
+            pool(pool)
     {
     }
 }

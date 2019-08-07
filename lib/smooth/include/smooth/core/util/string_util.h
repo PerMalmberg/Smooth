@@ -20,25 +20,29 @@
 #include <utility>
 #include <algorithm>
 #include <string>
+#include <functional>
 #include "split.h"
 
 namespace smooth::core::string_util
 {
-    inline std::string left_trim(std::string s, std::function<bool(char c)> filter = [](auto c) {return !std::isspace(c);})
+    inline std::string
+    left_trim(std::string s, std::function<bool(char c)> filter = [](auto c) { return !std::isspace(c); })
     {
         s.erase(s.begin(),
                 std::find_if(s.begin(), s.end(), std::move(filter)));
         return s;
     }
 
-    inline std::string right_trim(std::string s, std::function<bool(char c)> filter = [](auto c) {return !std::isspace(c);})
+    inline std::string
+    right_trim(std::string s, std::function<bool(char c)> filter = [](auto c) { return !std::isspace(c); })
     {
         auto erase_start = std::find_if(s.rbegin(), s.rend(), std::move(filter)).base();
         s.erase(erase_start, s.end());
         return s;
     }
 
-    inline std::string trim(std::string s, const std::function<bool(char c)>& filter = [](auto c) {return !std::isspace(c);})
+    inline std::string
+    trim(std::string s, const std::function<bool(char c)>& filter = [](auto c) { return !std::isspace(c); })
     {
         return right_trim(left_trim(std::move(s), filter), filter);
     }
@@ -53,7 +57,7 @@ namespace smooth::core::string_util
     {
         auto res = util::split<std::string>(s, token);
 
-        if(trim_spaces)
+        if (trim_spaces)
         {
             for (auto& curr : res)
             {
@@ -64,5 +68,11 @@ namespace smooth::core::string_util
         return res;
     }
 
+    bool icontains(const std::string& s, const std::string& to_find);
+
     void replace_all(std::string& s, const std::string& token, const std::string& replacement);
+
+    int equals(const std::string& s, const std::string& s2);
+
+    int iequals(const std::string& s, const std::string& s2);
 }

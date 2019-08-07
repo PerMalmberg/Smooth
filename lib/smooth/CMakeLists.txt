@@ -25,17 +25,22 @@ smooth_verify_idf_path()
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
-        application/network/http/HTTPProtocol.cpp
         application/network/http/HTTPServerClient.cpp
-        application/network/http/HTTPPacket.cpp
+        application/network/http/regular/HTTPPacket.cpp
         application/network/http/URLEncoding.cpp
         application/network/http/http_utils.cpp
-        application/network/http/MIMEParser.cpp
-        application/network/http/HTTPHeaderDef.cpp
-        application/network/http/responses/ErrorResponse.cpp
-        application/network/http/responses/FileContentResponse.cpp
-        application/network/http/responses/StringResponse.cpp
-        application/network/http/TemplateProcessor.cpp
+        application/network/http/HTTPProtocol.cpp
+        application/network/http/regular/RegularHTTPProtocol.cpp
+        application/network/http/regular/MIMEParser.cpp
+        application/network/http/regular/HTTPHeaderDef.cpp
+        application/network/http/regular/responses/ErrorResponse.cpp
+        application/network/http/regular/responses/FileContentResponse.cpp
+        application/network/http/regular/responses/StringResponse.cpp
+        application/network/http/regular/responses/HeaderOnlyResponse.cpp
+        application/network/http/regular/TemplateProcessor.cpp
+        application/network/http/websocket/responses/WSResponse.cpp
+        application/network/http/websocket/WebsocketProtocol.cpp
+        application/network/http/websocket/WebSocketServer.cpp
         application/network/mqtt/packet/ConnAck.cpp
         application/network/mqtt/packet/Connect.cpp
         application/network/mqtt/packet/Disconnect.cpp
@@ -65,6 +70,7 @@ set(SOURCES
         application/network/mqtt/Publication.cpp
         application/network/mqtt/Subscription.cpp
         application/hash/sha.cpp
+        application/hash/base64.cpp
         core/ipc/QueueNotification.cpp
         core/filesystem/filesystem.cpp
         core/filesystem/File.cpp
@@ -83,6 +89,7 @@ set(SOURCES
         core/json/Value.cpp
         core/json/JsonFile.cpp
         core/Task.cpp
+        core/SystemStatistics.cpp
         include/smooth/application/io/i2c/ADS1115.h
         include/smooth/application/io/i2c/MCP23017.h
         include/smooth/application/network/http/HTTPServerClient.h
@@ -90,12 +97,15 @@ set(SOURCES
         include/smooth/application/network/http/HTTPProtocol.h
         include/smooth/application/network/http/URLEncoding.h
         include/smooth/application/network/http/http_utils.h
-        include/smooth/application/network/http/TemplateProcessor.h
-        include/smooth/application/network/http/ITemplateDataRetriever.h
-        include/smooth/application/network/http/responses/ErrorResponse.h
-        include/smooth/application/network/http/responses/FileContentResponse.h
-        include/smooth/application/network/http/responses/IRequestResponeOperation.h
-        include/smooth/application/network/http/responses/StringResponse.h
+        include/smooth/application/network/http/IResponseOperation.h
+        include/smooth/application/network/http/regular/RegularHTTPProtocol.h
+        include/smooth/application/network/http/regular/TemplateProcessor.h
+        include/smooth/application/network/http/regular/ITemplateDataRetriever.h
+        include/smooth/application/network/http/regular/responses/ErrorResponse.h
+        include/smooth/application/network/http/regular/responses/FileContentResponse.h
+        include/smooth/application/network/http/regular/responses/StringResponse.h
+        include/smooth/application/network/http/websocket/WebsocketProtocol.h
+        include/smooth/application/network/http/websocket/WebsocketServer.h
         include/smooth/application/network/mqtt/event/BaseEvent.h
         include/smooth/application/network/mqtt/event/ConnectEvent.h
         include/smooth/application/network/mqtt/event/DisconnectEvent.h
@@ -135,6 +145,7 @@ set(SOURCES
         include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
         include/smooth/application/network/mqtt/Publication.h
         include/smooth/application/network/mqtt/Subscription.h
+        include/smooth/core/SystemStatistics.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )

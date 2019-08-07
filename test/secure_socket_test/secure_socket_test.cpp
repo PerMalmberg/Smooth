@@ -22,8 +22,8 @@
 #include <smooth/core/network/BufferContainer.h>
 #include <smooth/core/network/MbedTLSContext.h>
 #include <smooth/application/network/http/HTTPPacket.h>
-#include <smooth/application/network/http/HTTPMethod.h>
-#include <smooth/application/network/http/ResponseCodes.h>
+#include <smooth/application/network/http/regular/HTTPMethod.h>
+#include <smooth/application/network/http/regular/ResponseCodes.h>
 #include <cassert>
 #include "wifi_creds.h"
 
@@ -191,7 +191,7 @@ namespace secure_socket_test
         if (!p.is_continued())
         {
             // Last packet
-            sock->stop();
+            sock->stop("Last packet received");
 
             std::stringstream ss;
             for (auto c : received_content)

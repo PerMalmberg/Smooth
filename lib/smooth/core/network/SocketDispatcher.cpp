@@ -125,7 +125,7 @@ namespace smooth::core::network
     void SocketDispatcher::set_timeout()
     {
         tv.tv_sec = 0;
-        tv.tv_usec = 1000;
+        tv.tv_usec = 10000;
     }
 
     void SocketDispatcher::clear_sets()
@@ -266,7 +266,7 @@ namespace smooth::core::network
                 }
                 else
                 {
-                    socket->stop();
+                    socket->stop("Socket dispatcher failed to start socket");
                 }
             }
 
@@ -333,13 +333,13 @@ namespace smooth::core::network
             {
                 Log::warning(tag, Format("Send timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
                                          Int64(pair.second->get_send_timeout().count())));
-                pair.second->stop();
+                pair.second->stop("Send timeout");
             }
             else if (pair.second->has_receive_expired())
             {
                 Log::warning(tag, Format("Receive timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
                                          Int64(pair.second->get_receive_timeout().count())));
-                pair.second->stop();
+                pair.second->stop("Receive timeout");
             }
         }
     }

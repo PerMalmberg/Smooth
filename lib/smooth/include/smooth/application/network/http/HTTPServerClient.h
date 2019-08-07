@@ -21,15 +21,19 @@
 #include <deque>
 #include <smooth/core/network/ServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/responses/StringResponse.h>
-#include "IRequestHandler.h"
+#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include <smooth/application/network/http/websocket/WebsocketServer.h>
+#include "regular/IRequestHandler.h"
+#include "regular/MIMEParser.h"
 #include "URLEncoding.h"
-#include "MIMEParser.h"
-
 #include "IServerResponse.h"
+#include "IResponseOperation.h"
 
 namespace smooth::application::network::http
 {
+    using namespace smooth::application::network::http::regular;
+
     static const std::chrono::milliseconds DefaultKeepAlive{5000};
 
     // TLS handshake takes a long time
@@ -37,7 +41,8 @@ namespace smooth::application::network::http
 
     class HTTPServerClient
             : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol, IRequestHandler>,
-              public IServerResponse
+              public IServerResponse,
+              public IConnectionTimeoutModifier
     {
         public:
             HTTPServerClient(smooth::core::Task& task,
@@ -51,12 +56,17 @@ namespace smooth::application::network::http
                     std::make_unique<smooth::application::network::http::HTTPProtocol>(max_header_size,
                                                                                        content_chunk_size,
                                                                                        *this)),
-                      content_chunk_size(content_chunk_size)
+                      content_chunk_size(content_chunk_size),
+                      task(task)
             {
             }
 
             void
             event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event) override;
+
+            void http_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
+
+            void websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event);
 
             void event(const smooth::core::network::event::TransmitBufferEmptyEvent& /*event*/) override;
 
@@ -71,10 +81,38 @@ namespace smooth::application::network::http
                 return SendTimeout;
             }
 
-            void reply(std::unique_ptr<responses::IRequestResponseOperation> response) override;
-            void reply_error(std::unique_ptr<responses::IRequestResponseOperation> response) override;
+            void reply(std::unique_ptr<IResponseOperation> response, bool place_first) override;
+
+            void reply_error(std::unique_ptr<IResponseOperation> response) override;
+
+            void set_receive_timeout(const std::chrono::milliseconds& timeout) override
+            {
+                socket->set_receive_timeout(timeout);
+            }
+
+        protected:
+            smooth::core::Task& get_task() override
+            {
+                return task;
+            }
+
+            void upgrade_to_websocket_internal() override
+            {
+                // Don't clear TX buffer - the upgrade response is being sent.
+                container->get_rx_buffer().clear();
+                container->get_protocol().upgrade_to_websocket();
+                mode = Mode::Websocket;
+            }
 
         private:
+            enum class Mode
+            {
+                    HTTP,
+                    Websocket
+            };
+
+            Mode mode{Mode::HTTP};
+
             bool parse_url(std::string& raw_url);
 
             void separate_request_parameters(std::string& url);
@@ -84,13 +122,15 @@ namespace smooth::application::network::http
             bool translate_method(const HTTPPacket& packet, HTTPMethod& method);
 
             const std::size_t content_chunk_size;
+            smooth::core::Task& task;
             std::unordered_map<std::string, std::string> request_parameters{};
             std::unordered_map<std::string, std::string> request_headers{};
             std::string requested_url{};
             URLEncoding encoding{};
-            std::deque<std::unique_ptr<responses::IRequestResponseOperation>> operations{};
-            std::unique_ptr<responses::IRequestResponseOperation> current_operation{};
+            std::deque<std::unique_ptr<IResponseOperation>> operations{};
+            std::unique_ptr<IResponseOperation> current_operation{};
             MIMEParser mime{};
+
 
             void set_keep_alive();
     };

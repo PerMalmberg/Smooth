@@ -35,8 +35,6 @@ namespace smooth::core::timer
               queue(cmp),
               guard()
     {
-        // Disable status printing to conserve stack size.
-        disable_status_print();
     }
 
     TimerService& TimerService::get()
