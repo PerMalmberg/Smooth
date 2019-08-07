@@ -97,7 +97,7 @@ namespace smooth::application::network::http::websocket
                 {
                     uint16_t len_16;
                     uint64_t len_64;
-                } ext_len;
+                } ext_len{0};
                 uint8_t mask_key[4];
             };
 
@@ -121,10 +121,12 @@ namespace smooth::application::network::http::websocket
             IServerResponse& response;
 
             bool error{false};
-            int total_byte_count{0};
+            int data_received_in_current_state{0};
             uint64_t payload_length{0};
             uint64_t received_payload{0};
+            uint64_t demask_ix{0};
             uint64_t received_payload_in_current_package{0};
+            int amount_wanted_in_current_state = 0;
 
             void set_message_properties(HTTPPacket& packet);
 
@@ -134,6 +136,6 @@ namespace smooth::application::network::http::websocket
 
             OpCode get_opcode() const;
 
-            bool is_fin_frame() const;
+            void update_received_payload(int length);
     };
 }

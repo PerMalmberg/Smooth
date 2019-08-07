@@ -129,9 +129,10 @@ namespace smooth::application::network::http
                 return content;
             }
 
-            void ensure_room(int total_space)
+            void expand_by(int additional_space)
             {
-                content.resize(static_cast<std::size_t>(total_space));
+                content.resize(static_cast<std::size_t>(content.size()
+                                                        + static_cast<decltype(content.size())>(additional_space)));
             }
 
             std::unordered_map<std::string, std::string>& headers()
