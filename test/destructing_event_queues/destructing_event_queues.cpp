@@ -42,7 +42,7 @@ namespace destructing_event_queues
         public:
             explicit TimerUser(Task& task)
                     : queue(TimerExpiredQueue_t::create("", 10, task, *this)),
-                      timer("", 0, queue, true, milliseconds{100})
+                      timer("", 0, queue, true, milliseconds{300})
             {
                 timer->start();
             }
@@ -81,11 +81,11 @@ namespace destructing_event_queues
                 }
                 else
                 {
-                    for (int i = 0; i < 50 - val && !users.empty(); ++i)
-                    {
-                        users.erase(users.begin());
-                        removed++;
-                    }
+//                    for (int i = 0; i < 50 - val && !users.empty(); ++i)
+//                    {
+//                        users.erase(users.begin());
+//                        removed++;
+//                    }
                 }
 
                 Log::info("Worker",
