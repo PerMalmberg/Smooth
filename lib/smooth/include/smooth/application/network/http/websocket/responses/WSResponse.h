@@ -61,8 +61,8 @@ namespace smooth::application::network::http::websocket::responses
 
             smooth::application::network::http::websocket::OpCode op_code;
 
-            bool first_fragment{false};
-            bool last_fragment{false};
+            bool first_fragment{true};
+            bool last_fragment{true};
 
             std::vector<uint8_t> data{};
     };

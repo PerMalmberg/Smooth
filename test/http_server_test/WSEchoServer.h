@@ -29,14 +29,14 @@ namespace http_server_test
         public:
             WSEchoServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task);
 
-            ~WSEchoServer() override;
+            ~WSEchoServer() override = default;
 
             void data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data) override;
 
             void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 
         private:
-            //smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_queue;
-            //std::shared_ptr<smooth::core::timer::Timer> timer;
+            std::shared_ptr<smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>> timer_queue;
+            smooth::core::timer::TimerOwner timer;
     };
 }

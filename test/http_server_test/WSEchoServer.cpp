@@ -21,6 +21,7 @@
 
 using namespace smooth::application::network::http::websocket::responses;
 using namespace smooth::application::network::http::websocket;
+using namespace smooth::core::ipc;
 
 namespace http_server_test
 {
@@ -28,11 +29,11 @@ namespace http_server_test
     using namespace std::chrono;
 
     WSEchoServer::WSEchoServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task)
-            : WebsocketServer(response, task)/*,
-              timer_queue("time_queue", 1, task, *this),
-              timer(Timer::create("Ping", 0, timer_queue, true, seconds{1}))*/
+            : WebsocketServer(response, task),
+              timer_queue(TaskEventQueue<TimerExpiredEvent>::create("time_queue", 1, task, *this)),
+              timer(Timer::create("Ping", 0, timer_queue, true, seconds{1}))
     {
-        //timer->start();
+        timer->start();
     }
 
     void http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text,
@@ -44,10 +45,5 @@ namespace http_server_test
     void WSEchoServer::event(const smooth::core::timer::TimerExpiredEvent&)
     {
         response.reply(std::make_unique<WSResponse>(OpCode::Ping), true);
-    }
-
-    WSEchoServer::~WSEchoServer()
-    {
-        //timer->stop();
     }
 }

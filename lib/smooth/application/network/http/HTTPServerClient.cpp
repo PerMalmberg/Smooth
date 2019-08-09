@@ -349,7 +349,7 @@ namespace smooth::application::network::http
                 }
                 else if (ws_op == OpCode::Ping)
                 {
-                    // Reply with a ping and place it first in the queue.
+                    // Reply with a Pong and place it first in the queue.
                     reply(std::make_unique<WSResponse>(OpCode::Pong), true);
                 }
             }
