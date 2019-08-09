@@ -39,7 +39,7 @@ namespace mqtt
 
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(10)),
-              mqtt_data("mqtt_data", 10, *this, *this),
+              mqtt_data(MQTTDataQueue::create("mqtt_data", 10, *this, *this)),
               client(client_id, seconds(10), 8192, 10, mqtt_data)
     {
     }

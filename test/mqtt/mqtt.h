@@ -46,7 +46,8 @@ namespace mqtt
         void tick() override;
 
     private:
-        smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData> mqtt_data;
+        using MQTTDataQueue = smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData>;
+        std::shared_ptr<MQTTDataQueue> mqtt_data;
         smooth::application::network::mqtt::MqttClient client;
         std::random_device rand{};
         std::mt19937 gen{rand()};

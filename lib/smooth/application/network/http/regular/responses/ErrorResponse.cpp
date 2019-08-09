@@ -15,7 +15,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/application/network/http/regular/responses/ErrorResponse.h>
-#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
 namespace smooth::application::network::http::regular::responses
 {

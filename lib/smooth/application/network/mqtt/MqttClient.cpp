@@ -22,6 +22,8 @@
 #include <smooth/application/network/mqtt/event/DisconnectEvent.h>
 #include <smooth/core/logging/log.h>
 
+#include <utility>
+
 #ifdef ESP_PLATFORM
 #include "esp_log.h"
 #endif
@@ -36,12 +38,13 @@ namespace smooth::application::network::mqtt
     MqttClient::MqttClient(const std::string& mqtt_client_id,
                            std::chrono::seconds keep_alive,
                            uint32_t stack_size,
-                           uint32_t priority, TaskEventQueue<MQTTData>& application_queue)
+                           uint32_t priority,
+                           std::weak_ptr<TaskEventQueue<MQTTData>> application_queue)
             : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
-              application_queue(application_queue),
-              timer_events("timer_events", 5, *this, *this),
-              control_event("control_event", 5, *this, *this),
-              system_event("system_event", 5, *this, *this),
+              application_queue(std::move(application_queue)),
+              timer_events(TimerQueue::create("timer_events", 5, *this, *this)),
+              control_event(ControlQueue::create("control_event", 5, *this, *this)),
+              system_event(SystemQueue::create("system_event", 5, *this, *this)),
               guard(),
               client_id(mqtt_client_id),
               keep_alive(keep_alive),
@@ -84,7 +87,7 @@ namespace smooth::application::network::mqtt
     }
 
     void
-    MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& address, bool auto_reconnect)
+    MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address, bool enable_auto_reconnect)
     {
         std::lock_guard<std::mutex> lock(guard);
         // Must start the task before pushing an event, otherwise the task will not
@@ -95,10 +98,10 @@ namespace smooth::application::network::mqtt
         {
             {
                 std::lock_guard<std::mutex> l(address_guard);
-                this->address = address;
+                this->address = server_address;
             }
-            this->auto_reconnect = auto_reconnect;
-            control_event.push(event::ConnectEvent());
+            this->auto_reconnect = enable_auto_reconnect;
+            control_event->push(event::ConnectEvent());
         }
     }
 
@@ -132,7 +135,7 @@ namespace smooth::application::network::mqtt
 
     void MqttClient::disconnect()
     {
-        control_event.push(event::DisconnectEvent());
+        control_event->push(event::DisconnectEvent());
     }
 
     void MqttClient::force_disconnect()
@@ -157,7 +160,7 @@ namespace smooth::application::network::mqtt
         return client_id;
     }
 
-    const std::chrono::seconds MqttClient::get_keep_alive() const
+    std::chrono::seconds MqttClient::get_keep_alive() const
     {
         return keep_alive;
     }

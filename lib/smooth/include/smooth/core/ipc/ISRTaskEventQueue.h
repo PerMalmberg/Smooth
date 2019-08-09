@@ -21,6 +21,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <smooth/core/Task.h>
+#include <smooth/core/util/create_protected.h>
 
 namespace smooth::core::ipc
 {
@@ -32,13 +33,17 @@ namespace smooth::core::ipc
     template<typename DataType, int Size>
     class ISRTaskEventQueue
             : public IISRTaskEventQueue<DataType>,
-              public IPolledTaskQueue
+              public IPolledTaskQueue,
+              public std::enable_shared_from_this<ISRTaskEventQueue<DataType, Size>>
     {
 
         public:
             friend core::Task;
 
-            ISRTaskEventQueue(Task& task, IEventListener <DataType>& listener);
+            static auto create(Task& task, IEventListener <DataType>& listener)
+            {
+                return smooth::core::util::create_protected_shared<ISRTaskEventQueue<DataType, Size>>(task, listener);
+            }
 
             ~ISRTaskEventQueue() override;
 
@@ -62,9 +67,12 @@ namespace smooth::core::ipc
                     && uxQueueMessagesWaiting(queue) > 0)
                 {
                     read_since_poll = false;
-                    notification->notify(this);
+                    notification->notify(this->shared_from_this());
                 }
             }
+
+        protected:
+            ISRTaskEventQueue(Task& task, IEventListener <DataType>& listener);
 
         private:
             void forward_to_event_listener() override;

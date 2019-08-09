@@ -31,7 +31,7 @@ namespace timer
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           seconds(10)),
-              queue("queue", 10, *this, *this),
+              queue(ExpiredQueue::create("queue", 10, *this, *this)),
               timers()
     {
     }

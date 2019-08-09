@@ -43,12 +43,15 @@ namespace smooth::application::io::wiegand
             IWiegandSignal& receiver;
             gpio_num_t d0_pin;
             gpio_num_t d1_pin;
-            smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40> bit_queue;
+            using ISRTaskQueue = smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40>;
+            std::shared_ptr<ISRTaskQueue> bit_queue;
             smooth::core::io::InterruptInput d0;
             smooth::core::io::InterruptInput d1;
             std::bitset<34> data{};
             uint8_t bit_count = 0;
-            smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> line_silent;
+
+            using TimerQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
+            std::weak_ptr<TimerQueue> line_silent;
             std::shared_ptr<smooth::core::timer::Timer> expire;
     };
 }

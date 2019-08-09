@@ -68,13 +68,13 @@ namespace smooth::application::network::mqtt
             /// \param application_queue The queue where incoming messages will be posted.
             MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive,
                        uint32_t stack_size,
-                       uint32_t priority, core::ipc::TaskEventQueue<MQTTData>& application_queue);
+                       uint32_t priority, std::weak_ptr<core::ipc::TaskEventQueue<MQTTData>> application_queue);
 
             /// Initiates a connection to the provided address.
-            /// \param address The address
-            /// \param auto_reconnect If true, the client will automatically reconnect when connection is lost.
+            /// \param server_address The address
+            /// \param enable_auto_reconnect If true, the client will automatically reconnect when connection is lost.
             void
-            connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& address, bool auto_reconnect);
+            connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address, bool enable_auto_reconnect);
 
             void reconnect() override
             {
@@ -144,7 +144,7 @@ namespace smooth::application::network::mqtt
 
             const std::string& get_client_id() const override;
 
-            const std::chrono::seconds get_keep_alive() const override;
+            std::chrono::seconds get_keep_alive() const override;
 
             void start_reconnect() override;
 
@@ -165,7 +165,7 @@ namespace smooth::application::network::mqtt
                 return subscription;
             }
 
-            core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& get_application_queue() override
+            std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>> get_application_queue() override
             {
                 return application_queue;
             }
@@ -178,10 +178,15 @@ namespace smooth::application::network::mqtt
 
             void force_disconnect() override;
 
-            core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>& application_queue;
-            core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent> timer_events;
-            core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent> control_event;
-            core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus> system_event;
+
+            using TimerQueue = core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
+            using ControlQueue = core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent>;
+            using SystemQueue = core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus>;
+
+            std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>> application_queue;
+            std::shared_ptr<TimerQueue> timer_events;
+            std::shared_ptr<ControlQueue> control_event;
+            std::shared_ptr<SystemQueue> system_event;
             std::mutex guard;
             std::string client_id;
             std::chrono::seconds keep_alive;

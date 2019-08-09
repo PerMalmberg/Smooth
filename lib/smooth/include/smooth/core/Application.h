@@ -86,7 +86,8 @@ namespace smooth::core
 
         private:
             static esp_err_t event_callback(void* ctx, system_event_t* event);
-            ipc::SubscribingTaskEventQueue<system_event_t> system_event;
+            using SystemEventQueue = ipc::SubscribingTaskEventQueue<system_event_t>;
+            std::shared_ptr<SystemEventQueue> system_event;
             network::Wifi wifi;
 
             static const std::unordered_map<int, const char*> id_to_system_event;

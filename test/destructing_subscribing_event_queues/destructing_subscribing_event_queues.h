@@ -14,28 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "interrupt_queue.h"
-#include <smooth/core/Task.h>
+#pragma once
+
+#include <smooth/core/Application.h>
 #include <smooth/core/task_priorities.h>
+#include <iostream>
 
-using namespace smooth::core;
-
-namespace interrupt_queue
+namespace destructing_subscribing_event_queues
 {
-    App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              queue(IntrQueue::create(*this, *this)),
-              input(queue, GPIO_NUM_21, true, false, GPIO_INTR_ANYEDGE)
+    class App : public smooth::core::Application
     {
-    }
+    public:
+        App();
 
-    void App::init()
-    {
-        std::cout << "Trigger the input!" << std::endl;
-    }
-
-    void App::event(const smooth::core::io::InterruptInputEvent& value)
-    {
-        std::cout << "Value from interrupt: " << value.get_state() << std::endl;
-    }
+        void init() override;
+        void tick() override;
+    };
 }

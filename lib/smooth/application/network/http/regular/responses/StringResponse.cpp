@@ -30,14 +30,14 @@ namespace smooth::application::network::http::regular::responses
     StringResponse::StringResponse(ResponseCode code, std::string body, bool add_surrounding_html)
             : HeaderOnlyResponse(code)
     {
-        if(add_surrounding_html)
+        if (add_surrounding_html)
         {
             add_string("<html><body>");
         }
 
         add_string(std::move(body));
 
-        if(add_surrounding_html)
+        if (add_surrounding_html)
         {
             add_string("</body></html>");
         }
@@ -72,7 +72,8 @@ namespace smooth::application::network::http::regular::responses
 
     void StringResponse::dump() const
     {
-        Log::debug("Response", Format("Code: {1}; Remaining: {2} bytes", Int32(static_cast<int>(code)), UInt64(data.size())));
+        Log::debug("Response",
+                   Format("Code: {1}; Remaining: {2} bytes", Int32(static_cast<int>(code)), UInt64(data.size())));
     }
 
     void StringResponse::add_string(std::string str)

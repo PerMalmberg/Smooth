@@ -32,7 +32,7 @@ namespace smooth::application::network::mqtt
 
             virtual const std::string& get_client_id() const = 0;
 
-            virtual const std::chrono::seconds get_keep_alive() const = 0;
+            virtual std::chrono::seconds get_keep_alive() const = 0;
 
             virtual void start_reconnect() = 0;
 
@@ -52,7 +52,7 @@ namespace smooth::application::network::mqtt
 
             virtual Subscription& get_subscription() = 0;
 
-            virtual core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>&
+            virtual std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>>
             get_application_queue() = 0;
     };
 

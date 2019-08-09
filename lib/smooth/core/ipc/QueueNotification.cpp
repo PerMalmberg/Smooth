@@ -20,32 +20,33 @@
 
 namespace smooth::core::ipc
 {
-    void QueueNotification::notify(ITaskEventQueue* queue)
+    void QueueNotification::notify(const std::weak_ptr<ITaskEventQueue>& queue)
     {
         // It might look like the queue can grow without bounds, but that is not the case
         // as TaskEventQueues only call this method when they have successfully added the
         // data item to their internal queue. As such, the queue can only be as large as
         // the sum of all queues within the same Task.
         std::unique_lock<std::mutex> lock{guard};
-        queues.push_back(queue);
+        queues.emplace_back(queue);
         cond.notify_one();
     }
 
-    void QueueNotification::remove(smooth::core::ipc::ITaskEventQueue* queue)
+    void QueueNotification::remove_expired_queues()
     {
         std::unique_lock<std::mutex> lock{guard};
-        auto pos = std::find(queues.begin(), queues.end(), queue);
-        if (pos != queues.end())
+
+        auto new_end = std::remove_if(queues.begin(), queues.end(), [&](const auto& o)
         {
-            queues.erase(pos);
-        }
+            return o.expired();
+        });
+
+        queues.erase(new_end, queues.end());
     }
 
-    ITaskEventQueue* QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
+    std::weak_ptr<ITaskEventQueue> QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
     {
-        ITaskEventQueue* res = nullptr;
-
         std::unique_lock<std::mutex> lock{guard};
+        std::weak_ptr<ITaskEventQueue> res{};
 
         if (queues.empty())
         {

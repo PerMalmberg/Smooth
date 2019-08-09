@@ -84,8 +84,10 @@ namespace smooth::core::network
             std::map<int, std::shared_ptr<ISocket>> active_sockets;
             std::vector<std::shared_ptr<ISocket>> inactive_sockets;
             std::mutex socket_guard;
-            smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus> network_events;
-            smooth::core::ipc::TaskEventQueue<SocketOperation> socket_op;
+            using NetworkEventQueue = smooth::core::ipc::SubscribingTaskEventQueue<NetworkStatus>;
+            std::shared_ptr<NetworkEventQueue> network_events;
+            using SocketOperationQueue = smooth::core::ipc::TaskEventQueue<SocketOperation>;
+            std::shared_ptr<SocketOperationQueue> socket_op;
 
             static void set_fd(std::size_t socket_id, fd_set& fd);
 

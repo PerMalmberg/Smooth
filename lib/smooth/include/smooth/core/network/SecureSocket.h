@@ -156,24 +156,10 @@ namespace smooth::core::network
                                            std::chrono::milliseconds send_timeout,
                                            std::chrono::milliseconds receive_timeout)
     {
-        // This class is solely used to enabled access to the protected SecureSocket<Protocol, Packet> constructor from std::make_shared<>
-        class MakeSharedActivator
-                : public SecureSocket<Protocol, Packet>
-        {
-            public:
-                MakeSharedActivator(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                    std::unique_ptr<SSLContext> context,
-                                    std::chrono::milliseconds send_timeout,
-                                    std::chrono::milliseconds receive_timeout)
-                        : SecureSocket<Protocol, Packet>(buffer_container, std::move(context))
-                {
-                    this->set_send_timeout(send_timeout);
-                    this->set_receive_timeout(receive_timeout);
-                }
-        };
-
-        return std::make_shared<MakeSharedActivator>(buffer_container, std::move(context), send_timeout,
-                                                     receive_timeout);
+        auto s = smooth::core::util::create_protected_shared<SecureSocket<Protocol, Packet>>(buffer_container, std::move(context));
+        s->set_send_timeout(send_timeout);
+        s->set_receive_timeout(receive_timeout);
+        return s;
     }
 
     template<typename Protocol, typename Packet>
@@ -277,7 +263,7 @@ namespace smooth::core::network
                     else if (rx.is_packet_complete())
                     {
                         event::DataAvailableEvent<Protocol> d(&rx);
-                        container->get_data_available().push(d);
+                        container->get_data_available()->push(d);
                         rx.prepare_new_packet();
                     }
                 }
@@ -320,7 +306,7 @@ namespace smooth::core::network
                     {
                         // Let the application know it may now send another packet.
                         event::TransmitBufferEmptyEvent event(this->shared_from_this());
-                        container->get_tx_empty().push(event);
+                        container->get_tx_empty()->push(event);
                     }
                 }
 

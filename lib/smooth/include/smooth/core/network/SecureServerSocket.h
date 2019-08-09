@@ -21,6 +21,7 @@
 #include <vector>
 #include <smooth/core/network/SecureSocket.h>
 #include <smooth/core/network/MbedTLSContext.h>
+#include <smooth/core/util/create_protected.h>
 
 namespace smooth::core::network
 {
@@ -51,9 +52,9 @@ namespace smooth::core::network
                                const std::vector<unsigned char>& password,
                                ProtocolArguments... proto_args)
                     : ServerSocket<Client, Protocol, ClientContext>(task,
-                                                     max_client_count,
-                                                     backlog,
-                                                     proto_args...)
+                                                                    max_client_count,
+                                                                    backlog,
+                                                                    proto_args...)
             {
                 server_context.init_server(ca_chain, own_cert, private_key, password);
             }
@@ -68,46 +69,23 @@ namespace smooth::core::network
     template<typename ...ProtocolArguments>
     std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
     SecureServerSocket<Client, Protocol, ClientContext>::create(smooth::core::Task& task,
-                                                 int max_client_count,
-                                                 int backlog,
-                                                 const std::vector<unsigned char>& ca_chain,
-                                                 const std::vector<unsigned char>& own_cert,
-                                                 const std::vector<unsigned char>& private_key,
-                                                 const std::vector<unsigned char>& password,
-                                                 ProtocolArguments... proto_args)
+                                                                int max_client_count,
+                                                                int backlog,
+                                                                const std::vector<unsigned char>& ca_chain,
+                                                                const std::vector<unsigned char>& own_cert,
+                                                                const std::vector<unsigned char>& private_key,
+                                                                const std::vector<unsigned char>& password,
+                                                                ProtocolArguments... proto_args)
     {
-        class MakeSharedActivator
-                : public SecureServerSocket<Client, Protocol, ClientContext>
-        {
-            public:
-                MakeSharedActivator(smooth::core::Task& task,
-                                    int max_client_count,
-                                    int backlog,
-                                    const std::vector<unsigned char>& ca_chain,
-                                    const std::vector<unsigned char>& own_cert,
-                                    const std::vector<unsigned char>& private_key,
-                                    const std::vector<unsigned char>& password,
-                                    ProtocolArguments... proto_args)
-                        : SecureServerSocket<Client, Protocol, ClientContext>(task,
-                                                               max_client_count,
-                                                               backlog,
-                                                               ca_chain,
-                                                               own_cert,
-                                                               private_key,
-                                                               password,
-                                                               proto_args...)
-                {
-                }
-        };
-
-        return std::make_shared<MakeSharedActivator>(task,
-                                                     max_client_count,
-                                                     backlog,
-                                                     ca_chain,
-                                                     own_cert,
-                                                     private_key,
-                                                     password,
-                                                     proto_args...);
+        return smooth::core::util::create_protected_shared<SecureServerSocket<Client, Protocol, ClientContext>>(
+                task,
+                max_client_count,
+                backlog,
+                ca_chain,
+                own_cert,
+                private_key,
+                password,
+                proto_args...);
     }
 
     template<typename Client, typename Protocol, typename ClientContext>

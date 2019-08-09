@@ -29,9 +29,9 @@ namespace smooth::core::io
         }
     }
 
-    InterruptInput::InterruptInput(core::ipc::IISRTaskEventQueue<InterruptInputEvent>& queue, gpio_num_t io,
+    InterruptInput::InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue, gpio_num_t io,
                                    bool pull_up, bool pull_down, gpio_int_type_t interrupt_trigger)
-            : Input(io, pull_up, pull_down, interrupt_trigger), queue(queue)
+            : Input(io, pull_up, pull_down, interrupt_trigger), queue(std::move(queue))
     {
         gpio_isr_handler_add(io, input_interrupt_handler, this);
     }
@@ -39,6 +39,10 @@ namespace smooth::core::io
     void InterruptInput::update()
     {
         InterruptInputEvent ev(io, read());
-        queue.signal(ev);
+        const auto& q = queue.lock();
+        if(q)
+        {
+            q->signal(ev);
+        }
     }
 }

@@ -30,6 +30,7 @@
 #include <smooth/core/network/event/ConnectionStatusEvent.h>
 #include <smooth/core/network/CommonSocket.h>
 #include <smooth/core/network/Socket.h>
+#include <smooth/core/util/create_protected.h>
 
 #ifndef ESP_PLATFORM
 
@@ -261,23 +262,14 @@ namespace smooth::core::network
 
     template<typename Client, typename Protocol, typename ClientContext>
     template<typename ...ProtocolArguments>
-    std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>> ServerSocket<Client, Protocol, ClientContext>::create(
+    std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
+    ServerSocket<Client, Protocol, ClientContext>::create(
             smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args)
     {
-        // This class is solely used to enabled access to the protected ServerSocket constructor from std::make_shared<>
-        class MakeSharedActivator
-                : public ServerSocket<Client, Protocol, ClientContext>
-        {
-            public:
-                explicit MakeSharedActivator(smooth::core::Task& task, int max_client_count, int backlog,
-                                             ProtocolArguments... proto_args)
-                        : ServerSocket<Client, Protocol, ClientContext>(task, max_client_count, backlog, proto_args...)
-                {
-                }
-
-        };
-
-        return std::make_shared<MakeSharedActivator>(task, max_client_count, backlog, proto_args...);
+        return smooth::core::util::create_protected_shared<ServerSocket<Client, Protocol, ClientContext>>(task,
+                                                                                                          max_client_count,
+                                                                                                          backlog,
+                                                                                                          proto_args...);
     }
 
     template<typename Client, typename Protocol, typename ClientContext>

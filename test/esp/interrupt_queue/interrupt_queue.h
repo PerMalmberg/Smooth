@@ -37,7 +37,8 @@ namespace interrupt_queue
             void event(const smooth::core::io::InterruptInputEvent& value) override;
 
         protected:
-            smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 5> queue;
+            using IntrQueue = smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 5>;
+            std::shared_ptr<IntrQueue> queue;
             smooth::core::io::InterruptInput input;
     };
 }

@@ -32,7 +32,7 @@ namespace publish
             {
             }
 
-            std::chrono::steady_clock::time_point get_start() const
+            [[nodiscard]] std::chrono::steady_clock::time_point get_start() const
             {
                 return start;
             }
@@ -67,7 +67,8 @@ namespace publish
             void event(const ItemToPublish&) override;
 
         private:
-            smooth::core::ipc::SubscribingTaskEventQueue<ItemToPublish> sub;
+            using SubscribeQueue = smooth::core::ipc::SubscribingTaskEventQueue<ItemToPublish>;
+            std::shared_ptr<SubscribeQueue> sub;
             PublisherTask p{};
     };
 

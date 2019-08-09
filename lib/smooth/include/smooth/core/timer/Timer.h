@@ -41,7 +41,7 @@ namespace smooth::core::timer
             /// \param interval The interval between the start time and when the timer expiers.
             static std::shared_ptr<Timer> create(const std::string& name,
                                                  int id,
-                                                 ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+                                                 const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                                  bool auto_reload,
                                                  std::chrono::milliseconds interval);
 
@@ -55,6 +55,7 @@ namespace smooth::core::timer
             // you should be aware that timers that are recurring always are held via a shared_ptr<> by the TimerService
             // until they are stopped.
             // Likewise, non-recurring timers are held by the TimerService until they expire or stopped.
+            // Use a TimerOwner for RAII-style destruction.
             ~Timer() override = default;
 
             void start() override;
@@ -76,10 +77,10 @@ namespace smooth::core::timer
 
         protected:
 
-            const std::string name;
+            const std::string timer_name;
             int id;
             bool repeating;
-            std::chrono::milliseconds interval;
+            std::chrono::milliseconds timer_interval;
 
             /// Constructor
             /// \param name The name of the timer, mainly used for debugging and logging.
@@ -87,7 +88,7 @@ namespace smooth::core::timer
             /// \param event_queue The vent queue to send events on.
             /// \param auto_reload If true, the timer will restart itself when it expires.
             /// \param interval The interval between the start time and when the timer expiers.
-            Timer(const std::string& name, int id, ipc::TaskEventQueue<timer::TimerExpiredEvent>& event_queue,
+            Timer(std::string name, int id, std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
                   bool auto_reload, std::chrono::milliseconds interval);
 
         private:
@@ -98,7 +99,25 @@ namespace smooth::core::timer
 
             void calculate_next_execution();
 
-            ipc::TaskEventQueue<TimerExpiredEvent>& event_queue;
+            std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> queue;
             std::chrono::steady_clock::time_point expire_time;
+    };
+
+    class TimerOwner
+    {
+        public:
+            explicit TimerOwner(std::shared_ptr<Timer> t) noexcept;
+
+            TimerOwner(const std::string& name,
+                       int id,
+                       const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
+                       bool auto_reload,
+                       std::chrono::milliseconds interval);
+
+            ~TimerOwner();
+            std::shared_ptr<Timer> operator->() const noexcept;
+
+        private:
+            std::shared_ptr<Timer> t;
     };
 }

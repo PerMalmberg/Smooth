@@ -19,6 +19,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <deque>
+#include <memory>
 #include "ITaskEventQueue.h"
 
 namespace smooth::core::ipc
@@ -30,11 +31,11 @@ namespace smooth::core::ipc
 
             ~QueueNotification() = default;
 
-            void notify(ITaskEventQueue* queue);
+            void notify(const std::weak_ptr<ITaskEventQueue>& queue);
 
-            void remove(ITaskEventQueue* queue);
+            void remove_expired_queues();
 
-            ITaskEventQueue* wait_for_notification(std::chrono::milliseconds timeout);
+            std::weak_ptr<ITaskEventQueue> wait_for_notification(std::chrono::milliseconds timeout);
 
             void clear()
             {
@@ -43,7 +44,7 @@ namespace smooth::core::ipc
             }
 
         private:
-            std::deque<ITaskEventQueue*> queues{};
+            std::deque<std::weak_ptr<ITaskEventQueue>> queues{};
             std::mutex guard{};
             std::condition_variable cond{};
     };
