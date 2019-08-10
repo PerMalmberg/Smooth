@@ -46,6 +46,10 @@ namespace smooth::core::timer
 
             ~TimerOwner();
             std::shared_ptr<Timer> operator->() const noexcept;
+            explicit operator bool() const noexcept
+            {
+                return static_cast<bool>(t);
+            }
 
         private:
             friend Timer;

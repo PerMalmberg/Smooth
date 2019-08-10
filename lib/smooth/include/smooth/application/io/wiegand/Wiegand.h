@@ -52,7 +52,7 @@ namespace smooth::application::io::wiegand
 
             using TimerQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
             std::weak_ptr<TimerQueue> line_silent;
-            std::shared_ptr<smooth::core::timer::Timer> expire;
+            smooth::core::timer::TimerOwner expire;
     };
 }
         

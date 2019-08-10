@@ -37,19 +37,20 @@ namespace smooth
         {
             namespace wiegand
             {
-                Wiegand::Wiegand(smooth::core::Task& task, IWiegandSignal& receiver, gpio_num_t d0_pin, gpio_num_t d1_pin)
-                    : receiver(receiver),
-                    d0_pin(d0_pin),
-                    d1_pin(d1_pin),
-                    bit_queue(ISRTaskQueue::create(task, *this)),
-                    d0(bit_queue, d0_pin, false, false, GPIO_INTR_NEGEDGE),
-                    d1(bit_queue, d1_pin, false, false, GPIO_INTR_NEGEDGE),
-                    line_silent(TimerQueue::create("WiegandLineSilent", 5, task, *this)),
-                    expire(Timer::create("WiegandLineSilent",
-                                        1,
-                                        line_silent,
-                                        false,
-                                        timeout))
+                Wiegand::Wiegand(smooth::core::Task& task, IWiegandSignal& receiver, gpio_num_t d0_pin,
+                                 gpio_num_t d1_pin)
+                        : receiver(receiver),
+                          d0_pin(d0_pin),
+                          d1_pin(d1_pin),
+                          bit_queue(ISRTaskQueue::create(task, *this)),
+                          d0(bit_queue, d0_pin, false, false, GPIO_INTR_NEGEDGE),
+                          d1(bit_queue, d1_pin, false, false, GPIO_INTR_NEGEDGE),
+                          line_silent(TimerQueue::create("WiegandLineSilent", 5, task, *this)),
+                          expire("WiegandLineSilent",
+                                 1,
+                                 line_silent,
+                                 false,
+                                 timeout)
                 {
                 }
 
@@ -108,7 +109,8 @@ namespace smooth
 
                         if (valid)
                         {
-                            uint32_t id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFF) | (lower.to_ullong() >> 1));
+                            uint32_t id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFF)
+                                                                | (lower.to_ullong() >> 1));
                             receiver.wiegand_id(id, 4);
                         }
                     }
