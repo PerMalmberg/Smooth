@@ -235,6 +235,7 @@ namespace smooth::application::network::mqtt
             buff->clear();
 
             mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(buff, seconds{1});
+            mqtt_socket->set_receive_timeout(keep_alive + seconds{1});
             mqtt_socket->start(address);
         }
     }
