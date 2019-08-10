@@ -469,6 +469,14 @@ namespace smooth::application::network::http
             }
         }
     }
+
+    using Client = smooth::application::network::http::HTTPServerClient;
+    using Protocol = smooth::application::network::http::HTTPProtocol;
+
+    using InsecureServer = smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client,
+            Protocol, smooth::application::network::http::IRequestHandler>>;
+    using SecureServer = smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client,
+            Protocol, smooth::application::network::http::IRequestHandler>>;
 }
 
 
