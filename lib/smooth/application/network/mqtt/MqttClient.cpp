@@ -49,18 +49,16 @@ namespace smooth::application::network::mqtt
               client_id(mqtt_client_id),
               keep_alive(keep_alive),
               mqtt_socket(),
-              reconnect_timer(
-                      Timer::create("reconnect_timer",
-                                    MQTT_FSM_RECONNECT_TIMER_ID,
-                                    timer_events,
-                                    false,
-                                    std::chrono::seconds(5))),
-              keep_alive_timer(
-                      Timer::create("keep_alive_timer",
-                                    MQTT_FSM_KEEP_ALIVE_TIMER_ID,
-                                    timer_events,
-                                    true,
-                                    std::chrono::seconds(1))),
+              reconnect_timer("reconnect_timer",
+                              MQTT_FSM_RECONNECT_TIMER_ID,
+                              timer_events,
+                              false,
+                              std::chrono::seconds(5)),
+              keep_alive_timer("keep_alive_timer",
+                               MQTT_FSM_KEEP_ALIVE_TIMER_ID,
+                               timer_events,
+                               true,
+                               std::chrono::seconds(1)),
               fsm(*this),
               address(),
               buff(std::make_shared<smooth::core::network::BufferContainer<packet::MQTTProtocol>>(*this,
@@ -87,7 +85,8 @@ namespace smooth::application::network::mqtt
     }
 
     void
-    MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address, bool enable_auto_reconnect)
+    MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address,
+                           bool enable_auto_reconnect)
     {
         std::lock_guard<std::mutex> lock(guard);
         // Must start the task before pushing an event, otherwise the task will not

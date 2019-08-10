@@ -27,6 +27,32 @@ namespace smooth::core::timer
 {
     class TimerService;
 
+    class Timer;
+
+    class TimerOwner
+    {
+        public:
+            TimerOwner(const std::string& name,
+                       int id,
+                       const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
+                       bool auto_reload,
+                       std::chrono::milliseconds interval);
+
+            TimerOwner() = default;
+            TimerOwner(const TimerOwner&) = default;
+            TimerOwner& operator=(const TimerOwner&) = default;
+            TimerOwner(TimerOwner&&) = default;
+            TimerOwner& operator=(TimerOwner&&) = default;
+
+            ~TimerOwner();
+            std::shared_ptr<Timer> operator->() const noexcept;
+
+        private:
+            friend Timer;
+            explicit TimerOwner(std::shared_ptr<Timer> t) noexcept;
+            std::shared_ptr<Timer> t;
+    };
+
     /// A timer ensures that a context switch is made to the correct task before any processing takes place.
     /// This is done by sending an event on the provided event queue.
     class Timer
@@ -39,7 +65,7 @@ namespace smooth::core::timer
             /// \param event_queue The vent queue to send events on.
             /// \param auto_reload If true, the timer will restart itself when it expires.
             /// \param interval The interval between the start time and when the timer expiers.
-            static std::shared_ptr<Timer> create(const std::string& name,
+            static TimerOwner create(const std::string& name,
                                                  int id,
                                                  const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                                  bool auto_reload,
@@ -101,23 +127,5 @@ namespace smooth::core::timer
 
             std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> queue;
             std::chrono::steady_clock::time_point expire_time;
-    };
-
-    class TimerOwner
-    {
-        public:
-            explicit TimerOwner(std::shared_ptr<Timer> t) noexcept;
-
-            TimerOwner(const std::string& name,
-                       int id,
-                       const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
-                       bool auto_reload,
-                       std::chrono::milliseconds interval);
-
-            ~TimerOwner();
-            std::shared_ptr<Timer> operator->() const noexcept;
-
-        private:
-            std::shared_ptr<Timer> t;
     };
 }

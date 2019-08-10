@@ -80,13 +80,13 @@ namespace smooth::core::timer
         }
     }
 
-    std::shared_ptr<Timer> Timer::create(const std::string& name,
+    TimerOwner Timer::create(const std::string& name,
                                          int id,
                                          const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                          bool auto_reload,
                                          std::chrono::milliseconds interval)
     {
-        return create_protected_shared<Timer>(name, id, event_queue, auto_reload, interval);
+        return TimerOwner(create_protected_shared<Timer>(name, id, event_queue, auto_reload, interval));
     }
 
     std::chrono::steady_clock::time_point Timer::expires_at() const
@@ -108,14 +108,17 @@ namespace smooth::core::timer
                            const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                            bool auto_reload,
                            std::chrono::milliseconds interval)
-            :
-            t(Timer::create(name, id, event_queue, auto_reload, interval))
+
     {
+        *this = Timer::create(name, id, event_queue, auto_reload, interval);
     }
 
     TimerOwner::~TimerOwner()
     {
-        t->stop();
+        if(t)
+        {
+            t->stop();
+        }
     }
 
     std::shared_ptr<Timer> TimerOwner::operator->() const noexcept

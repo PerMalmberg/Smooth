@@ -42,7 +42,7 @@ namespace timer
 
         struct TimerInfo
         {
-            std::shared_ptr<smooth::core::timer::Timer> timer;
+            smooth::core::timer::TimerOwner timer;
             std::chrono::milliseconds interval;
             std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
             int count = 0;
