@@ -93,7 +93,7 @@ namespace smooth::application::network::mqtt
         // have run its exec() far enough to initialize the FreeRTOS pointer
         start();
 
-        if (address)
+        if (server_address)
         {
             {
                 std::lock_guard<std::mutex> l(address_guard);

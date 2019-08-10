@@ -28,7 +28,7 @@ namespace smooth::application::network::mqtt::state
         if (timer_id == MQTT_FSM_KEEP_ALIVE_TIMER_ID)
         {
             packet::PingReq ping;
-            //QQQ fsm.get_mqtt().send_packet(ping);
+            fsm.get_mqtt().send_packet(ping);
         }
     }
 
