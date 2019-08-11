@@ -56,7 +56,10 @@ namespace smooth::core::json
             Value operator[](int index);
 
             Value& operator=(const std::string& s)
-            { return operator=(s.c_str()); }
+            {
+                operator=(s.c_str());
+                return *this;
+            }
 
             Value& operator=(const char* s);
 
@@ -65,6 +68,8 @@ namespace smooth::core::json
             Value& operator=(bool value);
 
             Value& operator=(double value);
+
+            Value& operator=(uint32_t value);
 
             bool operator==(const std::string& s) const;
 

@@ -199,6 +199,12 @@ namespace smooth::core::json
         return *this;
     }
 
+    Value& Value::operator=(uint32_t value)
+    {
+        operator=(static_cast<double>(value));
+        return *this;
+    }
+
     bool Value::operator==(const std::string& s) const
     {
         return cJSON_IsString(data) && s == data->valuestring;
