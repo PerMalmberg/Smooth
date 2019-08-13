@@ -63,12 +63,16 @@ function(smooth_setup target)
             set(smooth_sdkconfig ${project_specific_sdkconfig})
         endif()
 
+        include($ENV{IDF_PATH}/tools/cmake/idf.cmake)
+
         idf_build_process(esp32
                 COMPONENTS ${smooth_req_comps} smooth_idf_component
                 SDKCONFIG ${smooth_sdkconfig}
                 BUILD_DIR ${CMAKE_BINARY_DIR})
 
         smooth_link_to_idf(${target})
+
+        set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
     else()
         message(STATUS "Smooth: Building for native Linux.")
         target_include_directories(smooth PRIVATE $ENV{IDF_PATH}/components/json/cJSON)

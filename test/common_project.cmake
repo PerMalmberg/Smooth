@@ -14,8 +14,6 @@ add_executable(${TEST_PROJECT} ${SOURCES})
 
 if(${ESP_PLATFORM})
     idf_build_executable(${TEST_PROJECT})
-    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-    __project_info("")
 else()
     if(${SMOOTH_ENABLE_ASAN})
         target_link_libraries(${PROJECT_NAME} asan)
