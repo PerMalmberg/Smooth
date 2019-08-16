@@ -1,1 +1,1 @@
-include(${SMOOTH_TEST_ROOT}/common_project.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../common_project.cmake)

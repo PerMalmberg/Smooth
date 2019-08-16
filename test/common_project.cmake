@@ -5,28 +5,18 @@ message(STATUS "Building: ${TEST_PROJECT}")
 file(GLOB SOURCES *.h *.cpp)
 
 set(TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/generated_test_smooth_${TEST_PROJECT}.cpp)
-
-configure_file(${SMOOTH_TEST_ROOT}/test.cpp.in ${TEST_SRC})
+configure_file(${CMAKE_CURRENT_LIST_DIR}/test.cpp.in ${TEST_SRC})
 list(APPEND SOURCES ${TEST_SRC})
 
-project(${TEST_PROJECT})
-add_executable(${TEST_PROJECT} ${SOURCES})
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+#project(${TEST_PROJECT})
+#add_executable(${TEST_PROJECT} ${SOURCES})
+#target_include_directories(${TEST_PROJECT}
+#        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+#                ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/smooth/include)
 
-if(${ESP_PLATFORM})
-    idf_build_executable(${TEST_PROJECT})
-else()
-    if(${SMOOTH_ENABLE_ASAN})
-        target_link_libraries(${PROJECT_NAME} asan)
-        message(STATUS "ASAN is enabled for project ${PROJECT_NAME}")
-    endif()
-endif()
+idf_component_register(SRCS ${SOURCES}
+                       INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../../smooth_component
+                       REQUIRES smooth_component)
 
-target_include_directories(${TEST_PROJECT} PRIVATE $ENV{IDF_PATH}/components ${CMAKE_CURRENT_SOURCE_DIR} ${SMOOTH_TEST_ROOT})
-target_link_libraries(${TEST_PROJECT} smooth)
-set_compile_options(${TEST_PROJECT})
-
-# Place binary output in top-level build directory so that idf.py can find it.
-set_target_properties( ${TEST_PROJECT}
-        PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
