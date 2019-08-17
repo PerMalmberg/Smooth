@@ -1,0 +1,6 @@
+file(GLOB test_sources *.cpp *.h)
+
+idf_component_register(
+    SRCS ${test_sources}
+    INCLUDE_DIRS "."
+    PRIV_REQUIRES smooth_component)

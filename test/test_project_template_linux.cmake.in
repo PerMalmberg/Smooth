@@ -1,0 +1,10 @@
+include(../../lib/files.cmake)
+project(${TEST_PROJECT}.elf)
+file(GLOB test_sources *.cpp *.h)
+add_executable(${PROJECT_NAME} ${test_sources})
+target_include_directories(${PROJECT_NAME}
+        PRIVATE
+        @TEST_PROJECT_DIR@
+        ${SMOOTH_LIB_ROOT}/smooth/include
+        )
+target_link_libraries(${PROJECT_NAME} smooth pthread)

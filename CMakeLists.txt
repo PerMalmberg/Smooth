@@ -40,10 +40,16 @@ if(${test_found} EQUAL -1)
     message(FATAL_ERROR "'${selected_test_project}' isn't a valid test project")
 endif()
 
-set(EXTRA_COMPONENT_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}/smooth_component
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/${selected_test_project})
+if(${ESP_PLATFORM})
+    message(STATUS "Compiling for ESP")
+    set(EXTRA_COMPONENT_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/smooth_component
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/${selected_test_project})
 
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(${selected_test_project})
-
+    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+    project(${selected_test_project})
+else()
+    message(STATUS "Compiling for Linux")
+    add_subdirectory(lib)
+    add_subdirectory(test/${selected_test_project})
+endif()

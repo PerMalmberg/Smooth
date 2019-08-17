@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+
+include(../lib/compiler_options.cmake)
 include(../lib/files.cmake)
 
 idf_component_register(SRCS ${SMOOTH_SOURCES}
@@ -29,5 +31,4 @@ idf_component_register(SRCS ${SMOOTH_SOURCES}
                             libsodium
                         )
 
-include(../lib/compiler_options.cmake)
 set_compile_options(${COMPONENT_LIB})
