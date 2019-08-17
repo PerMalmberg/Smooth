@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project http_server_test)
+set(selected_test_project hello_world)
 
 list(APPEND available_tests
         hello_world
