@@ -138,6 +138,7 @@ set(SOURCES
         ${SMOOTH_LIB_ROOT}/include/smooth/application/network/mqtt/Publication.h
         ${SMOOTH_LIB_ROOT}/include/smooth/application/network/mqtt/Subscription.h
         ${SMOOTH_LIB_ROOT}/include/smooth/core/SystemStatistics.h
+        ${SMOOTH_LIB_ROOT}/include/smooth/core/filesystem/Path.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -184,27 +185,15 @@ else()
 endif()
 
 idf_component_register(SRCS ${SOURCES}
-                       INCLUDE_DIRS ${SMOOTH_LIB_ROOT}/smooth/include
-                                    $ENV{IDF_PATH}/components
-                                    ${CMAKE_CURRENT_LIST_DIR}/../lib/smooth/include
+                        INCLUDE_DIRS
+                            ${SMOOTH_LIB_ROOT}/smooth/include
+                            $ENV{IDF_PATH}/components
+                            ${CMAKE_CURRENT_LIST_DIR}/../lib/smooth/include
                         REQUIRES
-                            #idf::mbedtls
-                            idf::cxx
-                            idf::newlib
-                            idf::freertos
-                            idf::esp_wifi
-                            idf::esp32
-                            idf::freertos
-                            idf::esptool_py
-                            idf::fatfs
-                            idf::sdmmc
-                            idf::spi_flash
-                            idf::nvs_flash
-                            idf::wear_levelling
-                            idf::lwip
-                            idf::json
-                            idf::xtensa
-                            idf::pthread
-                            idf::libsodium
-                            idf::json
+                            mbedtls
+                            json
+                            pthread
+                            nvs_flash
+                            fatfs
+                            libsodium
                         )

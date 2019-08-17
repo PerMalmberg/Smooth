@@ -14,20 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#ifndef ESP_PLATFORM
+#error "This example requires H/W to run on and can only be compiled with IDF."
+#endif
 
-#include <smooth/core/Application.h>
+#include "hw_wrover_kit_blinky.h"
 
-namespace jsonfile_test
+#include <smooth/core/task_priorities.h>
+
+using namespace smooth;
+using namespace smooth::core;
+using namespace std::chrono;
+
+namespace hw_wrover_kit_blinky
 {
-    class App
-            : public smooth::core::Application
+    App::App()
+            : Application(APPLICATION_BASE_PRIO,
+                          milliseconds(300))
     {
-    public:
-        App();
+    }
 
-        void tick() override;
+    void App::init()
+    {
+        Application::init();
+        Log::info("LED fun", Format("Lets blink some LEDs"));
+    }
 
-    private:
-    };
+    void App::tick()
+    {
+        // Toggle LEDs to represent the current state value.
+        g.set(static_cast<bool>(state & 1));
+        r.set(static_cast<bool>(state & 2));
+        b.set(static_cast<bool>(state & 4));
+
+        state++;
+    }
+
 }

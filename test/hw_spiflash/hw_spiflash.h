@@ -17,14 +17,11 @@
 #pragma once
 
 #include <smooth/core/Application.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/timer/Timer.h>
-#include <smooth/core/io/Output.h>
+#include <smooth/core/filesystem/SPIFlash.h>
+#include <smooth/core/timer/ElapsedTime.h>
 
-namespace wrover_kit_blinky
+namespace hw_spiflash
 {
-    // This app is tested on Wrover Kit v3.
     class App
             : public smooth::core::Application
     {
@@ -37,9 +34,10 @@ namespace wrover_kit_blinky
         void tick() override;
 
     private:
-        smooth::core::io::Output r{GPIO_NUM_0, true, false, false, false};
-        smooth::core::io::Output g{GPIO_NUM_2, true, false, false, false};
-        smooth::core::io::Output b{GPIO_NUM_4, true, false, false, false};
-        uint8_t state = 0;
+        // See partitions.csv for partition table layout and where "app_storage" comes from.
+        smooth::core::filesystem::SPIFlash flash{"/our_root", "app_storage", 10, true};
+        bool mounted = false;
+        smooth::core::timer::ElapsedTime elapsed{};
     };
-}
+};
+

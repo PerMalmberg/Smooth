@@ -14,26 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#include "hw_interrupt_queue.h"
+#include <smooth/core/Task.h>
+#include <smooth/core/task_priorities.h>
 
-#include <functional>
-#include <smooth/core/Application.h>
-#include <smooth/application/security/PasswordHash.h>
+using namespace smooth::core;
 
-namespace security
+namespace hw_interrupt_queue
 {
-    class App
-            : public smooth::core::Application
+    App::App()
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
+              queue(IntrQueue::create(*this, *this)),
+              input(queue, GPIO_NUM_21, true, false, GPIO_INTR_ANYEDGE)
     {
-        public:
-            App();
+    }
 
-            void init() override;
+    void App::init()
+    {
+        std::cout << "Trigger the input!" << std::endl;
+    }
 
-            void tick() override;
-
-        private:
-            void time(const std::string& password, size_t ops);
-            smooth::application::security::PasswordHash ph{};
-    };
+    void App::event(const smooth::core::io::InterruptInputEvent& value)
+    {
+        std::cout << "Value from interrupt: " << value.get_state() << std::endl;
+    }
 }

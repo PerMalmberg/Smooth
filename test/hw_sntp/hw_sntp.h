@@ -21,7 +21,7 @@
 #include <smooth/core/sntp/Sntp.h>
 #include <iostream>
 
-namespace sntp
+namespace hw_sntp
 {
     class App
             : public smooth::core::Application

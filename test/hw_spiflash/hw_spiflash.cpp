@@ -14,54 +14,62 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "sntp.h"
-#include <chrono>
-#include <cassert>
-#include <time.h>
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
-#include "wifi_creds.h"
+#ifndef ESP_PLATFORM
+#error "This example requires H/W to run on and can only be compiled with IDF."
+#endif
 
+
+#include <chrono>
+
+#include <smooth/core/task_priorities.h>
+#include <fstream>
+#include <iostream>
+#include "hw_spiflash.h"
+
+
+using namespace smooth;
 using namespace smooth::core;
 using namespace std::chrono;
 
-namespace sntp
+
+namespace hw_spiflash
 {
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-            sntp(std::vector<std::string>{"0.se.pool.ntp.org", "1.se.pool.ntp.org"})
+            : Application(APPLICATION_BASE_PRIO,
+                          seconds(1))
     {
     }
 
     void App::init()
     {
-        assert(!sntp.is_time_set());
-        std::cout << "Time at startup:";
-        print_time();
-        sntp.start();
-
-        Log::info("App::Init", Format("Starting wifi..."));
-        network::Wifi& wifi = get_wifi();
-        wifi.set_host_name("Smooth-ESP");
-        wifi.set_auto_connect(true);
-        wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
-        wifi.connect_to_ap();
+        mounted = flash.mount();
+        elapsed.start();
     }
 
     void App::tick()
     {
-        std::cout << "Tick!" << std::endl;
-        print_time();
+        if(mounted)
+        {
+            const char* const file = "/our_root/test.txt";
 
+            {
+                std::ofstream out{file, std::ios::binary | std::ios::out};
+                if (out.good())
+                {
+                    out << elapsed.get_running_time().count();
+                }
+            }
+
+            {
+                std::ifstream in{file, std::ios::binary|std::ios::in};
+                if(in.good())
+                {
+                    long count;
+                    in >> count;
+                    std::cout << "Elapsed time (us): " << count << std::endl;
+                }
+            }
+
+        }
     }
-
-    void App::print_time() const
-    {
-        auto t = system_clock::to_time_t(system_clock::now());
-        tm time{};
-        localtime_r(&t, &time);
-        std::cout << asctime(&time) << std::endl;
-    }
-
-
 }

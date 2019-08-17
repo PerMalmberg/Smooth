@@ -4,8 +4,8 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-# Select the test project to build for ESP
-set(selected_test_project destructing_event_queues)
+# Select the test project to build
+set(selected_test_project http_server_test)
 
 list(APPEND available_tests
         hello_world
@@ -25,15 +25,14 @@ list(APPEND available_tests
 
 # These tests needs actual hardware to run
 if(${ESP_PLATFORM})
-    list(APPEND available_tests esp/spiflash
-            esp/sdcard_test
-            esp/jsonfile_test
-            esp/sntp
-            esp/security
-            esp/wrover_kit_blinky
-            esp/interrupt_queue)
-else()
-    list(APPEND available_tests unit_tests)
+    list(APPEND available_tests
+            hw_spiflash
+            hw_sdcard_test
+            hw_jsonfile_test
+            hw_sntp
+            hw_security
+            hw_wrover_kit_blinky
+            hw_interrupt_queue)
 endif()
 
 list(FIND available_tests ${selected_test_project} test_found)
@@ -46,5 +45,5 @@ set(EXTRA_COMPONENT_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/test/${selected_test_project})
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(smooth_test)
+project(${selected_test_project})
 

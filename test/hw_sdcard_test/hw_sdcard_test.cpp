@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "sdcard_test.h"
+#include "hw_sdcard_test.h"
 #include <fstream>
 #include <algorithm>
 #include <random>
@@ -40,7 +40,7 @@ using namespace std::chrono;
 const bool MMC_1_LINE_MODE = false;
 
 
-namespace sdcard_test
+namespace hw_sdcard_test
 {
     static const char *tag = "sdcard_test";
 

@@ -16,24 +16,30 @@
 
 #pragma once
 
-#include <memory>
 #include <smooth/core/Application.h>
-#include <smooth/core/filesystem/SDCard.h>
+#include <smooth/core/ipc/IEventListener.h>
+#include <smooth/core/ipc/TaskEventQueue.h>
+#include <smooth/core/timer/Timer.h>
+#include <smooth/core/io/Output.h>
 
-namespace sdcard_test
+namespace hw_wrover_kit_blinky
 {
+    // This app is tested on Wrover Kit v3.
     class App
             : public smooth::core::Application
     {
-        public:
+    public:
 
-            App();
+        App();
 
-            void init() override;
+        void init() override;
 
-            void tick() override;
+        void tick() override;
 
-        private:
-            std::unique_ptr<smooth::core::filesystem::SDCard> card{};
+    private:
+        smooth::core::io::Output r{GPIO_NUM_0, true, false, false, false};
+        smooth::core::io::Output g{GPIO_NUM_2, true, false, false, false};
+        smooth::core::io::Output b{GPIO_NUM_4, true, false, false, false};
+        uint8_t state = 0;
     };
 }

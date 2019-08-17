@@ -16,28 +16,24 @@
 
 #pragma once
 
+#include <functional>
 #include <smooth/core/Application.h>
-#include <smooth/core/filesystem/SPIFlash.h>
-#include <smooth/core/timer/ElapsedTime.h>
+#include <smooth/application/security/PasswordHash.h>
 
-namespace spiflash
+namespace hw_security
 {
     class App
             : public smooth::core::Application
     {
-    public:
+        public:
+            App();
 
-        App();
+            void init() override;
 
-        void init() override;
+            void tick() override;
 
-        void tick() override;
-
-    private:
-        // See partitions.csv for partition table layout and where "app_storage" comes from.
-        smooth::core::filesystem::SPIFlash flash{"/our_root", "app_storage", 10, true};
-        bool mounted = false;
-        smooth::core::timer::ElapsedTime elapsed{};
+        private:
+            void time(const std::string& password, size_t ops);
+            smooth::application::security::PasswordHash ph{};
     };
-};
-
+}

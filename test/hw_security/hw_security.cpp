@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "security.h"
+#include "hw_security.h"
 #include <iostream>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
@@ -25,7 +25,7 @@ using namespace smooth::core;
 using namespace smooth::core::timer;
 using namespace smooth::application::security;
 
-namespace security
+namespace hw_security
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))

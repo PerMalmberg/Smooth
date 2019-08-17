@@ -60,4 +60,5 @@ git submodule add https://github.com/PerMalmberg/Smooth.git components/smooth
 ### Sample applications
 
 Please see the the different test projects under the test folder. When compiling these, open the
-root of the repo as a CMake project.
+root of the repo as a CMake project. As IDF's build system only supports a single target, select the
+project to build by setting `selected_test_project` in the main CMakeLists.txt. 

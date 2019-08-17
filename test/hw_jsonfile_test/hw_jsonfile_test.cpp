@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "jsonfile_test.h"
+#include "hw_jsonfile_test.h"
 
 #include <algorithm>
 #include <fstream>
@@ -35,7 +35,7 @@ using namespace smooth::core::filesystem;
 using namespace smooth::core::logging;
 using namespace std::chrono;
 
-namespace jsonfile_test
+namespace hw_jsonfile_test
 {
 
     App::App()

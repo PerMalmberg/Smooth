@@ -23,7 +23,7 @@
 #include <smooth/core/ipc/ISRTaskEventQueue.h>
 #include <smooth/core/ipc/IEventListener.h>
 
-namespace interrupt_queue
+namespace hw_interrupt_queue
 {
     class App
             : public smooth::core::Application,

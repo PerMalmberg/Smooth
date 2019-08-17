@@ -115,7 +115,8 @@ namespace secure_socket_test
 
 
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
+            net_status(NetworkStatusQueue::create("", 2, *this, *this))
     {
     }
 
@@ -134,19 +135,6 @@ namespace secure_socket_test
 
     void App::tick()
     {
-        if (!sock)
-        {
-            buff = std::make_shared<BufferContainer<Proto>>(*this, *this, *this, *this, std::make_unique<smooth::application::network::http::HTTPProtocol>(1024, 4096, *this));
-
-            // If no certificates are provided, no certificate verification will be performed.
-            auto ca_cert = get_certs();
-
-            tls_context = std::make_unique<MBedTLSContext>();
-            tls_context->init_client(*ca_cert);
-
-            sock = SecureSocket<Proto>::create(buff, tls_context->create_context());
-            sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
-        }
     }
 
     std::unique_ptr<std::vector<unsigned char>> App::get_certs() const
@@ -163,6 +151,26 @@ namespace secure_socket_test
         ca_cert->push_back('\0');
 
         return ca_cert;
+    }
+
+    void App::event(const smooth::core::network::NetworkStatus& event)
+    {
+        if(event.get_event() == NetworkEvent::GOT_IP)
+        {
+            if (!sock)
+            {
+                buff = std::make_shared<BufferContainer<Proto>>(*this, *this, *this, *this, std::make_unique<smooth::application::network::http::HTTPProtocol>(1024, 4096, *this));
+
+                // If no certificates are provided, no certificate verification will be performed.
+                auto ca_cert = get_certs();
+
+                tls_context = std::make_unique<MBedTLSContext>();
+                tls_context->init_client(*ca_cert);
+
+                sock = SecureSocket<Proto>::create(buff, tls_context->create_context());
+                sock->start(std::make_shared<IPv4>("ftp.sunet.se", 443));
+            }
+        }
     }
 
     void App::event(const TransmitBufferEmptyEvent&)
@@ -211,15 +219,18 @@ namespace secure_socket_test
 
     void App::event(const ConnectionStatusEvent& ev)
     {
-        Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
+        if(ev.is_connected())
+        {
+            Log::info("Connection status: ", Format("{1}", Bool(ev.is_connected())));
 
-        sock->send(
-                HTTPPacket(HTTPMethod::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
-                           {
-                                   {"UserAgent", "Mozilla/4.0"},
-                                   {"Host",      "ftp.sunet.se"}
-                           },
-                           {}));
+            sock->send(
+                    HTTPPacket(HTTPMethod::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
+                               {
+                                       {"UserAgent", "Mozilla/4.0"},
+                                       {"Host",      "ftp.sunet.se"}
+                               },
+                               {}));
+        }
     }
 }
 
