@@ -16,26 +16,28 @@
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/sntp/Sntp.h>
-#include <iostream>
+#include <vector>
+#include <string>
 
-namespace hw_sntp
+namespace smooth::core::sntp
 {
-    class App
-            : public smooth::core::Application
+    class Sntp
     {
         public:
-            App();
+            explicit Sntp(std::vector<std::string> /*servers*/)
+            {}
 
-            void init() override;
+            void start()
+            {
+                started = true;
+            }
 
-            void tick() override;
+            [[nodiscard]] bool is_time_set() const
+            {
+                return started;
+            }
 
         private:
-            smooth::core::sntp::Sntp sntp;
-
-            void print_time() const;
+            bool started = false;
     };
 }

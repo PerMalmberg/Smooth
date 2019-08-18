@@ -20,7 +20,7 @@
 #include "Path.h"
 
 #ifdef ESP_PLATFORM
-static smooth::core::filesystem::Path FlashMount{"/flash}";
+static smooth::core::filesystem::Path FMount{"/flash"};
 static smooth::core::filesystem::Path SDMount{"/sdcard"};
 #else
 // Place files in home folder on Linux.

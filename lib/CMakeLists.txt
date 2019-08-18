@@ -32,5 +32,5 @@ target_include_directories(${PROJECT_NAME}
             ${SMOOTH_LIB_ROOT}/smooth/include
             $ENV{IDF_PATH}/components/json/cJSON)
 
-target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto)
+target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium)
 set_compile_options(${PROJECT_NAME})

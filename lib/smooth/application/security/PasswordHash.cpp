@@ -27,7 +27,8 @@ namespace smooth::application::security
         auto result = crypto_pwhash_str(out,
                                         password.c_str(),
                                         password.size(),
-                                        std::min(std::max(crypto_pwhash_OPSLIMIT_MIN, computation_count),
+                                        std::min(std::max(crypto_pwhash_OPSLIMIT_MIN,
+                                                          static_cast<decltype(crypto_pwhash_OPSLIMIT_MIN)>(computation_count)),
                                                  crypto_pwhash_OPSLIMIT_MAX),
                                         mem_limit) == 0;
 

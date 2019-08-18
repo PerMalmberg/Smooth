@@ -16,27 +16,25 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-    #include "mock/Sntp.h"
-#else
+#include <smooth/core/Application.h>
+#include <smooth/core/task_priorities.h>
+#include <smooth/core/sntp/Sntp.h>
 
-#include <vector>
-#include <string>
-
-namespace smooth::core::sntp
+namespace sntp
 {
-    class Sntp
+    class App
+            : public smooth::core::Application
     {
         public:
-            explicit Sntp(std::vector<std::string> servers);
+            App();
 
-            void start();
+            void init() override;
 
-            bool is_time_set() const;
+            void tick() override;
 
         private:
-            const std::vector<std::string> servers;
-            bool started = false;
+            smooth::core::sntp::Sntp sntp;
+
+            void print_time() const;
     };
 }
-#endif

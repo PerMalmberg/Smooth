@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "hw_sntp.h"
+#include "sntp.h"
 #include <chrono>
 #include <cassert>
-#include <time.h>
+#include <ctime>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/core/network/Wifi.h>
 #include "wifi_creds.h"
+#include <iostream>
 
 using namespace smooth::core;
 using namespace std::chrono;
 
-namespace hw_sntp
+namespace sntp
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),

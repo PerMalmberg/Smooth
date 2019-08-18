@@ -130,6 +130,10 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/MMCSDCard.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPISDCard.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPIFlash.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/sntp/Sntp.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/network/Wifi.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -138,7 +142,6 @@ if (${ESP_PLATFORM})
     list(APPEND SMOOTH_SOURCES
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/logging/idf/idf_log.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/network/Wifi.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/network/Wifi.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Input.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Output.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/InterruptInput.cpp
@@ -153,7 +156,6 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPISDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/sntp/Sntp.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Output.h
@@ -166,8 +168,6 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/MCP23017.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/BME280.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/wiegand/Wiegand.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
             )
 else()

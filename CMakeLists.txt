@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project hw_jsonfile_test)
+set(selected_test_project sntp)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
@@ -41,24 +41,24 @@ list(APPEND available_tests
         http_server_test
         destructing_event_queues
         destructing_subscribing_event_queues
+        security
+        sntp
         hw_interrupt_queue
         hw_sdcard_test
         hw_spiflash
-        hw_jsonfile_test)
+        hw_jsonfile_test
+        )
 
 # These tests needs actual hardware to run
 if(${ESP_PLATFORM})
     list(APPEND available_tests
-
-            hw_sntp
-            hw_security
             hw_wrover_kit_blinky
             )
 endif()
 
 list(FIND available_tests ${selected_test_project} test_found)
 if(${test_found} EQUAL -1)
-    message(FATAL_ERROR "'${selected_test_project}' isn't a valid test project for the current platform.")
+    message(FATAL_ERROR "'${selected_test_project}' not found or not a valid test project for the current platform.")
 endif()
 
 if(${ESP_PLATFORM})

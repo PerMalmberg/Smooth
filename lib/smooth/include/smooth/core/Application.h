@@ -22,12 +22,10 @@
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/Task.h>
 
-#ifdef ESP_PLATFORM
-#include <smooth/core/network/Wifi.h>
-#endif // END ESP_PLATFORM
 
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
+#include <smooth/core/network/Wifi.h>
 
 namespace smooth::core
 {
@@ -50,14 +48,24 @@ namespace smooth::core
 
             /// Initialize the application.
             void init() override;
+
+            /// Returns the Wifi manager
+            /// \return The Wifi management instance
+            network::Wifi& get_wifi()
+            {
+                return wifi;
+            }
+        private:
+            network::Wifi wifi{};
     };
 
 
 #ifdef ESP_PLATFORM
+
     /// The IDFApplication extends Application with things needed to run under the IDF framework
     class IDFApplication
             : public POSIXApplication,
-            public smooth::core::ipc::IEventListener<system_event_t>
+              public smooth::core::ipc::IEventListener<system_event_t>
     {
         public:
             /// Constructor
@@ -66,32 +74,24 @@ namespace smooth::core
             /// \param tick_interval The tick interval
             IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval);
 
-            virtual ~IDFApplication()
-            {
-            }
+            ~IDFApplication() override = default;
 
             /// Event method for system events.
             /// \param event The event.
             void event(const system_event_t& event) override;
-
-            /// Returns the Wifi manager
-            /// \return The Wifi management instance
-            network::Wifi& get_wifi()
-            {
-                return wifi;
-            }
 
         protected:
             void init() override;
 
         private:
             static esp_err_t event_callback(void* ctx, system_event_t* event);
+
             using SystemEventQueue = ipc::SubscribingTaskEventQueue<system_event_t>;
             std::shared_ptr<SystemEventQueue> system_event;
-            network::Wifi wifi;
 
             static const std::unordered_map<int, const char*> id_to_system_event;
     };
+
 #endif // END ESP_PLATFORM
 
     class Application
@@ -99,7 +99,7 @@ namespace smooth::core
 #ifdef ESP_PLATFORM
                     public IDFApplication
 #else
-                    public POSIXApplication
+            public POSIXApplication
 #endif
     {
         public:
@@ -112,7 +112,7 @@ namespace smooth::core
 #ifdef ESP_PLATFORM
                     IDFApplication(priority, tick_interval)
 #else
-                    POSIXApplication(priority, tick_interval)
+            POSIXApplication(priority, tick_interval)
 #endif
             {
             }

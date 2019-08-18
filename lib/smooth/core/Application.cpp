@@ -119,15 +119,15 @@ namespace smooth::core
         // ready to receive network status events.
         network::SocketDispatcher::instance();
 
-        if (wifi.is_configured())
+        if (get_wifi().is_configured())
         {
-            wifi.connect_to_ap();
+            get_wifi().connect_to_ap();
         }
     }
 
     void IDFApplication::event(const system_event_t& event)
     {
-        wifi.event(event);
+        get_wifi().event(event);
     }
 #endif
 }

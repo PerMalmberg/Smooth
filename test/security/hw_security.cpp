@@ -36,7 +36,7 @@ namespace hw_security
     {
         Application::init();
         const std::string short_string{"Password"};
-        const std::string long_string{"A freaking long string of a password. Its so loooooong I can't remember what I wote at the begining of the string"};
+        const std::string long_string{"A freaking long string of a password. Its so loooooong I can't remember what I wrote at the beginning of the string"};
 
         time(short_string, 3);
         time(short_string, 4);

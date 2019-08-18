@@ -19,12 +19,13 @@
 #include <lwip/apps/sntp.h>
 #include <ctime>
 #include <iostream>
+#include <utility>
 
 namespace smooth::core::sntp
 {
 
-    Sntp::Sntp(const std::vector<std::string>& servers)
-            : servers(servers)
+    Sntp::Sntp(std::vector<std::string> servers)
+            : servers(std::move(servers))
     {
     }
 
