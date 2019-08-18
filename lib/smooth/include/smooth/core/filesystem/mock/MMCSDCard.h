@@ -16,13 +16,28 @@
 
 #pragma once
 
-#include "Path.h"
-#include "Fileinfo.h"
+#include "SDCard.h"
+#include <smooth/core/io/mock/gpio.h>
 
 namespace smooth::core::filesystem
 {
-    bool create_directory(Path&& path);
-    bool exists(Path&& path);
-    bool exists(const Path& path);
-    bool is_directory(const Path& path);
+    class MMCSDCard
+            : public SDCard
+    {
+        public:
+            MMCSDCard(gpio_num_t /*command*/,
+                      gpio_num_t /*data0*/,
+                      gpio_num_t /*data1*/,
+                      gpio_num_t /*data2*/,
+                      gpio_num_t /*data3*/,
+                      bool use_1_line_mode = false,
+                      gpio_num_t card_detect = static_cast<gpio_num_t>(-1),
+                      gpio_num_t write_protect = static_cast<gpio_num_t>(-1))
+                      :SDCard()
+            {
+                (void)use_1_line_mode;
+                (void)card_detect;
+                (void)write_protect;
+            }
+    };
 }

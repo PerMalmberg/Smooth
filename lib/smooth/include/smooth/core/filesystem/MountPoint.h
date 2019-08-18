@@ -17,8 +17,17 @@
 #pragma once
 
 #include <utility>
-
 #include "Path.h"
+
+#ifdef ESP_PLATFORM
+static smooth::core::filesystem::Path FlashMount{"/flash}";
+static smooth::core::filesystem::Path SDMount{"/sdcard"};
+#else
+// Place files in home folder on Linux.
+static smooth::core::filesystem::Path FMount = smooth::core::filesystem::Path{getenv("HOME")} / "smooth-data" / "flash";
+static smooth::core::filesystem::Path SDMount = smooth::core::filesystem::Path{getenv("HOME")} / "smooth-data" / "sdcard";
+#endif
+
 
 namespace smooth::core::filesystem
 {
@@ -61,7 +70,7 @@ namespace smooth::core::filesystem
             : public MountPoint
     {
         public:
-            static const SDCardMount& instance(Path mount_point = "/sdcard") noexcept
+            static const SDCardMount& instance(Path mount_point = SDMount) noexcept
             {
                 static SDCardMount sdcm{std::move(mount_point)};
                 return sdcm;
@@ -77,7 +86,7 @@ namespace smooth::core::filesystem
             : public MountPoint
     {
         public:
-            static const FlashMount& instance(Path mount_point = "/flash") noexcept
+            static const FlashMount& instance(Path mount_point = FMount) noexcept
             {
                 static FlashMount sdcm{std::move(mount_point)};
                 return sdcm;

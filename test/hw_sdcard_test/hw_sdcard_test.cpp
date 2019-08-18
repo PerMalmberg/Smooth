@@ -43,7 +43,7 @@ const bool MMC_1_LINE_MODE = false;
 
 namespace hw_sdcard_test
 {
-    static const char *tag = "sdcard_test";
+    static const char* tag = "sdcard_test";
 
     App::App()
             : Application(APPLICATION_BASE_PRIO,
@@ -92,7 +92,7 @@ namespace hw_sdcard_test
 
         if (!test_done && !card->is_initialized())
         {
-            if (card->init( SDCardMount::instance(), false, 5))
+            if (card->init(SDCardMount::instance(), false, 5))
             {
                 Log::info(tag, "Starting performance test");
 
@@ -100,7 +100,8 @@ namespace hw_sdcard_test
                 bool error = false;
 
                 // Note: Too large chunk_size and you'll run into out of memory issues. I've seen them at 16k.
-                for (size_t chunk_size = 1024 / sizeof(int); !error && chunk_size <= 1024 / sizeof(int) * 12; chunk_size += 1024)
+                for (size_t chunk_size = 1024 / sizeof(int);
+                     !error && chunk_size <= 1024 / sizeof(int) * 12; chunk_size += 1024)
                 {
                     auto path = SDCardMount::instance().mount_point() / std::to_string(chunk_size);
                     Log::info(tag, Format("Writing to {1}", Str(path.str())));
@@ -161,12 +162,12 @@ namespace hw_sdcard_test
                             {
                                 if (++write_count % 1000 == 0)
                                 {
-                                    Log::info(tag, Format("Still working {1}", UInt32(i)));
+                                    Log::info(tag, Format("Still working {1}", UInt64(i)));
                                 }
                             }
                             else
                             {
-                                Log::error(tag, Format("Data not equal, chunk size {1}", Int64(chunk_size)));
+                                Log::error(tag, Format("Data not equal, chunk size {1}", UInt64(chunk_size)));
                                 std::this_thread::sleep_for(seconds{1});
                                 error = true;
                             }
@@ -179,12 +180,14 @@ namespace hw_sdcard_test
                         auto second = duration_cast<std::chrono::seconds>(t.get_running_time());
                         if (second.count() < 1)
                         {
-                            speed = Format("{1} bytes/ms.\n", Int64(total_size / duration_cast<std::chrono::milliseconds>(t.get_running_time()).count()));
+                            auto millis = duration_cast<std::chrono::milliseconds>(t.get_running_time()).count();
+                            speed = Format("{1} bytes/ms.\n", UInt64(total_size / static_cast<unsigned long>(millis)));
                             Log::info(tag, speed.c_str());
                         }
                         else
                         {
-                            speed = Format("{1} bytes/s, ", Int64(total_size / std::max<int64_t>(1, second.count())));
+                            speed = Format("{1} bytes/s, ", UInt64(total_size /
+                                                                   static_cast<unsigned long>(std::max<int64_t>(1, second.count()))));
                             Log::info(tag, speed.c_str());
                         }
 

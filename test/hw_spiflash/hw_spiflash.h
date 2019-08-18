@@ -35,7 +35,7 @@ namespace hw_spiflash
 
         private:
             // See partitions.csv for partition table layout and where "app_storage" comes from.
-            smooth::core::filesystem::SPIFlash flash{smooth::core::filesystem::FlashMount::instance("/our_root"),
+            smooth::core::filesystem::SPIFlash flash{smooth::core::filesystem::FlashMount::instance(),
                                                      "app_storage",
                                                      10,
                                                      true};

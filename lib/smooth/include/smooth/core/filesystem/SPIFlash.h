@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifndef ESP_PLATFORM
+#include "mock/SPIFlash.h"
+#else
+
 #include "esp_vfs.h"
 
 #pragma GCC diagnostic push
@@ -64,3 +68,4 @@ namespace smooth::core::filesystem
             wl_handle_t wl_instance = WL_INVALID_HANDLE;
     };
 }
+#endif

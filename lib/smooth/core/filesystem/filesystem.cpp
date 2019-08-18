@@ -59,4 +59,10 @@ namespace smooth::core::filesystem
         FileInfo fi{path};
         return fi.exists();
     }
+
+    bool is_directory(const Path& path)
+    {
+        FileInfo fi{path};
+        return fi.exists() && fi.is_directory();
+    }
 }

@@ -20,7 +20,6 @@
 #include <fstream>
 #include <cassert>
 #include <unistd.h>
-#include <json/cJSON/cJSON.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/json/Value.h>
 #include <smooth/core/json/JsonFile.h>
@@ -45,22 +44,22 @@ namespace hw_jsonfile_test
 
     void App::tick()
     {
-        SPIFlash flash{"/flash", "app_storage", 10, true};
+        SPIFlash flash{FlashMount::instance(), "app_storage", 10, true};
         assert(flash.mount());
 
         {
-            unlink("/flash/file.jsn");
-            JsonFile jf{"/flash/file.jsn"};
+            unlink(FlashMount::instance().mount_point() / "file.jsn");
+            JsonFile jf{FlashMount::instance().mount_point() / "file.jsn"};
             auto& v = jf.value();
             assert(v["Foo"].get_string("").empty());
             v["Foo"] = "Bar";
             assert(jf.save());
         }
         {
-            JsonFile jf{"/flash/file.jsn"};
+            JsonFile jf{FlashMount::instance().mount_point() / "file.jsn"};
             auto& v = jf.value();
             assert(v["Foo"].get_string("") == "Bar");
-            unlink("/flash/file.json");
+            unlink(FlashMount::instance().mount_point() / "file.json");
         }
 
 

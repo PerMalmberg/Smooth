@@ -14,22 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ESP_PLATFORM
-#error "This example requires H/W to run on and can only be compiled with IDF."
-#endif
-
-
 #include <chrono>
 
+#include "hw_spiflash.h"
 #include <smooth/core/task_priorities.h>
 #include <fstream>
 #include <iostream>
-#include "hw_spiflash.h"
+#include <smooth/core/filesystem/MountPoint.h>
 
 
 using namespace smooth;
 using namespace smooth::core;
 using namespace std::chrono;
+using namespace smooth::core::filesystem;
 
 
 namespace hw_spiflash
@@ -50,10 +47,10 @@ namespace hw_spiflash
     {
         if(mounted)
         {
-            const char* const file = "/our_root/test.txt";
+            const auto file = FlashMount::instance().mount_point() / "test.txt";
 
             {
-                std::ofstream out{file, std::ios::binary | std::ios::out};
+                std::ofstream out{file.str(), std::ios::binary | std::ios::out};
                 if (out.good())
                 {
                     out << elapsed.get_running_time().count();
@@ -61,7 +58,7 @@ namespace hw_spiflash
             }
 
             {
-                std::ifstream in{file, std::ios::binary|std::ios::in};
+                std::ifstream in{file.str(), std::ios::binary|std::ios::in};
                 if(in.good())
                 {
                     long count;

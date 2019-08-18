@@ -1,5 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
-// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
+// Copyright (C) 2019 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,52 +16,41 @@
 
 #pragma once
 
-#include "MountPoint.h"
-
-#ifndef ESP_PLATFORM
-#include "mock/SDCard.h"
-#else
-
-#include <sdmmc_cmd.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-
-#include <esp_vfs_fat.h>
-
-#pragma GCC diagnostic pop
-
-#include <esp_vfs.h>
+#include <smooth/core/filesystem/MountPoint.h>
+#include <smooth/core/filesystem/FSLock.h>
+#include <smooth/core/logging/log.h>
+#include <smooth/core/filesystem/filesystem.h>
 
 namespace smooth::core::filesystem
 {
     class SDCard
     {
         public:
-            virtual ~SDCard()
-            {
-                deinit();
-            }
+            virtual ~SDCard() = default;
 
-            virtual bool init(const SDCardMount& mount, bool format_on_mount_failure, int max_file_count) = 0;
+            virtual bool init(const SDCardMount& mount, bool /*format_on_mount_failure*/, int max_file_count)
+            {
+                initialized = is_directory(mount.mount_point());
+
+                if (!initialized)
+                {
+                    logging::Log::error("Mock-SDCard", mount.mount_point().str() +
+                                                       " does not exist, please create it before running.");
+                }
+                FSLock::init(max_file_count);
+
+                return initialized;
+            };
 
             [[nodiscard]] virtual bool is_initialized() const
             {
                 return initialized;
             }
 
-            virtual bool deinit();
+            void deinit() {};
 
         protected:
-            bool do_common_initialization(const MountPoint& mount_point,
-                                          int max_file_count,
-                                          bool format_on_mount_failure,
-                                          void* slot_config);
-
-            sdmmc_host_t host{};
-            sdmmc_card_t* card{};
             bool initialized{};
         private:
     };
 }
-#endif

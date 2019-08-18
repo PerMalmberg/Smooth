@@ -126,6 +126,10 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MountPoint.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Input.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Output.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SDCard.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/MMCSDCard.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPISDCard.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPIFlash.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -147,10 +151,10 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPIFlash.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPISDCard.h
+            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/sntp/Sntp.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Output.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/I2CCommandLink.h

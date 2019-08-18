@@ -20,10 +20,10 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project hw_interrupt_queue)
+set(selected_test_project hw_jsonfile_test)
 
 # For Linux builds, you may enable address sanitizer
-set(SMOOTH_ENABLE_ASAN 1)
+set(SMOOTH_ENABLE_ASAN 0)
 set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
 list(APPEND available_tests
@@ -41,14 +41,15 @@ list(APPEND available_tests
         http_server_test
         destructing_event_queues
         destructing_subscribing_event_queues
-        hw_interrupt_queue)
+        hw_interrupt_queue
+        hw_sdcard_test
+        hw_spiflash
+        hw_jsonfile_test)
 
 # These tests needs actual hardware to run
 if(${ESP_PLATFORM})
     list(APPEND available_tests
-            hw_spiflash
-            hw_sdcard_test
-            hw_jsonfile_test
+
             hw_sntp
             hw_security
             hw_wrover_kit_blinky

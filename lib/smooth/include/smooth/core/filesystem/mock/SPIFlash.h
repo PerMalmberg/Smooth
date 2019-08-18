@@ -16,52 +16,38 @@
 
 #pragma once
 
-#include "MountPoint.h"
-
-#ifndef ESP_PLATFORM
-#include "mock/SDCard.h"
-#else
-
-#include <sdmmc_cmd.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-
-#include <esp_vfs_fat.h>
-
-#pragma GCC diagnostic pop
-
-#include <esp_vfs.h>
+#include <smooth/core/filesystem/MountPoint.h>
+#include <smooth/core/filesystem/FSLock.h>
+#include <smooth/core/filesystem/filesystem.h>
 
 namespace smooth::core::filesystem
 {
-    class SDCard
+    class SPIFlash
     {
         public:
-            virtual ~SDCard()
+            SPIFlash(const FlashMount& mount_point,
+                     const char* /*partition_name*/,
+                     int max_file_count,
+                     bool /*format_on_mount_failure*/)
             {
-                deinit();
+                initialized = is_directory(mount_point.mount_point());
+
+                if(!initialized)
+                {
+                    Log::error("Mock-SPIFlash",
+                               mount_point.mount_point().str() + " does not exist, please create it before running.");
+                }
+                FSLock::init(max_file_count);
             }
 
-            virtual bool init(const SDCardMount& mount, bool format_on_mount_failure, int max_file_count) = 0;
-
-            [[nodiscard]] virtual bool is_initialized() const
+            bool mount()
             {
                 return initialized;
             }
 
-            virtual bool deinit();
+            void unmount() {}
 
-        protected:
-            bool do_common_initialization(const MountPoint& mount_point,
-                                          int max_file_count,
-                                          bool format_on_mount_failure,
-                                          void* slot_config);
-
-            sdmmc_host_t host{};
-            sdmmc_card_t* card{};
-            bool initialized{};
         private:
+            bool initialized{};
     };
 }
-#endif
