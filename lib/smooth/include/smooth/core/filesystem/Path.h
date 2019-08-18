@@ -103,32 +103,32 @@ namespace smooth::core::filesystem
 
             bool operator!=(const char* p) const;
 
-            bool is_parent_of(const Path& child) const;
+            [[nodiscard]] bool is_parent_of(const Path& child) const;
 
-            Path parent() const;
+            [[nodiscard]] Path parent() const;
 
-            bool has_parent() const;
+            [[nodiscard]] bool has_parent() const;
 
-            bool is_relative() const
+            [[nodiscard]] bool is_relative() const
             {
                 return !is_absolute();
             }
 
-            bool is_absolute() const
+            [[nodiscard]] bool is_absolute() const
             {
                 return !p.empty() && p[0] == '/';
             }
 
-            bool empty() const
+            [[nodiscard]] bool empty() const
             {
                 return p.empty();
             }
 
-            std::string extension() const;
+            [[nodiscard]] std::string extension() const;
 
-            bool has_extension() const;
+            [[nodiscard]] bool has_extension() const;
 
-            const std::string str() const
+            [[nodiscard]] std::string str() const
             {
                 return p;
             }
@@ -147,9 +147,10 @@ namespace smooth::core::filesystem
 
             bool contains_dots(const std::string& s);
 
-            static const std::string separator;
-            static const std::string dot_token;
-            static const std::string dot_dot_token;
             std::string p;
+
+            std::string separator = "/";
+            std::string dot_token = ".";
+            std::string dot_dot_token = "..";
     };
 }

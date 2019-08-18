@@ -19,10 +19,6 @@
 
 namespace smooth::core::filesystem
 {
-    const std::string Path::separator = "/";
-    const std::string Path::dot_token = ".";
-    const std::string Path::dot_dot_token = "..";
-
     void Path::append(const std::string& path)
     {
         if (p.empty())
@@ -128,7 +124,7 @@ namespace smooth::core::filesystem
 
         auto absolute = is_absolute();
 
-        if (p.find(dot_dot_token) != std::string::npos || p.find('.') != std::string::npos)
+        if (p.find(dot_dot_token) != std::string::npos || p.find(dot_token) != std::string::npos)
         {
             auto prev = p.begin();
             auto pos = std::search(p.begin(), p.end(), separator.begin(), separator.end());
