@@ -281,10 +281,11 @@ namespace http_server_test
             }
 
             auto form_data = [uploads, &last_part, &response](const std::string& name,
+                                                              const std::string& actual_file_name,
                                                               const MIMEParser::BoundaryIterator& begin,
                                                               const MIMEParser::BoundaryIterator& end) {
                 // Store the file in web_root/uploads
-                Path path{uploads / name};
+                Path path{uploads / ("[" + name + "]" + actual_file_name)};
                 create_directory(path.parent());
                 File to_save{path};
                 if (FileInfo{path}.exists())

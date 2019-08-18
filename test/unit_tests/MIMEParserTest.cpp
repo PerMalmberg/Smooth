@@ -39,8 +39,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------8819839691792623414370909194", 0));
 
-            const auto root = Path{__FILE__}.parent();
-            auto file = root / "test_data" / "post_result_data.txt";
+            const auto file = Path{__FILE__}.parent() / "test_data" / "post_result_data.txt";
             File f{file};
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
@@ -49,11 +48,11 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
             {
                 int count = 0;
 
-                auto form_data = [&count, &root](const std::string& name,
+                auto form_data = [&count](const std::string& name,
+                                          const std::string& actual_file_name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
-                    count++;
-
+                    (void)actual_file_name;
 
                     constexpr auto text_txt = std::array<uint8_t, 32>{0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
                                                                       0xe3, 0xb1, 0x4c, 0x36, 0x1d, 0xc2, 0xa9, 0x3a,
@@ -64,6 +63,8 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                                                                        0x7c, 0xf0, 0x89, 0x09, 0x8c, 0x63, 0x5c, 0xc6,
                                                                        0xd2, 0x95, 0x1e, 0x19, 0x16, 0x16, 0xcd, 0x97,
                                                                        0x2c, 0x5d, 0x49, 0x00, 0x4d, 0x45, 0x65, 0xe6};
+
+                    count++;
 
                     MIMEParser::MimeData data{begin, end};
                     auto hash = smooth::application::hash::sha256(data.data(), data.size());
@@ -107,8 +108,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------7184603361412956941791020073", 0));
 
-            const auto root = Path{__FILE__}.parent();
-            auto file = root / "test_data" / "post_binary_data.bin";
+            const auto file = Path{__FILE__}.parent() / "test_data" / "post_binary_data.bin";
             File f{file};
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
@@ -117,9 +117,12 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
             {
                 int count = 0;
 
-                auto form_data = [&count, &root](const std::string& name,
+                auto form_data = [&count](const std::string& name,
+                                          const std::string& actual_file_name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
+
+                    (void)actual_file_name;
 
                     constexpr auto accept_png = std::array<uint8_t, 32>{0x0a, 0x73, 0x3b, 0x99, 0xfc, 0xd0, 0x3c, 0x5e,
                                                                         0x63, 0x59, 0xd0, 0x97, 0x3a, 0x16, 0x9b, 0xbf,
@@ -173,8 +176,7 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
 
         WHEN("Provided with chunks of url encoded data")
         {
-            const auto root = Path{__FILE__}.parent();
-            auto file = root / "test_data" / "url_encoded.txt";
+            auto file = Path{__FILE__}.parent() / "test_data" / "url_encoded.txt";
             FileInfo info{file};
 
             REQUIRE(mime.detect_mode("application/x-www-form-urlencoded", info.size()));

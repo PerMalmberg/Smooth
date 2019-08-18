@@ -30,7 +30,7 @@ namespace smooth::application::network::http::regular
             using MimeData = std::vector<uint8_t>;
             using BoundaryIterator = MimeData::const_iterator;
             using Boundaries = std::vector<BoundaryIterator>;
-            using FormDataCallback = std::function<void(const std::string& name, const BoundaryIterator& begin,
+            using FormDataCallback = std::function<void(const std::string& field_name, const std::string& actual_file_name, const BoundaryIterator& begin,
                                                        const BoundaryIterator& end)>;
             using URLEncodedDataCallback = std::function<void(std::unordered_map<std::string, std::string>& data)>;
 

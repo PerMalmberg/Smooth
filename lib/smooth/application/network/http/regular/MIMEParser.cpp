@@ -206,7 +206,7 @@ namespace smooth::application::network::http::regular
         if (is_crlf(start_of_content))
         {
             // All content is considered text/plain
-            cb("", start_of_content, end_of_content);
+            cb("", "", start_of_content, end_of_content);
         }
         else
         {
@@ -217,7 +217,7 @@ namespace smooth::application::network::http::regular
 
             if (start_of_content != end_of_content)
             {
-                cb(content_dispositon["name"], start_of_content, end_of_content);
+                cb(content_dispositon["name"], content_dispositon["filename"], start_of_content, end_of_content);
             }
 
             (void) headers;
