@@ -143,3 +143,8 @@ it to your project root, you are encouraged to adjust it to your specific needs 
 Please see the the different test projects under the test folder. When compiling these, open the
 root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
 in the top `CMakeLists.txt`. **You will likely have to re-generate your build files after changing the selection.**  
+
+## Running on Linux
+
+Most I/O classes are replaced with mocks when built for Linux. As such you application may compile and run, but do 
+not expect actual functionality from the mocks.
