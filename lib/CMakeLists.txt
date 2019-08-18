@@ -14,17 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-get_filename_component(TEST_PROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CXX_STANDARD 17)
 
-set(TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/generated_test_smooth_${TEST_PROJECT}.cpp)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../test.cpp.in ${TEST_SRC})
-set(TEST_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
+project(smooth)
+include(files.cmake)
+include(compiler_options.cmake)
 
-# As project() isn't scriptable and the entire file is evaluated we work around the limitation by generating
-# the actual file used for the respective platform.
-if(NOT "${COMPONENT_DIR}" STREQUAL "")
-    message(FATAL_ERROR "This project can only be compiled and run on Linux")
-else()
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/../test_project_template_linux.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake @ONLY)
-    include(${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake)
-endif()
+add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512)
+add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
+add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
+
+
+add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
+target_include_directories(${PROJECT_NAME}
+        PUBLIC
+            ${SMOOTH_LIB_ROOT}/smooth/include
+            $ENV{IDF_PATH}/components/json/cJSON)
+
+target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto)
+set_compile_options(${PROJECT_NAME})

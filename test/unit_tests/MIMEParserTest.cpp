@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <catch.hpp>
+#include "catch.hpp"
 #include <smooth/application/network/http/regular/MIMEParser.h>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/File.h>

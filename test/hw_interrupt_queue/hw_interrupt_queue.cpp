@@ -14,27 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <${selected_test_project}.h>
-#include <smooth/core/SystemStatistics.h>
+#include "hw_interrupt_queue.h"
+#include <smooth/core/Task.h>
+#include <smooth/core/task_priorities.h>
 
-using namespace ${selected_test_project};
+using namespace smooth::core;
 
-extern "C"
+namespace hw_interrupt_queue
 {
-#ifdef ESP_PLATFORM
-void app_main()
-{
-    App app{};
-    app.start();
-}
-#else
-int main(int /*argc*/, char** /*argv*/)
-{
-    smooth::core::SystemStatistics::instance().dump();
-    App app{};
-    app.start();
-    return 0;
-}
-#endif
+    App::App()
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
+              queue(IntrQueue::create(*this, *this)),
+              input(queue, GPIO_NUM_21, true, false, GPIO_INTR_ANYEDGE)
+    {
+    }
 
+    void App::init()
+    {
+        std::cout << "Trigger the input!" << std::endl;
+    }
+
+    void App::event(const smooth::core::io::InterruptInputEvent& value)
+    {
+        std::cout << "Value from interrupt: " << value.get_state() << std::endl;
+    }
 }

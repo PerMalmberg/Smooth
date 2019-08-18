@@ -36,6 +36,7 @@ namespace secure_socket_test
               public smooth::core::ipc::IEventListener<smooth::core::network::event::TransmitBufferEmptyEvent>,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::DataAvailableEvent<Proto>>,
               public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>,
+              public smooth::core::ipc::IEventListener<smooth::core::network::NetworkStatus>,
               public smooth::application::network::http::IServerResponse
     {
         public:
@@ -50,6 +51,9 @@ namespace secure_socket_test
             void event(const smooth::core::network::event::DataAvailableEvent<Proto>&) override;
 
             void event(const smooth::core::network::event::ConnectionStatusEvent&) override;
+
+            void event(const smooth::core::network::NetworkStatus& event) override;
+
 
             void reply(std::unique_ptr<smooth::application::network::http::IResponseOperation>, bool) override
             {};
@@ -70,6 +74,8 @@ namespace secure_socket_test
             std::shared_ptr<smooth::core::network::SecureSocket<Proto>> sock{};
             std::vector<uint8_t> received_content{};
             std::unique_ptr<smooth::core::network::MBedTLSContext> tls_context{};
+            using NetworkStatusQueue = smooth::core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus>;
+            std::shared_ptr<NetworkStatusQueue> net_status;
 
             std::unique_ptr<std::vector<unsigned char>> get_certs() const;
     };

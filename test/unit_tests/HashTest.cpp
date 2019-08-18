@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <catch.hpp>
+#include "catch.hpp"
 #include <cstdint>
 #include <smooth/application/hash/sha.h>
 #include <smooth/application/hash/base64.h>

@@ -21,9 +21,17 @@ without any special considerations.
 
 *) To certain limits, of course.
 
+## Requirements
+
+* ESP-IDF v4.x
+* GCC 8
+
+Smooth is developed on a Linux machine so how well it compiles using the Windows toolset povided by Espressif is unknown. 
+
 ### Provided functionality
 
 #### Core
+
 - Application initialization
 - Wifi configuration / control
 - Tasks
@@ -42,22 +50,90 @@ without any special considerations.
 
 ### Application level
 
-- HTTP(s) Server with simple template and Web socket support. 
+- HTTP(s) Server
+  - Simple templates 
+  - Websocket support
 - MQTT Client
 - Sensor BME280
 - 16 channel I/O expander MCP23017
 - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 
 
-## Installation
+## Using Smooth in your project
 
 In your ESP-IDF projects's root folder, type the following to add `smooth` as a submodule.
 
 ```Bash
-git submodule add https://github.com/PerMalmberg/Smooth.git components/smooth
+git submodule add https://github.com/PerMalmberg/Smooth.git externals/smooth
 ```
 
-### Sample applications
+Assuming you are following IDF's recommended way of [structuring projects](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#example-project), make your top `CMakeLists.txt` look something like this:
+
+```
+cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_CXX_STANDARD 17)
+
+if(${ESP_PLATFORM})
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
+# Include Smooth as a component
+set(EXTRA_COMPONENT_DIRS
+         externals/smooth/smooth_component)
+
+project(name_of_your_project)
+else()
+    # Empty project when not building for ESP (i.e. when loading the project into an IDE with already configured tool chains for native Linux)
+endif()
+```
+
+Next, your `main/CMakeLists.txt` should look something like this:
+
+```
+cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_CXX_STANDARD 17)
+
+set(SOURCES main.cpp
+        main.cpp
+        main.h
+        )
+
+idf_component_register(SRCS ${SOURCES}
+        INCLUDE_DIRS
+            ${CMAKE_CURRENT_LIST_DIR}
+            $ENV{IDF_PATH}/components
+        REQUIRES
+            smooth_component
+        )
+```
+
+Now build your project using the following commands, or via a properly setup IDE.
+
+```
+cd your_project_root
+mkdir build
+cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+```
+
+or, if you're using old-fashioned `make`
+
+```
+cd your_project_root
+mkdir build
+cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+```
+
+`idf.py -C .. -p /dev/ttyUSB1 app-flash monitor`
+
+### Menuconfig / sdkconfig
+
+Don't forget to configure your target properly by running `ninja menuconfig` to update your file `sdkconfig` before building.
+There is an `sdkconfig` file included with Smooth and used in the test projects. While you can use it for as a base by copying
+it to your project root, you are encouraged to adjust it to your specific needs and use case.
+
+## Sample/test applications
 
 Please see the the different test projects under the test folder. When compiling these, open the
-root of the repo as a CMake project.
+root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
+in the top `CMakeLists.txt`. **You will likely have to re-generate your build files after changing the selection.**  

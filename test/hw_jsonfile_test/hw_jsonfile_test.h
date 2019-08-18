@@ -14,27 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include <${selected_test_project}.h>
-#include <smooth/core/SystemStatistics.h>
+#pragma once
 
-using namespace ${selected_test_project};
+#include <smooth/core/Application.h>
 
-extern "C"
+namespace hw_jsonfile_test
 {
-#ifdef ESP_PLATFORM
-void app_main()
-{
-    App app{};
-    app.start();
-}
-#else
-int main(int /*argc*/, char** /*argv*/)
-{
-    smooth::core::SystemStatistics::instance().dump();
-    App app{};
-    app.start();
-    return 0;
-}
-#endif
+    class App
+            : public smooth::core::Application
+    {
+    public:
+        App();
 
+        void tick() override;
+
+    private:
+    };
 }

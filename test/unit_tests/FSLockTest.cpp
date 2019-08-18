@@ -17,7 +17,7 @@
 #include <thread>
 #include <vector>
 #include <iostream>
-#include <catch.hpp>
+#include "catch.hpp"
 #include <smooth/core/filesystem/FSLock.h>
 
 using namespace smooth::core::filesystem;
