@@ -23,7 +23,10 @@ without any special considerations.
 
 ## Requirements
 
-Smooth is build to work with ESP-IDF v4.x and compiled using gcc 8.
+* ESP-IDF v4.x
+* GCC 8
+
+Smooth is developed on a Linux machine so how well it compiles using the Windows toolset povided by Espressif is unknown. 
 
 ### Provided functionality
 
@@ -105,7 +108,31 @@ idf_component_register(SRCS ${SOURCES}
         )
 ```
 
-### Sample/test applications
+Now build your project using the following commands, or via a properly setup IDE.
+
+```
+cd your_project_root
+mkdir build
+cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+```
+
+or, if you're using old-fashioned `make`
+
+```
+cd your_project_root
+mkdir build
+cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+```
+
+`idf.py -C .. -p /dev/ttyUSB1 app-flash monitor`
+
+### Menuconfig / sdkconfig
+
+Don't forget to configure your target properly by running `ninja menuconfig` to update your file `sdkconfig` before building.
+There is an `sdkconfig` file included with Smooth and used in the test projects. While you can use it for as a base by copying
+it to your project root, you are encouraged to adjust it to your specific needs and use case.
+
+## Sample/test applications
 
 Please see the the different test projects under the test folder. When compiling these, open the
 root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
