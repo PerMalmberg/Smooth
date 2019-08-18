@@ -124,7 +124,13 @@ mkdir build
 cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
 ```
 
-`idf.py -C .. -p /dev/ttyUSB1 app-flash monitor`
+Next, flash your project to the target device.
+
+`idf.py -C .. --baud 921600 -p /dev/ttyUSB1 app-flash monitor`
+
+If it's the first time, use this command instead to also flash the partition table:
+
+`idf.py -C .. --baud 921600 -p /dev/ttyUSB1 flash monitor`
 
 ### Menuconfig / sdkconfig
 
