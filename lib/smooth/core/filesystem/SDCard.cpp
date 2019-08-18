@@ -23,7 +23,7 @@ using namespace smooth::core::logging;
 
 namespace smooth::core::filesystem
 {
-    bool SDCard::do_common_initialization(const char* mount_point,
+    bool SDCard::do_common_initialization(const MountPoint& mount_point,
                                           int max_file_count,
                                           bool format_on_mount_failure,
                                           void* slot_config)
@@ -33,7 +33,7 @@ namespace smooth::core::filesystem
         mount_config.max_files = max_file_count;
         //mount_config.allocation_unit_size = 16 * 1024;
 
-        auto mount_result = esp_vfs_fat_sdmmc_mount(mount_point, &host, slot_config, &mount_config, &card);
+        auto mount_result = esp_vfs_fat_sdmmc_mount(*mount_point, &host, slot_config, &mount_config, &card);
 
         initialized = mount_result == ESP_OK;
         if (initialized)

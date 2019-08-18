@@ -56,7 +56,7 @@ endif()
 
 list(FIND available_tests ${selected_test_project} test_found)
 if(${test_found} EQUAL -1)
-    message(FATAL_ERROR "'${selected_test_project}' isn't a valid test project")
+    message(FATAL_ERROR "'${selected_test_project}' isn't a valid test project for the current platform.")
 endif()
 
 if(${ESP_PLATFORM})

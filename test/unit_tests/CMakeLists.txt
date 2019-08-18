@@ -23,7 +23,8 @@ add_executable(${PROJECT_NAME}
         MIMEParserTest.cpp
         StringUtilTest.cpp
         TemplateProcessorTest.cpp
-        HashTest.cpp)
+        HashTest.cpp
+        MountPointTest.cpp)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${SMOOTH_TEST_ROOT})

@@ -23,9 +23,9 @@ using namespace smooth::core::logging;
 namespace smooth::core::filesystem
 {
 
-    SPIFlash::SPIFlash(const char* root, const char* partition_name, int max_file_count,
+    SPIFlash::SPIFlash(const FlashMount& mount_point, const char* partition_name, int max_file_count,
                        bool format_on_mount_failure)
-            : root(root),
+            : root(*mount_point),
               partition_name(partition_name),
               max_file_count(max_file_count),
               format_on_mount_failure(format_on_mount_failure)

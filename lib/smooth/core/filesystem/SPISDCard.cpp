@@ -39,7 +39,7 @@ namespace smooth
             {
             }
 
-            bool SPISDCard::init(const char* mount_point, bool format_on_mount_failure, int max_file_count)
+            bool SPISDCard::init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count)
             {
                 host = SDSPI_HOST_DEFAULT();
                 sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();

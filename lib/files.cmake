@@ -123,6 +123,7 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/Subscription.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/SystemStatistics.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/Path.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MountPoint.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )

@@ -167,14 +167,14 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 
-        Path web_root("/sdcard/web_root");
-        Path uploads{"/sdcard/uploads"};
+        Path web_root(SDCardMount::instance().mount_point() / "web_root");
+        Path uploads{SDCardMount::instance().mount_point() / "uploads"};
 
         // Setup SD Card as per WROOVER Kit 3.x
         sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4,
                                                                         GPIO_NUM_12, GPIO_NUM_13);
 
-        sd_card->init("/sdcard", false, 5);
+        sd_card->init(SDCardMount::instance(), false, 5);
 #else
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";

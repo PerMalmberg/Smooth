@@ -34,7 +34,7 @@ namespace smooth::core::filesystem
                       gpio_num_t card_detect = static_cast<gpio_num_t>(-1),
                       gpio_num_t write_protect = static_cast<gpio_num_t>(-1));
 
-            bool init(const char* mount_point, bool format_on_mount_failure, int max_file_count) override;
+            bool init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count) override;
 
         private:
             gpio_num_t command;

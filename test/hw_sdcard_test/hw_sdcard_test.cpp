@@ -31,6 +31,7 @@ using namespace smooth::core;
 using namespace smooth::core::ipc;
 using namespace smooth::core::logging;
 using namespace smooth::core::timer;
+using namespace smooth::core::filesystem;
 using namespace std::chrono;
 
 // Select appropriate interface - SPI or MMC
@@ -91,7 +92,7 @@ namespace hw_sdcard_test
 
         if (!test_done && !card->is_initialized())
         {
-            if (card->init("/sdcard", false, 5))
+            if (card->init( SDCardMount::instance(), false, 5))
             {
                 Log::info(tag, "Starting performance test");
 
@@ -101,9 +102,8 @@ namespace hw_sdcard_test
                 // Note: Too large chunk_size and you'll run into out of memory issues. I've seen them at 16k.
                 for (size_t chunk_size = 1024 / sizeof(int); !error && chunk_size <= 1024 / sizeof(int) * 12; chunk_size += 1024)
                 {
-                    std::string path = "/sdcard/";
-                    path.append(std::to_string(chunk_size));
-                    Log::info(tag, Format("Writing to {1}", Str(path)));
+                    auto path = SDCardMount::instance().mount_point() / std::to_string(chunk_size);
+                    Log::info(tag, Format("Writing to {1}", Str(path.str())));
 
                     ElapsedTime t;
                     t.reset();
@@ -114,7 +114,7 @@ namespace hw_sdcard_test
                     auto read = std::make_unique<int[]>(chunk_size);
                     auto block_size = sizeof(int) * chunk_size;
 
-                    auto fp = fopen(path.c_str(), "wb+");
+                    auto fp = fopen(path.str().c_str(), "wb+");
                     if (fp)
                     {
                         int write_count = 0;

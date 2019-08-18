@@ -18,6 +18,7 @@
 
 #include "SDCard.h"
 #include <driver/gpio.h>
+#include "MountPoint.h"
 
 namespace smooth::core::filesystem
 {
@@ -32,7 +33,7 @@ namespace smooth::core::filesystem
                       gpio_num_t card_detect = GPIO_NUM_NC,
                       gpio_num_t write_protect = GPIO_NUM_NC);
 
-            bool init(const char* mount_point, bool format_on_mount_failure, int max_file_count) override;
+            bool init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count) override;
 
         private:
             gpio_num_t miso;

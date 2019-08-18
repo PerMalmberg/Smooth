@@ -27,6 +27,7 @@
 
 #include "esp_system.h"
 #include <string>
+#include "MountPoint.h"
 
 namespace smooth::core::filesystem
 {
@@ -47,7 +48,7 @@ namespace smooth::core::filesystem
     class SPIFlash
     {
         public:
-            explicit SPIFlash(const char* root, const char* partition_name, int max_file_count,
+            explicit SPIFlash(const FlashMount& mount_point, const char* partition_name, int max_file_count,
                               bool format_on_mount_failure);
 
             bool mount();
