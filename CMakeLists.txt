@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project http_server_test)
+set(selected_test_project hw_interrupt_queue)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 1)
@@ -40,7 +40,8 @@ list(APPEND available_tests
         secure_server_socket_test
         http_server_test
         destructing_event_queues
-        destructing_subscribing_event_queues)
+        destructing_subscribing_event_queues
+        hw_interrupt_queue)
 
 # These tests needs actual hardware to run
 if(${ESP_PLATFORM})
@@ -51,7 +52,7 @@ if(${ESP_PLATFORM})
             hw_sntp
             hw_security
             hw_wrover_kit_blinky
-            hw_interrupt_queue)
+            )
 endif()
 
 list(FIND available_tests ${selected_test_project} test_found)

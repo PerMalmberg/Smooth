@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifndef ESP_PLATFORM
+#include "mock/ISRTaskEventQueue.h"
+#else
+
 #include "IISRTaskEventQueue.h"
 #include "IPolledTaskQueue.h"
 #include <freertos/FreeRTOS.h>
@@ -47,7 +51,7 @@ namespace smooth::core::ipc
 
             ~ISRTaskEventQueue() override;
 
-            IRAM_ATTR void signal(const DataType& data) override;
+            SMOOTH_MEM_ATTR void signal(const DataType& data) override;
 
             int size() override
             {
@@ -126,3 +130,5 @@ namespace smooth::core::ipc
         task.unregister_polled_queue_with_task(this);
     }
 }
+
+#endif

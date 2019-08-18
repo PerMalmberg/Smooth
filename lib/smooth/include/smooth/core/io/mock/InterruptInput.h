@@ -16,12 +16,6 @@
 
 #pragma once
 
-#include "InterruptEvent.h"
-
-#ifndef ESP_PLATFORM
-#include "mock/InterruptInput.h"
-#else
-
 #include "Input.h"
 #include <smooth/core/ipc/IISRTaskEventQueue.h>
 #include <memory>
@@ -39,11 +33,15 @@ namespace smooth::core::io
             /// \param pull_up Set to true if the input has a pull-up (also enables the internal pull up)
             /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
             /// \param interrupt_trigger When the interrupt should trigger
-            InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue, gpio_num_t io,
-                           bool pull_up,
-                           bool pull_down,
-                           gpio_int_type_t interrupt_trigger
-            );
+            InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> /*queue*/,
+                           gpio_num_t io,
+                           bool /*pull_up*/,
+                           bool /*pull_down*/,
+                           gpio_int_type_t /*interrupt_trigger*/)
+                    : Input(io)
+            {
+
+            }
 
             void update();
 
@@ -56,4 +54,3 @@ namespace smooth::core::io
             std::weak_ptr<ipc::IISRTaskEventQueue<InterruptInputEvent>> queue;
     };
 }
-#endif

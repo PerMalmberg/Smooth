@@ -16,7 +16,13 @@
 
 #pragma once
 
+#ifdef ESP_PLATFORM
 #include "esp_attr.h"
+#define SMOOTH_MEM_ATTR IRAM_ATTR
+#else
+#define SMOOTH_MEM_ATTR
+#endif
+
 #include <type_traits>
 
 namespace smooth::core::ipc
@@ -30,12 +36,10 @@ namespace smooth::core::ipc
             static_assert(std::is_trivial<DataType>::value, "DataType must be a trivial type");
 
         public:
-            virtual ~IISRTaskEventQueue()
-            {
-            }
+            virtual ~IISRTaskEventQueue() = default;
 
             /// When called from an ISR, signals the queue to create an event.
             /// \param data The data to attach to the signal.
-            IRAM_ATTR virtual void signal(const DataType& data) = 0;
+            SMOOTH_MEM_ATTR virtual void signal(const DataType& data) = 0;
     };
 }

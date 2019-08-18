@@ -124,6 +124,8 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/SystemStatistics.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/Path.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MountPoint.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Input.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Output.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -162,6 +164,7 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/wiegand/Wiegand.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h
+            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
             )
 else()
     list(APPEND SMOOTH_SOURCES

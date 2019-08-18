@@ -16,32 +16,36 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Output.h"
-#else
-#include <driver/gpio.h>
+#include "gpio.h"
 
 namespace smooth::core::io
 {
-    class Output
+    class Input
     {
         public:
-            Output(gpio_num_t io, bool active_high, bool pull_up, bool pull_down, bool clear_on_creation = true);
+            explicit Input(gpio_num_t io)
+                    : io(io)
+            {
+            }
 
-            void set();
+            Input(gpio_num_t io,
+                  bool /*pull_up*/,
+                  bool /*pull_down*/,
+                  gpio_int_type_t /*interrupt_type*/)
+                    : io(io)
+            {}
 
-            void set(bool active);
+            bool read()
+            {
+                return false;
+            };
 
-            void clr();
+            Input(const Input&) = delete;
 
-            Output(const Output&) = delete;
+            Input& operator=(const Input&) = delete;
 
-            Output& operator=(const Output&) = delete;
-
-        private:
+        protected:
             gpio_num_t io;
-            bool active_high;
+
     };
 }
-
-#endif

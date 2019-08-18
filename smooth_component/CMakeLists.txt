@@ -15,6 +15,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Full path needed when including this component from another project
+set(CMAKE_CXX_STANDARD 17)
+
 include(${COMPONENT_DIR}/../lib/compiler_options.cmake)
 include(${COMPONENT_DIR}/../lib/files.cmake)
 

@@ -16,15 +16,17 @@
 
 #pragma once
 
+#ifndef ESP_PLATFORM
+#include "mock/Input.h"
+#else
 #include <driver/gpio.h>
-#include <functional>
 
 namespace smooth::core::io
 {
     class Input
     {
         public:
-            Input(gpio_num_t io);
+            explicit Input(gpio_num_t io);
 
             Input(gpio_num_t io,
                   bool pull_up,
@@ -41,3 +43,4 @@ namespace smooth::core::io
             gpio_num_t io;
     };
 }
+#endif
