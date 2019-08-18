@@ -23,15 +23,17 @@ function(set_compile_options target)
     target_compile_options(${target} PRIVATE -Wlogical-op -Wdouble-promotion -Wformat=2)
     target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:CXX>: -fno-rtti>)
 
-    if( NOT ${ESP_PLATFORM} )
+    if( NOT "${ESP_PLATFORM}" )
         target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
 
-        if(NOT DEFINED SMOOTH_ENABLE_ASAN OR NOT DEFINED SMOOTH_ASAN_OPTIMIZATION_LEVEL)
-            message(FATAL_ERROR "Missing ASAN related settings.")
-        endif()
-
         if(${SMOOTH_ENABLE_ASAN})
+            if(NOT DEFINED SMOOTH_ASAN_OPTIMIZATION_LEVEL)
+                message(FATAL_ERROR "SMOOTH_ASAN_OPTIMIZATION_LEVEL not set")
+            endif()
+
+            message(STATUS "ASAN enabled, expect performance degradation")
             target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -g -O${SMOOTH_ASAN_OPTIMIZATION_LEVEL})
+            target_link_libraries(${target} -fsanitize=address)
         endif()
     endif()
 endfunction()

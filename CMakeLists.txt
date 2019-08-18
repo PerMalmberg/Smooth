@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 # Select the test project to build
 set(selected_test_project hello_world)
 
+# For Linux builds, you may enable address sanitizer
+set(SMOOTH_ENABLE_ASAN 1)
+set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
+
 list(APPEND available_tests
         hello_world
         asan_test
