@@ -63,7 +63,7 @@ namespace smooth::application::network::http::regular
             parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
                           const FormDataCallback& content_callback) const;
 
-            void adjust_boundary_begining_for_crlf(BoundaryIterator start_of_data, Boundaries& found_boundaries) const;
+            void adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data, Boundaries& found_boundaries) const;
 
             bool is_crlf(BoundaryIterator start) const;
 

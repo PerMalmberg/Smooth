@@ -102,7 +102,7 @@ namespace smooth::application::network::http::regular
             }
 
             // Adjust for possible preceding CRLF, as the CRLF is considered part of the boundary.
-            adjust_boundary_begining_for_crlf(data.begin(), b);
+            adjust_boundary_beginning_for_crlf(data.begin(), b);
         }
 
         return b;
@@ -224,8 +224,8 @@ namespace smooth::application::network::http::regular
         }
     }
 
-    void MIMEParser::adjust_boundary_begining_for_crlf(MIMEParser::BoundaryIterator start_of_data,
-                                                       MIMEParser::Boundaries& found_boundaries) const
+    void MIMEParser::adjust_boundary_beginning_for_crlf(MIMEParser::BoundaryIterator start_of_data,
+                                                        MIMEParser::Boundaries& found_boundaries) const
     {
         for (auto& current : found_boundaries)
         {
