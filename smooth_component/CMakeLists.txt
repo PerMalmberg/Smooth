@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-include(../lib/compiler_options.cmake)
-include(../lib/files.cmake)
+# Full path needed when including this component from another project
+include(${COMPONENT_DIR}/../lib/compiler_options.cmake)
+include(${COMPONENT_DIR}/../lib/files.cmake)
 
 idf_component_register(SRCS ${SMOOTH_SOURCES}
                         INCLUDE_DIRS
