@@ -71,6 +71,13 @@ namespace smooth::core::network
 
             std::string get_mac_address();
 
+            /// Start providing an access point
+            void start_softap();
+
+            /// Set max number of clients able to connect to this AP
+            /// \param max_conn maximum number of clients to connect to this AP
+            void set_softap_max_connections(int max_conn);
+
         private:
             void connect();
 
@@ -79,6 +86,8 @@ namespace smooth::core::network
             std::string host_name = "Smooth-Wifi";
             std::string ssid;
             std::string password;
+
+            int max_softap_connections = 1;
     };
 }
 #endif
