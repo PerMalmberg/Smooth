@@ -22,6 +22,9 @@
 #include <tcpip_adapter.h>
 #include <smooth/core/network/NetworkStatus.h>
 #include <smooth/core/ipc/Publisher.h>
+#include <smooth/core/logging/log.h>
+
+using namespace smooth::core;
 
 namespace smooth::core::network
 {
@@ -32,8 +35,9 @@ namespace smooth::core::network
 
     Wifi::~Wifi()
     {
-        esp_wifi_disconnect();
-        esp_wifi_stop();
+        ESP_ERROR_CHECK(esp_wifi_disconnect());
+        ESP_ERROR_CHECK(esp_wifi_stop());
+        ESP_ERROR_CHECK(esp_wifi_deinit());  // QQQ needed to free memory?
     }
 
     void Wifi::set_host_name(const std::string& name)
@@ -104,8 +108,7 @@ namespace smooth::core::network
         }
         else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
         {
-            network::NetworkStatus status(network::NetworkEvent::DISCONNECTED,
-                                          true);
+            network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
 
             connected_to_ap = false;
@@ -115,6 +118,55 @@ namespace smooth::core::network
                 connect();
             }
         }
+        else if (event.event_id == SYSTEM_EVENT_AP_START)
+        {
+            if(event.event_info.got_ip.ip_changed)
+                Log::info("SoftAP", "AP started; got_ip.ip_changed = true");
+            else
+                Log::info("SoftAP", "AP started; got_ip.ip_changed = false");
+                
+            network::NetworkStatus status(network::NetworkEvent::GOT_IP, event.event_info.got_ip.ip_changed);
+            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+        }
+        else if (event.event_id == SYSTEM_EVENT_AP_STACONNECTED) 
+        {
+            system_event_info_t* event_info = (system_event_info_t*) &event.event_info;
+            // ESP_LOGI("SoftAP", "station " MACSTR" join, AID=%d",
+            //         MAC2STR(event_info->sta_connected.mac), event_info->sta_connected.aid);
+            Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
+                    Hex(event_info->sta_connected.mac[0]),
+                    Hex(event_info->sta_connected.mac[1]),
+                    Hex(event_info->sta_connected.mac[2]),
+                    Hex(event_info->sta_connected.mac[3]),
+                    Hex(event_info->sta_connected.mac[4]),
+                    Hex(event_info->sta_connected.mac[5]),
+                    UInt32(event_info->sta_connected.aid)));
+        }
+        else if (event.event_id == SYSTEM_EVENT_AP_STADISCONNECTED) 
+        {
+            system_event_info_t* event_info = (system_event_info_t*) &event.event_info;
+            // ESP_LOGI("SoftAP", "station " MACSTR" leave, AID=%d",
+            //         MAC2STR(event_info->sta_disconnected.mac), event_info->sta_disconnected.aid);
+            Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
+                    Hex(event_info->sta_connected.mac[0]),
+                    Hex(event_info->sta_connected.mac[1]),
+                    Hex(event_info->sta_connected.mac[2]),
+                    Hex(event_info->sta_connected.mac[3]),
+                    Hex(event_info->sta_connected.mac[4]),
+                    Hex(event_info->sta_connected.mac[5]),
+                    UInt32(event_info->sta_connected.aid)));
+        }       
+        else if (event.event_id == SYSTEM_EVENT_AP_STOP) 
+        {
+            Log::info("SoftAP", "AP stopped");
+            network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+        }   
+        else
+        {
+            Log::info("SoftAP", Format("Unhandeled event:{1}", UInt32(event.event_id)));
+        }
+            
     }
 
     std::string Wifi::get_mac_address()
@@ -135,5 +187,35 @@ namespace smooth::core::network
         }
 
         return mac.str();
+    }
+
+    void Wifi::set_softap_max_connections(int max_conn) {
+        max_softap_connections = max_conn;
+    }
+
+    void Wifi::start_softap() 
+    {
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+        wifi_config_t config;
+        memset(&config, 0, sizeof(config));
+        strncpy((char*) config.ap.ssid, ssid.c_str(), std::min(sizeof(config.ap.ssid), ssid.length()));
+        config.ap.ssid_len = ssid.length();
+        ESP_LOGE("SoftAP", "ssid.lengt() : %d", ssid.length());
+        strncpy((char*) config.ap.password, password.c_str(),
+                std::min(sizeof(config.ap.password), password.length()));
+        config.ap.max_connection = max_softap_connections;
+        config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK; 
+
+        if (password.length() == 0) 
+        {
+            config.ap.authmode = WIFI_AUTH_OPEN;
+        }
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &config));
+        ESP_ERROR_CHECK(esp_wifi_start());
+
+        Log::info("SoftAP", "SSID: " + ssid + "; Password: " + password);
     }
 }
