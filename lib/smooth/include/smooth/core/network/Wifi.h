@@ -72,8 +72,16 @@ namespace smooth::core::network
             std::string get_mac_address();
 
             /// Start providing an access point
+<<<<<<< HEAD
             /// \param max_conn maximum number of clients to connect to this AP
             void start_softap(int max_conn = 1);
+=======
+            void start_softap();
+
+            /// Set max number of clients able to connect to this AP
+            /// \param max_conn maximum number of clients to connect to this AP
+            void set_softap_max_connections(int max_conn);
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
 
         private:
             void connect();

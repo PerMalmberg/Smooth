@@ -120,12 +120,25 @@ namespace smooth::core::network
         }
         else if (event.event_id == SYSTEM_EVENT_AP_START)
         {
+<<<<<<< HEAD
+=======
+            if(event.event_info.got_ip.ip_changed)
+                Log::info("SoftAP", "AP started; got_ip.ip_changed = true");
+            else
+                Log::info("SoftAP", "AP started; got_ip.ip_changed = false");
+                
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
             network::NetworkStatus status(network::NetworkEvent::GOT_IP, event.event_info.got_ip.ip_changed);
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
         }
         else if (event.event_id == SYSTEM_EVENT_AP_STACONNECTED) 
         {
             system_event_info_t* event_info = (system_event_info_t*) &event.event_info;
+<<<<<<< HEAD
+=======
+            // ESP_LOGI("SoftAP", "station " MACSTR" join, AID=%d",
+            //         MAC2STR(event_info->sta_connected.mac), event_info->sta_connected.aid);
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
             Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
                     Hex(event_info->sta_connected.mac[0]),
                     Hex(event_info->sta_connected.mac[1]),
@@ -138,6 +151,11 @@ namespace smooth::core::network
         else if (event.event_id == SYSTEM_EVENT_AP_STADISCONNECTED) 
         {
             system_event_info_t* event_info = (system_event_info_t*) &event.event_info;
+<<<<<<< HEAD
+=======
+            // ESP_LOGI("SoftAP", "station " MACSTR" leave, AID=%d",
+            //         MAC2STR(event_info->sta_disconnected.mac), event_info->sta_disconnected.aid);
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
             Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
                     Hex(event_info->sta_connected.mac[0]),
                     Hex(event_info->sta_connected.mac[1]),
@@ -180,7 +198,15 @@ namespace smooth::core::network
         return mac.str();
     }
 
+<<<<<<< HEAD
     void Wifi::start_softap(int max_conn) 
+=======
+    void Wifi::set_softap_max_connections(int max_conn) {
+        max_softap_connections = max_conn;
+    }
+
+    void Wifi::start_softap() 
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
     {
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -189,9 +215,16 @@ namespace smooth::core::network
         memset(&config, 0, sizeof(config));
         strncpy((char*) config.ap.ssid, ssid.c_str(), std::min(sizeof(config.ap.ssid), ssid.length()));
         config.ap.ssid_len = ssid.length();
+<<<<<<< HEAD
         strncpy((char*) config.ap.password, password.c_str(),
                 std::min(sizeof(config.ap.password), password.length()));
         config.ap.max_connection = max_conn;
+=======
+        ESP_LOGE("SoftAP", "ssid.lengt() : %d", ssid.length());
+        strncpy((char*) config.ap.password, password.c_str(),
+                std::min(sizeof(config.ap.password), password.length()));
+        config.ap.max_connection = max_softap_connections;
+>>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
         config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK; 
 
         if (password.length() == 0) 
