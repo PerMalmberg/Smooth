@@ -29,7 +29,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${SMOOTH_TEST_ROOT})
 
-target_link_libraries(${PROJECT_NAME} smooth)
+target_link_libraries(${PROJECT_NAME} smooth pthread)
 
 include(../../lib/compiler_options.cmake)
 set_compile_options(${PROJECT_NAME})
