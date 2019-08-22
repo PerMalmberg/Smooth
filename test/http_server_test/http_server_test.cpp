@@ -181,7 +181,7 @@ namespace http_server_test
         Path uploads{test_path.parent() / "uploads"};
 #endif
 
-        template_data_retriever = std::make_shared<DataRetriever>();
+        auto template_data_retriever = std::make_shared<DataRetriever>();
         template_data_retriever->add("{{title}}", "Smooth - a C++ framework for building apps on ESP-IDF");
         template_data_retriever->add("{{message}}",
                                     "Congratulations, you're browsing a web page on your ESP32 via Smooth framework by");
