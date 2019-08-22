@@ -34,9 +34,9 @@ using namespace smooth::core::filesystem;
 namespace smooth::application::network::http::regular
 {
     TemplateProcessor::TemplateProcessor(std::set<std::string> template_files,
-                                         const ITemplateDataRetriever& data_retriever)
+                                         std::shared_ptr<ITemplateDataRetriever> data_retriever)
             : template_files(std::move(template_files)),
-              data_retriever(data_retriever)
+              data_retriever(std::move(data_retriever))
     {
     }
 
@@ -72,22 +72,24 @@ namespace smooth::application::network::http::regular
         // Find keys in the form "{{alpha_num}}, then do a lookup on the alpha_num part
         // and replace the entire found token. Continue search after the found token until end of data.
 
-        try
+        if(data_retriever)
         {
-            // Find all tokens
-            std::smatch match{};
-            while (std::regex_search(template_data, match, token))
+            try
             {
-                std::stringstream ss;
-                const auto& found_token = match[0].str();
-                // Replaces any matched token, even if no corresponding data exists, in which case empty string is used.
-                replace_all(template_data, found_token, data_retriever.get(found_token));
+                // Find all tokens
+                std::smatch match{};
+                while (std::regex_search(template_data, match, token))
+                {
+                    std::stringstream ss;
+                    const auto& found_token = match[0].str();
+                    // Replaces any matched token, even if no corresponding data exists, in which case empty string is used.
+                    replace_all(template_data, found_token, data_retriever->get(found_token));
+                }
             }
-
-        }
-        catch (std::regex_error& ex)
-        {
-
+            catch (std::regex_error& ex)
+            {
+                Log::error("TemplateProcessor", ex.what());
+            }
         }
     }
 }

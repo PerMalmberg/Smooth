@@ -30,7 +30,7 @@ namespace smooth::application::network::http::regular
     {
         public:
             explicit TemplateProcessor(std::set<std::string> template_files,
-                                       const ITemplateDataRetriever& data_retriever);
+                                       std::shared_ptr<ITemplateDataRetriever> data_retriever);
 
             std::unique_ptr<smooth::application::network::http::IResponseOperation>
             process_template(const smooth::core::filesystem::Path& path);
@@ -42,7 +42,7 @@ namespace smooth::application::network::http::regular
             void process_template(std::string& template_data) const;
 
             std::set<std::string> template_files;
-            const ITemplateDataRetriever& data_retriever;
+            std::shared_ptr<ITemplateDataRetriever> data_retriever;
             const std::regex token{R"!(\{\{[\d\_\-a-zA-Z]+\}\})!", std::regex::ECMAScript};
     };
 }

@@ -62,19 +62,19 @@ namespace smooth::application::network::http
             HTTPServerConfig(smooth::core::filesystem::Path web_root,
                              std::vector<std::string> index_files,
                              std::set<std::string> template_files,
-                             const ITemplateDataRetriever& template_data_retriever,
+                             std::shared_ptr<ITemplateDataRetriever> template_data_retriever,
                              std::size_t max_header_size,
                              std::size_t content_chunk_size)
                     : root_path(std::move(web_root)),
                       index(std::move(index_files)),
                       template_files(std::move(template_files)),
-                      template_data_retriever(template_data_retriever),
+                      template_data_retriever(std::move(template_data_retriever)),
                       maximum_header_size(max_header_size),
                       content_chunk_size(content_chunk_size)
             {
             }
 
-            [[nodiscard]] const smooth::core::filesystem::Path web_root() const
+            [[nodiscard]] smooth::core::filesystem::Path web_root() const
             {
                 return root_path;
             }
@@ -99,7 +99,7 @@ namespace smooth::application::network::http
                 return content_chunk_size;
             }
 
-            [[nodiscard]] const ITemplateDataRetriever& data_retriever() const
+            [[nodiscard]] std::shared_ptr<ITemplateDataRetriever> data_retriever() const
             {
                 return template_data_retriever;
             }
@@ -108,7 +108,7 @@ namespace smooth::application::network::http
             smooth::core::filesystem::Path root_path{};
             std::vector<std::string> index{};
             std::set<std::string> template_files{};
-            const ITemplateDataRetriever& template_data_retriever;
+            std::shared_ptr<ITemplateDataRetriever> template_data_retriever{};
             std::size_t maximum_header_size{};
             std::size_t content_chunk_size{};
     };

@@ -80,7 +80,7 @@ namespace http_server_test
             using Client = smooth::application::network::http::HTTPServerClient;
             using Protocol = smooth::application::network::http::HTTPProtocol;
 
-            DataRetriever template_data_retriever{};
+            std::shared_ptr<DataRetriever> template_data_retriever{};
             std::unique_ptr<smooth::application::network::http::InsecureServer> insecure_server{};
             std::unique_ptr<smooth::application::network::http::SecureServer> secure_server{};
     };
