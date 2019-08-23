@@ -35,8 +35,11 @@ namespace smooth::core::network
             Wifi();
 
             Wifi(const Wifi&) = delete;
+            Wifi(Wifi&&) = delete;
+            Wifi& operator=(const Wifi&) = delete;
+            Wifi& operator=(Wifi&&) = delete;
 
-            virtual ~Wifi();
+            ~Wifi() override;
 
             /// Sets the hostname
             /// \param name The name
@@ -56,11 +59,11 @@ namespace smooth::core::network
 
             /// Returns a value indicating of currently connected to the access point.
             /// \return
-            bool is_connected_to_ap() const;
+            [[nodiscard]] bool is_connected_to_ap() const;
 
             /// Returns a value indicating if the required settings are set.
             /// \return true or false.
-            bool is_configured() const
+            [[nodiscard]] bool is_configured() const
             {
                 return host_name.length() > 0 && ssid.length() > 0 && password.length() > 0;
             }
@@ -69,30 +72,20 @@ namespace smooth::core::network
             /// \param event The event
             void event(const system_event_t& event) override;
 
-            std::string get_mac_address();
+            [[nodiscard]] std::string get_mac_address() const;
 
             /// Start providing an access point
-<<<<<<< HEAD
             /// \param max_conn maximum number of clients to connect to this AP
-            void start_softap(int max_conn = 1);
-=======
-            void start_softap();
-
-            /// Set max number of clients able to connect to this AP
-            /// \param max_conn maximum number of clients to connect to this AP
-            void set_softap_max_connections(int max_conn);
->>>>>>> cdf79c2... added support for wifi AP mode to class Wifi
+            void start_softap(uint8_t max_conn = 1);
 
         private:
-            void connect();
+            void connect() const;
 
             bool auto_connect_to_ap = false;
             bool connected_to_ap = false;
             std::string host_name = "Smooth-Wifi";
-            std::string ssid;
-            std::string password;
-
-            int max_softap_connections = 1;
+            std::string ssid{};
+            std::string password{};
     };
 }
 #endif
