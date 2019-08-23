@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#include "http_server_ap_test.h"
+#include "access_point.h"
 #include <memory>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
@@ -37,17 +37,7 @@ using namespace smooth::core::logging;
 using namespace smooth::application::network::http;
 using namespace smooth::application::network::http::responses;
 
-using namespace http_server_ap_test;
-
-extern "C" {
-    void app_main() {
-        App app;
-        app.start();
-    }
-}
-
-
-namespace http_server_ap_test
+namespace access_point
 {
 
     App::App()
@@ -115,12 +105,15 @@ namespace http_server_ap_test
 
             if (last_part)
             {
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                                           "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
+                response.reply(std::make_unique<responses::StringResponse>(
+                               ResponseCode::OK,
+                               "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
                                false);
             }
         };
 
+        // As there's no actual index file in this example, use a response handles instead when calling requesting "/".
+        // See http_server_test to see how a web server with actual files is set up.
         insecure_server->on(HTTPMethod::GET, "/", hello_world);
     }
 }

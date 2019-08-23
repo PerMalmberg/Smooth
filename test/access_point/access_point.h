@@ -30,7 +30,7 @@
 #include <smooth/core/filesystem/SPIFlash.h>
 #endif
 
-namespace http_server_ap_test
+namespace access_point
 {
     class App
             : public smooth::core::Application
