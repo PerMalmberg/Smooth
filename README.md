@@ -112,7 +112,7 @@ Now build your project using the following commands, or via a properly setup IDE
 
 ```
 cd your_project_root
-mkdir build
+mkdir build && cd build
 cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
 ```
 
@@ -120,7 +120,7 @@ or, if you're using old-fashioned `make`
 
 ```
 cd your_project_root
-mkdir build
+mkdir build && cd build
 cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
 ```
 
