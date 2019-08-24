@@ -25,10 +25,7 @@
 #include <smooth/application/network/http/HTTPServerClient.h>
 #include <smooth/application/network/http/HTTPProtocol.h>
 #include <smooth/application/network/http/regular/ITemplateDataRetriever.h>
-
-#ifdef ESP_PLATFORM
 #include <smooth/core/filesystem/SPIFlash.h>
-#endif
 
 namespace access_point
 {
@@ -43,9 +40,7 @@ namespace access_point
             void tick() override;
 
         private:
-#ifdef ESP_PLATFORM
             std::unique_ptr<smooth::core::filesystem::SPIFlash> flash{};
-#endif
 
             static constexpr int MaxHeaderSize = 1024;
             static constexpr int ContentChunkSize = 4096;

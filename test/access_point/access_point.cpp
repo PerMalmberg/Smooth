@@ -58,7 +58,7 @@ namespace access_point
         const int listen_backlog = 6;
 
         Application::init();
-#ifdef ESP_PLATFORM
+
         Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
@@ -73,11 +73,6 @@ namespace access_point
                                                      true);
         flash->mount();
 
-#else
-        const smooth::core::filesystem::Path test_path(__FILE__);
-        const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";
-        Path uploads{test_path.parent() / "uploads"};
-#endif
 
         HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, nullptr, MaxHeaderSize,
                              ContentChunkSize};
@@ -100,6 +95,7 @@ namespace access_point
             (void) url;
             (void) first_part;
             (void) headers;
+            (void) request_parameters;
             (void) content;
             (void) mime;
 
