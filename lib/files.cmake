@@ -124,12 +124,6 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/SystemStatistics.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/Path.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MountPoint.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Input.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Output.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/MMCSDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPISDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPIFlash.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/sntp/Sntp.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h

@@ -1,10 +1,7 @@
 #pragma once
 
-#ifndef ESP_PLATFORM
-    #include "mock/gpio.h"
-#else
-    #include <driver/gpio.h>
-#endif
+
+#include <driver/gpio.h>
 
 namespace smooth::core::io
 {

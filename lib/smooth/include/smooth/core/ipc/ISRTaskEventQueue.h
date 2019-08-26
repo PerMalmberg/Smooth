@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/ISRTaskEventQueue.h"
-#else
-
 #include "IISRTaskEventQueue.h"
 #include "IPolledTaskQueue.h"
 #include <freertos/FreeRTOS.h>
@@ -130,5 +126,3 @@ namespace smooth::core::ipc
         task.unregister_polled_queue_with_task(this);
     }
 }
-
-#endif
