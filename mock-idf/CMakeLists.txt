@@ -17,20 +17,16 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-project(smooth)
-include(files.cmake)
-include(compiler_options.cmake)
+project(mock-idf C CXX)
+set(SOURCES components/esp_wifi/esp_wifi.cpp
+        components/esp_common/esp_err.cpp)
 
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512)
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
-add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
+add_library(${PROJECT_NAME} ${SOURCES})
 
+file(GLOB mock_components LIST_DIRECTORIES true
+        ${CMAKE_CURRENT_LIST_DIR}/components/*)
 
-add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
-target_include_directories(${PROJECT_NAME}
-        PUBLIC
-            ${SMOOTH_LIB_ROOT}/smooth/include
-            $ENV{IDF_PATH}/components/json/cJSON)
+foreach(mock_comp ${mock_components})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${mock_comp}/include)
+endforeach()
 
-target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf)
-set_compile_options(${PROJECT_NAME})
