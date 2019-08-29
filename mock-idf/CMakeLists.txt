@@ -18,8 +18,10 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 project(mock-idf C CXX)
-set(SOURCES components/esp_wifi/esp_wifi.cpp
-        components/esp_common/esp_err.cpp)
+
+file(GLOB_RECURSE mock_sources ${CMAKE_CURRENT_LIST_DIR}/components/*.cpp)
+
+set(SOURCES ${mock_sources})
 
 add_library(${PROJECT_NAME} ${SOURCES})
 

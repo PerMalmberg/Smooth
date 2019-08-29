@@ -65,6 +65,7 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/json/Value.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/json/JsonFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/Task.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/network/Wifi.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/SystemStatistics.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/io/i2c/ADS1115.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/io/i2c/MCP23017.h
@@ -128,6 +129,13 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/network/Wifi.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPIFlash.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SDCard.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPISDCard.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPIFlash.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SDCard.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPISDCard.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
@@ -135,20 +143,12 @@ set(SMOOTH_SOURCES
 if (${ESP_PLATFORM})
     list(APPEND SMOOTH_SOURCES
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/logging/idf/idf_log.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/network/Wifi.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Input.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Output.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/InterruptInput.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CCommandLink.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CMasterDevice.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/Master.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPIFlash.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPISDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPIFlash.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SDCard.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPISDCard.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h

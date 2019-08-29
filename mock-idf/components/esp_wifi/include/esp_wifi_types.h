@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <esp_interface.h>
+
 typedef enum {
     WIFI_MODE_NULL = 0,  /**< null mode */
     WIFI_MODE_STA,       /**< WiFi station mode */
@@ -548,3 +551,5 @@ typedef struct {
     int rssi;                 /**< Received probe request signal strength */
     uint8_t mac[6];           /**< MAC address of the station which send probe request */
 } wifi_event_ap_probe_req_rx_t;
+
+typedef esp_interface_t wifi_interface_t;

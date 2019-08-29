@@ -2,6 +2,7 @@
 
 #include <ip4_addr.h>
 #include <ip6_addr.h>
+#include <esp_err.h>
 
 /** Event structure for IP_EVENT_AP_STAIPASSIGNED event */
 typedef struct {
@@ -36,3 +37,7 @@ typedef struct {
     tcpip_adapter_if_t if_index;        /*!< Interface for which the event is received */
     tcpip_adapter_ip6_info_t ip6_info;  /*!< IPv6 address of the interface */
 } ip_event_got_ip6_t;
+
+void tcpip_adapter_init();
+
+esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char* hostname);
