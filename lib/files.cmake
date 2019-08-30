@@ -66,76 +66,7 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/json/JsonFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/Task.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/SystemStatistics.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/io/i2c/ADS1115.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/io/i2c/MCP23017.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/HTTPServerClient.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/HTTPServer.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/HTTPProtocol.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/URLEncoding.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/http_utils.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/IResponseOperation.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/RegularHTTPProtocol.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/TemplateProcessor.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/ITemplateDataRetriever.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/responses/ErrorResponse.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/responses/FileContentResponse.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/regular/responses/StringResponse.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/websocket/WebsocketProtocol.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/http/websocket/WebsocketServer.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/event/BaseEvent.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/event/ConnectEvent.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/event/DisconnectEvent.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/ConnAck.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/Connect.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/Disconnect.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/IPacketReceiver.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/MQTTProtocol.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PacketDecoder.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PacketIdentifierFactory.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PingReq.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PingResp.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PubAck.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PubComp.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/Publish.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PubRec.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/PubRel.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/SubAck.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/Subscribe.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/UnsubAck.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/Unsubscribe.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/packet/MQTTPacket.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/ConnectedState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/ConnectToBrokerState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/DisconnectedState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/DisconnectState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/IdleState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/MQTTBaseState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/MqttFSM.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/MqttFsmConstants.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/RunState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/state/StartupState.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/IMqttClient.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/InFlight.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/Logging.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/MqttClient.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/MQTTProtocolDefinitions.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/Publication.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/network/mqtt/Subscription.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/SystemStatistics.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/Path.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MountPoint.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Input.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/mock/Output.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/MMCSDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPISDCard.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/mock/SPIFlash.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/sntp/Sntp.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/application/security/PasswordHash.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/application/security/PasswordHash.h
-        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/network/Wifi.h
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
 if (${ESP_PLATFORM})
@@ -151,24 +82,13 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPIFlash.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SDCard.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/SPISDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPIFlash.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SDCard.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/SPISDCard.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/filesystem/MMCSDCard.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Output.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/I2CCommandLink.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/InterruptInput.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/I2CMasterDevice.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/Master.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/MCP23017.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/ADS1115.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/MCP23017.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/BME280.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/wiegand/Wiegand.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
             )
 else()
     list(APPEND SMOOTH_SOURCES
