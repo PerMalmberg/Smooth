@@ -24,10 +24,11 @@ namespace destructing_subscribing_event_queues
 {
     class App : public smooth::core::Application
     {
-    public:
-        App();
+        public:
+            App();
 
-        void init() override;
-        void tick() override;
+            void init() override;
+
+            void tick() override;
     };
 }

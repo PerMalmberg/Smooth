@@ -16,7 +16,8 @@
 
 #pragma once
 
-const char* json_data = R"!!({
+const char* json_data =
+    R"!!({
   "key_with_string": "value",
   "key_with_int": 1,
   "key_with_object": {

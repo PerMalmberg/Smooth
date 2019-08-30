@@ -23,34 +23,32 @@
 namespace timer
 {
     class App
-            : public smooth::core::Application,
-              public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
+        : public smooth::core::Application,
+        public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
     {
-    public:
+        public:
+            App();
 
-        App();
+            void init() override;
 
-        void init() override;
+            uint32_t count = 0;
 
-        uint32_t count = 0;
+            void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 
-        void event(const smooth::core::timer::TimerExpiredEvent& event) override;
+        private:
+            void create_timer(std::chrono::milliseconds interval);
 
-    private:
-        void create_timer(std::chrono::milliseconds interval);
+            struct TimerInfo
+            {
+                smooth::core::timer::TimerOwner timer;
+                std::chrono::milliseconds interval;
+                std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
+                int count = 0;
+                std::chrono::milliseconds total = std::chrono::milliseconds(0);
+            };
 
-
-        struct TimerInfo
-        {
-            smooth::core::timer::TimerOwner timer;
-            std::chrono::milliseconds interval;
-            std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
-            int count = 0;
-            std::chrono::milliseconds total = std::chrono::milliseconds(0);
-        };
-
-        using ExpiredQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
-        std::shared_ptr<ExpiredQueue> queue;
-        std::vector<TimerInfo> timers;
+            using ExpiredQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
+            std::shared_ptr<ExpiredQueue> queue;
+            std::vector<TimerInfo> timers;
     };
 }

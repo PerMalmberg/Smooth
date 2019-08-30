@@ -26,8 +26,8 @@
 namespace hw_interrupt_queue
 {
     class App
-            : public smooth::core::Application,
-              public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>
+        : public smooth::core::Application,
+        public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>
     {
         public:
             App();

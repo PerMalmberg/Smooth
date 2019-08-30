@@ -30,7 +30,7 @@
 namespace access_point
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
             App();

@@ -23,10 +23,9 @@
 namespace hw_sdcard_test
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
-
             App();
 
             void init() override;

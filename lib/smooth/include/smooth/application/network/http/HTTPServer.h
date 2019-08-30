@@ -160,8 +160,8 @@ namespace smooth::application::network::http
             void enable_websocket_on(const std::string& url);
 
         private:
-            using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
             using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
+            using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
                         IServerResponse& response,
