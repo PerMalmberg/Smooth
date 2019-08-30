@@ -20,10 +20,13 @@ set(CMAKE_CXX_STANDARD 17)
 include(${COMPONENT_DIR}/../lib/compiler_options.cmake)
 include(${COMPONENT_DIR}/../lib/files.cmake)
 
+set(normalized_path $ENV{normalized_path})
+file(TO_CMAKE_PATH "${normalized_path}" normalized_path)
+
 idf_component_register(SRCS ${SMOOTH_SOURCES}
                         INCLUDE_DIRS
                             ${SMOOTH_LIB_ROOT}/smooth/include
-                            $ENV{IDF_PATH}/components
+                            $ENV{normalized_path}/components
                         REQUIRES
                             mbedtls
                             json
