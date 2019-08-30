@@ -16,44 +16,51 @@
 
 #include <smooth/core/sntp/Sntp.h>
 
-#include <lwip/apps/sntp.h>
+#include <esp_sntp.h>
 #include <ctime>
 #include <iostream>
 #include <utility>
+#include <smooth/core/ipc/Publisher.h>
 
 namespace smooth::core::sntp
 {
 
-    Sntp::Sntp(std::vector<std::string> servers)
-            : servers(std::move(servers))
-    {
-    }
+	Sntp::Sntp(std::vector<std::string> servers)
+		: servers(std::move(servers))
+	{
+	}
 
-    void Sntp::start()
-    {
-        if (!started)
-        {
-            sntp_setoperatingmode(SNTP_OPMODE_POLL);
+	void Sntp::start()
+	{
+		if (!started)
+		{
+			sntp_setoperatingmode(SNTP_OPMODE_POLL);
 
-            uint8_t i = 0;
-            for (auto& s : servers)
-            {
-                // Only a pointer to the string is stored in the underlying structs.
-                sntp_setservername(i++, const_cast<char*>(s.c_str()));
-            }
+			uint8_t i = 0;
+			for (auto& s : servers)
+			{
+				// Only a pointer to the string is stored in the underlying structs.
+				sntp_setservername(i++, const_cast<char*>(s.c_str()));
+			}
+			sntp_set_time_sync_notification_cb(&Sntp::timeSyncNotificationCallback);
+			sntp_init();
+		}
+	}
 
-            sntp_init();
-        }
-    }
+	bool Sntp::is_time_set() const
+	{
+		time_t now{};
+		tm timeinfo{};
+		time(&now);
+		localtime_r(&now, &timeinfo);
 
-    bool Sntp::is_time_set() const
-    {
-        time_t now{};
-        tm timeinfo{};
-        time(&now);
-        localtime_r(&now, &timeinfo);
+		return timeinfo.tm_year > 70;
+	}
 
-        return timeinfo.tm_year > 70;
-    }
+	void Sntp::timeSyncNotificationCallback(timeval* tv)
+	{
+		auto dateTime = system_clock::from_time_t(tv->tv_sec) + microseconds(tv->tv_usec);
+		TimeSyncEvent ev(dateTime);
+		smooth::core::ipc::Publisher<TimeSyncEvent>::publish(ev);
+	}
 }
-

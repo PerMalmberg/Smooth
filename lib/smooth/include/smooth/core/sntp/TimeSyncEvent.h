@@ -15,32 +15,35 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
-
-#ifndef ESP_PLATFORM
-#include "mock/Sntp.h"
-#else
-
-#include <vector>
-#include <string>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/sntp/TimeSyncEvent.h>
+#include <chrono>
+#include <smooth/core/util/date.h>
 
 namespace smooth::core::sntp
 {
-	class Sntp
-	{
-	public:
-		explicit Sntp(std::vector<std::string> servers);
+	using namespace std::chrono;
+	using namespace date;
 
-		void start();
+    /// Event sent when a SNTP sync notification occurs
+    class TimeSyncEvent
+    {
+        public:
+			TimeSyncEvent(system_clock::time_point& timePoint)
+				: timePoint(timePoint)
+			{
+			}
 
-		bool is_time_set() const;
+			TimeSyncEvent() = default;
+			TimeSyncEvent(const TimeSyncEvent&) = default;
 
-	private:
-		const std::vector<std::string> servers;
-		bool started = false;
-		static void timeSyncNotificationCallback(struct timeval* tv);
-	};
+			TimeSyncEvent& operator=(const TimeSyncEvent&) = default;
+
+            /// Gets the system_clock::time_point of the SNTP sync notification
+            /// \return The SNTP sync notification timeval.
+			system_clock::time_point get_timePoint() const
+            {
+                return timePoint;
+            }
+        private:
+			system_clock::time_point timePoint = system_clock::from_time_t(0);
+    };
 }
-#endif
