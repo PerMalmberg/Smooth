@@ -25,7 +25,7 @@
 using namespace smooth::application::network::http::regular;
 
 class DataRetriever
-        : public ITemplateDataRetriever
+    : public ITemplateDataRetriever
 {
     public:
         DataRetriever()
@@ -43,7 +43,6 @@ class DataRetriever
             }
             catch (...)
             {
-
             }
 
             return res;
@@ -53,17 +52,16 @@ class DataRetriever
         std::unordered_map<std::string, std::string> data{};
 };
 
-
 SCENARIO("Parsing a text")
 {
     GIVEN("A text")
     {
-        std::string text{"Hello {{name}}, want {{food}}?"};
+        std::string text{ "Hello {{name}}, want {{food}}?" };
 
         THEN("Correctly replaces tokens")
         {
             DataRetriever dr;
-            std::set<std::string> ss{"html"};
+            std::set<std::string> ss{ "html" };
 
             TemplateProcessor tp(std::move(ss), dr);
             tp.process_template(text);
@@ -76,12 +74,12 @@ SCENARIO("Parsing a text with unknown tokens")
 {
     GIVEN("A text")
     {
-        std::string text{"---{{abc}}---"};
+        std::string text{ "---{{abc}}---" };
 
         THEN("Replaces with empty string")
         {
             DataRetriever dr;
-            std::set<std::string> ss{"html"};
+            std::set<std::string> ss{ "html" };
 
             TemplateProcessor tp(std::move(ss), dr);
             tp.process_template(text);

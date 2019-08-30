@@ -60,6 +60,4 @@ SCENARIO("Split")
     REQUIRE(res[0] == "key=value");
     REQUIRE(res[1] == "key");
     REQUIRE(res.size() == 2);
-
-
 }

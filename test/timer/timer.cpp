@@ -27,7 +27,6 @@ using namespace std::chrono;
 
 namespace timer
 {
-
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           seconds(10)),
@@ -78,5 +77,4 @@ namespace timer
         t.interval = interval;
         timers.push_back(t);
     }
-
 }

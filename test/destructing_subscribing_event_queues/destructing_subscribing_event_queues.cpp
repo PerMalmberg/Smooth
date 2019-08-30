@@ -32,32 +32,33 @@ namespace destructing_subscribing_event_queues
 
     class Item
     {
-
     };
 
     class Sender
-            : public smooth::core::Task
+        : public smooth::core::Task
     {
         public:
             Sender()
-                    : smooth::core::Task("Sender", 9000, APPLICATION_BASE_PRIO, std::chrono::milliseconds{10})
+                    : smooth::core::Task("Sender", 9000, APPLICATION_BASE_PRIO, std::chrono::milliseconds{ 10 })
             {}
 
             void tick() override
             {
                 Publisher<Item>::publish(Item{});
             }
-    } sender;
+    }
+
+    sender;
 
     class Receiver
-            : public smooth::core::Task,
-              public smooth::core::ipc::IEventListener<Item>
+        : public smooth::core::Task,
+        public smooth::core::ipc::IEventListener<Item>
     {
         public:
             using ReveiverQueue_t = smooth::core::ipc::SubscribingTaskEventQueue<Item>;
 
             Receiver()
-                    : smooth::core::Task("Receiver", 9000, APPLICATION_BASE_PRIO, std::chrono::milliseconds{500}),
+                    : smooth::core::Task("Receiver", 9000, APPLICATION_BASE_PRIO, std::chrono::milliseconds{ 500 }),
                       rd(), gen(rd()), dis(0, 1)
             {}
 
@@ -68,14 +69,14 @@ namespace destructing_subscribing_event_queues
 
                 if (adding)
                 {
-                    for(int i = 0; i < 10; ++i)
+                    for (int i = 0; i < 10; ++i)
                     {
                         queues.emplace_back(ReveiverQueue_t::create("", 50, *this, *this));
                     }
                 }
                 else
                 {
-                    for(int i = 0; i < 10 - val && !queues.empty(); ++i)
+                    for (int i = 0; i < 10 - val && !queues.empty(); ++i)
                     {
                         queues.erase(queues.begin());
                         removed++;
@@ -88,10 +89,13 @@ namespace destructing_subscribing_event_queues
                 static size_t last_count = 0;
                 static size_t event_count = 0;
                 event_count++;
-                if(last_count != queues.size())
+
+                if (last_count != queues.size())
                 {
                     last_count = queues.size();
-                    Log::info("Rec", Format("Queue count: {1}, Removed: {2}, Evt count: {3}", UInt64(last_count), UInt64(removed), UInt64(event_count)));
+                    Log::info("Rec",
+                Format("Queue count: {1}, Removed: {2}, Evt count: {3}", UInt64(last_count), UInt64(removed),
+                UInt64(event_count)));
                 }
             }
 
@@ -101,9 +105,9 @@ namespace destructing_subscribing_event_queues
             std::mt19937 gen;
             std::uniform_int_distribution<> dis;
             std::size_t removed = 0;
+    }
 
-    } receiver;
-
+    receiver;
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))

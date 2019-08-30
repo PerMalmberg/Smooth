@@ -29,7 +29,6 @@ using namespace std::chrono;
 
 namespace task_event_queue
 {
-
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           std::chrono::milliseconds(1000)),
@@ -61,8 +60,8 @@ namespace task_event_queue
 
     SenderTask::SenderTask(std::weak_ptr<TaskEventQueue<timer::ElapsedTime>> out)
             :
-            core::Task("SenderTask", 4096, 10, milliseconds(1)),
-            out(std::move(out))
+              core::Task("SenderTask", 4096, 10, milliseconds(1)),
+              out(std::move(out))
     {
     }
 
@@ -71,6 +70,7 @@ namespace task_event_queue
         timer::ElapsedTime e;
         e.start();
         auto q = out.lock();
+
         if (q)
         {
             q->push(e);

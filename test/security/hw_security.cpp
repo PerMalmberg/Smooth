@@ -35,8 +35,9 @@ namespace hw_security
     void App::init()
     {
         Application::init();
-        const std::string short_string{"Password"};
-        const std::string long_string{"A freaking long string of a password. Its so loooooong I can't remember what I wrote at the beginning of the string"};
+        const std::string short_string{ "Password" };
+        const std::string long_string{
+            "A freaking long string of a password. Its so loooooong I can't remember what I wrote at the beginning of the string" };
 
         time(short_string, 3);
         time(short_string, 4);
@@ -56,7 +57,6 @@ namespace hw_security
 
     void App::tick()
     {
-        
     }
 
     void App::time(const std::string& password, size_t ops)
@@ -67,7 +67,7 @@ namespace hw_security
         auto elapsed = duration_cast<milliseconds>(t.get_running_time()).count();
         auto verified = ph.verify_password_against_hash(password, std::get<1>(res));
         auto not_verified = ph.verify_password_against_hash("Wrong pass", std::get<1>(res));
-        std::cout << ops << "\t" << elapsed << "ms\t" << std::get<0>(res) << " " << std::get<1>(res) << " verified: " << verified << " not verified: " << !not_verified << std::endl;
+        std::cout << ops << "\t" << elapsed << "ms\t" << std::get<0>(res) << " " << std::get<1>(res) << " verified: "
+                  << verified << " not verified: " << !not_verified << std::endl;
     }
-
 }

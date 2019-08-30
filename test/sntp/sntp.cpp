@@ -31,7 +31,7 @@ namespace sntp
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-            sntp(std::vector<std::string>{"0.se.pool.ntp.org", "1.se.pool.ntp.org"})
+              sntp(std::vector<std::string>{ "0.se.pool.ntp.org", "1.se.pool.ntp.org" })
     {
     }
 
@@ -54,7 +54,6 @@ namespace sntp
     {
         std::cout << "Tick!" << std::endl;
         print_time();
-
     }
 
     void App::print_time() const
@@ -64,6 +63,4 @@ namespace sntp
         localtime_r(&t, &time);
         std::cout << asctime(&time) << std::endl;
     }
-
-
 }

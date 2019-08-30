@@ -37,12 +37,12 @@ namespace destructing_event_queues
     static std::uint64_t expire_count = 0;
 
     class TimerUser
-            : public IEventListener<TimerExpiredEvent>
+        : public IEventListener<TimerExpiredEvent>
     {
         public:
             explicit TimerUser(Task& task)
                     : queue(TimerExpiredQueue_t::create("", 10, task, *this)),
-                      timer("", 0, queue, true, milliseconds{300})
+                      timer("", 0, queue, true, milliseconds{ 300 })
             {
                 timer->start();
             }
@@ -59,11 +59,11 @@ namespace destructing_event_queues
     };
 
     class Worker
-            : public smooth::core::Task
+        : public smooth::core::Task
     {
         public:
             Worker()
-                    : smooth::core::Task("Worker", 9000, APPLICATION_BASE_PRIO+5, std::chrono::milliseconds{500}),
+                    : smooth::core::Task("Worker", 9000, APPLICATION_BASE_PRIO + 5, std::chrono::milliseconds{ 500 }),
                       rd(), gen(rd()), dis(0, 1)
             {}
 
@@ -100,9 +100,9 @@ namespace destructing_event_queues
             std::mt19937 gen;
             std::uniform_int_distribution<> dis;
             std::size_t removed = 0;
+    }
 
-    } test_worker;
-
+    test_worker;
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(10))

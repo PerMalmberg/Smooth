@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -39,7 +40,6 @@ using namespace smooth::application::network::http::responses;
 
 namespace access_point
 {
-
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(5000))
     {
@@ -73,44 +73,34 @@ namespace access_point
                                                      true);
         flash->mount();
 
-
-        HTTPServerConfig cfg{web_root, {"index.html"}, {".html"}, nullptr, MaxHeaderSize,
-                             ContentChunkSize};
+        HTTPServerConfig cfg{ web_root, { "index.html" }, { ".html" }, nullptr, MaxHeaderSize,
+                              ContentChunkSize };
 
         insecure_server = std::make_unique<InsecureServer>(*this, cfg);
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
         auto hello_world = [](
-                IServerResponse& response,
-                IConnectionTimeoutModifier& timeout_modifier,
-                const std::string& url,
-                bool first_part,
-                bool last_part,
-                const std::unordered_map<std::string, std::string>& headers,
-                const std::unordered_map<std::string, std::string>& request_parameters,
-                const std::vector<uint8_t>& content,
-                MIMEParser& mime) {
-            (void) timeout_modifier;
-            (void) url;
-            (void) first_part;
-            (void) headers;
-            (void) request_parameters;
-            (void) content;
-            (void) mime;
-
-            if (last_part)
-            {
-                response.reply(std::make_unique<responses::StringResponse>(
-                               ResponseCode::OK,
-                               "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
-                               false);
-            }
-        };
+            IServerResponse& response,
+            IConnectionTimeoutModifier& /*timeout_modifier*/,
+            const std::string& /*url*/,
+            bool /*first_part*/,
+            bool last_part,
+            const std::unordered_map<std::string, std::string>& /*headers*/,
+            const std::unordered_map<std::string, std::string>& /*request_parameters*/,
+            const std::vector<uint8_t>& /*content*/,
+            MIMEParser& /*mime*/) {
+                               if (last_part)
+                               {
+                                   response.reply(std::make_unique<responses::StringResponse>(
+                                   ResponseCode::OK,
+                                   "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
+                                   false);
+                               }
+                           };
 
         // As there's no actual index file in this example, use a response handles instead when calling requesting "/".
         // See http_server_test to see how a web server with actual files is set up.
         insecure_server->on(HTTPMethod::GET, "/", hello_world);
     }
 }
-

@@ -35,7 +35,6 @@ using namespace std::chrono;
 
 namespace publish
 {
-
     PublisherTask::PublisherTask()
             : smooth::core::Task("Publisher", 8192, smooth::core::APPLICATION_BASE_PRIO, milliseconds(1))
     {
@@ -49,7 +48,6 @@ namespace publish
     {
         smooth::core::ipc::Publisher<ItemToPublish>::publish(ItemToPublish(std::chrono::steady_clock::now()));
     }
-
 
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(1)),
@@ -77,5 +75,4 @@ namespace publish
         auto duration = duration_cast<microseconds>(std::chrono::steady_clock::now() - item.get_start());
         Log::info("event", Format("Time in queue: {1} us", Int64(duration.count())));
     }
-
 }
