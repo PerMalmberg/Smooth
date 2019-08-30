@@ -157,7 +157,7 @@ namespace smooth::application::network::mqtt
         return res;
     }
 
-    const std::string & MqttClient::get_client_id() const
+    const std::string& MqttClient::get_client_id() const
     {
         return client_id;
     }

@@ -27,7 +27,7 @@ namespace smooth::application::network::mqtt::state
         elapsed_time.start();
     }
 
-    void DisconnectState::event(const core::network::event::TransmitBufferEmptyEvent &)
+    void DisconnectState::event(const core::network::event::TransmitBufferEmptyEvent&)
     {
         // Disconnect sent, we're done
         fsm.set_state(new(fsm) IdleState(fsm));

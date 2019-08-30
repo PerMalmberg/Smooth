@@ -65,7 +65,7 @@ namespace smooth::core::timer
         return id;
     }
 
-    const std::string & Timer::get_name()
+    const std::string& Timer::get_name()
     {
         return timer_name;
     }

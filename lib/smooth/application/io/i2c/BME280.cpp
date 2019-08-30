@@ -262,5 +262,6 @@ namespace smooth::application::sensor
 
         return (BME280_U32_t)(v_x1_u32r >> 12);
     }
+
 #pragma GCC diagnostic pop
 }

@@ -34,7 +34,7 @@ using namespace std;
 
 namespace smooth::application::network::mqtt::packet
 {
-    int MQTTProtocol::get_wanted_amount(MQTTProtocol::packet_type &)
+    int MQTTProtocol::get_wanted_amount(MQTTProtocol::packet_type&)
     {
         // If we're just reading data to get rid of a too large packet
         // then we read the maximum allowed amount, but it will just be overwritten
@@ -132,7 +132,7 @@ namespace smooth::application::network::mqtt::packet
         return pos;
     }
 
-    bool MQTTProtocol::is_complete(MQTTPacket &) const
+    bool MQTTProtocol::is_complete(MQTTPacket&) const
     {
         return remaining_bytes_to_read == 0;
     }

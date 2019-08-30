@@ -37,7 +37,7 @@ namespace smooth::core::timer
     {
     }
 
-    TimerService & TimerService::get()
+    TimerService& TimerService::get()
     {
         static TimerService service;
 

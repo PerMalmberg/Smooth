@@ -39,7 +39,7 @@ namespace smooth::application::network::http
     }
 
     void HTTPServerClient::event(
-        const smooth::core::network::event::TransmitBufferEmptyEvent &)
+        const smooth::core::network::event::TransmitBufferEmptyEvent&)
     {
         if (current_operation)
         {

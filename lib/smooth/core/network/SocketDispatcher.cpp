@@ -32,7 +32,7 @@ using namespace std::chrono;
 
 namespace smooth::core::network
 {
-    SocketDispatcher & SocketDispatcher::instance()
+    SocketDispatcher& SocketDispatcher::instance()
     {
         static SocketDispatcher instance;
 
@@ -55,8 +55,11 @@ namespace smooth::core::network
               socket_guard(),
               network_events(NetworkEventQueue::create(tag, 10, *this, *this)),
               socket_op(SocketOperationQueue::create("SocketOperations",
-                      // TODO: When compiled for IDF, get proper value based on number of allowed sockets in sdkconfig
-                      //  Note: If there are more than 20 sockets, this queue is too small.
+
+                                                     // TODO: When compiled for IDF, get proper value based on number of
+                                                     // allowed sockets in sdkconfig
+                                                     //  Note: If there are more than 20 sockets, this queue is too
+                                                     // small.
                                                      20,
                                                      *this,
                                                      *this))

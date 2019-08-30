@@ -211,7 +211,7 @@ namespace smooth::application::network::mqtt
         }
     }
 
-    void Publication::receive(packet::PubAck& pub_ack, IMqttClient &)
+    void Publication::receive(packet::PubAck& pub_ack, IMqttClient&)
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = in_progress.begin();
@@ -258,7 +258,7 @@ namespace smooth::application::network::mqtt
         }
     }
 
-    void Publication::receive(packet::PubComp& pub_rec, IMqttClient &)
+    void Publication::receive(packet::PubComp& pub_rec, IMqttClient&)
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = in_progress.begin();
