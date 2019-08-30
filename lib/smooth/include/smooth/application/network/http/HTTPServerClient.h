@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -34,15 +35,15 @@ namespace smooth::application::network::http
 {
     using namespace smooth::application::network::http::regular;
 
-    static const std::chrono::milliseconds DefaultKeepAlive{5000};
+    static const std::chrono::milliseconds DefaultKeepAlive{ 5000 };
 
     // TLS handshake takes a long time
-    static const std::chrono::seconds SendTimeout{5};
+    static const std::chrono::seconds SendTimeout{ 5 };
 
     class HTTPServerClient
-            : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol, IRequestHandler>,
-              public IServerResponse,
-              public IConnectionTimeoutModifier
+        : public smooth::core::network::ServerClient<HTTPServerClient, HTTPProtocol, IRequestHandler>,
+        public IServerResponse,
+        public IConnectionTimeoutModifier
     {
         public:
             HTTPServerClient(smooth::core::Task& task,
@@ -50,10 +51,11 @@ namespace smooth::application::network::http
                              std::size_t max_header_size,
                              std::size_t content_chunk_size)
                     : core::network::ServerClient<HTTPServerClient,
-                    smooth::application::network::http::HTTPProtocol, IRequestHandler>(
-                    task,
-                    pool,
-                    std::make_unique<smooth::application::network::http::HTTPProtocol>(max_header_size,
+                                                  smooth::application::network::http::HTTPProtocol, IRequestHandler>(
+                          task,
+                          pool,
+                          std::make_unique<smooth::application::network::http::HTTPProtocol>(
+                                                                                       max_header_size,
                                                                                        content_chunk_size,
                                                                                        *this)),
                       content_chunk_size(content_chunk_size),
@@ -107,11 +109,11 @@ namespace smooth::application::network::http
         private:
             enum class Mode
             {
-                    HTTP,
-                    Websocket
+                HTTP,
+                Websocket
             };
 
-            Mode mode{Mode::HTTP};
+            Mode mode{ Mode::HTTP };
 
             bool parse_url(std::string& raw_url);
 
@@ -130,7 +132,6 @@ namespace smooth::application::network::http
             std::deque<std::unique_ptr<IResponseOperation>> operations{};
             std::unique_ptr<IResponseOperation> current_operation{};
             MIMEParser mime{};
-
 
             void set_keep_alive();
     };

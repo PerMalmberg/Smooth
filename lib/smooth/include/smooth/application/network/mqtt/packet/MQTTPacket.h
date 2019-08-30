@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -28,10 +29,9 @@ namespace smooth::application::network::mqtt::packet
     class IPacketReceiver;
 
     class MQTTPacket
-            : public smooth::core::network::IPacketDisassembly
+        : public smooth::core::network::IPacketDisassembly
     {
-            friend class MQTTProtocol;
-
+        friend class MQTTProtocol;
         public:
             ~MQTTPacket() override = default;
 
@@ -62,16 +62,14 @@ namespace smooth::application::network::mqtt::packet
 
             void set_dup_flag();
 
-            const char* get_mqtt_type_as_string() const;
+            const char * get_mqtt_type_as_string() const;
 
             int get_send_length() override
             { return static_cast<int>(data.size()); }
 
-            const uint8_t* get_data() override
+            const uint8_t * get_data() override
             { return data.data(); }
-
         protected:
-
             std::string get_string(std::vector<uint8_t>::const_iterator offset) const;
 
             void append_data(const uint8_t* data, int length, std::vector<uint8_t>& target);
@@ -95,7 +93,6 @@ namespace smooth::application::network::mqtt::packet
             {
                 return 0;
             }
-
 
             void set_header(PacketType type, QoS qos, bool dup, bool retain);
 

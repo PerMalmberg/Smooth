@@ -22,13 +22,13 @@
 namespace smooth::core::util
 {
     template<typename T, typename... Args>
-    auto create_protected_shared(Args&& ...args)
+    auto create_protected_shared(Args&& ... args)
     {
         class CreationWrapper
-                : public T
+            : public T
         {
             public:
-                explicit CreationWrapper(Args&& ...args)
+                explicit CreationWrapper(Args&& ... args)
                         : T(std::forward<Args>(args)...)
                 {}
         };
@@ -37,13 +37,13 @@ namespace smooth::core::util
     }
 
     template<typename T, typename... Args>
-    auto create_protected_unique(Args&& ...args)
+    auto create_protected_unique(Args&& ... args)
     {
         class CreationWrapper
-                : public T
+            : public T
         {
             public:
-                explicit CreationWrapper(Args&& ...args)
+                explicit CreationWrapper(Args&& ... args)
                         : T(std::forward<Args>(args)...)
                 {}
         };

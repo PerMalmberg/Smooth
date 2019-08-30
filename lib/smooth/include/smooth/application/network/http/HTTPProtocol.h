@@ -29,16 +29,16 @@
 #include "regular/RegularHTTPProtocol.h"
 #include "websocket/WebsocketProtocol.h"
 
-using namespace smooth::core;
 using namespace smooth::core::logging;
+using namespace smooth::core;
 
 namespace smooth::application::network::http
 {
     using namespace smooth::application::network::http::regular;
 
     class HTTPProtocol
-            : public smooth::core::network::IPacketAssembly<HTTPProtocol, HTTPPacket>,
-              public IUpgradeToWebsocket
+        : public smooth::core::network::IPacketAssembly<HTTPProtocol, HTTPPacket>,
+        public IUpgradeToWebsocket
     {
         public:
             using packet_type = HTTPPacket;
@@ -58,7 +58,7 @@ namespace smooth::application::network::http
 
             void data_received(HTTPPacket& packet, int length) override;
 
-            uint8_t* get_write_pos(HTTPPacket& packet) override;
+            uint8_t * get_write_pos(HTTPPacket& packet) override;
 
             bool is_complete(HTTPPacket& packet) const override;
 
@@ -71,7 +71,6 @@ namespace smooth::application::network::http
             void upgrade_to_websocket() override;
 
         private:
-
             const int max_header_size;
             const int content_chunk_size;
             IServerResponse& response;
@@ -79,5 +78,3 @@ namespace smooth::application::network::http
             std::unique_ptr<websocket::WebsocketProtocol> websocket{};
     };
 }
-
-

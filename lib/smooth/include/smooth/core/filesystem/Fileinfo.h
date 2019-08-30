@@ -30,7 +30,7 @@ namespace smooth::core::filesystem
             explicit FileInfo(const smooth::core::filesystem::Path& path)
                     : file_path(path)
             {
-                struct stat s{};
+                struct stat s {};
                 file_exists = stat(path, &s) == 0;
                 regular_file = S_ISREG(s.st_mode);
                 directory = S_ISDIR(s.st_mode);
@@ -74,10 +74,10 @@ namespace smooth::core::filesystem
             }
 
         private:
-            bool file_exists{false};
-            bool regular_file{false};
-            bool directory{false};
-            std::size_t file_size{0};
+            bool file_exists{ false };
+            bool regular_file{ false };
+            bool directory{ false };
+            std::size_t file_size{ 0 };
             time_t modified{};
             const smooth::core::filesystem::Path file_path;
     };

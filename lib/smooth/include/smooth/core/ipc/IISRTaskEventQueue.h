@@ -32,9 +32,8 @@ namespace smooth::core::ipc
     template<typename DataType>
     class IISRTaskEventQueue
     {
-            static_assert(std::is_default_constructible<DataType>::value, "DataType must be default-constructible");
-            static_assert(std::is_trivial<DataType>::value, "DataType must be a trivial type");
-
+        static_assert(std::is_default_constructible<DataType>::value, "DataType must be default-constructible");
+        static_assert(std::is_trivial<DataType>::value, "DataType must be a trivial type");
         public:
             virtual ~IISRTaskEventQueue() = default;
 

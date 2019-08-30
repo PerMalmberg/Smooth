@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PingResp
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PingResp() = default;

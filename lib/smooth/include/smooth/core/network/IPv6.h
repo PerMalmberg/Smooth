@@ -24,7 +24,7 @@ namespace smooth::core::network
     /// Represents an IPv6 address and port number.
     /// Note: Untested.
     class IPv6
-            : public InetAddress
+        : public InetAddress
     {
         public:
             /// Constructor
@@ -42,7 +42,7 @@ namespace smooth::core::network
             int get_address_family() const override
             {
                 return sock_address.sin6_family;
-            };
+            }
 
             bool resolve_ip() override;
 

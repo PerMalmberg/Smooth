@@ -58,6 +58,7 @@ namespace smooth::core::json
             Value& operator=(const std::string& s)
             {
                 operator=(s.c_str());
+
                 return *this;
             }
 

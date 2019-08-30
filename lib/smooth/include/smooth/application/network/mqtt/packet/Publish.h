@@ -23,7 +23,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class Publish
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             Publish() = default;
@@ -40,12 +40,14 @@ namespace smooth::application::network::mqtt::packet
             uint16_t get_packet_identifier() const override
             {
                 uint16_t id = 0;
+
                 if (has_packet_identifier())
                 {
                     calculate_remaining_length_and_variable_header_offset();
                     auto pos = get_variable_header_start() + get_variable_header_length() - 2;
                     id = read_packet_identifier(pos);
                 }
+
                 return id;
             }
 
@@ -62,7 +64,6 @@ namespace smooth::application::network::mqtt::packet
             }
 
         protected:
-
             bool has_packet_identifier() const override
             {
                 return get_qos() > QoS::AT_MOST_ONCE;

@@ -33,7 +33,7 @@ namespace smooth::core::network
     /// \tparam Size  The Number of items to hold in the buffer.
     template<typename Protocol, int Size, typename Packet = typename Protocol::packet_type>
     class PacketReceiveBuffer
-            : public IPacketReceiveBuffer<Protocol>
+        : public IPacketReceiveBuffer<Protocol>
     {
         public:
             explicit PacketReceiveBuffer(std::unique_ptr<Protocol> proto)
@@ -44,12 +44,14 @@ namespace smooth::core::network
             bool is_full() override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return buffer.is_full();
             }
 
             int amount_wanted() override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return proto->get_wanted_amount(current_item);
             }
 
@@ -57,6 +59,7 @@ namespace smooth::core::network
             {
                 LockedWritePos lock(guard);
                 lock.set_pos(proto->get_write_pos(current_item));
+
                 return lock;
             }
 
@@ -64,6 +67,7 @@ namespace smooth::core::network
             {
                 std::unique_lock<std::mutex> lock(guard);
                 proto->data_received(current_item, length);
+
                 if (proto->is_complete(current_item))
                 {
                     buffer.put(current_item);
@@ -74,12 +78,14 @@ namespace smooth::core::network
             bool is_packet_complete() override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return proto->is_complete(current_item);
             }
 
             bool get(Packet& target) override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return buffer.get(target);
             }
 
@@ -87,9 +93,11 @@ namespace smooth::core::network
             {
                 std::unique_lock<std::mutex> lock(guard);
                 buffer.clear();
+
                 // Clear out any packets in progress too.
                 in_progress = false;
                 ReplacePacketWithDefault();
+
                 // Reset protocol so that it isn't left in a state
                 // where it thinks it is in the middle of a receive.
                 proto->reset();
@@ -98,6 +106,7 @@ namespace smooth::core::network
             bool is_in_progress() override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return in_progress;
             }
 
@@ -112,6 +121,7 @@ namespace smooth::core::network
             bool is_error() override
             {
                 std::unique_lock<std::mutex> lock(guard);
+
                 return proto->is_error();
             }
 

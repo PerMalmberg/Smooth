@@ -51,7 +51,6 @@ namespace smooth::core::util
 
             /// Clears the buffer
             virtual void clear() = 0;
-
     };
 
     /// A circular buffer. Not thread-safe.
@@ -59,7 +58,7 @@ namespace smooth::core::util
     /// \tparam Size Number of items to hold.
     template<typename T, int Size>
     class CircularBuffer
-            : public ICircularBuffer<T>
+        : public ICircularBuffer<T>
     {
         public:
             CircularBuffer();
@@ -113,13 +112,12 @@ namespace smooth::core::util
             int count;
     };
 
-
     template<typename T, int Size>
     CircularBuffer<T, Size>::CircularBuffer()
-            :    buffer(),
-                 read_pos(0),
-                 write_pos(0),
-                 count(0)
+            : buffer(),
+              read_pos(0),
+              write_pos(0),
+              count(0)
     {
     }
 
@@ -158,5 +156,4 @@ namespace smooth::core::util
 
         return res;
     }
-
 }

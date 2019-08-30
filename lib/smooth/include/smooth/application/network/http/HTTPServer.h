@@ -115,7 +115,7 @@ namespace smooth::application::network::http
 
     template<typename ServerType>
     class HTTPServer
-            : private IRequestHandler
+        : private IRequestHandler
     {
         public:
             HTTPServer(smooth::core::Task& task, const HTTPServerConfig& configuration);
@@ -160,8 +160,8 @@ namespace smooth::application::network::http
             void enable_websocket_on(const std::string& url);
 
         private:
-            using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
+            using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
 
             void handle(HTTPMethod method,
                         IServerResponse& response,
@@ -195,8 +195,8 @@ namespace smooth::application::network::http
 
             smooth::core::Task& task;
             std::shared_ptr<smooth::core::network::ServerSocket<
-                    smooth::application::network::http::HTTPServerClient,
-                    smooth::application::network::http::HTTPProtocol, IRequestHandler>> server{};
+                                smooth::application::network::http::HTTPServerClient,
+                                smooth::application::network::http::HTTPProtocol, IRequestHandler>> server{};
 
             HandlerByMethod handlers{};
             HTTPServerConfig config;
@@ -204,38 +204,35 @@ namespace smooth::application::network::http
             TemplateProcessor template_processor;
     };
 
-
     template<typename ServerSocketType>
     HTTPServer<ServerSocketType>::HTTPServer(smooth::core::Task& task, const HTTPServerConfig& configuration)
             :
-            task(task),
-            config(configuration),
-            template_processor(configuration.templates(), config.data_retriever())
+              task(task),
+              config(configuration),
+              template_processor(configuration.templates(), config.data_retriever())
     {
     }
 
     template<typename ServerType>
-    void
-    HTTPServer<ServerType>::on(HTTPMethod method,
-                               const std::string& url,
-                               const RequestHandlerSignature& handler)
+    void HTTPServer<ServerType>::on(HTTPMethod method,
+                                    const std::string& url,
+                                    const RequestHandlerSignature& handler)
     {
         handlers[method][url] = handler;
     }
 
     template<typename ServerType>
-    void
-    HTTPServer<ServerType>::handle(
-            HTTPMethod method,
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& requested_url,
-            const std::unordered_map<std::string, std::string>& request_headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& data,
-            MIMEParser& mime,
-            bool fist_part,
-            bool last_part)
+    void HTTPServer<ServerType>::handle(
+        HTTPMethod method,
+        IServerResponse& response,
+        IConnectionTimeoutModifier& timeout_modifier,
+        const std::string& requested_url,
+        const std::unordered_map<std::string, std::string>& request_headers,
+        const std::unordered_map<std::string, std::string>& request_parameters,
+        const std::vector<uint8_t>& data,
+        MIMEParser& mime,
+        bool fist_part,
+        bool last_part)
     {
         using namespace smooth::core::logging;
 
@@ -273,15 +270,17 @@ namespace smooth::application::network::http
     }
 
     template<typename ServerType>
-    void HTTPServer<ServerType>::serve_file(const HTTPMethod& method, IServerResponse& response, const std::string& requested_url,
-                                const std::unordered_map<std::string, std::string>& request_headers)
+    void HTTPServer<ServerType>::serve_file(const HTTPMethod& method,
+                                            IServerResponse& response,
+                                            const std::string& requested_url,
+                                            const std::unordered_map<std::string, std::string>& request_headers)
     {
         auto found = false;
 
         Log::info(tag,
                   Format("Request: {1}: '{2}'", Str(utils::http_method_to_string(method)), Str(requested_url)));
 
-        filesystem::Path search{config.web_root()};
+        filesystem::Path search{ config.web_root() };
         search /= requested_url;
 
         if (config.web_root().is_parent_of(search) || config.web_root() == search)
@@ -329,6 +328,7 @@ namespace smooth::application::network::http
             else if (info.is_directory())
             {
                 auto index_path = find_index(search);
+
                 if (!index_path.empty())
                 {
                     auto processed_template = template_processor.process_template(index_path);
@@ -354,9 +354,8 @@ namespace smooth::application::network::http
     }
 
     template<typename ServerType>
-    smooth::core::filesystem::Path
-    HTTPServer<ServerType>::find_index(
-            const smooth::core::filesystem::Path& search_path) const
+    smooth::core::filesystem::Path HTTPServer<ServerType>::find_index(
+        const smooth::core::filesystem::Path& search_path) const
     {
         smooth::core::filesystem::Path found_index{};
 
@@ -367,6 +366,7 @@ namespace smooth::application::network::http
             if (config.web_root().is_parent_of(index_path))
             {
                 core::filesystem::FileInfo index_info(search_path / *index);
+
                 if (index_info.is_regular_file())
                 {
                     found_index = search_path / *index;
@@ -396,7 +396,7 @@ namespace smooth::application::network::http
                      const std::unordered_map<std::string, std::string>& headers,
                      const std::unordered_map<std::string, std::string>& request_parameters,
                      const std::vector<uint8_t>& content, MIMEParser& mime) {
-            websocket_upgrade_detector<WSServerType>(response,
+                     websocket_upgrade_detector<WSServerType>(response,
                                                      timeout_modifier,
                                                      url,
                                                      first_part,
@@ -405,7 +405,7 @@ namespace smooth::application::network::http
                                                      request_parameters,
                                                      content,
                                                      mime);
-        };
+                 };
 
         on(HTTPMethod::GET, url, f);
     }
@@ -418,15 +418,17 @@ namespace smooth::application::network::http
                                                             bool first_part,
                                                             bool last_part,
                                                             const std::unordered_map<std::string, std::string>& headers,
-                                                            const std::unordered_map<std::string, std::string>& request_parameters,
-                                                            const std::vector<uint8_t>& content, MIMEParser& mime)
+                                                            const std::unordered_map<std::string,
+                                                                                     std::string>& request_parameters,
+                                                            const std::vector<uint8_t>& content,
+                                                            MIMEParser& mime)
     {
-        (void) response;
-        (void) url;
-        (void) first_part;
-        (void) request_parameters;
-        (void) content;
-        (void) mime;
+        (void)response;
+        (void)url;
+        (void)first_part;
+        (void)request_parameters;
+        (void)content;
+        (void)mime;
 
         if (last_part)
         {
@@ -460,7 +462,7 @@ namespace smooth::application::network::http
                     did_upgrade = true;
 
                     // Remove socket receive timeouts
-                    timeout_modifier.set_receive_timeout(std::chrono::milliseconds{0});
+                    timeout_modifier.set_receive_timeout(std::chrono::milliseconds{ 0 });
 
                     // Finally change protocols.
                     response.upgrade_to_websocket<WSServerType>();
@@ -483,10 +485,9 @@ namespace smooth::application::network::http
     using Protocol = smooth::application::network::http::HTTPProtocol;
 
     using InsecureServer = smooth::application::network::http::HTTPServer<smooth::core::network::ServerSocket<Client,
-            Protocol, smooth::application::network::http::IRequestHandler>>;
+                                                                                                              Protocol,
+                                                                                                              smooth::application::network::http::IRequestHandler>>;
     using SecureServer = smooth::application::network::http::HTTPServer<smooth::core::network::SecureServerSocket<Client,
-            Protocol, smooth::application::network::http::IRequestHandler>>;
+                                                                                                                  Protocol,
+                                                                                                                  smooth::application::network::http::IRequestHandler>>;
 }
-
-
-

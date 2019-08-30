@@ -20,8 +20,8 @@ namespace smooth::core::network
 {
     enum class NetworkEvent
     {
-            GOT_IP,
-            DISCONNECTED
+        GOT_IP,
+        DISCONNECTED
     };
 
     class NetworkStatus
@@ -43,9 +43,8 @@ namespace smooth::core::network
 
             bool get_ip_changed() const
             { return ip_changed; }
-
         private:
-            NetworkEvent event{NetworkEvent::DISCONNECTED};
-            bool ip_changed{false};
+            NetworkEvent event{ NetworkEvent::DISCONNECTED };
+            bool ip_changed{ false };
     };
 }

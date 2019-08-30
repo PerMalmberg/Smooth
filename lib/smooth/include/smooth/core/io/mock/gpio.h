@@ -1,16 +1,20 @@
 #pragma once
 
-typedef enum {
+typedef enum
+{
     GPIO_NUM_NC = -1,    /*!< Use to signal not connected to S/W */
     GPIO_NUM_0 = 0,     /*!< GPIO0, input and output */
     GPIO_NUM_1 = 1,     /*!< GPIO1, input and output */
-    GPIO_NUM_2 = 2,     /*!< GPIO2, input and output
-                             @note There are more enumerations like that
-                             up to GPIO39, excluding GPIO20, GPIO24 and GPIO28..31.
-                             They are not shown here to reduce redundant information.
-                             @note GPIO34..39 are input mode only. */
+    GPIO_NUM_2 = 2,
+
+    /*!< GPIO2, input and output
+         @note There are more enumerations like that
+         up to GPIO39, excluding GPIO20, GPIO24 and GPIO28..31.
+         They are not shown here to reduce redundant information.
+         @note GPIO34..39 are input mode only. */
+
 /** @cond */
-            GPIO_NUM_3 = 3,     /*!< GPIO3, input and output */
+    GPIO_NUM_3 = 3,             /*!< GPIO3, input and output */
     GPIO_NUM_4 = 4,     /*!< GPIO4, input and output */
     GPIO_NUM_5 = 5,     /*!< GPIO5, input and output */
     GPIO_NUM_6 = 6,     /*!< GPIO6, input and output */
@@ -45,10 +49,12 @@ typedef enum {
     GPIO_NUM_38 = 38,   /*!< GPIO38, input mode only */
     GPIO_NUM_39 = 39,   /*!< GPIO39, input mode only */
     GPIO_NUM_MAX = 40,
+
 /** @endcond */
 } gpio_num_t;
 
-typedef enum {
+typedef enum
+{
     GPIO_INTR_DISABLE = 0,     /*!< Disable GPIO interrupt                             */
     GPIO_INTR_POSEDGE = 1,     /*!< GPIO interrupt type : rising edge                  */
     GPIO_INTR_NEGEDGE = 2,     /*!< GPIO interrupt type : falling edge                 */

@@ -29,10 +29,9 @@
 namespace smooth::core::io
 {
     class InterruptInput
-            : private Input
+        : private Input
     {
         public:
-
             /// Constructs an InterruptInput
             /// \param queue The queue to put events on
             /// \param io GPIO pin number
@@ -43,7 +42,7 @@ namespace smooth::core::io
                            bool pull_up,
                            bool pull_down,
                            gpio_int_type_t interrupt_trigger
-            );
+                           );
 
             void update();
 

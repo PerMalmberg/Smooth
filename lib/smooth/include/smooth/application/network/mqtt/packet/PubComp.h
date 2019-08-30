@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PubComp
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PubComp() = default;

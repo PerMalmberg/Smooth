@@ -23,9 +23,9 @@ namespace smooth::core::network
         public:
             enum class Op
             {
-                    Start,
-                    Stop,
-                    AddActiveSocket
+                Start,
+                Stop,
+                AddActiveSocket
             };
 
             SocketOperation() = default;
@@ -33,7 +33,6 @@ namespace smooth::core::network
             SocketOperation(Op op, std::shared_ptr<core::network::ISocket> sock)
                     : op(op), sock(std::move(sock))
             {
-
             }
 
             Op get_op() const
@@ -49,7 +48,5 @@ namespace smooth::core::network
         private:
             Op op = Op::Stop;
             std::shared_ptr<core::network::ISocket> sock{};
-
     };
-
 }

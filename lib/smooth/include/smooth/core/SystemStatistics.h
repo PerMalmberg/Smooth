@@ -23,10 +23,15 @@ namespace smooth::core
     {
         public:
             TaskStats() = default;
+
             explicit TaskStats(uint32_t stack_size);
+
             TaskStats(const TaskStats&) = default;
+
             TaskStats(TaskStats&&) = default;
+
             TaskStats& operator=(const TaskStats&) = default;
+
             TaskStats& operator=(TaskStats&&) = default;
 
             [[nodiscard]] uint32_t get_stack_size() const noexcept
@@ -44,7 +49,6 @@ namespace smooth::core
             uint32_t high_water_mark{};
     };
 
-
     class SystemStatistics
     {
         public:
@@ -53,12 +57,13 @@ namespace smooth::core
             static SystemStatistics& instance()
             {
                 static SystemStatistics instance{};
+
                 return instance;
             }
 
             void report(const std::string& task_name, TaskStats&& stats) noexcept
             {
-                synch guard{lock};
+                synch guard{ lock };
                 task_info[task_name] = stats;
             }
 
@@ -66,7 +71,9 @@ namespace smooth::core
 
         private:
 #ifdef ESP_PLATFORM
+
             void dump_mem_stats(uint32_t caps) const noexcept;
+
 #endif
 
             mutable std::mutex lock{};

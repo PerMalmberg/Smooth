@@ -28,7 +28,7 @@ namespace smooth::core::network
 
             /// Must return a pointer to the data to be sent.
             /// \return The read position
-            virtual const uint8_t* get_data() = 0;
+            virtual const uint8_t * get_data() = 0;
 
             virtual ~IPacketDisassembly() = default;
     };

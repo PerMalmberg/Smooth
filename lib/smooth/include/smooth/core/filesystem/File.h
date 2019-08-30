@@ -41,18 +41,22 @@ namespace smooth::core::filesystem
 
                 try
                 {
-                    std::fstream fs{name, std::ios::binary | std::ios::in};
+                    std::fstream fs{ name, std::ios::binary | std::ios::in };
+
                     if (fs.is_open())
                     {
                         auto size = fs.seekg(0, std::ios::end).tellg();
                         fs.seekg(0, std::ios::beg);
+
                         // Reserve to ensure exact memory usage (i.e. no extra memory used)
                         data.reserve(static_cast<unsigned int>(size));
+
                         // Ensure that the vector thinks it has the number of elements we will write to it.
                         data.resize(static_cast<unsigned long>(size));
+
                         // std::vector has contiguous memory so we can write directly into it.
-                        res = fs.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(size)).gcount() ==
-                              size;
+                        res = fs.read(reinterpret_cast<char*>(data.data()),
+                            static_cast<std::streamsize>(size)).gcount() == size;
                     }
                 }
                 catch (std::exception& ex)

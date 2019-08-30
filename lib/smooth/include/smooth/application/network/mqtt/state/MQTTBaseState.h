@@ -28,11 +28,11 @@
 namespace smooth::application::network::mqtt::state
 {
     class MQTTBaseState
-            :
-                    public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
-                    public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
-                    public core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
-                    public mqtt::packet::IPacketReceiver
+        :
+        public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+        public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
+        public core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
+        public mqtt::packet::IPacketReceiver
     {
         public:
             MQTTBaseState(MqttFSM<MQTTBaseState>& fsm, const char* name);
@@ -47,7 +47,7 @@ namespace smooth::application::network::mqtt::state
             {
             }
 
-            const char* get_name() const
+            const char * get_name() const
             {
                 return state_name;
             }

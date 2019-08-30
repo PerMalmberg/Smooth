@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class IdleState
-            : public DisconnectedState
+        : public DisconnectedState
     {
         public:
             explicit IdleState(MqttFSM<MQTTBaseState>& fsm)

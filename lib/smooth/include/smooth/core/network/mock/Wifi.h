@@ -66,7 +66,6 @@ namespace smooth::core::network
             std::string get_mac_address() { return "11:22:33:44:55:66"; }
 
             void start_softap(uint8_t /*max_conn = 1*/) {}
-
         private:
             std::string host_name = "Smooth-Wifi";
             std::string ssid;

@@ -25,14 +25,21 @@ namespace smooth::core::filesystem
     {
         public:
             static void init(int max_open_files);
+
             static int open_files();
+
             static int max_concurrently_opened();
 
             FSLock();
+
             virtual ~FSLock() final;
+
             FSLock(const FSLock&) = delete;
+
             FSLock(FSLock&&) = delete;
+
             FSLock& operator=(const FSLock&) = delete;
+
             FSLock& operator=(const FSLock&&) = delete;
 
         private:

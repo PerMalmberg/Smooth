@@ -36,24 +36,24 @@ namespace smooth::application::network::http::websocket
 {
     enum class OpCode
     {
-            Continuation,
-            Text,
-            Binary,
-            Reserved3,
-            Reserved4,
-            Reserved5,
-            Reserved6,
-            Reserved7,
-            // Control frames below (MSB is set)
-                    Close,
-            Ping,
-            Pong,
-            ReservedA,
-            ReservedB,
-            ReservedC,
-            ReservedD,
-            ReservedE,
-            ReservedF,
-    };
+        Continuation,
+        Text,
+        Binary,
+        Reserved3,
+        Reserved4,
+        Reserved5,
+        Reserved6,
+        Reserved7,
 
+        // Control frames below (MSB is set)
+        Close,
+        Ping,
+        Pong,
+        ReservedA,
+        ReservedB,
+        ReservedC,
+        ReservedD,
+        ReservedE,
+        ReservedF,
+    };
 }

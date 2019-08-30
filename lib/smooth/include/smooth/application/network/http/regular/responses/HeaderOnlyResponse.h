@@ -21,13 +21,17 @@
 namespace smooth::application::network::http::regular::responses
 {
     class HeaderOnlyResponse
-            : public IResponseOperation
+        : public IResponseOperation
     {
         public:
             explicit HeaderOnlyResponse(ResponseCode code);
+
             HeaderOnlyResponse& operator=(HeaderOnlyResponse&&) = default;
+
             HeaderOnlyResponse(HeaderOnlyResponse&&) = default;
+
             HeaderOnlyResponse& operator=(const HeaderOnlyResponse&) = delete;
+
             HeaderOnlyResponse(const HeaderOnlyResponse&) = delete;
 
             ~HeaderOnlyResponse() override = default;
@@ -38,6 +42,7 @@ namespace smooth::application::network::http::regular::responses
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
             void set_header(const std::string& key, const std::string& value) override;
+
             void add_header(const std::string& key, const std::string& value) override;
 
             void dump() const override;

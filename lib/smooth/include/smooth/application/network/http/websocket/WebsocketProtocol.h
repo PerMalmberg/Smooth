@@ -44,9 +44,10 @@ namespace smooth::application::network::http
 namespace smooth::application::network::http::websocket
 {
     class WebsocketProtocol
-            : public smooth::core::network::IPacketAssembly<WebsocketProtocol, smooth::application::network::http::HTTPPacket>
+        : public smooth::core::network::IPacketAssembly<WebsocketProtocol,
+                                                        smooth::application::network::http::HTTPPacket>
     {
-            using packet_type = smooth::application::network::http::HTTPPacket;
+        using packet_type = smooth::application::network::http::HTTPPacket;
         public:
             WebsocketProtocol(int content_chunk_size, IServerResponse& response)
                     : content_chunk_size(content_chunk_size),
@@ -58,7 +59,7 @@ namespace smooth::application::network::http::websocket
 
             void data_received(HTTPPacket& packet, int length) override;
 
-            uint8_t* get_write_pos(HTTPPacket& packet) override;
+            uint8_t * get_write_pos(HTTPPacket& packet) override;
 
             bool is_complete(HTTPPacket& packet) const override;
 
@@ -97,35 +98,35 @@ namespace smooth::application::network::http::websocket
                 {
                     uint16_t len_16;
                     uint64_t len_64;
-                } ext_len{0};
+                }
+                ext_len{ 0 };
                 uint8_t mask_key[4];
             };
 
             FrameData frame_data{};
 #pragma pack(pop)
-
         private:
             enum class State
             {
-                    Header,
-                    ExtendedPayloadLength_2,
-                    ExtendedPayloadLength_8,
-                    MaskingKey,
-                    Payload
+                Header,
+                ExtendedPayloadLength_2,
+                ExtendedPayloadLength_8,
+                MaskingKey,
+                Payload
             };
 
-            State state{State::Header};
+            State state{ State::Header };
 
             int content_chunk_size;
-            OpCode op_code{OpCode::Continuation};
+            OpCode op_code{ OpCode::Continuation };
             IServerResponse& response;
 
-            bool error{false};
-            int data_received_in_current_state{0};
-            uint64_t payload_length{0};
-            uint64_t received_payload{0};
-            uint64_t demask_ix{0};
-            uint64_t received_payload_in_current_package{0};
+            bool error{ false };
+            int data_received_in_current_state{ 0 };
+            uint64_t payload_length{ 0 };
+            uint64_t received_payload{ 0 };
+            uint64_t demask_ix{ 0 };
+            uint64_t received_payload_in_current_package{ 0 };
             int amount_wanted_in_current_state = 0;
 
             void set_message_properties(HTTPPacket& packet);

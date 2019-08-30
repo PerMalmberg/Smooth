@@ -27,7 +27,7 @@
 namespace smooth::core::filesystem
 {
     class SPISDCard
-            : public SDCard
+        : public SDCard
     {
         public:
             SPISDCard(gpio_num_t miso,

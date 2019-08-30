@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -31,8 +32,8 @@ namespace smooth::core::ipc
     /// \tparam T The type of events to receive.
     template<typename T>
     class TaskEventQueue
-            : public ITaskEventQueue,
-              public std::enable_shared_from_this<TaskEventQueue<T>>
+        : public ITaskEventQueue,
+        public std::enable_shared_from_this<TaskEventQueue<T>>
     {
         public:
             friend core::Task;
@@ -40,8 +41,7 @@ namespace smooth::core::ipc
             static_assert(std::is_default_constructible<T>::value, "DataType must be default-constructible");
             static_assert(std::is_assignable<T, T>::value, "DataType must be a assignable");
 
-            static auto
-            create(const std::string& name, int size, Task& owner_task, IEventListener<T>& event_listener)
+            static auto create(const std::string& name, int size, Task& owner_task, IEventListener<T>& event_listener)
             {
                 return smooth::core::util::create_protected_shared<TaskEventQueue<T>>(name, size, owner_task,
                                                                                       event_listener);
@@ -53,9 +53,13 @@ namespace smooth::core::ipc
             }
 
             TaskEventQueue() = delete;
+
             TaskEventQueue(const TaskEventQueue&) = delete;
+
             TaskEventQueue(TaskEventQueue&&) = delete;
+
             TaskEventQueue& operator=(const TaskEventQueue&) = delete;
+
             TaskEventQueue& operator=(const TaskEventQueue&&) = delete;
 
             /// Pushes an item into the queue
@@ -103,9 +107,9 @@ namespace smooth::core::ipc
             /// any object instance.
             TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                     :
-                    queue(name + std::string("-TaskEventQueue"), size),
-                    task(task),
-                    listener(listener)
+                      queue(name + std::string("-TaskEventQueue"), size),
+                      task(task),
+                      listener(listener)
             {
                 task.register_queue_with_task(this);
             }
@@ -122,7 +126,7 @@ namespace smooth::core::ipc
                 return res;
             }
 
-            template <typename Derived>
+            template<typename Derived>
             std::shared_ptr<Derived> shared_from_base()
             {
                 return std::static_pointer_cast<Derived>(this->shared_from_this());
@@ -130,14 +134,13 @@ namespace smooth::core::ipc
 
             Queue<T> queue;
             QueueNotification* notif = nullptr;
-
         private:
-
             void forward_to_event_listener() override
             {
                 // All messages passed via a queue needs a default constructor
                 // and must be copyable and have the assignment operator.
                 T m;
+
                 if (queue.pop(m))
                 {
                     listener.event(m);

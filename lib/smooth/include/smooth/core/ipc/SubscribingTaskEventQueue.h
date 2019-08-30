@@ -28,7 +28,7 @@ namespace smooth::core::ipc
     /// \tparam T The type of event to receive.
     template<typename T>
     class SubscribingTaskEventQueue
-            : public TaskEventQueue<T>
+        : public TaskEventQueue<T>
     {
         public:
             /// Destructor
@@ -57,6 +57,7 @@ namespace smooth::core::ipc
                 auto queue = smooth::core::util::create_protected_shared<SubscribingTaskEventQueue<T>>(name, size, task,
                                                                                                        listener);
                 queue->link_up();
+
                 return queue;
             }
 
@@ -69,15 +70,15 @@ namespace smooth::core::ipc
             /// any object instance.
             SubscribingTaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
                     :
-                    TaskEventQueue<T>(name, size, task, listener),
-                    link()
+                      TaskEventQueue<T>(name, size, task, listener),
+                      link()
             {
             }
 
         private:
             void link_up()
             {
-                wrapper = LinkWrapper{this->template shared_from_base<SubscribingTaskEventQueue<T>>()};
+                wrapper = LinkWrapper{ this->template shared_from_base<SubscribingTaskEventQueue<T>>() };
                 link.subscribe(&wrapper);
             }
 
@@ -90,9 +91,13 @@ namespace smooth::core::ipc
                     }
 
                     LinkWrapper() = default;
+
                     LinkWrapper(const LinkWrapper&) = delete;
+
                     LinkWrapper(LinkWrapper&&) = delete;
+
                     LinkWrapper& operator=(const LinkWrapper&) = delete;
+
                     LinkWrapper& operator=(LinkWrapper&&) = default;
 
                     ~LinkWrapper() = default;
@@ -101,7 +106,8 @@ namespace smooth::core::ipc
                     {
                         bool res = true;
                         auto q = queue.lock();
-                        if(q)
+
+                        if (q)
                         {
                             res = q->push(data);
                         }

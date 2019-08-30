@@ -24,10 +24,9 @@ namespace smooth::core::network
 {
     /// Represents an IPv4 address and port number.
     class IPv4
-            : public InetAddress
+        : public InetAddress
     {
         public:
-
             /// Constructor
             /// \param ip_number_as_string The IP number in dotted decimal format, e.g. 10.0.0.1
             /// \param port The port to connect to.
@@ -46,7 +45,7 @@ namespace smooth::core::network
             int get_address_family() const override
             {
                 return sock_address.sin_family;
-            };
+            }
 
         private:
             sockaddr_in sock_address;

@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PubAck
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PubAck() = default;
@@ -47,7 +47,6 @@ namespace smooth::application::network::mqtt::packet
             }
 
         protected:
-
             bool has_packet_identifier() const override
             {
                 return true;

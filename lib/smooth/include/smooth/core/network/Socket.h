@@ -36,8 +36,8 @@
 
 namespace smooth::core::network
 {
-    static constexpr const std::chrono::milliseconds DefaultSendTimeout{1500};
-    static constexpr const std::chrono::milliseconds DefaultReceiveTimeout{1500};
+    static constexpr const std::chrono::milliseconds DefaultSendTimeout{ 1500 };
+    static constexpr const std::chrono::milliseconds DefaultReceiveTimeout{ 1500 };
 
     // Depending on if Smooth is compiled using regular gcc or xtensa-gcc,
     // recv() returns different types. As such we need to cast the return value of that type.
@@ -45,8 +45,10 @@ namespace smooth::core::network
     inline int socket_cast(T t)
     {
 #ifdef ESP_PLATFORM
+
         return t;
 #else
+
         return static_cast<int>(t);
 #endif
     }
@@ -55,9 +57,10 @@ namespace smooth::core::network
     /// \tparam Packet The type of the packet used for communication on this socket
     template<typename Protocol, typename Packet = typename Protocol::packet_type>
     class Socket
-            : public CommonSocket
+        : public CommonSocket
     {
         public:
+
             /// Creates a socket for network communication, with the specified packet type.
             /// \param tx_buffer The transmit buffer where outgoing packets are put by the application.
             /// \param rx_buffer The receive buffer used when receiving data
@@ -76,7 +79,6 @@ namespace smooth::core::network
             create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::chrono::milliseconds send_timeout = DefaultSendTimeout,
                    std::chrono::milliseconds receive_timeout = DefaultReceiveTimeout);
-
 
             static std::shared_ptr<Socket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
@@ -122,9 +124,11 @@ namespace smooth::core::network
                 // Also check on connected state so that we don't try to send data
                 // when the socket just has been closed while in SocketDispatcher::tick()
                 bool res = connected;
+
                 if (res)
                 {
                     auto cont = get_container_or_close();
+
                     if (cont)
                     {
                         res = !cont->get_tx_buffer().is_empty();
@@ -143,35 +147,37 @@ namespace smooth::core::network
             bool set_no_delay();
 
             std::weak_ptr<BufferContainer<Protocol>> buffers{};
-
         private:
+
             void clear_buffers();
     };
 
     template<typename Protocol, typename Packet>
-    std::shared_ptr<Socket<Protocol>>
-    Socket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
-                                     int socket_id,
-                                     std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout,
-                                     std::chrono::milliseconds receive_timeout)
+    std::shared_ptr<Socket<Protocol>> Socket<Protocol, Packet>::create(
+        std::shared_ptr<smooth::core::network::InetAddress> ip,
+        int socket_id,
+        std::weak_ptr<BufferContainer<Protocol>> buffer_container,
+        std::chrono::milliseconds send_timeout,
+        std::chrono::milliseconds receive_timeout)
     {
         auto s = create(buffer_container, send_timeout, receive_timeout);
         s->set_send_timeout(send_timeout);
         s->set_receive_timeout(receive_timeout);
         s->set_existing_socket(ip, socket_id);
+
         return s;
     }
 
     template<typename Protocol, typename Packet>
-    std::shared_ptr<Socket<Protocol>>
-    Socket<Protocol, Packet>::create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                     std::chrono::milliseconds send_timeout,
-                                     std::chrono::milliseconds receive_timeout)
+    std::shared_ptr<Socket<Protocol>> Socket<Protocol, Packet>::create(
+        std::weak_ptr<BufferContainer<Protocol>> buffer_container,
+        std::chrono::milliseconds send_timeout,
+        std::chrono::milliseconds receive_timeout)
     {
         auto s = smooth::core::util::create_protected_shared<Socket<Protocol, Packet>>(buffer_container);
         s->set_send_timeout(send_timeout);
         s->set_receive_timeout(receive_timeout);
+
         return s;
     }
 
@@ -189,6 +195,7 @@ namespace smooth::core::network
     bool Socket<Protocol, Packet>::start(std::shared_ptr<InetAddress> ip)
     {
         bool res = false;
+
         if (!active)
         {
             elapsed_send_time.stop_and_zero();
@@ -242,6 +249,7 @@ namespace smooth::core::network
         {
             loge("Failed to set no delay socket option");
         }
+
         return res;
     }
 
@@ -253,6 +261,7 @@ namespace smooth::core::network
             this->elapsed_receive_time.start();
 
             auto cont = get_container_or_close();
+
             if (cont)
             {
                 if (!cont->get_rx_buffer().is_full())
@@ -292,6 +301,7 @@ namespace smooth::core::network
         if (connected)
         {
             auto cont = get_container_or_close();
+
             if (cont)
             {
                 auto& tx = cont->get_tx_buffer();
@@ -348,6 +358,7 @@ namespace smooth::core::network
         else
         {
             rx.data_received(socket_cast(read_count));
+
             if (rx.is_error())
             {
                 rx.prepare_new_packet();
@@ -402,7 +413,6 @@ namespace smooth::core::network
         }
     }
 
-
     template<typename Protocol, typename Packet>
     bool Socket<Protocol, Packet>::internal_start()
     {
@@ -415,6 +425,7 @@ namespace smooth::core::network
                 // The socket is non-blocking so we expect return value of either 0, or -1 with errno == EINPROGRESS
                 log("Connecting");
                 int res = connect(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
+
                 if (res == 0 || (res == -1 && errno == EINPROGRESS))
                 {
                     active = true;
@@ -459,6 +470,7 @@ namespace smooth::core::network
         }
 
         auto cont = get_container_or_close();
+
         if (cont)
         {
             cont->get_connection_status()->push(event::ConnectionStatusEvent(shared_from_this(), is_connected()));
@@ -466,8 +478,7 @@ namespace smooth::core::network
     }
 
     template<typename Protocol, typename Packet>
-    void
-    Socket<Protocol, Packet>::set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id)
+    void Socket<Protocol, Packet>::set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id)
     {
         this->ip = address;
         this->socket_id = socket_id;
@@ -499,6 +510,7 @@ namespace smooth::core::network
     {
         bool res = false;
         auto cont = buffers.lock();
+
         if (cont)
         {
             res = cont->get_tx_buffer().put(packet);
@@ -511,6 +523,7 @@ namespace smooth::core::network
     void Socket<Protocol, Packet>::clear_buffers()
     {
         auto cont = buffers.lock();
+
         if (cont)
         {
             cont->clear();

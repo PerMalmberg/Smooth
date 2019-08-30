@@ -23,7 +23,7 @@
 namespace smooth::application::network::http::regular::responses
 {
     class FileContentResponse
-            : public StringResponse
+        : public StringResponse
     {
         public:
             explicit FileContentResponse(smooth::core::filesystem::Path full_path);
@@ -36,6 +36,6 @@ namespace smooth::application::network::http::regular::responses
         private:
             smooth::core::filesystem::Path path;
             smooth::core::filesystem::FileInfo info;
-            std::size_t sent{0};
+            std::size_t sent{ 0 };
     };
 }

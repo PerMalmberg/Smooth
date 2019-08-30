@@ -23,7 +23,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class Connect
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             Connect() = default;
@@ -39,6 +39,6 @@ namespace smooth::application::network::mqtt::packet
             }
 
         private:
-            bool clean_session{true};
+            bool clean_session{ true };
     };
 }

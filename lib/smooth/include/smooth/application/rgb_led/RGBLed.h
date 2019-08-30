@@ -51,7 +51,6 @@ namespace smooth::application::rgb_led
 
             void add_color(std::vector<rmt_item32_t>::iterator& pixel, uint8_t color);
 
-
             std::vector<rmt_item32_t> led_data;
             rmt_channel_t channel;
             uint16_t led_count;

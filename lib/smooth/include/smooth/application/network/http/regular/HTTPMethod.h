@@ -20,10 +20,10 @@ namespace smooth::application::network::http::regular
 {
     enum class HTTPMethod
     {
-            DELETE,
-            GET,
-            HEAD,
-            PUT,
-            POST
+        DELETE,
+        GET,
+        HEAD,
+        PUT,
+        POST
     };
 }
