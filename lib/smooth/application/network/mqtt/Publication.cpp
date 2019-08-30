@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <smooth/application/network/mqtt/Publication.h>
 #include <smooth/application/network/mqtt/packet/PubRel.h>
 #include <smooth/application/network/mqtt/packet/PubComp.h>
@@ -25,8 +24,8 @@
 #include "sdkconfig.h"
 #endif
 
-using namespace std::chrono;
 using namespace smooth::core::logging;
+using namespace std::chrono;
 
 namespace smooth::application::network::mqtt
 {
@@ -40,6 +39,7 @@ namespace smooth::application::network::mqtt
     {
         std::lock_guard<std::mutex> lock(guard);
         bool res = in_progress.size() < CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES;
+
         if (res)
         {
             packet::Publish p(topic, data, length, qos, retain);
@@ -52,6 +52,7 @@ namespace smooth::application::network::mqtt
     void Publication::handle_disconnect()
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // When a disconnection happens, any outgoing messages currently being timed must be reset
         // so that they don't cause a timeout before a resend of the package happens.
         if (!in_progress.empty())
@@ -187,7 +188,7 @@ namespace smooth::application::network::mqtt
             else
             {
                 // Still waiting for a reply...
-                if (flight.get_elapsed_time() > seconds{5})
+                if (flight.get_elapsed_time() > seconds{ 5 })
                 {
                     // Waited too long, force a disconnect.
                     Log::error(mqtt_log_tag,
@@ -210,13 +211,15 @@ namespace smooth::application::network::mqtt
         }
     }
 
-    void Publication::receive(packet::PubAck& pub_ack, IMqttClient&)
+    void Publication::receive(packet::PubAck& pub_ack, IMqttClient &)
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = in_progress.begin();
+
         if (first != in_progress.end())
         {
             auto& flight = *first;
+
             if (flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
             {
                 Log::verbose(mqtt_log_tag,
@@ -230,9 +233,11 @@ namespace smooth::application::network::mqtt
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = in_progress.begin();
+
         if (first != in_progress.end())
         {
             auto& flight = *first;
+
             if (flight.get_waiting_for() == PUBREC
                 && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
             {
@@ -253,10 +258,11 @@ namespace smooth::application::network::mqtt
         }
     }
 
-    void Publication::receive(packet::PubComp& pub_rec, IMqttClient&)
+    void Publication::receive(packet::PubComp& pub_rec, IMqttClient &)
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = in_progress.begin();
+
         if (first != in_progress.end())
         {
             auto& flight = *first;
@@ -271,5 +277,4 @@ namespace smooth::application::network::mqtt
             }
         }
     }
-
 }

@@ -41,13 +41,17 @@ namespace smooth::core::filesystem
         try
         {
             std::fstream fs(static_cast<const char*>(path), std::ios::binary | std::ios::in);
+
             if (fs.is_open())
             {
                 fs.seekg(static_cast<int32_t>(offset), std::ios::beg);
+
                 // Reserve to ensure exact memory usage (i.e. no extra memory used)
                 data.reserve(static_cast<std::vector<uint8_t>::size_type>(length));
+
                 // Ensure that the vector thinks it has the number of elements we will write to it.
                 data.resize(static_cast<std::vector<uint8_t>::size_type>(length));
+
                 // std::vector has contiguous memory so we can write directly into it.
                 res = fs.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(length)).gcount() ==
                       static_cast<std::streamsize>(length);
@@ -72,7 +76,8 @@ namespace smooth::core::filesystem
 
         try
         {
-            std::fstream fs{name, std::ios::binary | std::ios::out | std::ios::trunc};
+            std::fstream fs{ name, std::ios::binary | std::ios::out | std::ios::trunc };
+
             if (fs.is_open())
             {
                 fs.write(reinterpret_cast<const char*>(data), length);
@@ -94,14 +99,16 @@ namespace smooth::core::filesystem
 
     bool File::exists(const char* full_path)
     {
-        struct stat s{};
+        struct stat s {};
+
         return stat(full_path, &s) == 0;
     }
 
     uint_fast64_t File::file_size(const char* full_path)
     {
-        struct stat s{};
+        struct stat s {};
         stat(full_path, &s);
+
         return static_cast<uint_fast64_t>(s.st_size);
     }
 

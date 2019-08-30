@@ -29,8 +29,8 @@
 #endif
 
 using namespace smooth::core::ipc;
-using namespace smooth::core::timer;
 using namespace smooth::core::logging;
+using namespace smooth::core::timer;
 using namespace std::chrono;
 
 namespace smooth::application::network::mqtt
@@ -84,11 +84,11 @@ namespace smooth::application::network::mqtt
         fsm.set_state(new(fsm) state::StartupState(fsm));
     }
 
-    void
-    MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address,
-                           bool enable_auto_reconnect)
+    void MqttClient::connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address,
+                                bool enable_auto_reconnect)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // Must start the task before pushing an event, otherwise the task will not
         // have run its exec() far enough to initialize the FreeRTOS pointer
         start();
@@ -117,6 +117,7 @@ namespace smooth::application::network::mqtt
                              bool retain)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         return publication.publish(topic, data, length, qos, retain);
     }
 
@@ -147,14 +148,16 @@ namespace smooth::application::network::mqtt
         packet.dump("Outgoing");
 
         bool res = false;
+
         if (packet.validate_packet())
         {
             res = buff->get_tx_buffer().put(packet);
         }
+
         return res;
     }
 
-    const std::string& MqttClient::get_client_id() const
+    const std::string & MqttClient::get_client_id() const
     {
         return client_id;
     }
@@ -199,6 +202,7 @@ namespace smooth::application::network::mqtt
     void MqttClient::event(const core::network::event::DataAvailableEvent<packet::MQTTProtocol>& event)
     {
         packet::MQTTPacket p;
+
         if (event.get(p))
         {
             fsm.packet_received(p);
@@ -234,8 +238,8 @@ namespace smooth::application::network::mqtt
 
             buff->clear();
 
-            mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(buff, seconds{1});
-            mqtt_socket->set_receive_timeout(keep_alive + seconds{1});
+            mqtt_socket = core::network::Socket<packet::MQTTProtocol>::create(buff, seconds{ 1 });
+            mqtt_socket->set_receive_timeout(keep_alive + seconds{ 1 });
             mqtt_socket->start(address);
         }
     }
@@ -251,6 +255,7 @@ namespace smooth::application::network::mqtt
     std::string MqttClient::get_payload(const MQTTData& data)
     {
         std::stringstream ss;
+
         for (auto b : data.second)
         {
             ss << static_cast<char>(b);

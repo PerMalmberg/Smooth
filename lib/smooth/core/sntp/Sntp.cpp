@@ -23,7 +23,6 @@
 
 namespace smooth::core::sntp
 {
-
     Sntp::Sntp(std::vector<std::string> servers)
             : servers(std::move(servers))
     {
@@ -36,6 +35,7 @@ namespace smooth::core::sntp
             sntp_setoperatingmode(SNTP_OPMODE_POLL);
 
             uint8_t i = 0;
+
             for (auto& s : servers)
             {
                 // Only a pointer to the string is stored in the underlying structs.
@@ -56,4 +56,3 @@ namespace smooth::core::sntp
         return timeinfo.tm_year > 70;
     }
 }
-

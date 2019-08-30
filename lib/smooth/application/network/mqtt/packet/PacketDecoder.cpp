@@ -29,8 +29,8 @@
 #include <smooth/application/network/mqtt/packet/PingResp.h>
 #include <smooth/application/network/mqtt/Logging.h>
 
-using namespace std;
 using namespace smooth::core::logging;
+using namespace std;
 
 namespace smooth::application::network::mqtt::packet
 {

@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,14 +24,18 @@ namespace smooth::core::io
     static void input_interrupt_handler(void* arg)
     {
         auto ev_input = static_cast<InterruptInput*>(arg);
+
         if (ev_input != nullptr)
         {
             ev_input->update();
         }
     }
 
-    InterruptInput::InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue, gpio_num_t io,
-                                   bool pull_up, bool pull_down, gpio_int_type_t interrupt_trigger)
+    InterruptInput::InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue,
+                                   gpio_num_t io,
+                                   bool pull_up,
+                                   bool pull_down,
+                                   gpio_int_type_t interrupt_trigger)
             : Input(io, pull_up, pull_down, interrupt_trigger), queue(std::move(queue))
     {
         gpio_isr_handler_add(io, input_interrupt_handler, this);
@@ -40,7 +45,8 @@ namespace smooth::core::io
     {
         InterruptInputEvent ev(io, read());
         const auto& q = queue.lock();
-        if(q)
+
+        if (q)
         {
             q->signal(ev);
         }

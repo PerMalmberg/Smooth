@@ -19,14 +19,15 @@
 #include <smooth/application/network/mqtt/packet/Subscribe.h>
 #include <smooth/core/logging/log.h>
 
-using namespace std::chrono;
 using namespace smooth::core::logging;
+using namespace std::chrono;
 
 namespace smooth::application::network::mqtt
 {
     void Subscription::subscribe(const std::string& topic, QoS qos)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // Check active and not-yet completed subscriptions
         internal_subscribe(topic, qos);
     }
@@ -36,6 +37,7 @@ namespace smooth::application::network::mqtt
         // Intentionally not locking here - check call-sites.
 
         auto it = active_subscription.find(topic);
+
         if (it == active_subscription.end())
         {
             // Simply add another subscription. If it already exists in the collection (possibly
@@ -46,6 +48,7 @@ namespace smooth::application::network::mqtt
         else
         {
             auto& sub = *it;
+
             if (qos != sub.second)
             {
                 packet::Subscribe s(topic, qos);
@@ -57,6 +60,7 @@ namespace smooth::application::network::mqtt
     void Subscription::unsubscribe(const std::string& topic)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // Just enqueue for transfer to server.
         packet::Unsubscribe us(topic);
         unsubscribing.emplace_back(us);
@@ -65,6 +69,7 @@ namespace smooth::application::network::mqtt
     void Subscription::subscribe_next(IMqttClient& mqtt)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // We'll never have more than one outstanding subscription request.
         // and it will always be the first one in the list.
         bool all_ok = send_control_packet(subscribing, PacketType::SUBACK, mqtt, "subscription");
@@ -79,11 +84,12 @@ namespace smooth::application::network::mqtt
 
                 if (flight.get_waiting_for() == PacketType::PUBREL)
                 {
-                    if (flight.get_elapsed_time() > std::chrono::seconds{5})
+                    if (flight.get_elapsed_time() > std::chrono::seconds{ 5 })
                     {
                         // Send a PubRec message.
                         auto& packet = flight.get_packet();
                         packet::PubRec rec(packet.get_packet_identifier());
+
                         // If we can enqueue it, restart the timer to give the response a chance to arrive.
                         // Otherwise, another try will happen the next turn.
                         if (mqtt.send_packet(rec))
@@ -108,7 +114,7 @@ namespace smooth::application::network::mqtt
 
         // As we're actively checking for duplicates when adding a subscription
         // we must first remove it.
-        for (auto it = active_subscription.begin(); it != active_subscription.end();)
+        for (auto it = active_subscription.begin(); it != active_subscription.end(); )
         {
             auto copy = *it;
             it = active_subscription.erase(it);
@@ -119,18 +125,21 @@ namespace smooth::application::network::mqtt
         reset_control_packet(unsubscribing);
     }
 
-    void Subscription::receive(packet::SubAck& sub_ack, IMqttClient&)
+    void Subscription::receive(packet::SubAck& sub_ack, IMqttClient &)
     {
         std::lock_guard<std::mutex> lock(guard);
         auto first = subscribing.begin();
+
         if (first != subscribing.end())
         {
             auto& flight = *first;
+
             if (flight.get_waiting_for() == PacketType::SUBACK
                 && flight.get_packet().get_packet_identifier() == sub_ack.get_packet_identifier())
             {
                 std::vector<std::pair<std::string, QoS>> topics{};
                 flight.get_packet().get_topics(topics);
+
                 for (auto& t : topics)
                 {
                     Log::debug(mqtt_log_tag, Format("Subscription of topic {1} completed, QoS: {2}",
@@ -147,6 +156,7 @@ namespace smooth::application::network::mqtt
     void Subscription::receive(packet::Publish& publish, IMqttClient& mqtt)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // Note: It is a valid use case where a Publish packet is received
         // before a SubAck has been received for a subscription.
 
@@ -164,6 +174,7 @@ namespace smooth::application::network::mqtt
         {
             // Do we know of a packet with this packet id already?
             auto known = receiving.find(publish.get_packet_identifier());
+
             if (known == receiving.end())
             {
                 // Prepare to receive a PubRel
@@ -182,38 +193,43 @@ namespace smooth::application::network::mqtt
     void Subscription::receive(packet::PubRel& pub_rel, IMqttClient& mqtt)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         // Always respond with a PubComp
         packet::PubComp pub_comp(pub_rel.get_packet_identifier());
         mqtt.send_packet(pub_comp);
 
         auto found = receiving.find(pub_rel.get_packet_identifier());
+
         if (found != receiving.end())
         {
             // We may now forward the data to the application.
             forward_to_application((*found).second.get_packet(), mqtt);
+
             // We're done with the packet. Any new packet with the same ID will
             // be treated as a new publication.
             receiving.erase(found);
         }
     }
 
-    void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient&)
+    void Subscription::receive(packet::UnsubAck& unsub_ack, IMqttClient &)
     {
         std::lock_guard<std::mutex> lock(guard);
+
         if (!unsubscribing.empty())
         {
             auto& front = unsubscribing.front();
             auto& packet = front.get_packet();
+
             if (packet.get_packet_identifier() == unsub_ack.get_packet_identifier())
             {
                 std::vector<std::string> topics{};
                 packet.get_topics(topics);
+
                 for (auto& t : topics)
                 {
                     Log::debug(mqtt_log_tag, Format("Unsubscription of topic {1} completed", Str(t)));
                     active_subscription.erase(t);
                 }
-
 
                 unsubscribing.erase(unsubscribing.begin());
             }
@@ -223,8 +239,10 @@ namespace smooth::application::network::mqtt
     void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt) const
     {
         Log::debug(mqtt_log_tag, Format("Reception of QoS {1} complete", Int32(publish.get_qos())));
+
         // Grab the payload
         std::vector<uint8_t> payload;
+
         // Move data into our local vector.
         std::copy(std::make_move_iterator(publish.get_payload_cbegin()),
                   std::make_move_iterator(publish.get_payload_cend()),
@@ -232,10 +250,10 @@ namespace smooth::application::network::mqtt
 
         // Enqueue data to application. Can't avoid a copy here.
         const auto& app_queue = mqtt.get_application_queue().lock();
-        if(app_queue)
+
+        if (app_queue)
         {
             app_queue->push(std::make_pair(publish.get_topic(), payload));
         }
     }
 }
-

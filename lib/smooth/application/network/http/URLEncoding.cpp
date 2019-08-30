@@ -31,7 +31,7 @@ namespace smooth::application::network::http
     bool URLEncoding::decode(std::string& url, std::string::iterator begin, std::string::iterator end)
     {
         bool res = true;
-        std::array<char, 3> hex{0, 0, 0};
+        std::array<char, 3> hex{ 0, 0, 0 };
 
         // We know that the result string is going to be shorter or equal to the original,
         // so we'll do an in-place conversion to save on memory usage.
@@ -39,7 +39,7 @@ namespace smooth::application::network::http
         auto write = begin;
         auto read = begin;
 
-        for (; res && read != end;)
+        for (; res && read != end; )
         {
             if (*read == '%')
             {
@@ -86,9 +86,9 @@ namespace smooth::application::network::http
             url.erase(write, end);
         }
 
-        for(auto& c : url)
+        for (auto& c : url)
         {
-            if(c == '+')
+            if (c == '+')
             {
                 c = ' ';
             }
@@ -96,5 +96,4 @@ namespace smooth::application::network::http
 
         return res;
     }
-
 }

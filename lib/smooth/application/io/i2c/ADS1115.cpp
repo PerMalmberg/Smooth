@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <bitset>
 #include <thread>
 #include <cmath>
@@ -47,7 +46,6 @@ namespace smooth
                                     uint16_t low_thresh_hold,
                                     uint16_t high_thresh_hold)
             {
-
                 std::bitset<16> new_config;
                 new_config.set(0, assert_strategy & 1);
                 new_config.set(1, assert_strategy & 2);
@@ -79,7 +77,7 @@ namespace smooth
                                     uint16_t low_thresh_hold,
                                     uint16_t high_thresh_hold)
             {
-                std::vector<uint8_t> data{Register::Config};
+                std::vector<uint8_t> data{ Register::Config };
                 data.push_back(static_cast<uint8_t>(config >> 8));
                 data.push_back(static_cast<uint8_t>(config & 0xFF));
                 bool res = write(address, data);
@@ -127,7 +125,8 @@ namespace smooth
             {
                 // Ensure that the device has had enough time to perform a conversion.
                 auto delay = minimum_delay_after_reconfigure();
-                if(steady_clock::now() <= change_mark + delay)
+
+                if (steady_clock::now() <= change_mark + delay)
                 {
                     std::this_thread::sleep_until(change_mark + delay);
                 }
@@ -154,29 +153,32 @@ namespace smooth
             std::chrono::milliseconds ADS1115::minimum_delay_after_reconfigure() const
             {
                 constexpr std::array<std::pair<DataRate, milliseconds>, 8> delays = {
-                    std::make_pair(DataRate::SPS_8, milliseconds{static_cast<int>(lround(1000.0 / 8))}),
-                    std::make_pair(DataRate::SPS_16, milliseconds{static_cast<int>(lround(1000.0 / 16))}),
-                    std::make_pair(DataRate::SPS_32, milliseconds{static_cast<int>(lround(1000.0 / 32))}),
-                    std::make_pair(DataRate::SPS_64, milliseconds{static_cast<int>(lround(1000.0 / 64))}),
-                    std::make_pair(DataRate::SPS_128, milliseconds{static_cast<int>(lround(1000.0 / 128))}),
-                    std::make_pair(DataRate::SPS_250, milliseconds{static_cast<int>(lround(1000.0 / 250))}),
-                    std::make_pair(DataRate::SPS_475, milliseconds{static_cast<int>(lround(1000.0 / 475))}),
-                    std::make_pair(DataRate::SPS_860, milliseconds{static_cast<int>(lround(1000.0 / 860))}),
+                    std::make_pair(DataRate::SPS_8, milliseconds{ static_cast<int>(lround(1000.0 / 8)) }),
+                    std::make_pair(DataRate::SPS_16, milliseconds{ static_cast<int>(lround(1000.0 / 16)) }),
+                    std::make_pair(DataRate::SPS_32, milliseconds{ static_cast<int>(lround(1000.0 / 32)) }),
+                    std::make_pair(DataRate::SPS_64, milliseconds{ static_cast<int>(lround(1000.0 / 64)) }),
+                    std::make_pair(DataRate::SPS_128, milliseconds{ static_cast<int>(lround(1000.0 / 128)) }),
+                    std::make_pair(DataRate::SPS_250, milliseconds{ static_cast<int>(lround(1000.0 / 250)) }),
+                    std::make_pair(DataRate::SPS_475, milliseconds{ static_cast<int>(lround(1000.0 / 475)) }),
+                    std::make_pair(DataRate::SPS_860, milliseconds{ static_cast<int>(lround(1000.0 / 860)) }),
                 };
 
                 auto sps = static_cast<DataRate>((current_config & 0x0070) >> 4);
 
                 milliseconds delay{};
 
-                auto found = std::find_if(std::begin(delays), std::end(delays), [sps](auto& pair){ return pair.first == sps; });
+                auto found = std::find_if(std::begin(delays), std::end(delays), [sps](auto& pair)
+                                          {
+                                              return pair.first == sps;
+                });
 
-                if(found != std::end(delays))
+                if (found != std::end(delays))
                 {
                     delay = (*found).second;
                 }
                 else
                 {
-                    delay = milliseconds{130};
+                    delay = milliseconds{ 130 };
                 }
 
                 return delay;
@@ -184,4 +186,3 @@ namespace smooth
         }
     }
 }
-

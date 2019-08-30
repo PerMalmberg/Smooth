@@ -30,51 +30,51 @@ namespace smooth::application::network::mqtt::state
 
     MQTTBaseState::~MQTTBaseState() = default;
 
-    void MQTTBaseState::receive(packet::MQTTPacket&)
+    void MQTTBaseState::receive(packet::MQTTPacket &)
     {
     }
 
-    void MQTTBaseState::receive(packet::ConnAck&)
+    void MQTTBaseState::receive(packet::ConnAck &)
     {
     }
 
-    void MQTTBaseState::receive(packet::Publish&)
+    void MQTTBaseState::receive(packet::Publish &)
     {
     }
 
-    void MQTTBaseState::receive(packet::PubAck&)
+    void MQTTBaseState::receive(packet::PubAck &)
     {
     }
 
-    void MQTTBaseState::receive(packet::PubRec&)
+    void MQTTBaseState::receive(packet::PubRec &)
     {
     }
 
-    void MQTTBaseState::receive(packet::PubRel&)
+    void MQTTBaseState::receive(packet::PubRel &)
     {
     }
 
-    void MQTTBaseState::receive(packet::PubComp&)
+    void MQTTBaseState::receive(packet::PubComp &)
     {
     }
 
-    void MQTTBaseState::receive(packet::SubAck&)
+    void MQTTBaseState::receive(packet::SubAck &)
     {
     }
 
-    void MQTTBaseState::receive(packet::Subscribe&)
+    void MQTTBaseState::receive(packet::Subscribe &)
     {
     }
 
-    void MQTTBaseState::receive(packet::Unsubscribe&)
+    void MQTTBaseState::receive(packet::Unsubscribe &)
     {
     }
 
-    void MQTTBaseState::receive(packet::UnsubAck&)
+    void MQTTBaseState::receive(packet::UnsubAck &)
     {
     }
 
-    void MQTTBaseState::receive(packet::PingResp&)
+    void MQTTBaseState::receive(packet::PingResp &)
     {
     }
 }

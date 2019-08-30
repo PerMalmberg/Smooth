@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -37,7 +38,8 @@ namespace smooth::core::filesystem
         {
             auto curr = stack.top();
             stack.pop();
-            FileInfo info{curr};
+            FileInfo info{ curr };
+
             if (!info.exists())
             {
                 // https://en.cppreference.com/w/cpp/filesystem/perms
@@ -50,19 +52,22 @@ namespace smooth::core::filesystem
 
     bool exists(const Path& path)
     {
-        FileInfo fi{path};
+        FileInfo fi{ path };
+
         return fi.exists();
     }
 
     bool exists(const Path&& path)
     {
-        FileInfo fi{path};
+        FileInfo fi{ path };
+
         return fi.exists();
     }
 
     bool is_directory(const Path& path)
     {
-        FileInfo fi{path};
+        FileInfo fi{ path };
+
         return fi.exists() && fi.is_directory();
     }
 }

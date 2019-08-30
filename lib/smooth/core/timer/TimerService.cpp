@@ -29,17 +29,18 @@ namespace smooth::core::timer
                    TIMER_SERVICE_PRIO,
                    milliseconds(0)),
               cmp([](SharedTimer left, SharedTimer right) {
-                  // We want the timer with the least time left to be first in the list
-                  return left->expires_at() > right->expires_at();
-              }),
+                      // We want the timer with the least time left to be first in the list
+                      return left->expires_at() > right->expires_at();
+                  }),
               queue(cmp),
               guard()
     {
     }
 
-    TimerService& TimerService::get()
+    TimerService & TimerService::get()
     {
         static TimerService service;
+
         return service;
     }
 

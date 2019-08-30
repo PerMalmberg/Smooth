@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -45,13 +46,12 @@ namespace smooth::core
 
     /// Constructor used when attaching to an already running thread.
     Task::Task(uint32_t priority, std::chrono::milliseconds tick_interval)
-            :
-            name("MainTask"),
-            stack_size(0),
-            priority(priority),
-            tick_interval(tick_interval),
-            is_attached(true),
-            affinity(tskNO_AFFINITY)
+            : name("MainTask"),
+              stack_size(0),
+              priority(priority),
+              tick_interval(tick_interval),
+              is_attached(true),
+              affinity(tskNO_AFFINITY)
     {
 #ifdef ESP_PLATFORM
         stack_size = CONFIG_MAIN_TASK_STACK_SIZE;
@@ -65,7 +65,7 @@ namespace smooth::core
 
     void Task::start()
     {
-        std::unique_lock<std::mutex> lock{start_mutex};
+        std::unique_lock<std::mutex> lock{ start_mutex };
 
         // Prevent multiple starts
         if (!started)
@@ -75,12 +75,14 @@ namespace smooth::core
             if (is_attached)
             {
                 Log::debug(name, "Running as attached thread");
+
                 // Attaching to another task, just run execute.
                 exec();
             }
             else
             {
 #ifdef ESP_PLATFORM
+
                 // Since std::thread is implemented using pthread, setting the config before
                 // creating the std::thread we get the desired effect, even if we're not calling
                 // pthread_create() as per the IDF documentation.
@@ -90,7 +92,7 @@ namespace smooth::core
                 worker_config.thread_name = name.c_str();
 
                 // Set to desired core, otherwise use default (as per config).
-                if(affinity != tskNO_AFFINITY)
+                if (affinity != tskNO_AFFINITY)
                 {
                     worker_config.pin_to_core = affinity;
                 }
@@ -99,7 +101,7 @@ namespace smooth::core
 #endif
                 Log::debug(name, "Creating worker thread");
                 worker = std::thread([this]() {
-                    this->exec();
+                                         this->exec();
                 });
 
                 Log::debug(name, "Waiting for worker to start");
@@ -124,7 +126,7 @@ namespace smooth::core
         {
             Log::debug(name, "Notify start_mutex");
             started = true;
-            std::unique_lock<std::mutex> lock{start_mutex};
+            std::unique_lock<std::mutex> lock{ start_mutex };
             start_condition.notify_all();
         }
 
@@ -140,7 +142,7 @@ namespace smooth::core
 
         report_stack_status();
 
-        for (;;)
+        for (;; )
         {
             // Try to keep the tick alive even when there are lots of incoming messages
             // by simply not checking the queues when more than one tick interval has passed.
@@ -151,7 +153,8 @@ namespace smooth::core
             }
             else
             {
-                std::unique_lock<std::mutex> lock{queue_mutex};
+                std::unique_lock<std::mutex> lock{ queue_mutex };
+
                 // Check the polled queues for data availability
                 for (auto q : polled_queues)
                 {
@@ -169,6 +172,7 @@ namespace smooth::core
                 // values of the pointers obtained by get() are different (e.g. because they
                 // point at different subobjects within the same object)
                 decltype(queue_ptr) empty_ptr{};
+
                 if (!queue_ptr.owner_before(empty_ptr) && !empty_ptr.owner_before(queue_ptr))
                 {
                     // Timeout - no messages.
@@ -182,7 +186,8 @@ namespace smooth::core
                     // it will prevent messages to arrive in the same order
                     // they were sent when there are more than one receiver queue.
                     auto queue = queue_ptr.lock();
-                    if(queue)
+
+                    if (queue)
                     {
                         queue->forward_to_event_listener();
                     }
@@ -204,15 +209,16 @@ namespace smooth::core
 
     void Task::register_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue)
     {
-        std::unique_lock<std::mutex> lock{queue_mutex};
+        std::unique_lock<std::mutex> lock{ queue_mutex };
         polled_queue->register_notification(&notification);
         polled_queues.push_back(polled_queue);
     }
 
     void Task::unregister_polled_queue_with_task(smooth::core::ipc::IPolledTaskQueue* polled_queue)
     {
-        std::unique_lock<std::mutex> lock{queue_mutex};
+        std::unique_lock<std::mutex> lock{ queue_mutex };
         auto pos = std::find(polled_queues.begin(), polled_queues.end(), polled_queue);
+
         if (pos != polled_queues.end())
         {
             polled_queues.erase(pos);
@@ -221,6 +227,6 @@ namespace smooth::core
 
     void Task::report_stack_status()
     {
-        SystemStatistics::instance().report(name, TaskStats{stack_size});
+        SystemStatistics::instance().report(name, TaskStats{ stack_size });
     }
 }

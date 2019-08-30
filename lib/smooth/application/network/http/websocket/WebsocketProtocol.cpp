@@ -23,9 +23,9 @@
 
 namespace smooth::application::network::http::websocket
 {
-    using namespace smooth::core;
-    using namespace smooth::core::network;
     using namespace smooth::application::network::http::regular;
+    using namespace smooth::core::network;
+    using namespace smooth::core;
 
     int WebsocketProtocol::get_wanted_amount(HTTPPacket& packet)
     {
@@ -34,7 +34,7 @@ namespace smooth::application::network::http::websocket
             data_received_in_current_state = 0;
 
             if (state == State::Header
-            || state == State::ExtendedPayloadLength_2)
+                || state == State::ExtendedPayloadLength_2)
             {
                 amount_wanted_in_current_state = 2;
             }
@@ -50,13 +50,14 @@ namespace smooth::application::network::http::websocket
             {
                 // Websockets can use up to 64 bits (well, 63 since MSB MUST always be 0,
                 // see https://tools.ietf.org/html/rfc6455#section-5.2) to specify the size.
-                // Since we can't handle that large data buffers, we split it into smaller parts based on content_chunk_size
+                // Since we can't handle that large data buffers, we split it into smaller parts based on
+                // content_chunk_size
 
                 auto remaining_payload = payload_length - received_payload;
 
                 auto remaining_to_fill_current =
-                        static_cast<decltype(received_payload_in_current_package)>(content_chunk_size) -
-                        received_payload_in_current_package;
+                    static_cast<decltype(received_payload_in_current_package)>(content_chunk_size)
+                    - received_payload_in_current_package;
 
                 auto amount_left = std::min(remaining_payload, remaining_to_fill_current);
                 amount_wanted_in_current_state = static_cast<decltype(amount_wanted_in_current_state)>(amount_left);
@@ -93,7 +94,7 @@ namespace smooth::application::network::http::websocket
         amount_wanted_in_current_state -= length;
         data_received_in_current_state += length;
 
-        if(amount_wanted_in_current_state == 0)
+        if (amount_wanted_in_current_state == 0)
         {
             // All requested data received
             if (state == State::Header)
@@ -159,7 +160,7 @@ namespace smooth::application::network::http::websocket
                 set_message_properties(packet);
             }
         }
-        else if(state == State::Payload)
+        else if (state == State::Payload)
         {
             update_received_payload(length);
         }
@@ -191,10 +192,11 @@ namespace smooth::application::network::http::websocket
     {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+
         return state == State::Payload
                && (received_payload == payload_length
                    || received_payload_in_current_package ==
-                      static_cast<decltype(received_payload_in_current_package)>(content_chunk_size));
+                   static_cast<decltype(received_payload_in_current_package)>(content_chunk_size));
 #pragma GCC diagnostic pop
     }
 

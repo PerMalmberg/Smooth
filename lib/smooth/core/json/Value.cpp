@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@ using namespace smooth::core::logging;
 
 namespace smooth::core::json
 {
-
     /// This constructor takes ownership of the data
     Value::Value()
             : Value(cJSON_CreateObject(), true)
@@ -55,6 +55,7 @@ namespace smooth::core::json
     {
         data = cJSON_Parse(other.to_string().c_str());
         owns_data = true;
+
         return *this;
     }
 
@@ -75,6 +76,7 @@ namespace smooth::core::json
         {
             item = cJSON_CreateObject();
             cJSON_AddItemToObject(data, key.c_str(), item);
+
             return Value(data, item);
         }
     }
@@ -98,9 +100,11 @@ namespace smooth::core::json
 
         // Add any missing items in the array
         auto size = cJSON_GetArraySize(data);
+
         if (index >= size)
         {
             auto to_add = index - size + 1;
+
             for (int i = 0; i < to_add; ++i)
             {
                 cJSON_AddItemToArray(data, cJSON_CreateObject());
@@ -108,6 +112,7 @@ namespace smooth::core::json
         }
 
         auto item = cJSON_GetArrayItem(data, index);
+
         return Value(data, item);
     }
 
@@ -202,6 +207,7 @@ namespace smooth::core::json
     Value& Value::operator=(uint32_t value)
     {
         operator=(static_cast<double>(value));
+
         return *this;
     }
 
@@ -297,6 +303,7 @@ namespace smooth::core::json
     {
         // Get names of this nodes child and its siblings
         cJSON* curr = data;
+
         if (curr != nullptr && curr->child != nullptr)
         {
             curr = curr->child;
@@ -307,14 +314,14 @@ namespace smooth::core::json
                 curr = curr->next;
             }
         }
-
     }
 
     std::string Value::to_string() const
     {
         auto* p = cJSON_Print(data);
-        std::string s{p};
+        std::string s{ p };
         cJSON_free(p);
+
         return s;
     }
 
@@ -323,6 +330,7 @@ namespace smooth::core::json
         if (data)
         {
             auto item = cJSON_HasObjectItem(data, name.c_str());
+
             if (item)
             {
                 cJSON_DeleteItemFromObject(data, name.c_str());
@@ -335,6 +343,7 @@ namespace smooth::core::json
         if (data && cJSON_IsArray(data))
         {
             auto size = cJSON_GetArraySize(data);
+
             if (index >= 0 && index < size)
             {
                 cJSON_DeleteItemFromArray(data, index);

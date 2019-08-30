@@ -19,8 +19,8 @@
 #include <smooth/core/util/create_protected.h>
 
 using namespace smooth::core::logging;
-using namespace std::chrono;
 using namespace smooth::core::util;
+using namespace std::chrono;
 
 namespace smooth::core::timer
 {
@@ -65,7 +65,7 @@ namespace smooth::core::timer
         return id;
     }
 
-    const std::string& Timer::get_name()
+    const std::string & Timer::get_name()
     {
         return timer_name;
     }
@@ -74,6 +74,7 @@ namespace smooth::core::timer
     {
         TimerExpiredEvent ev(id);
         const auto& q = queue.lock();
+
         if (q)
         {
             q->push(ev);
@@ -81,10 +82,10 @@ namespace smooth::core::timer
     }
 
     TimerOwner Timer::create(const std::string& name,
-                                         int id,
-                                         const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
-                                         bool auto_reload,
-                                         std::chrono::milliseconds interval)
+                             int id,
+                             const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
+                             bool auto_reload,
+                             std::chrono::milliseconds interval)
     {
         return TimerOwner(create_protected_shared<Timer>(name, id, event_queue, auto_reload, interval));
     }
@@ -108,14 +109,13 @@ namespace smooth::core::timer
                            const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                            bool auto_reload,
                            std::chrono::milliseconds interval)
-
     {
         *this = Timer::create(name, id, event_queue, auto_reload, interval);
     }
 
     TimerOwner::~TimerOwner()
     {
-        if(t)
+        if (t)
         {
             t->stop();
         }

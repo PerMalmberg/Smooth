@@ -40,7 +40,7 @@ namespace smooth::core::json
             {
                 // Append terminating zero.
                 data.push_back(0);
-                v = Value{cJSON_Parse(reinterpret_cast<const char*>(data.data())), true};
+                v = Value{ cJSON_Parse(reinterpret_cast<const char*>(data.data())), true };
             }
         }
     }
@@ -50,4 +50,3 @@ namespace smooth::core::json
         return f.write(v.to_string());
     }
 }
-

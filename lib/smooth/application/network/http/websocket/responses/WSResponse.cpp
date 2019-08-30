@@ -39,7 +39,7 @@ namespace smooth::application::network::http::websocket::responses
     {
         // Portion data in such a way that at most max_amount of *data* is moved into target.
 
-        auto res{ResponseStatus::NoData};
+        auto res{ ResponseStatus::NoData };
 
         auto remaining = std::distance(data.begin(), data.end());
 
@@ -64,6 +64,7 @@ namespace smooth::application::network::http::websocket::responses
             }
 
             target.emplace_back(val);
+
             if (remaining == 0)
             {
                 set_length(0, target);

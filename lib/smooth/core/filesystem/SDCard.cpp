@@ -18,7 +18,6 @@
 #include <smooth/core/filesystem/SDCard.h>
 #include <smooth/core/filesystem/FSLock.h>
 
-
 using namespace smooth::core::logging;
 
 namespace smooth::core::filesystem
@@ -31,11 +30,13 @@ namespace smooth::core::filesystem
         esp_vfs_fat_sdmmc_mount_config_t mount_config{};
         mount_config.format_if_mount_failed = format_on_mount_failure;
         mount_config.max_files = max_file_count;
+
         //mount_config.allocation_unit_size = 16 * 1024;
 
         auto mount_result = esp_vfs_fat_sdmmc_mount(*mount_point, &host, slot_config, &mount_config, &card);
 
         initialized = mount_result == ESP_OK;
+
         if (initialized)
         {
             Log::info("SPISDCard", Format("SD Card initialized"));
@@ -61,6 +62,7 @@ namespace smooth::core::filesystem
     bool SDCard::deinit()
     {
         auto res = ESP_OK;
+
         if (is_initialized())
         {
             res = esp_vfs_fat_sdmmc_unmount();

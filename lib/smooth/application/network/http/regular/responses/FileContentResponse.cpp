@@ -47,6 +47,7 @@ namespace smooth::application::network::http::regular::responses
             auto to_send = std::min(info.size() - sent, max_amount);
 
             auto read_res = smooth::core::filesystem::File::read(path, target, sent, to_send);
+
             if (read_res)
             {
                 sent += to_send;
@@ -63,6 +64,11 @@ namespace smooth::application::network::http::regular::responses
 
     void FileContentResponse::dump() const
     {
-        Log::debug("FileContentResponse", Format("Code: {1}; Status: {2}/{3} bytes, Path: {4}", Int32{static_cast<int>(code)}, UInt64{sent}, UInt64{info.size()}, Str{static_cast<const std::string&>(path)}));
+        Log::debug("FileContentResponse",
+        Format("Code: {1}; Status: {2}/{3} bytes, Path: {4}",
+                Int32{ static_cast<int>(code) },
+                UInt64{ sent },
+                UInt64{ info.size() },
+                Str{ static_cast<const std::string&>(path) }));
     }
 }

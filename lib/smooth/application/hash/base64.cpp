@@ -24,10 +24,11 @@ namespace smooth::application::hash::base64
     std::string encode(const uint8_t* data, std::size_t len)
     {
         auto buff_size = len * 2;
-        std::size_t olen{0};
+        std::size_t olen{ 0 };
         auto buff = std::make_unique<uint8_t[]>(buff_size);
 
         auto res = mbedtls_base64_encode(buff.get(), buff_size, &olen, data, len);
+
         while (res == MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL)
         {
             buff = std::make_unique<uint8_t[]>(olen);
@@ -36,9 +37,10 @@ namespace smooth::application::hash::base64
 
         std::string encoded{};
 
-        if(res == 0)
+        if (res == 0)
         {
             encoded.assign(buff.get(), buff.get() + olen);
+
             // Ensure proper ending
             encoded.append("");
         }

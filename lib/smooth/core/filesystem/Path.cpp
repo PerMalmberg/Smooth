@@ -55,7 +55,7 @@ namespace smooth::core::filesystem
 
     bool Path::operator!=(const char* other) const
     {
-        return !(*this == Path{other});
+        return !(*this == Path{ other });
     }
 
     bool Path::is_parent_of(const Path& child) const
@@ -79,12 +79,14 @@ namespace smooth::core::filesystem
                 res = child_path.find(this_path) == 0;
             }
         }
+
         return res;
     }
 
     Path Path::parent() const
     {
         Path res;
+
         if (p == separator)
         {
             res = ".";
@@ -92,7 +94,6 @@ namespace smooth::core::filesystem
         else
         {
             auto end_of_parent = std::find_end(p.begin(), p.end(), separator.begin(), separator.end());
-
 
             if (end_of_parent == p.end())
             {
@@ -128,6 +129,7 @@ namespace smooth::core::filesystem
         {
             auto prev = p.begin();
             auto pos = std::search(p.begin(), p.end(), separator.begin(), separator.end());
+
             if (pos != p.end())
             {
                 while (pos != p.end())
@@ -139,7 +141,7 @@ namespace smooth::core::filesystem
                         // Remove leading /
                         if (s.find('/') == 0)
                         {
-                            s = {s.begin() + 1, s.end()};
+                            s = { s.begin() + 1, s.end() };
                         }
 
                         // Skip paths referring to the current dir
@@ -148,6 +150,7 @@ namespace smooth::core::filesystem
                             res.emplace_back(s);
                         }
                     }
+
                     prev = pos;
 
                     pos = std::search(++pos, p.end(), separator.begin(), separator.end());
@@ -159,8 +162,8 @@ namespace smooth::core::filesystem
                 res.emplace_back(prev + 1, p.end());
             }
 
-
             std::vector<std::string> final_path{};
+
             // Loop the split path, removing non-dots for each dot found
             for (auto& part : res)
             {
@@ -217,7 +220,7 @@ namespace smooth::core::filesystem
         // The dot must be after the /, i.e. /foo/bar/file.ext
         if (last_dot > last_separator)
         {
-            extension = {last_dot, p.end()};
+            extension = { last_dot, p.end() };
         }
 
         return extension;
@@ -225,6 +228,6 @@ namespace smooth::core::filesystem
 
     bool Path::has_parent() const
     {
-        return parent() != Path{"."};
+        return parent() != Path{ "." };
     }
 }

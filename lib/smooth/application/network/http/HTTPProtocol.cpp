@@ -41,7 +41,6 @@ namespace smooth::application::network::http
         return regular ? regular->get_wanted_amount(packet) : websocket->get_wanted_amount(packet);
     }
 
-
     void HTTPProtocol::data_received(HTTPPacket& packet, int length)
     {
         if (regular)
@@ -59,18 +58,15 @@ namespace smooth::application::network::http
         return regular ? regular->get_write_pos(packet) : websocket->get_write_pos(packet);
     }
 
-
     bool HTTPProtocol::is_complete(HTTPPacket& packet) const
     {
         return regular ? regular->is_complete(packet) : websocket->is_complete(packet);
     }
 
-
     bool HTTPProtocol::is_error()
     {
         return regular ? regular->is_error() : websocket->is_error();
     }
-
 
     void HTTPProtocol::packet_consumed()
     {
@@ -84,13 +80,13 @@ namespace smooth::application::network::http
         }
     }
 
-
     void HTTPProtocol::reset()
     {
         if (websocket)
         {
             websocket->reset();
         }
+
         regular = std::make_unique<RegularHTTPProtocol>(max_header_size,
                                                         content_chunk_size,
                                                         response,
@@ -102,5 +98,4 @@ namespace smooth::application::network::http
         regular.reset();
         websocket = std::make_unique<websocket::WebsocketProtocol>(content_chunk_size, response);
     }
-
 }

@@ -22,8 +22,8 @@
 
 namespace smooth::application::network::http
 {
-    using namespace smooth::core;
     using namespace smooth::application::network::http::regular;
+    using namespace smooth::core;
 
     int RegularHTTPProtocol::get_wanted_amount(HTTPPacket& packet)
     {
@@ -34,6 +34,7 @@ namespace smooth::application::network::http
         {
             // How much left until we reach max header size?
             amount_to_request = max_header_size - total_bytes_received;
+
             // Make sure there is room for what he have received and what we ask for.
             packet.expand_by(amount_to_request);
         }
@@ -48,7 +49,6 @@ namespace smooth::application::network::http
 
         return amount_to_request;
     }
-
 
     void RegularHTTPProtocol::data_received(HTTPPacket& packet, int length)
     {
@@ -133,6 +133,7 @@ namespace smooth::application::network::http
     uint8_t* RegularHTTPProtocol::get_write_pos(HTTPPacket& packet)
     {
         int offset;
+
         if (state == State::reading_headers)
         {
             offset = total_bytes_received;
@@ -145,44 +146,41 @@ namespace smooth::application::network::http
         return &packet.data()[static_cast<std::vector<uint8_t>::size_type>(offset)];
     }
 
-
     bool RegularHTTPProtocol::is_complete(HTTPPacket& /*packet*/) const
     {
         auto complete = state != State::reading_headers;
 
         bool content_received =
-                // No content to read.
-                incoming_content_length == 0
-                // All content received
-                || total_content_bytes_received == incoming_content_length
-                // Packet filled, split into multiple chunks.
-                || content_bytes_received_in_current_part >= content_chunk_size;
+            incoming_content_length == 0 // No content to read.
+            || total_content_bytes_received == incoming_content_length // All content received
+            || content_bytes_received_in_current_part >= content_chunk_size; // Packet filled, split into multiple
+                                                                             // chunks.
 
         return complete && content_received;
     }
-
 
     bool RegularHTTPProtocol::is_error()
     {
         return error;
     }
 
-
     int RegularHTTPProtocol::consume_headers(HTTPPacket& packet,
                                              std::vector<uint8_t>::const_iterator header_ending)
     {
         std::stringstream ss;
 
-        std::for_each(packet.data().cbegin(), header_ending, [&ss](auto& c) {
-            if (c != '\n')
-            {
-                ss << static_cast<char>(c);
-            }
+        std::for_each(packet.data().cbegin(),
+                      header_ending,
+                      [&ss](auto& c) {
+                          if (c != '\n')
+                          {
+                              ss << static_cast<char>(c);
+                          }
         });
-
 
         // Get actual end of header
         header_ending += HTTPPacket::ending.size();
+
         // Update actual header size
         auto actual_header_bytes_received = static_cast<int>(std::distance(packet.data().cbegin(), header_ending));
 
@@ -190,14 +188,17 @@ namespace smooth::application::network::http
         packet.data().erase(packet.data().begin(), header_ending);
 
         std::string s;
+
         while (std::getline(ss, s, '\r'))
         {
             if (!s.empty())
             {
                 auto colon = std::find(s.begin(), s.end(), ':');
+
                 if (colon == s.end() && !s.empty())
                 {
                     std::smatch m;
+
                     if (std::regex_match(s, m, request_line))
                     {
                         // Store method for use in continued packets.
@@ -228,14 +229,15 @@ namespace smooth::application::network::http
                     {
                         // Headers are case-insensitive: https://tools.ietf.org/html/rfc7230#section-3.2
                         // Headers may be split on several lines, so append data if header isn't empty.
-                        auto& curr_header = packet.headers()[string_util::to_lower_copy({s.begin(), colon})];
+                        auto& curr_header = packet.headers()[string_util::to_lower_copy({ s.begin(), colon })];
+
                         if (curr_header.empty())
                         {
-                            curr_header = {colon + 2, s.end()};
+                            curr_header = { colon + 2, s.end() };
                         }
                         else
                         {
-                            curr_header.append(", ").append({colon + 2, s.end()});
+                            curr_header.append(", ").append({ colon + 2, s.end() });
                         }
                     }
                 }
@@ -244,7 +246,6 @@ namespace smooth::application::network::http
 
         return actual_header_bytes_received;
     }
-
 
     void RegularHTTPProtocol::packet_consumed()
     {
@@ -262,7 +263,6 @@ namespace smooth::application::network::http
 
         error = false;
     }
-
 
     void RegularHTTPProtocol::reset()
     {

@@ -33,9 +33,9 @@ namespace smooth::core::string_util
     bool icontains(const std::string& s, const std::string& to_find)
     {
         auto iequal = [](const unsigned char c, const unsigned char c2)
-        {
-            return std::tolower(c) == std::tolower(c2);
-        };
+                      {
+                          return std::tolower(c) == std::tolower(c2);
+                      };
 
         return std::search(s.begin(), s.end(), to_find.begin(), to_find.end(), iequal) != s.end();
     }

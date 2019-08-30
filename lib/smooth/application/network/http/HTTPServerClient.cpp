@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,11 +22,11 @@
 namespace smooth::application::network::http
 {
     static const char* tag = "HTTPServerClient";
-    using namespace websocket;
     using namespace websocket::responses;
+    using namespace websocket;
 
     void HTTPServerClient::event(
-            const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
+        const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
         if (mode == Mode::HTTP)
         {
@@ -37,9 +38,8 @@ namespace smooth::application::network::http
         }
     }
 
-    void
-    HTTPServerClient::event(
-            const smooth::core::network::event::TransmitBufferEmptyEvent&)
+    void HTTPServerClient::event(
+        const smooth::core::network::event::TransmitBufferEmptyEvent &)
     {
         if (current_operation)
         {
@@ -54,13 +54,14 @@ namespace smooth::application::network::http
             else if (res == ResponseStatus::NoData)
             {
                 current_operation.reset();
+
                 // Immediately send next
                 send_first_part();
             }
             else if (res == ResponseStatus::HasMoreData
                      || res == ResponseStatus::LastData)
             {
-                HTTPPacket p{data};
+                HTTPPacket p{ data };
                 auto& tx = this->container->get_tx_buffer();
                 tx.put(p);
             }
@@ -71,17 +72,14 @@ namespace smooth::application::network::http
         }
     }
 
-
     void HTTPServerClient::disconnected()
     {
     }
-
 
     void HTTPServerClient::connected()
     {
         this->socket->set_receive_timeout(DefaultKeepAlive);
     }
-
 
     void HTTPServerClient::reset_client()
     {
@@ -90,7 +88,6 @@ namespace smooth::application::network::http
         mode = Mode::HTTP;
         ws_server.reset();
     }
-
 
     bool HTTPServerClient::parse_url(std::string& raw_url)
     {
@@ -101,32 +98,36 @@ namespace smooth::application::network::http
         return res;
     }
 
-
     void HTTPServerClient::separate_request_parameters(std::string& url)
     {
         // Only supporting key=value format.
         request_parameters.clear();
 
         auto pos = std::find(url.begin(), url.end(), '?');
+
         if (pos != url.end())
         {
             encoding.decode(url, pos, url.end());
 
             pos++;
+
             while (pos != url.end())
             {
                 auto equal_sign = std::find(pos, url.end(), '=');
+
                 if (equal_sign != url.end())
                 {
                     // Find ampersand or end of string
                     auto ampersand = std::find(equal_sign, url.end(), '&');
                     auto key = std::string(pos, equal_sign);
-                    auto value = std::string{++equal_sign, ampersand};
+                    auto value = std::string{ ++equal_sign, ampersand };
                     request_parameters[key] = value;
+
                     if (ampersand != url.end())
                     {
                         ++ampersand;
                     }
+
                     pos = ampersand;
                 }
                 else
@@ -137,15 +138,15 @@ namespace smooth::application::network::http
         }
 
         pos = std::find(url.begin(), url.end(), '?');
+
         if (pos != url.end())
         {
             url.erase(pos, url.end());
         }
     }
 
-
     void HTTPServerClient::reply(
-            std::unique_ptr<IResponseOperation> response, bool place_first)
+        std::unique_ptr<IResponseOperation> response, bool place_first)
     {
         if (mode == Mode::HTTP)
         {
@@ -179,6 +180,7 @@ namespace smooth::application::network::http
         operations.clear();
         response->add_header(CONNECTION, "close");
         operations.emplace_back(std::move(response));
+
         if (!current_operation)
         {
             send_first_part();
@@ -209,15 +211,16 @@ namespace smooth::application::network::http
                 else
                 {
                     auto& tx = this->container->get_tx_buffer();
+
                     if (mode == Mode::HTTP)
                     {
                         // Whether or not everything is sent, send the current (possibly header-only) packet.
-                        HTTPPacket p{current_operation->get_response_code(), "1.1", headers, data};
+                        HTTPPacket p{ current_operation->get_response_code(), "1.1", headers, data };
                         tx.put(p);
                     }
                     else
                     {
-                        HTTPPacket p{data};
+                        HTTPPacket p{ data };
                         tx.put(p);
                     }
 
@@ -232,10 +235,9 @@ namespace smooth::application::network::http
                && res == ResponseStatus::NoData); // Process next operation as long as no data is sent.
     }
 
-
     bool HTTPServerClient::translate_method(
-            const smooth::application::network::http::HTTPPacket& packet,
-            smooth::application::network::http::HTTPMethod& method)
+        const smooth::application::network::http::HTTPPacket& packet,
+        smooth::application::network::http::HTTPMethod& method)
     {
         auto res = true;
 
@@ -268,13 +270,14 @@ namespace smooth::application::network::http
         return res;
     }
 
-
     void HTTPServerClient::set_keep_alive()
     {
         auto connection = request_headers.find("connection");
+
         if (connection != request_headers.end())
         {
             auto s = (*connection).second;
+
             if (string_util::icontains(s, "keep-alive"))
             {
                 this->socket->set_receive_timeout(DefaultKeepAlive);
@@ -285,6 +288,7 @@ namespace smooth::application::network::http
     void HTTPServerClient::http_event(const core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
         typename HTTPProtocol::packet_type packet;
+
         if (event.get(packet))
         {
             bool first_packet = !packet.is_continuation();
@@ -311,6 +315,7 @@ namespace smooth::application::network::http
                 if (context)
                 {
                     HTTPMethod method{};
+
                     if (translate_method(packet, method))
                     {
                         context->handle(method,
@@ -338,9 +343,11 @@ namespace smooth::application::network::http
     void HTTPServerClient::websocket_event(const smooth::core::network::event::DataAvailableEvent<HTTPProtocol>& event)
     {
         typename HTTPProtocol::packet_type packet;
+
         if (event.get(packet))
         {
             auto ws_op = packet.ws_control_code();
+
             if (ws_op >= OpCode::Close)
             {
                 if (ws_op == OpCode::Close)
