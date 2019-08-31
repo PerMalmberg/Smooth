@@ -59,17 +59,17 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
 - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 
 
-## Using Smooth in your project
+## Using Smooth in your project (compiling for ESP)
 
 In your ESP-IDF projects's root folder, type the following to add `smooth` as a submodule.
 
-```Bash
+```shell script
 git submodule add https://github.com/PerMalmberg/Smooth.git externals/smooth
 ```
 
 Assuming you are following IDF's recommended way of [structuring projects](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#example-project), make your top `CMakeLists.txt` look something like this:
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -89,7 +89,7 @@ endif()
 
 Next, your `main/CMakeLists.txt` should look something like this:
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -110,7 +110,7 @@ idf_component_register(SRCS ${SOURCES}
 
 Now build your project using the following commands, or via a properly setup IDE.
 
-```
+```shell script
 cd your_project_root
 mkdir build && cd build
 cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
@@ -118,7 +118,7 @@ cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmak
 
 or, if you're using old-fashioned `make`
 
-```
+```shell script
 cd your_project_root
 mkdir build && cd build
 cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
@@ -144,7 +144,45 @@ Please see the the different test projects under the test folder. When compiling
 root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
 in the top `CMakeLists.txt`. **You will likely have to re-generate your build files after changing the selection.**  
 
-## Running on Linux
+## Using Smooth in your project (compiling for Linux)
 
-Most I/O classes are replaced with mocks when built for Linux. As such you application may compile and run, but do 
-not expect actual functionality from the mocks.
+To build you application for Linux you must maintain a parallel build configuration as follows:
+
+Top `CMakeList.txt`
+
+```cmake
+if(${ESP_PLATFORM})
+    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
+    # Include Smooth as a component
+    set(EXTRA_COMPONENT_DIRS
+             externals/smooth/smooth_component)
+    project(your_project_name)
+else()
+    add_subdirectory(main)
+    add_subdirectory(externals/smooth/lib)
+    add_subdirectory(externals/smooth/mock-idf)
+endif()
+``` 
+
+Your `main/CMakeList.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+
+set(SOURCES} app.cpp app.h)
+
+if(${ESP_PLATFORM})
+    idf_component_register(SRCS ${SOURCES}
+                            INCLUDE_DIRS
+                                ${CMAKE_CURRENT_LIST_DIR}
+                                $ENV{IDF_PATH}/components
+                            REQUIRES
+                                smooth_component)
+else()
+    project(your_project_name.elf)
+    add_executable(${PROJECT_NAME} ${SOURCES})
+    target_link_libraries(${PROJECT_NAME} smooth pthread)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+endif()
+```
