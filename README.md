@@ -13,11 +13,11 @@ An application built with Smooth is entirely event driven and thread-safe*. Smoo
 
 Traditionally, embedded systems require a fully static memory footprint after start-up. Smooth takes
 a somewhat more pragmatic view on this; it utilizes the standard library (which is not memory static) to provide cleaner code,
-at the cost of some extra used bytes of RAM. However, where it is appropriate, such as with the *Queue*, things are designed so
-that the result is a memory static instance, i.e. a *smooth::ipc::Queue* will _not_ behave like an *std::vector*.  
+at the cost of some extra used bytes of RAM. However, where it is appropriate, such as with the queues, things are designed so
+that the result is a memory static instance, i.e. a `smooth::ipc::Queue` will have a memory static footprint once initialized.  
 
-Apart from hardware/IDF-specific classes, applications written using Smooth can be compiled and run on POSIX systems (e.g. Linux)
-without any special considerations. 
+[mock-idf](mock-idf/README.md) provides the ability to compile even applications that uses ESP-32 hardware for Linux
+with the only consideration that the mocks do not actually simulate the hardware. 
 
 *) To certain limits, of course.
 
