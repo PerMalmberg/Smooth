@@ -143,14 +143,15 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Output.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
-
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/wiegand/Wiegand.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
 if (${ESP_PLATFORM})
     list(APPEND SMOOTH_SOURCES
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
+
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/logging/idf/idf_log.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CCommandLink.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CMasterDevice.cpp
@@ -163,7 +164,7 @@ if (${ESP_PLATFORM})
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/ADS1115.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/MCP23017.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/i2c/BME280.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/application/io/wiegand/Wiegand.cpp
+
             )
 else()
     list(APPEND SMOOTH_SOURCES

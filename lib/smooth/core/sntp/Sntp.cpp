@@ -18,7 +18,6 @@
 
 #include <lwip/apps/sntp.h>
 #include <ctime>
-#include <iostream>
 #include <utility>
 
 namespace smooth::core::sntp
