@@ -15,3 +15,8 @@ int gpio_get_level(gpio_num_t /*gpio_num*/)
 {
     return 0;
 }
+
+esp_err_t gpio_set_pull_mode(gpio_num_t /*gpio_num*/, gpio_pull_mode_t /*pull*/)
+{
+    return ESP_OK;
+}

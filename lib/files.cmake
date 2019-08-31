@@ -139,21 +139,22 @@ set(SMOOTH_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/InterruptInput.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Input.cpp
         ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Output.h
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
         ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/Output.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
+
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
         $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
 if (${ESP_PLATFORM})
     list(APPEND SMOOTH_SOURCES
+            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/logging/idf/idf_log.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CCommandLink.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/I2CMasterDevice.cpp
             ${CMAKE_CURRENT_LIST_DIR}/smooth/core/io/i2c/Master.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/sntp/Sntp.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/core/filesystem/MMCSDCard.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Input.h
-            ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/Output.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/I2CCommandLink.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/InterruptInput.h
             ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth/core/io/i2c/I2CMasterDevice.h
