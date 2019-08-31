@@ -80,6 +80,7 @@ namespace mqtt
 
         std::string rep(len, 'Q');
         auto v = dis(gen);
+
         if (v == 1)
         {
             client.publish("network_test", rep, QoS::EXACTLY_ONCE, false);
@@ -98,5 +99,4 @@ namespace mqtt
             len = 1;
         }
     }
-
 }

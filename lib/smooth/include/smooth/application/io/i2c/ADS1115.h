@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,10 +23,9 @@
 namespace smooth::application::io
 {
     class ADS1115
-            : public smooth::core::io::i2c::I2CMasterDevice
+        : public smooth::core::io::i2c::I2CMasterDevice
     {
         public:
-
             enum Register
             {
                 Conversion = 0,
@@ -49,7 +49,7 @@ namespace smooth::application::io
             enum Range //FSR = Full Scale Range
             {
                 // MSB:
-                        FSR_6_144 = 0,  // 187.5uV
+                FSR_6_144 = 0,  // 187.5uV
                 FSR_4_096 = 1,  // 125uV
                 FSR_2_048 = 2,  // 62.5uV
                 FSR_1_024 = 3,  // 31.25uV
@@ -64,7 +64,7 @@ namespace smooth::application::io
             };
 
             enum DataRate
-                    : uint8_t
+            : uint8_t
             {
                 SPS_8 = 0,
                 SPS_16 = 1,
@@ -102,7 +102,6 @@ namespace smooth::application::io
                 DisableAssertion = 3,
             };
 
-
             ADS1115(i2c_port_t port, uint8_t address, std::mutex& guard);
 
             bool configure(Multiplexer mux,
@@ -132,6 +131,6 @@ namespace smooth::application::io
             uint16_t current_config;
             uint16_t current_low_thresh_hold;
             uint16_t current_high_thresh_hold;
-            std::chrono::steady_clock::time_point change_mark{std::chrono::steady_clock::time_point::min()};
+            std::chrono::steady_clock::time_point change_mark{ std::chrono::steady_clock::time_point::min() };
     };
 }

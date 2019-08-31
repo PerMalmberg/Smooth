@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@ using namespace smooth::core::logging;
 
 namespace smooth::core::filesystem
 {
-
     SPIFlash::SPIFlash(const FlashMount& mount_point, const char* partition_name, int max_file_count,
                        bool format_on_mount_failure)
             : root(*mount_point),

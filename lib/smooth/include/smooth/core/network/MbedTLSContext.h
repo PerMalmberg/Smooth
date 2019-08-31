@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,7 +27,7 @@
 
 namespace smooth::core::network
 {
-    void log_mbedtls_error(const char*  log_tag, const char* prefix, int err_code) noexcept;
+    void log_mbedtls_error(const char* log_tag, const char* prefix, int err_code) noexcept;
 
     class SSLContext
     {

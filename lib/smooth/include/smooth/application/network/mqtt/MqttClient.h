@@ -49,22 +49,23 @@ namespace smooth::application::network::mqtt
     /// MQTT client; handles everything required for a connection to a single MQTT broker
     /// such as connecting, subscribing and publishing topics.
     class MqttClient
-            : public smooth::core::Task,
-              private IMqttClient,
-              public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
-              public core::ipc::IEventListener<core::network::event::DataAvailableEvent<packet::MQTTProtocol>>,
-              public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
-              private core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
-              private core::ipc::IEventListener<event::BaseEvent>,
-              private core::ipc::IEventListener<smooth::core::network::NetworkStatus>,
-              public std::enable_shared_from_this<MqttClient>
+        : public smooth::core::Task,
+        private IMqttClient,
+        public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+        public core::ipc::IEventListener<core::network::event::DataAvailableEvent<packet::MQTTProtocol>>,
+        public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
+        private core::ipc::IEventListener<core::timer::TimerExpiredEvent>,
+        private core::ipc::IEventListener<event::BaseEvent>,
+        private core::ipc::IEventListener<smooth::core::network::NetworkStatus>,
+        public std::enable_shared_from_this<MqttClient>
     {
         public:
             /// Constructor
             /// \param mqtt_client_id The client ID to use when identifying to the broker. Must be unique.
             /// \param keep_alive The interval used for keep alive messages.
             /// \param stack_size The stack depth for the worker task. >=4096 should be sufficient.
-            /// \param priority Task priority. Depends on your system requirements. Usually tskIDLE_PRIORITY + some value.
+            /// \param priority Task priority. Depends on your system requirements. Usually tskIDLE_PRIORITY + some
+            // value.
             /// \param application_queue The queue where incoming messages will be posted.
             MqttClient(const std::string& mqtt_client_id, std::chrono::seconds keep_alive,
                        uint32_t stack_size,
@@ -74,7 +75,8 @@ namespace smooth::application::network::mqtt
             /// \param server_address The address
             /// \param enable_auto_reconnect If true, the client will automatically reconnect when connection is lost.
             void
-            connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address, bool enable_auto_reconnect);
+            connect_to(const std::shared_ptr<smooth::core::network::InetAddress>& server_address,
+                       bool enable_auto_reconnect);
 
             void reconnect() override
             {
@@ -130,6 +132,7 @@ namespace smooth::application::network::mqtt
             static std::string get_payload(const MQTTData& data);
 
         private:
+
             void event(const core::network::event::TransmitBufferEmptyEvent& event) override;
 
             void event(const core::network::event::ConnectionStatusEvent& event) override;
@@ -165,7 +168,8 @@ namespace smooth::application::network::mqtt
                 return subscription;
             }
 
-            std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>> get_application_queue() override
+            std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string,
+                                                              std::vector<uint8_t>>>> get_application_queue() override
             {
                 return application_queue;
             }
@@ -178,10 +182,9 @@ namespace smooth::application::network::mqtt
 
             void force_disconnect() override;
 
-
-            using TimerQueue = core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
             using ControlQueue = core::ipc::TaskEventQueue<smooth::application::network::mqtt::event::BaseEvent>;
             using SystemQueue = core::ipc::SubscribingTaskEventQueue<smooth::core::network::NetworkStatus>;
+            using TimerQueue = core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
 
             std::weak_ptr<core::ipc::TaskEventQueue<std::pair<std::string, std::vector<uint8_t>>>> application_queue;
             std::shared_ptr<TimerQueue> timer_events;

@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -27,6 +28,7 @@ namespace smooth::application::network::mqtt::state
         fsm.get_mqtt().get_subscription().handle_disconnect();
 
         fsm.get_mqtt().set_keep_alive_timer(std::chrono::seconds(0));
+
         if (fsm.get_mqtt().is_auto_reconnect())
         {
             fsm.get_mqtt().start_reconnect();
@@ -52,5 +54,4 @@ namespace smooth::application::network::mqtt::state
             fsm.set_state(new(fsm) ConnectToBrokerState(fsm));
         }
     }
-
 }

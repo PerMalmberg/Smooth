@@ -51,10 +51,9 @@ namespace smooth::core::fsm
             /// \param state
             void set_state(BaseState* state);
 
-            void* select_memory_area(size_t size);
+            void * select_memory_area(size_t size);
 
         protected:
-
             /// Called as a notification to the subclassing FSM before a new state is entered.
             /// \param state The new state
             virtual void entering_state(BaseState*)
@@ -69,7 +68,7 @@ namespace smooth::core::fsm
 
             /// Gets the current state
             /// \return The current state
-            BaseState* get_state() const
+            BaseState * get_state() const
             {
                 return current_state;
             }
@@ -80,7 +79,6 @@ namespace smooth::core::fsm
 #pragma pack(pop)
             BaseState* current_state = nullptr;
     };
-
 
     template<typename BaseState, int StateSize>
     StaticFSM<BaseState, StateSize>::~StaticFSM()
@@ -108,7 +106,7 @@ namespace smooth::core::fsm
 
         // Get the memory not used by the active state.
         void* reclaimed =
-                current_state == reinterpret_cast<void*>(&state[0][0]) ? &state[1][0] : &state[0][0];
+            current_state == reinterpret_cast<void*>(&state[0][0]) ? &state[1][0] : &state[0][0];
 
         return reclaimed;
     }
@@ -135,7 +133,6 @@ void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSiz
     // Return the memory area to use for placement new.
     return fsm.select_memory_area(size);
 }
-
 
 template<typename BaseState, int StateSize>
 void operator delete(void*, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)

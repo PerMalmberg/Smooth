@@ -31,8 +31,7 @@ namespace http_server_test
         headers[CONTENT_TYPE] = "application/octet-stream";
     }
 
-    ResponseStatus
-    http_server_test::SendBlob::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
+    ResponseStatus http_server_test::SendBlob::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
         auto res = ResponseStatus::NoData;
 

@@ -35,7 +35,6 @@ using namespace std::chrono;
 
 namespace json_test
 {
-
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(1))
     {
@@ -43,8 +42,8 @@ namespace json_test
 
     void App::tick()
     {
-        auto *json = cJSON_Parse(json_data);
-        Value root{json};
+        auto* json = cJSON_Parse(json_data);
+        Value root{ json };
         assert(root["key_with_string"] == "value");
         root["key_with_string"] = "new_value";
         assert(root["key_with_string"] == "new_value");
@@ -189,10 +188,9 @@ namespace json_test
         }
 
         {
-            Value v = Value{R"({"a":123})"};
+            Value v = Value{ R"({"a":123})" };
             Log::info("aa", v.to_string().c_str());
             assert(v["a"].get_int(0) == 123);
         }
     }
-
 }

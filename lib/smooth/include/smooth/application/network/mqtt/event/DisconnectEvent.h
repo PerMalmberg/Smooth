@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::event
 {
     class DisconnectEvent
-            : public BaseEvent
+        : public BaseEvent
     {
         public:
             DisconnectEvent()

@@ -31,8 +31,8 @@
 namespace smooth::core::network
 {
     class CommonSocket
-            : public ISocket,
-              public std::enable_shared_from_this<ISocket>
+        : public ISocket,
+        public std::enable_shared_from_this<ISocket>
     {
         public:
             CommonSocket()
@@ -98,8 +98,8 @@ namespace smooth::core::network
             bool active = false;
             bool connected = false;
             int socket_id = INVALID_SOCKET;
-            std::chrono::milliseconds send_timeout{0};
-            std::chrono::milliseconds receive_timeout{0};
+            std::chrono::milliseconds send_timeout{ 0 };
+            std::chrono::milliseconds receive_timeout{ 0 };
             smooth::core::timer::ElapsedTime elapsed_send_time{};
             smooth::core::timer::ElapsedTime elapsed_receive_time{};
     };

@@ -22,7 +22,6 @@
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/Task.h>
 
-
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/core/network/Wifi.h>
@@ -37,7 +36,7 @@ namespace smooth::core
     /// Be sure to adjust the stack size of the main task accordingly using 'make menuconfig'.
     /// Note: Unlike the version of start() in Task, when called on an Application instance start() never returns.
     class POSIXApplication
-            : public Task
+        : public Task
     {
         public:
             /// Constructor
@@ -55,17 +54,17 @@ namespace smooth::core
             {
                 return wifi;
             }
+
         private:
             network::Wifi wifi{};
     };
-
 
 #ifdef ESP_PLATFORM
 
     /// The IDFApplication extends Application with things needed to run under the IDF framework
     class IDFApplication
-            : public POSIXApplication,
-              public smooth::core::ipc::IEventListener<system_event_t>
+        : public POSIXApplication,
+        public smooth::core::ipc::IEventListener<system_event_t>
     {
         public:
             /// Constructor
@@ -95,11 +94,11 @@ namespace smooth::core
 #endif // END ESP_PLATFORM
 
     class Application
-            :
+        :
 #ifdef ESP_PLATFORM
-                    public IDFApplication
+        public IDFApplication
 #else
-            public POSIXApplication
+        public POSIXApplication
 #endif
     {
         public:
@@ -110,12 +109,11 @@ namespace smooth::core
             Application(uint32_t priority, std::chrono::milliseconds tick_interval)
                     :
 #ifdef ESP_PLATFORM
-                    IDFApplication(priority, tick_interval)
+                      IDFApplication(priority, tick_interval)
 #else
-            POSIXApplication(priority, tick_interval)
+                      POSIXApplication(priority, tick_interval)
 #endif
             {
             }
     };
-
 }

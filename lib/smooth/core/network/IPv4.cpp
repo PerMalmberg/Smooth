@@ -26,19 +26,18 @@ using namespace smooth::core::logging;
 
 namespace smooth::core::network
 {
-
-    std::regex const IPv4::numeric_ip{R"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", std::regex::ECMAScript};
+    std::regex const IPv4::numeric_ip{ R"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", std::regex::ECMAScript };
 
     IPv4::IPv4(int octet_1, int octet_2, int octet_3, int octet_4, uint16_t port)
             : InetAddress(
-            std::to_string(octet_1)
-            + "."
-            + std::to_string(octet_2)
-            + "."
-            + std::to_string(octet_3)
-            + "."
-            + std::to_string(octet_4),
-            port)
+                  std::to_string(octet_1)
+                  + "."
+                  + std::to_string(octet_2)
+                  + "."
+                  + std::to_string(octet_3)
+                  + "."
+                  + std::to_string(octet_4),
+                  port)
     {
         memset(&sock_address, 0, sizeof(sock_address));
     }
@@ -68,6 +67,7 @@ namespace smooth::core::network
     bool IPv4::resolve_ip()
     {
         std::smatch match;
+
         if (std::regex_match(host, match, numeric_ip))
         {
             // Already an IP
@@ -83,6 +83,7 @@ namespace smooth::core::network
             struct addrinfo* result = nullptr;
 
             auto res = getaddrinfo(host.c_str(), nullptr, nullptr, &result);
+
             if (res != 0)
             {
 #if ESP_PLATFORM

@@ -39,8 +39,8 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------8819839691792623414370909194", 0));
 
-            const auto file = Path{__FILE__}.parent() / "test_data" / "post_result_data.txt";
-            File f{file};
+            const auto file = Path{ __FILE__ }.parent() / "test_data" / "post_result_data.txt";
+            File f{ file };
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
 
@@ -52,7 +52,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                                           const std::string& actual_file_name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
-                    (void)actual_file_name;
+                                     (void)actual_file_name;
 
                     constexpr auto text_txt = std::array<uint8_t, 32>{0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
                                                                       0xe3, 0xb1, 0x4c, 0x36, 0x1d, 0xc2, 0xa9, 0x3a,
@@ -64,22 +64,22 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                                                                        0xd2, 0x95, 0x1e, 0x19, 0x16, 0x16, 0xcd, 0x97,
                                                                        0x2c, 0x5d, 0x49, 0x00, 0x4d, 0x45, 0x65, 0xe6};
 
-                    count++;
+                                     count++;
 
-                    MIMEParser::MimeData data{begin, end};
-                    auto hash = smooth::application::hash::sha256(data.data(), data.size());
+                                     MIMEParser::MimeData data{ begin, end };
+                                     auto hash = smooth::application::hash::sha256(data.data(), data.size());
 
-                    if (name == "file_to_upload")
-                    {
-                        REQUIRE(hash == text_txt);
-                    }
-                    else if (name == "second_file_to_upload")
-                    {
-                        REQUIRE(hash == text2_txt);
-                    }
-                };
+                                     if (name == "file_to_upload")
+                                     {
+                                         REQUIRE(hash == text_txt);
+                                     }
+                                     else if (name == "second_file_to_upload")
+                                     {
+                                         REQUIRE(hash == text2_txt);
+                                     }
+                                 };
 
-                auto url_encoded_data = [](const std::unordered_map<std::string, std::string>&){};
+                auto url_encoded_data = [](const std::unordered_map<std::string, std::string>&) {};
 
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.
@@ -108,8 +108,8 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------7184603361412956941791020073", 0));
 
-            const auto file = Path{__FILE__}.parent() / "test_data" / "post_binary_data.bin";
-            File f{file};
+            const auto file = Path{ __FILE__ }.parent() / "test_data" / "post_binary_data.bin";
+            File f{ file };
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
 
@@ -121,36 +121,43 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                                           const std::string& actual_file_name,
                                           const MIMEParser::BoundaryIterator& begin,
                                           const MIMEParser::BoundaryIterator& end) {
+                                     (void)actual_file_name;
 
-                    (void)actual_file_name;
+                                     constexpr auto accept_png =
+                                         std::array<uint8_t, 32>{ 0x0a, 0x73, 0x3b, 0x99, 0xfc, 0xd0, 0x3c, 0x5e,
+                                                                  0x63, 0x59, 0xd0, 0x97, 0x3a,
+                                                                  0x16, 0x9b, 0xbf,
+                                                                  0xaf, 0x94, 0x48, 0x52, 0x27,
+                                                                  0x43, 0x74, 0x80,
+                                                                  0xd9, 0xc7, 0x03, 0xbb, 0xe5,
+                                                                  0x8e, 0x4b, 0x4c };
 
-                    constexpr auto accept_png = std::array<uint8_t, 32>{0x0a, 0x73, 0x3b, 0x99, 0xfc, 0xd0, 0x3c, 0x5e,
-                                                                        0x63, 0x59, 0xd0, 0x97, 0x3a, 0x16, 0x9b, 0xbf,
-                                                                        0xaf, 0x94, 0x48, 0x52, 0x27, 0x43, 0x74, 0x80,
-                                                                        0xd9, 0xc7, 0x03, 0xbb, 0xe5, 0x8e, 0x4b, 0x4c};
+                                     constexpr auto anchor_png =
+                                         std::array<uint8_t, 32>{ 0xc6, 0xbe, 0x60, 0xaf, 0x8a, 0xf7, 0xb9, 0x83,
+                                                                  0x0c, 0xdc, 0xb0, 0x26, 0x84,
+                                                                  0xa3, 0x84, 0x4a,
+                                                                  0x99, 0x88, 0x92, 0x6c, 0x3d,
+                                                                  0x1f, 0x3f, 0x5c,
+                                                                  0xb6, 0xcd, 0x00, 0xe2, 0x72,
+                                                                  0x60, 0x76, 0x78 };
 
-                    constexpr auto anchor_png = std::array<uint8_t, 32>{0xc6, 0xbe, 0x60, 0xaf, 0x8a, 0xf7, 0xb9, 0x83,
-                                                                        0x0c, 0xdc, 0xb0, 0x26, 0x84, 0xa3, 0x84, 0x4a,
-                                                                        0x99, 0x88, 0x92, 0x6c, 0x3d, 0x1f, 0x3f, 0x5c,
-                                                                        0xb6, 0xcd, 0x00, 0xe2, 0x72, 0x60, 0x76, 0x78};
+                                     count++;
 
-                    count++;
+                                     MIMEParser::MimeData data{ begin, end };
 
-                    MIMEParser::MimeData data{begin, end};
+                                     auto hash = smooth::application::hash::sha256(data.data(), data.size());
 
-                    auto hash = smooth::application::hash::sha256(data.data(), data.size());
+                                     if (name == "file_to_upload")
+                                     {
+                                         REQUIRE(hash == accept_png);
+                                     }
+                                     else if (name == "second_file_to_upload")
+                                     {
+                                         REQUIRE(hash == anchor_png);
+                                     }
+                                 };
 
-                    if (name == "file_to_upload")
-                    {
-                        REQUIRE(hash == accept_png);
-                    }
-                    else if (name == "second_file_to_upload")
-                    {
-                        REQUIRE(hash == anchor_png);
-                    }
-                };
-
-                auto url_encoded_data = [](std::unordered_map<std::string, std::string>&){};
+                auto url_encoded_data = [](std::unordered_map<std::string, std::string>&) {};
 
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.
@@ -176,12 +183,12 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
 
         WHEN("Provided with chunks of url encoded data")
         {
-            auto file = Path{__FILE__}.parent() / "test_data" / "url_encoded.txt";
-            FileInfo info{file};
+            auto file = Path{ __FILE__ }.parent() / "test_data" / "url_encoded.txt";
+            FileInfo info{ file };
 
             REQUIRE(mime.detect_mode("application/x-www-form-urlencoded", info.size()));
 
-            File f{file};
+            File f{ file };
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
 
@@ -190,9 +197,9 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
                 auto form_data = MIMEParser::FormDataCallback();
 
                 std::unordered_map<std::string, std::string> received{};
-                auto url_encoded_data = [&received](std::unordered_map<std::string, std::string>& url_data){
-                    received = std::move(url_data);
-                };
+                auto url_encoded_data = [&received](std::unordered_map<std::string, std::string>& url_data) {
+                                            received = std::move(url_data);
+                                        };
 
                 // Give the parser data in as small chunks as possible, i.e. one byte at a time
                 // to make sure we can handle such split data.

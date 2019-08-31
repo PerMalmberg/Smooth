@@ -47,6 +47,7 @@ namespace smooth::core::network
         auto* ptr = reinterpret_cast<uint8_t*>(&value);
         std::reverse(ptr, ptr + sizeof(T));
 #endif
+
         return value;
     }
 

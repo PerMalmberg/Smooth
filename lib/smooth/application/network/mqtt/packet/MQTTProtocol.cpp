@@ -29,8 +29,8 @@
 
 #endif // END ESP_PLATFORM
 
-using namespace std;
 using namespace smooth::core::logging;
+using namespace std;
 
 namespace smooth::application::network::mqtt::packet
 {
@@ -40,6 +40,7 @@ namespace smooth::application::network::mqtt::packet
         // then we read the maximum allowed amount, but it will just be overwritten
         // by the next time we read data.
         int wanted;
+
         if (is_too_big())
         {
             wanted = std::min(remaining_bytes_to_read, CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
@@ -65,6 +66,7 @@ namespace smooth::application::network::mqtt::packet
         {
             // Second and optionally 3rd to 5th bytes
             core::util::ByteSet b(packet.data[static_cast<size_t>(bytes_received - 1)]);
+
             if (b.test(7))
             {
                 // Not yet received all length bytes
@@ -76,7 +78,7 @@ namespace smooth::application::network::mqtt::packet
 
                 // We can now calculate the length of the remaining data
                 remaining_bytes_to_read = packet
-                        .calculate_remaining_length_and_variable_header_offset();
+                                          .calculate_remaining_length_and_variable_header_offset();
 
                 if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                 {
@@ -102,7 +104,6 @@ namespace smooth::application::network::mqtt::packet
         }
     }
 
-
     uint8_t* MQTTProtocol::get_write_pos(MQTTProtocol::packet_type& packet)
     {
         uint8_t* pos;
@@ -110,9 +111,9 @@ namespace smooth::application::network::mqtt::packet
         // Make room for remaining data. In the case of a too big package, allocate
         // maximum allowed to enable quick read of the data.
         auto required_size =
-                is_too_big() ?
-                received_header_length + CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE :
-                bytes_received + get_wanted_amount(packet);
+            is_too_big() ?
+            received_header_length + CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE :
+            bytes_received + get_wanted_amount(packet);
 
         // Make sure there is room to do direct memory writes by reserving space.
         packet.data.resize(static_cast<size_t>(required_size), 0);
@@ -131,12 +132,10 @@ namespace smooth::application::network::mqtt::packet
         return pos;
     }
 
-
     bool MQTTProtocol::is_complete(MQTTPacket&) const
     {
         return remaining_bytes_to_read == 0;
     }
-
 
     bool MQTTProtocol::is_error()
     {

@@ -25,14 +25,17 @@ namespace smooth::core::network
 {
     /// Wifi management class
     class Wifi
-            : public smooth::core::ipc::IEventListener<system_event_t>
+        : public smooth::core::ipc::IEventListener<system_event_t>
     {
         public:
             Wifi();
 
             Wifi(const Wifi&) = delete;
+
             Wifi(Wifi&&) = delete;
+
             Wifi& operator=(const Wifi&) = delete;
+
             Wifi& operator=(Wifi&&) = delete;
 
             ~Wifi() override;

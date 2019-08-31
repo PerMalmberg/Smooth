@@ -25,8 +25,8 @@
 #include <smooth/core/util/copy_n_to_buffer.h>
 #include <smooth/core/logging/log.h>
 
-using namespace smooth::core;
 using namespace smooth::core::util;
+using namespace smooth::core;
 
 namespace smooth::core::network
 {
@@ -57,7 +57,6 @@ namespace smooth::core::network
     {
         auto_connect_to_ap = auto_connect;
     }
-
 
     void Wifi::connect_to_ap()
     {
@@ -112,6 +111,7 @@ namespace smooth::core::network
             core::ipc::Publisher<network::NetworkStatus>::publish(status);
 
             connected_to_ap = false;
+
             if (auto_connect_to_ap)
             {
                 esp_wifi_stop();
@@ -160,6 +160,7 @@ namespace smooth::core::network
         std::stringstream mac;
 
         uint8_t m[6];
+
         if (esp_wifi_get_mac(WIFI_IF_STA, m) == ESP_OK)
         {
             for (const auto& v : m)
@@ -168,6 +169,7 @@ namespace smooth::core::network
                 {
                     mac << "_";
                 }
+
                 mac << std::hex << static_cast<int>(v);
             }
         }

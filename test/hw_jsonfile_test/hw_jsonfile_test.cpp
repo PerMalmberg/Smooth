@@ -36,7 +36,6 @@ using namespace std::chrono;
 
 namespace hw_jsonfile_test
 {
-
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(1))
     {
@@ -44,26 +43,24 @@ namespace hw_jsonfile_test
 
     void App::tick()
     {
-        SPIFlash flash{FlashMount::instance(), "app_storage", 10, true};
+        SPIFlash flash{ FlashMount::instance(), "app_storage", 10, true };
         assert(flash.mount());
 
         {
             unlink(FlashMount::instance().mount_point() / "file.jsn");
-            JsonFile jf{FlashMount::instance().mount_point() / "file.jsn"};
+            JsonFile jf{ FlashMount::instance().mount_point() / "file.jsn" };
             auto& v = jf.value();
             assert(v["Foo"].get_string("").empty());
             v["Foo"] = "Bar";
             assert(jf.save());
         }
         {
-            JsonFile jf{FlashMount::instance().mount_point() / "file.jsn"};
+            JsonFile jf{ FlashMount::instance().mount_point() / "file.jsn" };
             auto& v = jf.value();
             assert(v["Foo"].get_string("") == "Bar");
             unlink(FlashMount::instance().mount_point() / "file.json");
         }
 
-
         flash.unmount();
     }
-
 }

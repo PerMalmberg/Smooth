@@ -22,7 +22,10 @@
 namespace smooth::core::filesystem
 {
     bool create_directory(Path&& path);
+
     bool exists(Path&& path);
+
     bool exists(const Path& path);
+
     bool is_directory(const Path& path);
 }

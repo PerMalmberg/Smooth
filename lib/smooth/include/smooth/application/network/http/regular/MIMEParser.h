@@ -30,9 +30,11 @@ namespace smooth::application::network::http::regular
             using MimeData = std::vector<uint8_t>;
             using BoundaryIterator = MimeData::const_iterator;
             using Boundaries = std::vector<BoundaryIterator>;
-            using FormDataCallback = std::function<void(const std::string& field_name, const std::string& actual_file_name, const BoundaryIterator& begin,
-                                                       const BoundaryIterator& end)>;
-            using URLEncodedDataCallback = std::function<void(std::unordered_map<std::string, std::string>& data)>;
+            using FormDataCallback = std::function<void (const std::string& field_name,
+                                                         const std::string& actual_file_name,
+                                                         const BoundaryIterator& begin,
+                                                         const BoundaryIterator& end)>;
+            using URLEncodedDataCallback = std::function<void (std::unordered_map<std::string, std::string>& data)>;
 
             bool detect_mode(const std::string& content_type, std::size_t content_length);
 
@@ -50,9 +52,9 @@ namespace smooth::application::network::http::regular
         private:
             enum class Mode
             {
-                    None,
-                    FormData,
-                    FormURLEncoded
+                None,
+                FormData,
+                FormURLEncoded
             };
 
             auto find_boundaries() const;
@@ -68,20 +70,20 @@ namespace smooth::application::network::http::regular
             bool is_crlf(BoundaryIterator start) const;
 
             std::tuple<BoundaryIterator,
-                    std::unordered_map<std::string, std::string>,
-                    std::unordered_map<std::string, std::string>>
+                       std::unordered_map<std::string, std::string>,
+                       std::unordered_map<std::string, std::string>>
             consume_headers(BoundaryIterator begin, BoundaryIterator end) const;
 
             std::vector<uint8_t> boundary{};
             std::vector<uint8_t> end_boundary{};
             std::vector<uint8_t> data{};
             std::unordered_map<std::string, std::string> form_url_encoded_data{};
-            const std::regex form_data_pattern{R"!(multipart\/form-data;.*boundary=(.+?)( |$))!"};
-            const std::regex url_encoded_pattern{R"!(application\/x-www-form-urlencoded)!"};
-            const std::vector<uint8_t> crlf{'\r', '\n'};
-            const std::vector<uint8_t> crlf_double{'\r', '\n', '\r', '\n'};
-            Mode mode{Mode::None};
-            std::size_t expected_content_length{0};
+            const std::regex form_data_pattern{ R"!(multipart\/form-data;.*boundary=(.+?)( |$))!" };
+            const std::regex url_encoded_pattern{ R"!(application\/x-www-form-urlencoded)!" };
+            const std::vector<uint8_t> crlf{ '\r', '\n' };
+            const std::vector<uint8_t> crlf_double{ '\r', '\n', '\r', '\n' };
+            Mode mode{ Mode::None };
+            std::size_t expected_content_length{ 0 };
 
             void parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
                                            std::unordered_map<std::string, std::string>& content_disposition) const;

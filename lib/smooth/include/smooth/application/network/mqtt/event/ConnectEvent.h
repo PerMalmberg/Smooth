@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::event
 {
     class ConnectEvent
-            : public BaseEvent
+        : public BaseEvent
     {
         public:
             ConnectEvent()

@@ -23,15 +23,16 @@
 namespace http_server_test
 {
     class WSEchoServer
-            : public smooth::application::network::http::websocket::WebsocketServer,
-            smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
+        : public smooth::application::network::http::websocket::WebsocketServer,
+        smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
     {
         public:
             WSEchoServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task);
 
             ~WSEchoServer() override = default;
 
-            void data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data) override;
+            void data_received(bool first_part, bool last_part, bool is_text,
+                               const std::vector<uint8_t>& data) override;
 
             void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 

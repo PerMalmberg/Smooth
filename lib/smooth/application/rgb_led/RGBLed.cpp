@@ -58,6 +58,7 @@ namespace smooth::application::rgb_led
         // Reserve space for bits_per_pixel for each LED plus one for reset pulse.
         auto size = led_count * bits_per_pixel + 1;
         led_data.reserve(size);
+
         for (auto i = 0; i < size; ++i)
         {
             led_data.push_back(reset);
@@ -71,7 +72,7 @@ namespace smooth::application::rgb_led
 
     uint16_t RGBLed::get_rmt_duration(uint16_t duration_in_ns)
     {
-        return static_cast<uint16_t>( duration_in_ns / (pulse_width * clock_divider));
+        return static_cast<uint16_t>(duration_in_ns / (pulse_width * clock_divider));
     }
 
     void RGBLed::set_pixel(uint16_t ix, uint8_t red, uint8_t green, uint8_t blue)

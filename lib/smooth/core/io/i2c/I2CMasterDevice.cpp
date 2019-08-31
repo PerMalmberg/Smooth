@@ -48,6 +48,7 @@ namespace smooth::core::io::i2c
         if (res == ESP_OK)
         {
             res = i2c_master_cmd_begin(port, link, to_tick(timeout));
+
             if (res == ESP_OK)
             {
                 write_result = true;
@@ -82,14 +83,17 @@ namespace smooth::core::io::i2c
 
         // Set R/W bit to 0 for write.
         auto write_address = static_cast<uint8_t>(address << 1);
+
         // Set R/W bit to 1 for read.
         auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
 
         // Generate start condition
         auto res = i2c_master_start(link);
+
         // Write the slave write address followed by the register address.
         res |= i2c_master_write_byte(link, write_address, true);
         res |= i2c_master_write_byte(link, slave_register, true);
+
         // Generate another start condition or stop condition
         if (use_restart_signal)
         {
@@ -139,6 +143,7 @@ namespace smooth::core::io::i2c
         std::vector<uint8_t> found;
         scan_i2c_bus(found);
         auto dev = std::find(found.begin(), found.end(), address);
+
         return dev != found.end();
     }
 

@@ -21,7 +21,7 @@
 namespace smooth::core::util
 {
     class ByteSet
-            : public std::bitset<8>
+        : public std::bitset<8>
     {
         public:
             explicit ByteSet(uint8_t value)
@@ -49,6 +49,7 @@ namespace smooth::core::util
                     {
                         res = static_cast<uint8_t>(res | (1 << ix));
                     }
+
                     ++ix;
                 }
 

@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,14 +23,14 @@ using namespace smooth::core::logging;
 namespace smooth::core::io::spi
 {
     Master::Master(
-            spi_host_device_t host,
-            SPI_DMA_Channel dma_channel,
-            gpio_num_t mosi,
-            gpio_num_t miso,
-            gpio_num_t clock,
-            gpio_num_t quadwp_io_num,
-            gpio_num_t quadhd_io_num
-    )
+        spi_host_device_t host,
+        SPI_DMA_Channel dma_channel,
+        gpio_num_t mosi,
+        gpio_num_t miso,
+        gpio_num_t clock,
+        gpio_num_t quadwp_io_num,
+        gpio_num_t quadhd_io_num
+        )
             : host(host),
               dma_channel(dma_channel)
     {
@@ -44,6 +45,7 @@ namespace smooth::core::io::spi
     bool Master::initialize()
     {
         std::lock_guard<std::mutex> lock(guard);
+
         if (!initialized)
         {
             esp_err_t res = spi_bus_initialize(host, &bus_config, dma_channel);

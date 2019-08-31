@@ -54,7 +54,7 @@ namespace smooth::application::network::mqtt::packet
         // Keep Alive - limit range to 0 ~ std::numeric_limits<uint16_t>::max()
         auto keep_alive_interval = std::max(static_cast<uint16_t>(0),
                                             std::min(std::numeric_limits<uint16_t>::max(),
-                                                     static_cast<uint16_t>( keep_alive.count())));
+                                                     static_cast<uint16_t>(keep_alive.count())));
 
         variable_header.push_back(static_cast<uint8_t>(keep_alive_interval >> 8)); // MSB
         variable_header.push_back(static_cast<uint8_t>(keep_alive_interval & 0xFF)); // LSB
@@ -69,7 +69,6 @@ namespace smooth::application::network::mqtt::packet
         // Password
 
         apply_constructed_data(variable_header);
-
     }
 
     bool Connect::get_clean_session()

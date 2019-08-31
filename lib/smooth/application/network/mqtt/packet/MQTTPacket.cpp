@@ -39,6 +39,7 @@ namespace smooth::application::network::mqtt::packet
         ++offset;
 
         std::stringstream ss;
+
         for (int i = 0; offset != data.cend() && i < length; ++offset, ++i)
         {
             ss << *offset;
@@ -53,7 +54,8 @@ namespace smooth::application::network::mqtt::packet
         // actually use the bits as QoS (e.g. PubRel)
         smooth::core::util::ByteSet b(data[0]);
         auto value = static_cast<uint8_t>((b.test(1) ? 1 : 0) | ((b.test(2) ? 1 : 0) << 1));
-        return static_cast<QoS>( value );
+
+        return static_cast<QoS>(value);
     }
 
     void MQTTPacket::set_header(PacketType type, QoS qos, bool dup, bool retain)
@@ -73,7 +75,6 @@ namespace smooth::application::network::mqtt::packet
         data.push_back(value);
     }
 
-
     void MQTTPacket::append_string(const std::string& str, std::vector<uint8_t>& target)
     {
         // Maximum length is 65535 since that is what can be represented as a 16-bit number.
@@ -82,19 +83,20 @@ namespace smooth::application::network::mqtt::packet
 
         for (uint16_t i = 0; i < length; ++i)
         {
-            target.push_back(static_cast<uint8_t&&>(str[i]));
+            target.push_back(static_cast<uint8_t &&>(str[i]));
         }
     }
 
     void MQTTPacket::append_msb_lsb(uint16_t value, std::vector<uint8_t>& target)
     {
-        target.push_back(static_cast<uint8_t&&>(value >> 8));
-        target.push_back(static_cast<uint8_t&&>(value & 0xFF));
+        target.push_back(static_cast<uint8_t &&>(value >> 8));
+        target.push_back(static_cast<uint8_t &&>(value & 0xFF));
     }
 
     void MQTTPacket::apply_constructed_data(const std::vector<uint8_t>& variable)
     {
         encode_remaining_length(static_cast<int>(variable.size()));
+
         // Using move_iterator we reduce the memory foot print by actually moving
         // instead of copying the data.
         std::copy(std::make_move_iterator(variable.begin()),
@@ -109,7 +111,7 @@ namespace smooth::application::network::mqtt::packet
         {
             for (int i = 0; i < 4 && length > 0; ++i)
             {
-                data.push_back(static_cast<uint8_t&&>(length % 0x80));
+                data.push_back(static_cast<uint8_t &&>(length % 0x80));
                 length /= 0x80;
 
                 if (length > 0)
@@ -175,12 +177,9 @@ namespace smooth::application::network::mqtt::packet
             // Ensure that data lengths add up.
             calculate_remaining_length_and_variable_header_offset();
             auto left_over = static_cast<long>(data.size())
-                             // Fixed header
-                             - std::distance(data.cbegin(), get_variable_header_start())
-                             // Variable header
-                             - static_cast<long>(get_variable_header_length())
-                             // Payload
-                             - get_payload_length();
+                             - std::distance(data.cbegin(), get_variable_header_start()) // Fixed header
+                             - static_cast<long>(get_variable_header_length()) // Variable header
+                             - get_payload_length(); // Payload
 
             if (left_over != 0)
             {
@@ -225,7 +224,6 @@ namespace smooth::application::network::mqtt::packet
         ss << "D(" << b.test(3) << ") ";
         Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
 
-
         if (has_payload() && get_payload_length() > 0)
         {
             ss.str("");
@@ -249,6 +247,7 @@ namespace smooth::application::network::mqtt::packet
     const char* MQTTPacket::get_mqtt_type_as_string() const
     {
         auto it = packet_type_as_string.find(get_mqtt_type());
+
         return it == packet_type_as_string.end() ? "Unknown packet" : it->second;
     }
 
@@ -269,4 +268,3 @@ namespace smooth::application::network::mqtt::packet
         data[0] = b;
     }
 }
-

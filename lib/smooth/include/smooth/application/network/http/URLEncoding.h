@@ -29,4 +29,3 @@ namespace smooth::application::network::http
             bool decode(std::string& url, std::string::iterator begin, std::string::iterator end);
     };
 }
-

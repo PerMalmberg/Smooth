@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -41,7 +42,7 @@ namespace smooth::core::logging
 
     /// Base class for log arguments that holds a string to be logged.
     class BaseArgWithData
-            : public BaseArg
+        : public BaseArg
     {
         public:
             explicit BaseArgWithData(std::string value)
@@ -67,7 +68,7 @@ namespace smooth::core::logging
 
     /// Class to log a std::string& or const char*
     class Str
-            : public BaseArg
+        : public BaseArg
     {
         public:
             explicit Str(const char* value)
@@ -96,10 +97,9 @@ namespace smooth::core::logging
 
     /// Class to log an int32_t
     class Int32
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
-
             explicit Int32(int32_t value)
                     : BaseArgWithData(std::to_string(value))
             {
@@ -108,7 +108,7 @@ namespace smooth::core::logging
 
     /// Class to log a unt32_t
     class UInt32
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit UInt32(uint32_t value)
@@ -119,7 +119,7 @@ namespace smooth::core::logging
 
     /// Class to log an int64_t
     class Int64
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit Int64(int64_t value)
@@ -130,7 +130,7 @@ namespace smooth::core::logging
 
     /// Class to log a uint64_t
     class UInt64
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit UInt64(uint64_t value)
@@ -141,7 +141,7 @@ namespace smooth::core::logging
 
     /// Class to log a bool
     class Bool
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit Bool(bool value)
@@ -154,7 +154,7 @@ namespace smooth::core::logging
     /// \tparam T type of value
     template<typename T>
     class Decimal
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         protected:
             explicit Decimal(T value)
@@ -172,7 +172,7 @@ namespace smooth::core::logging
 
     /// Class to log a float
     class Float
-            : public Decimal<float>
+        : public Decimal<float>
     {
         public:
             /// Logs a float value
@@ -193,7 +193,7 @@ namespace smooth::core::logging
 
     /// Class to log a double
     class Double
-            : public Decimal<double>
+        : public Decimal<double>
     {
         public:
             /// Logs a double value
@@ -212,16 +212,16 @@ namespace smooth::core::logging
             }
     };
 
-
     /// Class to log a value in hex format
     template<typename T>
     class Hex
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit Hex(const T& value, bool show_base = false)
             {
                 std::stringstream ss;
+
                 // We cast to an uint64_t to get the formatting we want
                 ss << std::hex << (show_base ? std::showbase : std::noshowbase) << static_cast<uint64_t>(value);
                 data = ss.str();
@@ -230,7 +230,7 @@ namespace smooth::core::logging
 
     /// Class to log a pointer address
     class Pointer
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             explicit Pointer(const void* value, bool show_base = false)
@@ -244,7 +244,7 @@ namespace smooth::core::logging
     // Class to log a array of (possibly) binary data
     template<typename T>
     class Vector
-            : public BaseArgWithData
+        : public BaseArgWithData
     {
         public:
             /// Log the array
@@ -253,6 +253,7 @@ namespace smooth::core::logging
             Vector(const std::vector<T>& src, bool treat_as_readable_text)
             {
                 std::stringstream ss;
+
                 for (const auto& b : src)
                 {
                     if (treat_as_readable_text)
@@ -264,6 +265,7 @@ namespace smooth::core::logging
                         ss << "0x" << std::hex << static_cast<uint64_t>(b);
                     }
                 }
+
                 data = ss.str();
             }
     };
@@ -433,7 +435,7 @@ namespace smooth::core::logging
                 return data.c_str();
             }
 
-            const char* get() const
+            const char * get() const
             {
                 return *this;
             }
@@ -446,6 +448,7 @@ namespace smooth::core::logging
 
                 // Replace all occurrences
                 auto pos = data.find(tmp.str());
+
                 while (pos != std::string::npos)
                 {
                     data.replace(pos, tmp.str().size(), arg);

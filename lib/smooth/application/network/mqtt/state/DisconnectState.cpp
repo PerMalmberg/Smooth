@@ -41,6 +41,4 @@ namespace smooth::application::network::mqtt::state
             fsm.set_state(new(fsm) IdleState(fsm));
         }
     }
-
-
 }

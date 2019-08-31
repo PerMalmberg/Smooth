@@ -21,7 +21,7 @@
 namespace http_server_test
 {
     class SendBlob
-            : public smooth::application::network::http::regular::responses::StringResponse
+        : public smooth::application::network::http::regular::responses::StringResponse
     {
         public:
             explicit SendBlob(std::size_t amount);

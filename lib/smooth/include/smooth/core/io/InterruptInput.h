@@ -25,7 +25,7 @@
 namespace smooth::core::io
 {
     class InterruptInput
-            : private Input
+        : private Input
     {
         public:
 
@@ -39,7 +39,7 @@ namespace smooth::core::io
                            bool pull_up,
                            bool pull_down,
                            gpio_int_type_t interrupt_trigger
-            );
+                           );
 
             void update();
 

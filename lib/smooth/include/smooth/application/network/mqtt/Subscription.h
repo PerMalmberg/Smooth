@@ -68,9 +68,11 @@ namespace smooth::application::network::mqtt
                 if (in_flight.size() > 0)
                 {
                     auto& flight = in_flight.front();
+
                     if (flight.get_waiting_for() == PacketType::Reserved)
                     {
                         auto& packet = flight.get_packet();
+
                         if (mqtt.send_packet(packet))
                         {
                             flight.start_timer();
@@ -96,6 +98,7 @@ namespace smooth::application::network::mqtt
             void reset_control_packet(std::vector<InFlight<T>>& in_flight)
             {
                 auto first = in_flight.begin();
+
                 if (first != in_flight.end())
                 {
                     auto& flight = *first;
@@ -111,7 +114,5 @@ namespace smooth::application::network::mqtt
             std::unordered_map<std::string, QoS> active_subscription{};
             std::vector<InFlight<packet::Unsubscribe>> unsubscribing{};
             std::mutex guard{};
-
     };
 }
-

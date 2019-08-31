@@ -38,14 +38,15 @@ namespace smooth::core::network
 
         // Start task on first use
         static bool initialized = false;
+
         if (!initialized)
         {
             initialized = true;
             instance.start();
         }
+
         return instance;
     }
-
 
     SocketDispatcher::SocketDispatcher()
             : Task(tag, 1024 * 20, SOCKET_DISPATCHER_PRIO, std::chrono::milliseconds(0)),
@@ -54,8 +55,11 @@ namespace smooth::core::network
               socket_guard(),
               network_events(NetworkEventQueue::create(tag, 10, *this, *this)),
               socket_op(SocketOperationQueue::create("SocketOperations",
-                      // TODO: When compiled for IDF, get proper value based on number of allowed sockets in sdkconfig
-                      //  Note: If there are more than 20 sockets, this queue is too small.
+
+                                                     // TODO: When compiled for IDF, get proper value based on number of
+                                                     // allowed sockets in sdkconfig
+                                                     //  Note: If there are more than 20 sockets, this queue is too
+                                                     // small.
                                                      20,
                                                      *this,
                                                      *this))
@@ -71,6 +75,7 @@ namespace smooth::core::network
         check_socket_timeouts();
 
         int max_file_descriptor = build_sets();
+
         if (max_file_descriptor >= 0)
         {
             set_timeout();
@@ -87,6 +92,7 @@ namespace smooth::core::network
                     if (is_fd_set(static_cast<size_t>(i), read_set))
                     {
                         auto it = active_sockets.find(i);
+
                         if (it != active_sockets.end())
                         {
                             it->second->readable(*this);
@@ -96,6 +102,7 @@ namespace smooth::core::network
                     if (is_fd_set(static_cast<size_t>(i), write_set))
                     {
                         auto it = active_sockets.find(i);
+
                         if (it != active_sockets.end())
                         {
                             it->second->writable();
@@ -146,6 +153,7 @@ namespace smooth::core::network
             auto& s = pair.second;
 
             max = std::max(max, s->get_socket_id());
+
             if (s->is_active())
             {
                 if (!is_backed_off(s->get_socket_id()))
@@ -153,7 +161,7 @@ namespace smooth::core::network
                     if (s->has_data_to_transmit() || !s->is_connected())
                     {
                         // A valid socket id is >= 0 so casting to unsigned is safe
-                        set_fd(static_cast<size_t >(s->get_socket_id()), write_set);
+                        set_fd(static_cast<size_t>(s->get_socket_id()), write_set);
                     }
 
                     if (s->is_connected())
@@ -198,6 +206,7 @@ namespace smooth::core::network
         remove_backed_off_socket(socket->get_socket_id());
 
         auto socket_id = socket->get_socket_id();
+
         if (socket_id != ISocket::INVALID_SOCKET)
         {
             int res = shutdown(socket_id, SHUT_RDWR);
@@ -209,6 +218,7 @@ namespace smooth::core::network
             }
 
             res = close(socket_id);
+
             if (res < 0)
             {
                 Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
@@ -230,10 +240,11 @@ namespace smooth::core::network
                                                          const std::shared_ptr<ISocket>& socket)
     {
         const auto predicate = [&socket](const std::shared_ptr<ISocket>& o) {
-            return (o.get()) == (socket.get());
-        };
+                                   return (o.get()) == (socket.get());
+                               };
 
         const auto found = std::find_if(col.begin(), col.end(), predicate);
+
         if (found != col.end())
         {
             col.erase(found);
@@ -243,8 +254,8 @@ namespace smooth::core::network
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
         const auto predicate = [&socket](std::pair<int, const std::shared_ptr<ISocket>> o) {
-            return o.second.get() == socket.get();
-        };
+                                   return o.second.get() == socket.get();
+                               };
 
         const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), predicate);
 
@@ -280,6 +291,7 @@ namespace smooth::core::network
         bool shall_close_sockets = false;
 
         std::lock_guard<std::mutex> lock(socket_guard);
+
         if (event.get_event() == NetworkEvent::GOT_IP)
         {
             Log::info(tag, Format(Str("Station got IP, sockets will be restarted.")));
@@ -362,7 +374,8 @@ namespace smooth::core::network
     {
         static steady_clock::time_point last = steady_clock::now();
         auto now = steady_clock::now();
-        if (now - last > seconds{15})
+
+        if (now - last > seconds{ 15 })
         {
             last = now;
             Log::info(tag, Format("Active sockets: {1}", UInt64(active_sockets.size())));
@@ -382,6 +395,7 @@ namespace smooth::core::network
         if (b_off)
         {
             const auto& pair = *it;
+
             if (pair.second < steady_clock::now())
             {
                 // No longer backed off
@@ -396,6 +410,7 @@ namespace smooth::core::network
     void SocketDispatcher::remove_backed_off_socket(int socket_id)
     {
         const auto& it = backed_off.find(socket_id);
+
         if (it != backed_off.end())
         {
             backed_off.erase(it);

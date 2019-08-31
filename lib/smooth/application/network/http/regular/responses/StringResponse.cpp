@@ -16,7 +16,6 @@
 
 #include <utility>
 
-
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
 #include <algorithm>
 #include <smooth/core/logging/log.h>
@@ -49,9 +48,10 @@ namespace smooth::application::network::http::regular::responses
 
     ResponseStatus StringResponse::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
-        auto res{ResponseStatus::NoData};
+        auto res{ ResponseStatus::NoData };
 
         auto remaining = std::distance(data.begin(), data.end());
+
         if (remaining > 0)
         {
             auto to_send = std::min(static_cast<std::size_t>(remaining), max_amount);

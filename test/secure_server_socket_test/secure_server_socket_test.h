@@ -29,7 +29,7 @@
 namespace secure_server_socket_test
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
             App();

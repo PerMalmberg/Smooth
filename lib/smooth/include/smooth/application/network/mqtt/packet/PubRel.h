@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PubRel
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PubRel() = default;
@@ -46,7 +46,6 @@ namespace smooth::application::network::mqtt::packet
             uint16_t get_packet_identifier() const override;
 
         protected:
-
             bool has_packet_identifier() const override
             {
                 return true;

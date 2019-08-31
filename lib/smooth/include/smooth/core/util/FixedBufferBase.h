@@ -26,9 +26,8 @@ namespace smooth::core::util
 
             virtual size_t size() const = 0;
 
-            virtual T* data() = 0;
+            virtual T * data() = 0;
 
         private:
-
     };
 }

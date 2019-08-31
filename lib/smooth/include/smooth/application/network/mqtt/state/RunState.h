@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class RunState
-            : public ConnectedState
+        : public ConnectedState
     {
         public:
             RunState(MqttFSM<MQTTBaseState>& fsm, bool clean_session)

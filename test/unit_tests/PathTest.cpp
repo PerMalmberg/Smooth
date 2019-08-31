@@ -75,7 +75,7 @@ SCENARIO("Parent path")
     }
     GIVEN("A relative path with no depth")
     {
-        Path p{"a"};
+        Path p{ "a" };
         WHEN("Getting parent path")
         {
             auto parent = p.parent();
@@ -88,7 +88,7 @@ SCENARIO("Parent path")
     }
     GIVEN("A relative path with no depth and ending slash")
     {
-        Path p{"a/"};
+        Path p{ "a/" };
         WHEN("Getting parent path")
         {
             auto parent = p.parent();
@@ -101,7 +101,7 @@ SCENARIO("Parent path")
 
     GIVEN("An absolute path with no depth")
     {
-        Path p{"/a"};
+        Path p{ "/a" };
         WHEN("Getting parent path")
         {
             auto parent = p.parent();
@@ -118,12 +118,12 @@ SCENARIO("Parent of")
 {
     GIVEN("A path")
     {
-        REQUIRE(Path{"/a"}.is_parent_of(Path{"/a/b/c/d"}));
-        REQUIRE(Path{"/a/b/c"}.is_parent_of(Path{"/a/b/c/d"}));
+        REQUIRE(Path{ "/a" }.is_parent_of(Path{ "/a/b/c/d" }));
+        REQUIRE(Path{ "/a/b/c" }.is_parent_of(Path{ "/a/b/c/d" }));
 
-        REQUIRE_FALSE(Path{"/q"}.is_parent_of(Path{"/q"}));
-        REQUIRE_FALSE(Path{"/q/w"}.is_parent_of(Path{"/q"}));
-        REQUIRE_FALSE(Path{"/a/w"}.is_parent_of("/a/what"));
+        REQUIRE_FALSE(Path{ "/q" }.is_parent_of(Path{ "/q" }));
+        REQUIRE_FALSE(Path{ "/q/w" }.is_parent_of(Path{ "/q" }));
+        REQUIRE_FALSE(Path{ "/a/w" }.is_parent_of("/a/what"));
     }
 }
 
@@ -131,22 +131,21 @@ SCENARIO("Breaking out of path")
 {
     GIVEN("Paths with ..")
     {
-        REQUIRE(Path{"/a/b/../c"} == "/a/c");
-        REQUIRE(Path{"/../b/../c"} == "/c");
-        REQUIRE(Path{"/../b/../c/../.."} == "/");
-        REQUIRE(Path{"b/.."} == ".");
-        REQUIRE(Path{"/b/.."} == "/");
-        REQUIRE(Path{"a/b/c/d/e/../../../../.."} == ".");
-        REQUIRE(Path{"a/b/c/d/e/../x/../../.."} == "a/b");
-        REQUIRE(Path{"/a/b/c/d/e/../x/../../.."} == "/a/b");
+        REQUIRE(Path{ "/a/b/../c" } == "/a/c");
+        REQUIRE(Path{ "/../b/../c" } == "/c");
+        REQUIRE(Path{ "/../b/../c/../.." } == "/");
+        REQUIRE(Path{ "b/.." } == ".");
+        REQUIRE(Path{ "/b/.." } == "/");
+        REQUIRE(Path{ "a/b/c/d/e/../../../../.." } == ".");
+        REQUIRE(Path{ "a/b/c/d/e/../x/../../.." } == "a/b");
+        REQUIRE(Path{ "/a/b/c/d/e/../x/../../.." } == "/a/b");
 
+        REQUIRE(Path{ "/a/./c/" } == "/a/c");
+        REQUIRE(Path{ "/./././c" } == "/c");
 
-        REQUIRE(Path{"/a/./c/"} == "/a/c");
-        REQUIRE(Path{"/./././c"} == "/c");
+        REQUIRE(Path{ "/a/b/../c" }.is_parent_of("/a/c/d"));
 
-        REQUIRE(Path{"/a/b/../c"}.is_parent_of("/a/c/d"));
-
-        REQUIRE_FALSE(Path{"/www_root"}.is_parent_of("/www_root/../cgi-bin"));
+        REQUIRE_FALSE(Path{ "/www_root" }.is_parent_of("/www_root/../cgi-bin"));
     }
 }
 
@@ -154,9 +153,9 @@ SCENARIO("Path with spaces")
 {
     GIVEN("Paths with spaces")
     {
-        REQUIRE(Path{"/a/b/.. /c"} == "/a/b/.. /c");
-        REQUIRE(Path{"/ / / /c"} == "/ / / /c");
-        REQUIRE(Path{"/ / /../c"} == "/ / /../c");
-        REQUIRE(Path{"/ /x/../c"} == "/ /c");
+        REQUIRE(Path{ "/a/b/.. /c" } == "/a/b/.. /c");
+        REQUIRE(Path{ "/ / / /c" } == "/ / / /c");
+        REQUIRE(Path{ "/ / /../c" } == "/ / /../c");
+        REQUIRE(Path{ "/ /x/../c" } == "/ /c");
     }
 }

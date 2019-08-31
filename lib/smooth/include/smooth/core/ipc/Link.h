@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -67,16 +68,15 @@ namespace smooth::core::ipc
             }
 
         private:
-
             static std::forward_list<ILinkSubscriber<T>*>& get_subscribers();
 
             static std::mutex& get_mutex()
             {
                 static std::mutex m;
+
                 return m;
             }
     };
-
 
     template<typename T>
     void Link<T>::subscribe(ILinkSubscriber<T>* subscriber)
@@ -98,6 +98,7 @@ namespace smooth::core::ipc
         // Place list in method to ensure linker finds it, it also guarantees
         // no race condition exists while constructing the forward_list.
         static std::forward_list<ILinkSubscriber<T>*> subscribers;
+
         return subscribers;
     }
 }

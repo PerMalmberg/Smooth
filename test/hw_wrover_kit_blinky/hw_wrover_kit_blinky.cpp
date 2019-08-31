@@ -49,5 +49,4 @@ namespace hw_wrover_kit_blinky
 
         state++;
     }
-
 }

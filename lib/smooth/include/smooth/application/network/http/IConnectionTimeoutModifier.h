@@ -24,6 +24,7 @@ namespace smooth::application::network::http
     {
         public:
             virtual ~IConnectionTimeoutModifier() = default;
+
             virtual void set_receive_timeout(const std::chrono::milliseconds& timeout) = 0;
     };
 }

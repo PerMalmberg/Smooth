@@ -47,8 +47,8 @@ namespace smooth::core::network
 
             void return_client(std::shared_ptr<Client> client);
 
-            template<typename ...Args>
-            void create_clients(Args ...args);
+            template<typename... Args>
+            void create_clients(Args ... args);
 
         private:
             smooth::core::Task& task;
@@ -76,6 +76,7 @@ namespace smooth::core::network
     {
         client->reset();
         auto found = std::find(in_use.begin(), in_use.end(), client);
+
         if (found != in_use.end())
         {
             in_use.erase(found);
@@ -86,7 +87,7 @@ namespace smooth::core::network
 
     template<typename Client>
     ClientPool<Client>::ClientPool(smooth::core::Task& task, int count)
-        :task(task)
+            : task(task)
     {
         in_use.reserve(static_cast<typename decltype(in_use)::size_type>(count));
     }

@@ -21,18 +21,19 @@
 #include <iomanip>
 #include <mutex>
 
-using namespace std::chrono;
 using namespace smooth::application::network::http::regular;
+using namespace std::chrono;
 
 namespace smooth::application::network::http::utils
 {
-    static const std::array<const char*, 7> day{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    static const std::array<const char*, 12> month{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
-                                                   "Nov", "Dec"};
+    static const std::array<const char*, 7> day{ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    static const std::array<const char*, 12> month{ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+                                                    "Oct", "Nov", "Dec" };
 
     std::string make_http_time(const std::chrono::system_clock::time_point& t)
     {
         auto tt = std::chrono::system_clock::to_time_t(t);
+
         return make_http_time(tt);
     }
 
@@ -67,7 +68,8 @@ namespace smooth::application::network::http::utils
         system_clock::time_point res{};
 
         ss >> std::get_time(&time, "%a, %d %b %Y %H:%M:%S GMT");
-        if(ss.fail())
+
+        if (ss.fail())
         {
             res = system_clock::time_point::min();
         }
@@ -85,6 +87,7 @@ namespace smooth::application::network::http::utils
     {
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
         const auto& ext = path.extension();
+
         if (ext == ".jpeg")
         {
             return "image/jpeg";
@@ -93,6 +96,7 @@ namespace smooth::application::network::http::utils
         {
             return "text/html";
         }
+
         return "application/octet-stream";
     }
 
@@ -125,26 +129,27 @@ namespace smooth::application::network::http::utils
 
     std::string http_method_to_string(const HTTPMethod m)
     {
-        if(m == HTTPMethod::DELETE)
+        if (m == HTTPMethod::DELETE)
         {
             return "DELETE";
         }
-        else if(m == HTTPMethod::GET)
+        else if (m == HTTPMethod::GET)
         {
             return "GET";
         }
-        else if(m == HTTPMethod::HEAD)
+        else if (m == HTTPMethod::HEAD)
         {
             return "HEAD";
         }
-        else if(m == HTTPMethod::PUT)
+        else if (m == HTTPMethod::PUT)
         {
             return "PUT";
         }
-        else if(m == HTTPMethod::POST)
+        else if (m == HTTPMethod::POST)
         {
             return "POST";
         }
+
         return "";
     }
 }

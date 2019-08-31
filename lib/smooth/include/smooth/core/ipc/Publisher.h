@@ -31,7 +31,6 @@ namespace smooth::core::ipc
             static void publish(const T& item);
     };
 
-
     template<typename T>
     void Publisher<T>::publish(const T& item)
     {

@@ -32,10 +32,9 @@ namespace smooth::application::network::http
     // 2: Websocket data
 
     class HTTPPacket
-            : public smooth::core::network::IPacketDisassembly
+        : public smooth::core::network::IPacketDisassembly
     {
         public:
-
             HTTPPacket() = default;
 
             HTTPPacket(const HTTPPacket&) = default;
@@ -61,7 +60,7 @@ namespace smooth::application::network::http
             }
 
             // Must return a pointer to the data to be sent.
-            const uint8_t* get_data() override
+            const uint8_t * get_data() override
             {
                 return content.data();
             }
@@ -91,8 +90,7 @@ namespace smooth::application::network::http
                 return continuation;
             }
 
-            void
-            set_request_data(const std::string& method, const std::string& url, const std::string& version)
+            void set_request_data(const std::string& method, const std::string& url, const std::string& version)
             {
                 request_method = method;
                 request_url = url;
@@ -162,8 +160,7 @@ namespace smooth::application::network::http
                 return ws_opcode;
             }
 
-            static constexpr std::array<uint8_t, 4> ending{'\r', '\n', '\r', '\n'};
-
+            static constexpr std::array<uint8_t, 4> ending{ '\r', '\n', '\r', '\n' };
         private:
             void append(const std::string& s);
 
@@ -177,6 +174,6 @@ namespace smooth::application::network::http
             regular::ResponseCode resp_code{};
             bool continuation = false;
             bool continued = false;
-            websocket::OpCode ws_opcode{websocket::OpCode::Continuation};
+            websocket::OpCode ws_opcode{ websocket::OpCode::Continuation };
     };
 }

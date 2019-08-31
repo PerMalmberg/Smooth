@@ -22,7 +22,7 @@
 namespace smooth::core::filesystem
 {
     class MMCSDCard
-            : public SDCard
+        : public SDCard
     {
         public:
             MMCSDCard(gpio_num_t command,
@@ -47,3 +47,4 @@ namespace smooth::core::filesystem
             gpio_num_t write_protect;
     };
 }
+

@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,7 +17,6 @@
 
 #include <utility>
 
-
 #include <smooth/application/network/http/regular/responses/HeaderOnlyResponse.h>
 #include <algorithm>
 #include <smooth/core/logging/log.h>
@@ -24,8 +24,8 @@
 #include <smooth/application/network/http/http_utils.h>
 #include <smooth/core/util/string_util.h>
 
-using namespace smooth::core;
 using namespace smooth::core::logging;
+using namespace smooth::core;
 
 namespace smooth::application::network::http::regular::responses
 {
@@ -54,11 +54,11 @@ namespace smooth::application::network::http::regular::responses
     {
         auto& curr = headers[key];
 
-        if(curr.empty())
+        if (curr.empty())
         {
             set_header(key, value);
         }
-        else if(!string_util::icontains(curr, value))
+        else if (!string_util::icontains(curr, value))
         {
             curr.append(", ").append(value);
         }

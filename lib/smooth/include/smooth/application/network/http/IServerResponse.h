@@ -28,6 +28,7 @@ namespace smooth::application::network::http
             virtual ~IServerResponse() = default;
 
             virtual void reply(std::unique_ptr<IResponseOperation> response, bool place_first) = 0;
+
             virtual void reply_error(std::unique_ptr<IResponseOperation> response) = 0;
 
             template<typename WSServerType>
@@ -39,6 +40,7 @@ namespace smooth::application::network::http
 
         protected:
             virtual smooth::core::Task& get_task() = 0;
+
             virtual void upgrade_to_websocket_internal() = 0;
 
             std::unique_ptr<websocket::WebsocketServer> ws_server{};

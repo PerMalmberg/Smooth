@@ -23,7 +23,7 @@
 namespace hw_security
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
             App();
@@ -34,6 +34,7 @@ namespace hw_security
 
         private:
             void time(const std::string& password, size_t ops);
+
             smooth::application::security::PasswordHash ph{};
     };
 }

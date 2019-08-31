@@ -24,7 +24,7 @@ namespace smooth::application::sensor
 {
     // https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf
     class BME280
-            : public core::io::i2c::I2CMasterDevice
+        : public core::io::i2c::I2CMasterDevice
     {
         public:
             BME280(i2c_port_t port, uint8_t address, std::mutex& guard);
@@ -113,7 +113,6 @@ namespace smooth::application::sensor
             bool read_measurements(float& humidity, float& pressure, float& temperature);
 
         private:
-
             // These calculation methods are based on those in the datasheet at
             // https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf
             // as of 2017-08-20. The revision of the code is 1.1 according to that document.
@@ -127,7 +126,8 @@ namespace smooth::application::sensor
             // t_fine carries fine temperature as global value
             BME280_S32_t BME280_compensate_T_int32(BME280_S32_t adc_T);
 
-            // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional bits).
+            // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional
+            // bits).
             // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
             BME280_U32_t BME280_compensate_P_int64(BME280_S32_t adc_P);
 
@@ -135,12 +135,12 @@ namespace smooth::application::sensor
             // Output value of “47445” represents 47445/1024 = 46.333 %RH
             BME280_U32_t BME280_compensate_H_int32(BME280_S32_t adc_H);
 
-
             template<typename T>
             bool read_16bit(uint8_t start_reg, T& target)
             {
                 core::util::FixedBuffer<uint8_t, 2> buff;
                 bool res = read(address, start_reg, buff);
+
                 if (res)
                 {
                     target = buff[0];
@@ -155,6 +155,7 @@ namespace smooth::application::sensor
             {
                 core::util::FixedBuffer<uint8_t, 1> buff;
                 bool res = read(address, start_reg, buff);
+
                 if (res)
                 {
                     target = static_cast<T>(buff[0]);
@@ -185,9 +186,8 @@ namespace smooth::application::sensor
                 int16_t dig_H4; // 0xE4 / 0xE5[3:0] | [11:4] / [3:0]
                 int16_t dig_H5; // 0xE5[7:4] / 0xE6 | [3:0] / [11:4]
                 int8_t dig_H6;
-
-            } trimming;
-
+            }
+            trimming;
 
             bool read_trimming_parameters();
 

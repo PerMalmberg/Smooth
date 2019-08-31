@@ -24,7 +24,7 @@
 namespace server_socket_test
 {
     class StreamingProtocol
-            : public smooth::core::network::IPacketAssembly<StreamingProtocol, StreamPacket>
+        : public smooth::core::network::IPacketAssembly<StreamingProtocol, StreamPacket>
     {
         public:
             using packet_type = StreamPacket;
@@ -55,7 +55,6 @@ namespace server_socket_test
                 return false;
             }
 
-
             void packet_consumed() override
             {
                 complete = false;
@@ -67,6 +66,6 @@ namespace server_socket_test
             }
 
         private:
-            bool complete{false};
+            bool complete{ false };
     };
 }

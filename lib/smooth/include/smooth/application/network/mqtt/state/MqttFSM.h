@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -35,10 +36,10 @@ namespace smooth::application::network::mqtt::state
 {
     template<typename BaseState>
     class MqttFSM
-            : public core::fsm::StaticFSM<BaseState, MQTT_FSM_STATE_SIZE>,
-              public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
-              public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
-              public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
+        : public core::fsm::StaticFSM<BaseState, MQTT_FSM_STATE_SIZE>,
+        public core::ipc::IEventListener<core::network::event::TransmitBufferEmptyEvent>,
+        public core::ipc::IEventListener<core::network::event::ConnectionStatusEvent>,
+        public core::ipc::IEventListener<core::timer::TimerExpiredEvent>
     {
         public:
             explicit MqttFSM(mqtt::IMqttClient& mqtt)
@@ -107,6 +108,7 @@ namespace smooth::application::network::mqtt::state
         {
             // Decode the message and forward it to the state
             auto p = decoder.decode_packet(packet);
+
             if (p)
             {
                 p->visit(*this->get_state());

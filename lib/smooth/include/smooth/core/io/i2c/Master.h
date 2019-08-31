@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -43,8 +44,8 @@ namespace smooth::core::io::i2c
             /// \param address The device address.
             /// \param args The device-specific arguments
             /// \return A device, or nullptr.
-            template<typename DeviceType, typename ...Args>
-            std::unique_ptr<DeviceType> create_device(uint8_t address, Args&& ...args);
+            template<typename DeviceType, typename... Args>
+            std::unique_ptr<DeviceType> create_device(uint8_t address, Args&& ... args);
 
         private:
             void do_initialization();
@@ -59,16 +60,17 @@ namespace smooth::core::io::i2c
             i2c_port_t port;
     };
 
-    template<typename DeviceType, typename ...Args>
-    std::unique_ptr<DeviceType> Master::create_device(uint8_t address, Args&& ...args)
+    template<typename DeviceType, typename... Args>
+    std::unique_ptr<DeviceType> Master::create_device(uint8_t address, Args&& ... args)
     {
         std::unique_ptr<DeviceType> dev;
+
         if (initialize())
         {
             std::lock_guard<std::mutex> lock(guard);
             dev = std::make_unique<DeviceType>(port, address, guard, std::forward<Args>(args)...);
         }
+
         return dev;
     }
 }
-

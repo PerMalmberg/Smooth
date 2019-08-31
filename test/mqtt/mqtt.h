@@ -28,30 +28,27 @@
 
 namespace mqtt
 {
-
     class App
-            : public smooth::core::Application,
-              smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>
+        : public smooth::core::Application,
+        smooth::core::ipc::IEventListener<smooth::application::network::mqtt::MQTTData>
     {
-    public:
+        public:
+            App();
 
-        App();
+            void init() override;
 
-        void init() override;
+            void event(const smooth::application::network::mqtt::MQTTData& event) override;
 
-        void event(const smooth::application::network::mqtt::MQTTData& event) override;
+            void send_message();
 
-        void send_message();
+            void tick() override;
 
-        void tick() override;
-
-    private:
-        using MQTTDataQueue = smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData>;
-        std::shared_ptr<MQTTDataQueue> mqtt_data;
-        smooth::application::network::mqtt::MqttClient client;
-        std::random_device rand{};
-        std::mt19937 gen{rand()};
-        std::uniform_int_distribution<> dis{1, 3};
+        private:
+            using MQTTDataQueue = smooth::core::ipc::TaskEventQueue<smooth::application::network::mqtt::MQTTData>;
+            std::shared_ptr<MQTTDataQueue> mqtt_data;
+            smooth::application::network::mqtt::MqttClient client;
+            std::random_device rand{};
+            std::mt19937 gen{ rand() };
+            std::uniform_int_distribution<> dis{ 1, 3 };
     };
-
 }

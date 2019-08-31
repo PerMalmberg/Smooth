@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -48,40 +49,46 @@ namespace smooth::core::filesystem
 
             Path operator/(const char* path) const
             {
-                Path tmp{*this};
+                Path tmp{ *this };
                 tmp /= path;
+
                 return tmp;
             }
 
             Path operator/(const std::string& path) const
             {
-                Path tmp{*this};
+                Path tmp{ *this };
                 tmp /= path.c_str();
+
                 return tmp;
             }
 
             Path operator/(const Path& path) const
             {
-                Path tmp{*this};
+                Path tmp{ *this };
                 tmp /= path;
+
                 return tmp;
             }
 
             Path& operator/=(const char* path)
             {
                 append(path);
+
                 return *this;
             }
 
             Path& operator/=(const std::string& path)
             {
                 append(path);
+
                 return *this;
             }
 
             Path& operator/=(const Path& path)
             {
                 append(path.p);
+
                 return *this;
             }
 

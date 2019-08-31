@@ -21,13 +21,13 @@
 namespace json_test
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
-    public:
-        App();
+        public:
+            App();
 
-        void tick() override;
+            void tick() override;
 
-    private:
+        private:
     };
 }

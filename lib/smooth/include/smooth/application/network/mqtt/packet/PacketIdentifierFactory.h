@@ -27,8 +27,8 @@ namespace smooth::application::network::mqtt::packet
             static uint16_t get_id()
             {
                 std::lock_guard<std::mutex> lock(guard);
-                return ++id;
 
+                return ++id;
             }
 
         private:

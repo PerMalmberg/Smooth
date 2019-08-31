@@ -28,6 +28,7 @@ namespace smooth::application::network::mqtt::packet
         set_header(PacketType::PUBLISH, flags);
 
         std::vector<uint8_t> variable_header{};
+
         // Topic
         append_string(topic, variable_header);
 
@@ -46,14 +47,17 @@ namespace smooth::application::network::mqtt::packet
     std::string Publish::get_topic() const
     {
         calculate_remaining_length_and_variable_header_offset();
+
         return get_string(get_variable_header_start());
     }
 
     int Publish::get_variable_header_length() const
     {
         return static_cast<int>(get_topic().length()
+
                                 // Add two for length bytes for string
                                 + 2
+
                                 // Add two more for optional packet identifier
                                 + (has_packet_identifier() ? 2 : 0));
     }

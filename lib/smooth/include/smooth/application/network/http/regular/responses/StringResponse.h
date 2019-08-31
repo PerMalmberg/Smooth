@@ -22,13 +22,17 @@
 namespace smooth::application::network::http::regular::responses
 {
     class StringResponse
-            : public HeaderOnlyResponse
+        : public HeaderOnlyResponse
     {
         public:
             explicit StringResponse(ResponseCode code, std::string body = "", bool add_surrounding_html = true);
+
             StringResponse& operator=(StringResponse&&) = default;
+
             StringResponse(StringResponse&&) = default;
+
             StringResponse& operator=(const StringResponse&) = delete;
+
             StringResponse(const StringResponse&) = delete;
 
             ~StringResponse() override = default;
@@ -40,6 +44,7 @@ namespace smooth::application::network::http::regular::responses
 
         private:
             std::vector<uint8_t> data{};
+
             void add_string(std::string str);
     };
 }

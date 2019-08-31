@@ -38,7 +38,7 @@
 namespace smooth::application::network::http::websocket::responses
 {
     class WSResponse
-            : public IResponseOperation
+        : public IResponseOperation
     {
         public:
             explicit WSResponse(smooth::application::network::http::websocket::OpCode code);
@@ -55,14 +55,14 @@ namespace smooth::application::network::http::websocket::responses
             ResponseStatus get_data(std::size_t max_amount, std::vector<uint8_t>& target) override;
 
         private:
-            bool header_sent{false};
+            bool header_sent{ false };
 
             void set_length(uint64_t len, std::vector<uint8_t>& buff) const;
 
             smooth::application::network::http::websocket::OpCode op_code;
 
-            bool first_fragment{true};
-            bool last_fragment{true};
+            bool first_fragment{ true };
+            bool last_fragment{ true };
 
             std::vector<uint8_t> data{};
     };

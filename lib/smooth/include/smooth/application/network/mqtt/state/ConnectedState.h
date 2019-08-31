@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class ConnectedState
-            : public MQTTBaseState
+        : public MQTTBaseState
     {
         public:
             ConnectedState(MqttFSM<MQTTBaseState>& fsm, const char* name)

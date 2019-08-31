@@ -22,15 +22,17 @@ namespace smooth::application::hash
 {
     std::array<uint8_t, 20> sha1(const uint8_t* data, std::size_t len)
     {
-        std::array<uint8_t,20> buff{};
+        std::array<uint8_t, 20> buff{};
         mbedtls_sha1_ret(data, len, buff.data());
+
         return buff;
     }
 
     std::array<uint8_t, 32> sha256(const uint8_t* data, std::size_t len)
     {
-        std::array<uint8_t,32> buff{};
+        std::array<uint8_t, 32> buff{};
         mbedtls_sha256_ret(data, len, buff.data(), 0);
+
         return buff;
     }
 }

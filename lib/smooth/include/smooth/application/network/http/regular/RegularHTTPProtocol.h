@@ -25,12 +25,15 @@
 namespace smooth::application::network::http::regular
 {
     class RegularHTTPProtocol
-            : public smooth::core::network::IPacketAssembly<RegularHTTPProtocol, HTTPPacket>
+        : public smooth::core::network::IPacketAssembly<RegularHTTPProtocol, HTTPPacket>
     {
         public:
             using packet_type = HTTPPacket;
 
-            RegularHTTPProtocol(int max_header_size, int content_chunk_size, IServerResponse& response, IUpgradeToWebsocket &websocket_upgrade)
+            RegularHTTPProtocol(int max_header_size,
+                                int content_chunk_size,
+                                IServerResponse& response,
+                                IUpgradeToWebsocket& websocket_upgrade)
                     : max_header_size(max_header_size),
                       content_chunk_size(content_chunk_size),
                       response(response),
@@ -42,7 +45,7 @@ namespace smooth::application::network::http::regular
 
             void data_received(HTTPPacket& packet, int length) override;
 
-            uint8_t* get_write_pos(HTTPPacket& packet) override;
+            uint8_t * get_write_pos(HTTPPacket& packet) override;
 
             bool is_complete(HTTPPacket& packet) const override;
 
@@ -53,26 +56,27 @@ namespace smooth::application::network::http::regular
             void reset() override;
 
         private:
+
             int consume_headers(HTTPPacket& packet, std::vector<uint8_t>::const_iterator header_ending);
 
             enum class State
             {
-                    reading_headers,
-                    reading_content
+                reading_headers,
+                reading_content
             };
 
             const int max_header_size;
             const int content_chunk_size;
             IServerResponse& response;
 
-            int total_bytes_received{0};
-            int total_content_bytes_received{0};
-            int content_bytes_received_in_current_part{0};
-            int incoming_content_length{0};
-            int actual_header_size{0};
+            int total_bytes_received{ 0 };
+            int total_content_bytes_received{ 0 };
+            int content_bytes_received_in_current_part{ 0 };
+            int incoming_content_length{ 0 };
+            int actual_header_size{ 0 };
 
-            const std::regex response_line{R"!(HTTP\/(\d.\d)\ (\d+)\ (.+))!"}; // HTTP/1.1 200 OK
-            const std::regex request_line{R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!"}; // "GET / HTTP/1.1"
+            const std::regex response_line{ R"!(HTTP\/(\d.\d)\ (\d+)\ (.+))!" }; // HTTP/1.1 200 OK
+            const std::regex request_line{ R"!((.+)\ (.+)\ HTTP\/(\d\.\d))!" }; // "GET / HTTP/1.1"
 
             bool error = false;
             State state = State::reading_headers;
@@ -80,6 +84,6 @@ namespace smooth::application::network::http::regular
             std::string last_url{};
 
             std::string last_request_version{};
-            IUpgradeToWebsocket &websocket_upgrade;
+            IUpgradeToWebsocket& websocket_upgrade;
     };
 }

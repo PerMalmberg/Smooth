@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PubRec
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PubRec() = default;
@@ -48,7 +48,6 @@ namespace smooth::application::network::mqtt::packet
             {
                 return true;
             }
-
 
             int get_variable_header_length() const override
             {

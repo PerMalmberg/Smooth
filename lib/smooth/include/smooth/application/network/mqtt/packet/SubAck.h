@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class SubAck
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             SubAck() = default;
@@ -39,7 +39,6 @@ namespace smooth::application::network::mqtt::packet
             }
 
         protected:
-
             int get_variable_header_length() const override
             {
                 return 2;
