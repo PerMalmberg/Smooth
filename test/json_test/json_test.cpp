@@ -19,8 +19,7 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
-#include <unistd.h>
-#include <json/cJSON/cJSON.h>
+#include <cJSON.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/json/Value.h>
 #include "test_example.json.h"

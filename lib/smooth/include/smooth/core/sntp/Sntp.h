@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-    #include "mock/Sntp.h"
-#else
-
 #include <vector>
 #include <string>
 
@@ -32,11 +28,10 @@ namespace smooth::core::sntp
 
             void start();
 
-            bool is_time_set() const;
+            [[nodiscard]] bool is_time_set() const;
 
         private:
             const std::vector<std::string> servers;
             bool started = false;
     };
 }
-#endif

@@ -16,9 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Output.h"
-#else
 #include <driver/gpio.h>
 
 namespace smooth::core::io
@@ -43,5 +40,3 @@ namespace smooth::core::io
             bool active_high;
     };
 }
-
-#endif

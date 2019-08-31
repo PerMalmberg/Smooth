@@ -1,5 +1,4 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
-
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,11 +25,11 @@ namespace smooth::core::json
     class JsonFile
     {
         public:
-            JsonFile(std::string full_path);
+            explicit JsonFile(std::string full_path);
 
-            bool save() const;
+            [[nodiscard]] bool save() const;
 
-            bool exists() const
+            [[nodiscard]] bool exists() const
             {
                 return f.exists();
             }

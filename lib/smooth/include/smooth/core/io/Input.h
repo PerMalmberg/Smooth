@@ -16,9 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Input.h"
-#else
 #include <driver/gpio.h>
 
 namespace smooth::core::io
@@ -43,4 +40,3 @@ namespace smooth::core::io
             gpio_num_t io;
     };
 }
-#endif

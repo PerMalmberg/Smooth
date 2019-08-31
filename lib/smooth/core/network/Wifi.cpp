@@ -37,9 +37,9 @@ namespace smooth::core::network
 
     Wifi::~Wifi()
     {
-        ESP_ERROR_CHECK(esp_wifi_disconnect());
-        ESP_ERROR_CHECK(esp_wifi_stop());
-        ESP_ERROR_CHECK(esp_wifi_deinit());
+        esp_wifi_disconnect();
+        esp_wifi_stop();
+        esp_wifi_deinit();
     }
 
     void Wifi::set_host_name(const std::string& name)
@@ -180,7 +180,7 @@ namespace smooth::core::network
     void Wifi::start_softap(uint8_t max_conn)
     {
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-        ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+        esp_wifi_init(&cfg);
 
         wifi_config_t config{};
 
@@ -190,9 +190,9 @@ namespace smooth::core::network
         config.ap.max_connection = max_conn;
         config.ap.authmode = password.empty() ? WIFI_AUTH_OPEN : WIFI_AUTH_WPA_WPA2_PSK;
 
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &config));
-        ESP_ERROR_CHECK(esp_wifi_start());
+        esp_wifi_set_mode(WIFI_MODE_AP);
+        esp_wifi_set_config(ESP_IF_WIFI_AP, &config);
+        esp_wifi_start();
 
         Log::info("SoftAP", "SSID: " + ssid + "; Auth: " + (password.empty() ? "Open" : "WPA2/PSK"));
     }

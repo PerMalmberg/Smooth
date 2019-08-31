@@ -25,12 +25,20 @@ add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512)
 add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
 add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
 
-
 add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
+target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf)
+set_compile_options(${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME}
         PUBLIC
             ${SMOOTH_LIB_ROOT}/smooth/include
-            $ENV{IDF_PATH}/components/json/cJSON)
+            $ENV{IDF_PATH}/components/json/cJSON
+        )
 
-target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium)
-set_compile_options(${PROJECT_NAME})
+# When building for Linux, mock-idf include paths must be make available.
+file(GLOB mock_components LIST_DIRECTORIES true
+        ${CMAKE_CURRENT_LIST_DIR}/../mock-idf/components/* )
+
+foreach(mock ${mock_components})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${mock}/include)
+endforeach()

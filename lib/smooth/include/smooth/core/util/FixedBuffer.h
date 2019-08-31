@@ -28,7 +28,7 @@ namespace smooth::core::util
         : public FixedBufferBase<T>
     {
         public:
-            size_t size() const override
+            [[nodiscard]] size_t size() const override
             {
                 return buff.size();
             }
@@ -43,7 +43,7 @@ namespace smooth::core::util
                 return buff.end();
             }
 
-            T * data() override
+            T* data() override
             {
                 return &buff[0];
             }
@@ -57,7 +57,7 @@ namespace smooth::core::util
             T& operator[](size_t ix)
             {
                 // Prevent going outside buffer
-                return buff[std::max(0u, std::min(size() - 1, ix))];
+                return buff[std::max(static_cast<size_t>(0), std::min(size() - 1, ix))];
             }
 
         private:

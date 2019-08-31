@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Wifi.h"
-#else
-
 #include <string>
 #include <array>
 #include <esp_wifi.h>
@@ -91,4 +87,3 @@ namespace smooth::core::network
             std::string password{};
     };
 }
-#endif

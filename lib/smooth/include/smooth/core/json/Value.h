@@ -101,19 +101,19 @@ namespace smooth::core::json
 
             explicit operator bool() const;
 
-            std::string get_string(const std::string& default_value_value) const;
+            [[nodiscard]] std::string get_string(const std::string& default_value_value) const;
 
-            int get_int(int default_value) const;
+            [[nodiscard]] int get_int(int default_value) const;
 
-            bool get_bool(bool default_value) const;
+            [[nodiscard]] bool get_bool(bool default_value) const;
 
-            int get_array_size() const;
+            [[nodiscard]] int get_array_size() const;
 
-            std::string get_name() const;
+            [[nodiscard]] std::string get_name() const;
 
             void get_member_names(std::vector<std::string>& names) const;
 
-            std::string to_string() const;
+            [[nodiscard]] std::string to_string() const;
 
             // Deletes named object
             void erase(const std::string& name);

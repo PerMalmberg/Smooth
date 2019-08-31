@@ -1,5 +1,4 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
-
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,10 +15,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
-
-#ifndef ESP_PLATFORM
-#include "mock/ISRTaskEventQueue.h"
-#else
 
 #include "IISRTaskEventQueue.h"
 #include "IPolledTaskQueue.h"
@@ -41,6 +36,7 @@ namespace smooth::core::ipc
         public IPolledTaskQueue,
         public std::enable_shared_from_this<ISRTaskEventQueue<DataType, Size>>
     {
+
         public:
             friend core::Task;
 
@@ -130,5 +126,3 @@ namespace smooth::core::ipc
         task.unregister_polled_queue_with_task(this);
     }
 }
-
-#endif

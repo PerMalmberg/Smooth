@@ -17,11 +17,6 @@
 #pragma once
 
 #include "MountPoint.h"
-
-#ifndef ESP_PLATFORM
-#include "mock/SDCard.h"
-#else
-
 #include <sdmmc_cmd.h>
 
 #pragma GCC diagnostic push
@@ -64,4 +59,3 @@ namespace smooth::core::filesystem
         private:
     };
 }
-#endif

@@ -18,10 +18,6 @@
 
 #include "InterruptEvent.h"
 
-#ifndef ESP_PLATFORM
-#include "mock/InterruptInput.h"
-#else
-
 #include "Input.h"
 #include <smooth/core/ipc/IISRTaskEventQueue.h>
 #include <memory>
@@ -32,6 +28,7 @@ namespace smooth::core::io
         : private Input
     {
         public:
+
             /// Constructs an InterruptInput
             /// \param queue The queue to put events on
             /// \param io GPIO pin number
@@ -55,4 +52,3 @@ namespace smooth::core::io
             std::weak_ptr<ipc::IISRTaskEventQueue<InterruptInputEvent>> queue;
     };
 }
-#endif

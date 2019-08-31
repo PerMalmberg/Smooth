@@ -16,20 +16,16 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/SPIFlash.h"
-#else
-
-#include "esp_vfs.h"
+#include <esp_vfs.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 
-#include "esp_vfs_fat.h"
+#include <esp_vfs_fat.h>
 
 #pragma GCC diagnostic pop
 
-#include "esp_system.h"
+#include <esp_system.h>
 #include <string>
 #include "MountPoint.h"
 
@@ -68,4 +64,3 @@ namespace smooth::core::filesystem
             wl_handle_t wl_instance = WL_INVALID_HANDLE;
     };
 }
-#endif
