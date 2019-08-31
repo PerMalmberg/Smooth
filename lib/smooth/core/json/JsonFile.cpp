@@ -15,11 +15,8 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/core/json/JsonFile.h>
-#include <cJSON.h>
-
 #include <memory>
 #include <vector>
-#include <iostream>
 
 namespace smooth::core::json
 {
