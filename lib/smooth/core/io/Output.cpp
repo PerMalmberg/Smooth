@@ -62,5 +62,3 @@ namespace smooth::core::io
         gpio_set_level(io, active_high ? 0 : 1);
     }
 }
-
-

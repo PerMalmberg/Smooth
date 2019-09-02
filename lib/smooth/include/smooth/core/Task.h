@@ -73,7 +73,6 @@ namespace smooth::core
             Task& operator=(Task&&) = delete;
 
         protected:
-
             /// Use this constructor to attach to an existing task, i.e. the main task.
             /// \param task_to_attach_to The task to attach to.
             /// \param priority Task priority
@@ -109,7 +108,6 @@ namespace smooth::core
 
             const std::string name;
         private:
-
             void exec();
 
             std::thread worker;
@@ -119,7 +117,7 @@ namespace smooth::core
             smooth::core::ipc::QueueNotification notification{};
             bool is_attached;
             int affinity;
-            std::atomic_bool started{false};
+            std::atomic_bool started{ false };
             std::mutex start_mutex{};
             std::mutex queue_mutex{};
             std::condition_variable start_condition{};

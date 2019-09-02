@@ -24,10 +24,10 @@ namespace smooth::application::network::http
 {
     enum class ResponseStatus
     {
-            Error,
-            HasMoreData,
-            LastData,
-            NoData
+        Error,
+        HasMoreData,
+        LastData,
+        NoData
     };
 
     // A request operation is responsible for providing outgoing data chunked into smaller pieces
@@ -56,11 +56,10 @@ namespace smooth::application::network::http
 
             /// Adds a header value, appending to any existing value.
             virtual void add_header(const std::string& /*key*/, const std::string& /*value*/)
-            {};
+            {}
 
             virtual void dump() const
             {}
-
         protected:
             std::unordered_map<std::string, std::string> headers{};
     };

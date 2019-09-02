@@ -28,9 +28,8 @@ namespace smooth::application::network::mqtt::packet
 {
     class IPacketReceiver;
 
-
     class MQTTProtocol
-            : public smooth::core::network::IPacketAssembly<MQTTProtocol, MQTTPacket>
+        : public smooth::core::network::IPacketAssembly<MQTTProtocol, MQTTPacket>
     {
         public:
             using packet_type = MQTTPacket;
@@ -49,7 +48,7 @@ namespace smooth::application::network::mqtt::packet
             // Must return the current write position of the internal buffer.
             // Must point to a buffer than can accept the number of bytes returned by
             // get_wanted_amount().
-            uint8_t* get_write_pos(MQTTProtocol::packet_type& packet) override;;
+            uint8_t * get_write_pos(MQTTProtocol::packet_type& packet) override;
 
             // Must return true when the packet has received all data it needs
             // to fully assemble.
@@ -59,7 +58,6 @@ namespace smooth::application::network::mqtt::packet
             // based on received data.
             bool is_error() override;
 
-
             bool is_too_big() const;
 
             void packet_consumed() override;
@@ -67,7 +65,6 @@ namespace smooth::application::network::mqtt::packet
             void reset() override;
 
         private:
-
             enum ReadingHeaderSection
             {
                 START = 1,

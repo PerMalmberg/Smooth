@@ -27,7 +27,7 @@ namespace smooth::application::network::mqtt::packet
     uint16_t PubRec::get_packet_identifier() const
     {
         calculate_remaining_length_and_variable_header_offset();
+
         return read_packet_identifier(get_variable_header_start());
     }
-
 }

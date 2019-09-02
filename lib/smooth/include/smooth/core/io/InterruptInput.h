@@ -18,10 +18,6 @@
 
 #include "InterruptEvent.h"
 
-#ifndef ESP_PLATFORM
-#include "mock/InterruptInput.h"
-#else
-
 #include "Input.h"
 #include <smooth/core/ipc/IISRTaskEventQueue.h>
 #include <memory>
@@ -29,7 +25,7 @@
 namespace smooth::core::io
 {
     class InterruptInput
-            : private Input
+        : private Input
     {
         public:
 
@@ -43,7 +39,7 @@ namespace smooth::core::io
                            bool pull_up,
                            bool pull_down,
                            gpio_int_type_t interrupt_trigger
-            );
+                           );
 
             void update();
 
@@ -56,4 +52,3 @@ namespace smooth::core::io
             std::weak_ptr<ipc::IISRTaskEventQueue<InterruptInputEvent>> queue;
     };
 }
-#endif

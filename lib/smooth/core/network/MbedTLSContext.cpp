@@ -83,6 +83,7 @@ namespace smooth::core::network
                                               server ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT,
                                               MBEDTLS_SSL_TRANSPORT_STREAM,
                                               MBEDTLS_SSL_PRESET_DEFAULT);
+
             if (res != 0)
             {
                 log_mbedtls_error(tag, "mbedtls_ssl_config_defaults", res);
@@ -111,6 +112,7 @@ namespace smooth::core::network
                 mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_REQUIRED);
 
                 res = load_certificate(ca_certificates, ca_cert);
+
                 if (res == 0)
                 {
                     mbedtls_ssl_conf_ca_chain(&conf, &ca_cert, nullptr);

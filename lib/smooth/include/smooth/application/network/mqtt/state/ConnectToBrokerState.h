@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class ConnectToBrokerState
-            : public ConnectedState
+        : public ConnectedState
     {
         public:
             explicit ConnectToBrokerState(MqttFSM<MQTTBaseState>& fsm)

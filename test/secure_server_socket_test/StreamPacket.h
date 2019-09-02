@@ -17,12 +17,13 @@
 #pragma once
 
 class StreamPacket
-        : public smooth::core::network::IPacketDisassembly
+    : public smooth::core::network::IPacketDisassembly
 {
     public:
-
         StreamPacket() = default;
+
         StreamPacket(const StreamPacket&) = default;
+
         StreamPacket& operator=(const StreamPacket&) = default;
 
         explicit StreamPacket(char c)

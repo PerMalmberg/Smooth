@@ -29,8 +29,8 @@
 namespace smooth::application::io::wiegand
 {
     class Wiegand
-            : public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>,
-              public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
+        : public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>,
+        public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
     {
         public:
             Wiegand(smooth::core::Task& task, IWiegandSignal& receiver, gpio_num_t d0_pin, gpio_num_t d1_pin);
@@ -55,4 +55,3 @@ namespace smooth::application::io::wiegand
             smooth::core::timer::TimerOwner expire;
     };
 }
-        

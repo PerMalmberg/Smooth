@@ -69,6 +69,7 @@ namespace smooth::core::ipc
             int size()
             {
                 std::lock_guard<std::mutex> lock(guard);
+
                 return queue_size;
             }
 
@@ -80,6 +81,7 @@ namespace smooth::core::ipc
                 std::lock_guard<std::mutex> lock(guard);
 
                 bool res = items.size() < static_cast<size_t>(queue_size);
+
                 if (res)
                 {
                     items.emplace_back(item);
@@ -96,6 +98,7 @@ namespace smooth::core::ipc
                 std::lock_guard<std::mutex> lock(guard);
 
                 bool res = items.size() > 0;
+
                 if (res)
                 {
                     target = items.front();
@@ -117,6 +120,7 @@ namespace smooth::core::ipc
             int count()
             {
                 std::lock_guard<std::mutex> lock(guard);
+
                 return static_cast<int>(items.size());
             }
 

@@ -45,10 +45,11 @@ namespace smooth::core::network
 {
     template<typename Client, typename Protocol, typename ClientContext>
     class ServerSocket
-            : public CommonSocket
+        : public CommonSocket
     {
         public:
-            template<typename ...ProtocolArguments>
+
+            template<typename... ProtocolArguments>
             static std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
             create(smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args);
 
@@ -65,6 +66,7 @@ namespace smooth::core::network
             }
 
         protected:
+
             void readable(ISocketBackOff& ops) override;
 
             void writable() override;
@@ -87,7 +89,7 @@ namespace smooth::core::network
 
             void stop_internal() override;
 
-            template<typename ...ProtocolArguments>
+            template<typename... ProtocolArguments>
             ServerSocket(smooth::core::Task& task,
                          int max_client_count,
                          int backlog,
@@ -99,15 +101,16 @@ namespace smooth::core::network
             }
 
             ClientPool<Client> pool;
-            ClientContext* client_context{nullptr};
+            ClientContext* client_context{ nullptr };
         private:
-            int backlog{0};
+            int backlog{ 0 };
     };
 
     template<typename Client, typename Protocol, typename ClientContext>
     bool ServerSocket<Client, Protocol, ClientContext>::start(std::shared_ptr<InetAddress> bind_to)
     {
         bool res = false;
+
         if (!is_active())
         {
             ip = std::move(bind_to);
@@ -125,8 +128,9 @@ namespace smooth::core::network
     }
 
     template<typename Client, typename Protocol, typename ClientContext>
-    std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int>
-    ServerSocket<Client, Protocol, ClientContext>::accept_request(ISocketBackOff& ops)
+    std::tuple<std::shared_ptr<smooth::core::network::InetAddress>, int> ServerSocket<Client, Protocol,
+                                                                                      ClientContext>::accept_request(
+        ISocketBackOff& ops)
     {
         using namespace smooth::core::logging;
 
@@ -140,9 +144,10 @@ namespace smooth::core::network
         else
         {
             sockaddr addr{};
-            socklen_t len{AF_INET6};
+            socklen_t len{ AF_INET6 };
 
             auto accepted_socket = accept(socket_id, &addr, &len);
+
             if (accepted_socket == INVALID_SOCKET)
             {
                 std::string msg = "Error accepting: ";
@@ -152,6 +157,7 @@ namespace smooth::core::network
             else
             {
                 std::shared_ptr<smooth::core::network::InetAddress> ip{};
+
                 if (addr.sa_family == AF_INET)
                 {
 #pragma GCC diagnostic push
@@ -195,7 +201,6 @@ namespace smooth::core::network
             client->set_client_context(client_context);
             client->set_socket(socket);
         }
-
     }
 
     template<typename Client, typename Protocol, typename ClientContext>
@@ -227,9 +232,11 @@ namespace smooth::core::network
                 setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
 
                 auto bind_res = bind(socket_id, ip->get_socket_address(), ip->get_socket_address_length());
+
                 if (bind_res == 0)
                 {
                     auto listen_res = listen(socket_id, backlog);
+
                     if (listen_res == 0)
                     {
                         connected = true;
@@ -261,10 +268,10 @@ namespace smooth::core::network
     }
 
     template<typename Client, typename Protocol, typename ClientContext>
-    template<typename ...ProtocolArguments>
-    std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
-    ServerSocket<Client, Protocol, ClientContext>::create(
-            smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args)
+    template<typename... ProtocolArguments>
+    std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>> ServerSocket<Client, Protocol,
+                                                                                ClientContext>::create(
+        smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args)
     {
         return smooth::core::util::create_protected_shared<ServerSocket<Client, Protocol, ClientContext>>(task,
                                                                                                           max_client_count,
@@ -290,6 +297,7 @@ namespace smooth::core::network
                 res = set_non_blocking();
                 int no_delay = 1;
                 res &= setsockopt(socket_id, IPPROTO_TCP, TCP_NODELAY, &no_delay, sizeof(no_delay)) == 0;
+
                 if (res)
                 {
                     log("Created server socket");

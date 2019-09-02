@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,10 +25,10 @@ namespace smooth::core::util
 {
     template<typename T, size_t Size>
     class FixedBuffer
-            : public FixedBufferBase<T>
+        : public FixedBufferBase<T>
     {
         public:
-            size_t size() const override
+            [[nodiscard]] size_t size() const override
             {
                 return buff.size();
             }
@@ -56,7 +57,7 @@ namespace smooth::core::util
             T& operator[](size_t ix)
             {
                 // Prevent going outside buffer
-                return buff[std::max(0u, std::min(size() - 1, ix))];
+                return buff[std::max(static_cast<size_t>(0), std::min(size() - 1, ix))];
             }
 
         private:

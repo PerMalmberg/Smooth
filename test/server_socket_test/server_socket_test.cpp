@@ -35,7 +35,6 @@ namespace server_socket_test
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
-
     {
     }
 
@@ -59,6 +58,4 @@ namespace server_socket_test
         // Point your browser to http://localhost:8080 and watch the output.
         // Or, if you're on linux, do "echo ` date` | nc localhost 8080 -w1"
     }
-
 }
-

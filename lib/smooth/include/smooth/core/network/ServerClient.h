@@ -41,10 +41,10 @@ namespace smooth::core::network
     /// \tparam Protocol The communication protocol
     template<typename FinalClientTypeName, typename Protocol, typename ClientContext>
     class ServerClient
-            : public smooth::core::ipc::IEventListener<smooth::core::network::event::DataAvailableEvent<Protocol>>,
-              public smooth::core::ipc::IEventListener<smooth::core::network::event::TransmitBufferEmptyEvent>,
-              public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>,
-              public std::enable_shared_from_this<FinalClientTypeName>
+        : public smooth::core::ipc::IEventListener<smooth::core::network::event::DataAvailableEvent<Protocol>>,
+        public smooth::core::ipc::IEventListener<smooth::core::network::event::TransmitBufferEmptyEvent>,
+        public smooth::core::ipc::IEventListener<smooth::core::network::event::ConnectionStatusEvent>,
+        public std::enable_shared_from_this<FinalClientTypeName>
     {
         public:
             ServerClient(smooth::core::Task& task,
@@ -54,7 +54,6 @@ namespace smooth::core::network
             ~ServerClient() override = default;
 
             ServerClient(const ServerClient&) = delete;
-
 
             virtual std::chrono::milliseconds get_send_timeout() = 0;
 
@@ -86,7 +85,7 @@ namespace smooth::core::network
                 client_context = ctx;
             }
 
-            ClientContext* get_client_context()
+            ClientContext * get_client_context()
             {
                 return client_context;
             }
@@ -104,7 +103,6 @@ namespace smooth::core::network
         protected:
             std::shared_ptr<smooth::core::network::ISocket> socket{};
             std::shared_ptr<BufferContainer<Protocol>> container;
-
         private:
             friend ServerSocket<FinalClientTypeName, Protocol, ClientContext>;
             friend SecureServerSocket<FinalClientTypeName, Protocol, ClientContext>;
@@ -124,15 +122,15 @@ namespace smooth::core::network
             }
 
             smooth::core::network::ClientPool<FinalClientTypeName>& pool;
-            ClientContext* client_context{nullptr};
+            ClientContext* client_context{ nullptr };
     };
 
     template<typename FinalClientTypeName, typename Protocol, typename ClientContext>
     ServerClient<FinalClientTypeName, Protocol, ClientContext>::ServerClient(
-            smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool,
-            std::unique_ptr<Protocol> proto)
-            :container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto))),
-            pool(pool)
+        smooth::core::Task& task, smooth::core::network::ClientPool<FinalClientTypeName>& pool,
+        std::unique_ptr<Protocol> proto)
+            : container(std::make_shared<BufferContainer<Protocol>>(task, *this, *this, *this, std::move(proto))),
+              pool(pool)
     {
     }
 }

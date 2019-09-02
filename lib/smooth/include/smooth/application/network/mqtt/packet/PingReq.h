@@ -22,10 +22,9 @@
 namespace smooth::application::network::mqtt::packet
 {
     class PingReq
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             PingReq();
-
     };
 }

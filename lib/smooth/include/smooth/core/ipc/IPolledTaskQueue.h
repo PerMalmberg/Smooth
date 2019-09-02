@@ -25,7 +25,7 @@ namespace smooth::core::ipc
     /// A queue that is polled by the owning Task, instead of itself notifying the task
     /// As an application programmer you are not meant to call any of these methods.
     class IPolledTaskQueue
-            : public ITaskEventQueue
+        : public ITaskEventQueue
     {
         public:
             /// Polls the queue, and if data is available, it will signal the owning task.

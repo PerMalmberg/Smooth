@@ -19,7 +19,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class ConnAck
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             enum ReturnCode
@@ -42,6 +42,7 @@ namespace smooth::application::network::mqtt::packet
             bool is_session_present()
             {
                 core::util::ByteSet b(*get_variable_header_start());
+
                 return b.test(0);
             }
 

@@ -42,4 +42,3 @@ namespace smooth::core::io::i2c
         cmd_link = i2c_cmd_link_create();
     }
 }
-

@@ -23,10 +23,9 @@
 namespace hw_spiflash
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
-
             App();
 
             void init() override;
@@ -35,12 +34,11 @@ namespace hw_spiflash
 
         private:
             // See partitions.csv for partition table layout and where "app_storage" comes from.
-            smooth::core::filesystem::SPIFlash flash{smooth::core::filesystem::FlashMount::instance(),
-                                                     "app_storage",
-                                                     10,
-                                                     true};
+            smooth::core::filesystem::SPIFlash flash{ smooth::core::filesystem::FlashMount::instance(),
+                                                      "app_storage",
+                                                      10,
+                                               true };
             bool mounted = false;
             smooth::core::timer::ElapsedTime elapsed{};
     };
-};
-
+}

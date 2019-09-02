@@ -49,6 +49,7 @@ namespace smooth::core::io::i2c
     {
         std::lock_guard<std::mutex> lock(guard);
         do_initialization();
+
         return initialized;
     }
 

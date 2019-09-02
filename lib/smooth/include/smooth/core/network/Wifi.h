@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Wifi.h"
-#else
-
 #include <string>
 #include <array>
 #include <esp_wifi.h>
@@ -29,14 +25,17 @@ namespace smooth::core::network
 {
     /// Wifi management class
     class Wifi
-            : public smooth::core::ipc::IEventListener<system_event_t>
+        : public smooth::core::ipc::IEventListener<system_event_t>
     {
         public:
             Wifi();
 
             Wifi(const Wifi&) = delete;
+
             Wifi(Wifi&&) = delete;
+
             Wifi& operator=(const Wifi&) = delete;
+
             Wifi& operator=(Wifi&&) = delete;
 
             ~Wifi() override;
@@ -88,4 +87,3 @@ namespace smooth::core::network
             std::string password{};
     };
 }
-#endif

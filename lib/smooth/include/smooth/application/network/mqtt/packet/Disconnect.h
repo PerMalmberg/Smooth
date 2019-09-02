@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class Disconnect
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             Disconnect();

@@ -21,7 +21,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class StartupState
-            : public DisconnectedState
+        : public DisconnectedState
     {
         public:
             explicit StartupState(MqttFSM<MQTTBaseState>& fsm)

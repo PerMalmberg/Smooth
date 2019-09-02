@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/Sntp.h"
-#else
-
 #include <vector>
 #include <string>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
@@ -28,14 +24,15 @@
 
 namespace smooth::core::sntp
 {
-	class Sntp
+  class Sntp
 	{
 	public:
 		explicit Sntp(std::vector<std::string> servers);
 
 		void start();
 
-		bool is_time_set() const;
+
+  [[nodiscard]] bool is_time_set() const;
 
 	private:
 		const std::vector<std::string> servers;
@@ -43,4 +40,3 @@ namespace smooth::core::sntp
 		static void timeSyncNotificationCallback(struct timeval* tv);
 	};
 }
-#endif

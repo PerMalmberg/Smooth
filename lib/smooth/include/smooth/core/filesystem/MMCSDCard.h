@@ -16,16 +16,13 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/MMCSDCard.h"
-#else
 #include "SDCard.h"
 #include "driver/sdmmc_host.h"
 
 namespace smooth::core::filesystem
 {
     class MMCSDCard
-            : public SDCard
+        : public SDCard
     {
         public:
             MMCSDCard(gpio_num_t command,
@@ -50,4 +47,4 @@ namespace smooth::core::filesystem
             gpio_num_t write_protect;
     };
 }
-#endif
+

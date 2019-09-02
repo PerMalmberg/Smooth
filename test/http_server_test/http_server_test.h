@@ -33,7 +33,7 @@
 namespace http_server_test
 {
     class DataRetriever
-            : public smooth::application::network::http::ITemplateDataRetriever
+        : public smooth::application::network::http::ITemplateDataRetriever
     {
         public:
             std::string get(const std::string& key) const override
@@ -61,7 +61,7 @@ namespace http_server_test
     };
 
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
             App();

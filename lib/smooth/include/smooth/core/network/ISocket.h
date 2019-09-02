@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -29,14 +30,15 @@ namespace smooth::core::network
     /// Interface for sockets
     class ISocket
     {
-            friend class smooth::core::network::SocketDispatcher;
-
+        friend class smooth::core::network::SocketDispatcher;
         public:
             static const int INVALID_SOCKET = -1;
 #ifdef ESP_PLATFORM
+
             // lwip doesn't signal SIGPIPE
             static const int SEND_FLAGS = 0;
 #else
+
             // Disable SIGPIPE during send()-calls.
             static const int SEND_FLAGS = MSG_NOSIGNAL;
 #endif
@@ -46,7 +48,8 @@ namespace smooth::core::network
             /// Initiates the connection to the provided IP. After this call events will arrive
             /// via the response methods for data available, TX buffer empty, connection status etc.
             /// \param ip The address to connect to (an instance of either IPv4 or IPv6).
-            /// \return true if the socket could be started and connection attempt initiated (but possibly not succeeded or yet completed)
+            /// \return true if the socket could be started and connection attempt initiated (but possibly not succeeded
+            // or yet completed)
             virtual bool start(std::shared_ptr<InetAddress> ip) = 0;
 
             /// Stops the socket, disconnected if currently connected.

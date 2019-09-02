@@ -48,14 +48,15 @@ namespace smooth::core
         Log::info(tag, "[INTERNAL]");
         dump_mem_stats(MALLOC_CAP_INTERNAL);
         Log::info(tag, "[INTERNAL | DMA]");
-        dump_mem_stats(MALLOC_CAP_INTERNAL|MALLOC_CAP_DMA);
+        dump_mem_stats(MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
         Log::info(tag, "[SPIRAM]");
         dump_mem_stats(MALLOC_CAP_SPIRAM);
 #endif
 
         { // Only need to lock while accessing the shared data
-            synch guard{lock};
+            synch guard{ lock };
             Log::info(tag, Format("Name\tStack\tMin free stack"));
+
             for (const auto& stat : task_info)
             {
                 Log::info(tag, Format("{1}\t{2}\t{3}", Str(stat.first), UInt32(stat.second.get_stack_size()),
@@ -65,6 +66,7 @@ namespace smooth::core
     }
 
 #ifdef ESP_PLATFORM
+
     void SystemStatistics::dump_mem_stats(uint32_t caps) const noexcept
     {
         Log::info(tag, Format("8-bit F:{1} LB:{2} M:{3} | 32-bit: F:{4} LB:{5} M:{6}",
@@ -75,5 +77,6 @@ namespace smooth::core
                               UInt32(heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT)),
                               UInt32(heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT))));
     }
+
 #endif
 }

@@ -40,7 +40,6 @@ using namespace std::chrono;
 // Set to true to use 1-line MMC mode.
 const bool MMC_1_LINE_MODE = false;
 
-
 namespace hw_sdcard_test
 {
     static const char* tag = "sdcard_test";
@@ -56,6 +55,7 @@ namespace hw_sdcard_test
         Application::init();
 
 #ifdef USE_SPI
+
         // Change the pin configuration to match your hardware.
         card = std::make_unique<smooth::core::filesystem::SPISDCard>(GPIO_NUM_19,
                                                                      GPIO_NUM_23,
@@ -70,7 +70,6 @@ namespace hw_sdcard_test
                                                                      GPIO_NUM_13,
                                                                      MMC_1_LINE_MODE);
 #endif
-
     }
 
     static bool test_done = false;
@@ -79,11 +78,12 @@ namespace hw_sdcard_test
     {
         ElapsedTime wait;
         wait.start();
-        while (wait.get_running_time() < seconds{5})
+
+        while (wait.get_running_time() < seconds{ 5 })
         {
             Log::info(tag, "If you have JTAG connected to the ESP, it is suggested you"
                            " disconnect them now as they interfere with the SD Card lines in MMC mode");
-            std::this_thread::sleep_for(seconds{1});
+            std::this_thread::sleep_for(seconds{ 1 });
         }
 
         std::random_device rd;
@@ -110,16 +110,18 @@ namespace hw_sdcard_test
                     t.reset();
 
                     Log::info(tag,
-                              Format("Writing {1} bytes, chunk size {2}.", UInt64{total_size}, UInt64{chunk_size}));
+                              Format("Writing {1} bytes, chunk size {2}.", UInt64{ total_size }, UInt64{ chunk_size }));
                     auto write = std::make_unique<int[]>(chunk_size);
                     auto read = std::make_unique<int[]>(chunk_size);
                     auto block_size = sizeof(int) * chunk_size;
 
                     auto fp = fopen(path.str().c_str(), "wb+");
+
                     if (fp)
                     {
                         int write_count = 0;
                         size_t written_bytes = 0;
+
                         for (size_t i = 0; !error && i <= total_size; i += chunk_size)
                         {
                             // Fill block with random data
@@ -130,6 +132,7 @@ namespace hw_sdcard_test
 
                             fseek(fp, 0, SEEK_END);
                             auto written_result = fwrite(write.get(), sizeof(int), chunk_size, fp);
+
                             if (written_result != chunk_size)
                             {
                                 Log::error(tag, "Failed to write");
@@ -148,6 +151,7 @@ namespace hw_sdcard_test
                                 written_bytes += block_size;
 
                                 auto read_res = fread(read.get(), sizeof(int), chunk_size, fp);
+
                                 if (read_res != chunk_size)
                                 {
                                     Log::error(tag, "Failed to read");
@@ -168,7 +172,7 @@ namespace hw_sdcard_test
                             else
                             {
                                 Log::error(tag, Format("Data not equal, chunk size {1}", UInt64(chunk_size)));
-                                std::this_thread::sleep_for(seconds{1});
+                                std::this_thread::sleep_for(seconds{ 1 });
                                 error = true;
                             }
                         }
@@ -178,6 +182,7 @@ namespace hw_sdcard_test
                         std::string speed;
 
                         auto second = duration_cast<std::chrono::seconds>(t.get_running_time());
+
                         if (second.count() < 1)
                         {
                             auto millis = duration_cast<std::chrono::milliseconds>(t.get_running_time()).count();
@@ -186,14 +191,15 @@ namespace hw_sdcard_test
                         }
                         else
                         {
-                            speed = Format("{1} bytes/s, ", UInt64(total_size /
-                                                                   static_cast<unsigned long>(std::max<int64_t>(1, second.count()))));
+                            speed = Format("{1} bytes/s, ", UInt64(total_size
+                                                                                                                                                   /
+                            static_cast<unsigned long>(std::max<int64_t>(1, second.count()))));
                             Log::info(tag, speed.c_str());
                         }
 
                         if (!error)
                         {
-                            std::string eof{"EOF"};
+                            std::string eof{ "EOF" };
                             fwrite(speed.c_str(), sizeof(char), speed.length(), fp);
                             fwrite(eof.c_str(), sizeof(char), eof.length(), fp);
                         }

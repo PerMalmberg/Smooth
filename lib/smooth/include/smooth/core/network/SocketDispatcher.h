@@ -36,13 +36,12 @@ namespace smooth::core::network
     /// creating and sending the necessary events to the application. As an application developer
     /// you should never have to care about this class.
     class SocketDispatcher
-            : public smooth::core::Task,
-              public smooth::core::ipc::IEventListener<NetworkStatus>,
-              public smooth::core::ipc::IEventListener<SocketOperation>,
-              private ISocketBackOff
+        : public smooth::core::Task,
+        public smooth::core::ipc::IEventListener<NetworkStatus>,
+        public smooth::core::ipc::IEventListener<SocketOperation>,
+        private ISocketBackOff
     {
         public:
-
             ~SocketDispatcher() override = default;
 
             static SocketDispatcher& instance();
@@ -56,7 +55,6 @@ namespace smooth::core::network
             void event(const SocketOperation& event) override;
 
         protected:
-
         private:
             SocketDispatcher();
 
@@ -76,7 +74,9 @@ namespace smooth::core::network
             void start_socket(const std::shared_ptr<ISocket>& socket);
 
             void shutdown_socket(std::shared_ptr<ISocket> socket);
+
             bool is_backed_off(int socket_id);
+
             void remove_backed_off_socket(int socket_id);
 
             void back_off(int socket_id, std::chrono::milliseconds duration) override;

@@ -23,7 +23,7 @@
 namespace asan_test
 {
     class App
-            : public smooth::core::Application
+        : public smooth::core::Application
     {
         public:
             App();

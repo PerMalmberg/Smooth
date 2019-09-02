@@ -19,7 +19,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class Unsubscribe
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             Unsubscribe() = default;
@@ -32,7 +32,6 @@ namespace smooth::application::network::mqtt::packet
                 append_string(topic, data);
                 apply_constructed_data(data);
             }
-
 
             explicit Unsubscribe(const MQTTPacket& packet)
                     : MQTTPacket(packet)

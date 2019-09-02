@@ -26,26 +26,24 @@ namespace smooth::core::ipc
         // as TaskEventQueues only call this method when they have successfully added the
         // data item to their internal queue. As such, the queue can only be as large as
         // the sum of all queues within the same Task.
-        std::unique_lock<std::mutex> lock{guard};
+        std::unique_lock<std::mutex> lock{ guard };
         queues.emplace_back(queue);
         cond.notify_one();
     }
 
     void QueueNotification::remove_expired_queues()
     {
-        std::unique_lock<std::mutex> lock{guard};
+        std::unique_lock<std::mutex> lock{ guard };
 
-        auto new_end = std::remove_if(queues.begin(), queues.end(), [&](const auto& o)
-        {
-            return o.expired();
-        });
+        auto new_end = std::remove_if(queues.begin(), queues.end(),
+                                      [&](const auto& o) { return o.expired(); });
 
         queues.erase(new_end, queues.end());
     }
 
     std::weak_ptr<ITaskEventQueue> QueueNotification::wait_for_notification(std::chrono::milliseconds timeout)
     {
-        std::unique_lock<std::mutex> lock{guard};
+        std::unique_lock<std::mutex> lock{ guard };
         std::weak_ptr<ITaskEventQueue> res{};
 
         if (queues.empty())

@@ -19,7 +19,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class UnsubAck
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             UnsubAck() = default;

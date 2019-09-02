@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -28,4 +29,3 @@ namespace smooth::application::io::wiegand
             virtual void wiegand_id(uint32_t id, uint8_t byte_count) = 0;
     };
 }
-        

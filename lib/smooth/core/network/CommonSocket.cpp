@@ -44,6 +44,7 @@ namespace smooth::core::network
         bool res = true;
 
         auto opts = fcntl(socket_id, F_GETFL, 0);
+
         if (opts < 0)
         {
             loge("Could not get socket flags");
@@ -97,6 +98,7 @@ namespace smooth::core::network
     bool CommonSocket::restart()
     {
         stop("Restarting");
+
         return start(ip);
     }
 }

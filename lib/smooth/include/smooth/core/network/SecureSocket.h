@@ -23,6 +23,7 @@
 
 namespace smooth::core::network
 {
+
     static int ssl_recv(void* ctx, uint8_t* buf, size_t len)
     {
         auto socket = reinterpret_cast<ISocket*>(ctx);
@@ -64,10 +65,9 @@ namespace smooth::core::network
         return amount_sent;
     }
 
-
     template<typename Protocol, typename Packet = typename Protocol::packet_type>
     class SecureSocket
-            : public Socket<Protocol, Packet>
+        : public Socket<Protocol, Packet>
     {
         public:
             friend class smooth::core::network::SocketDispatcher;
@@ -82,7 +82,7 @@ namespace smooth::core::network
             create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
                    std::chrono::milliseconds send_timeout = std::chrono::milliseconds(5000),
-                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
+                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{ 0 });
 
             static std::shared_ptr<SecureSocket<Protocol>>
             create(std::shared_ptr<smooth::core::network::InetAddress> ip,
@@ -90,7 +90,7 @@ namespace smooth::core::network
                    std::weak_ptr<BufferContainer<Protocol>> buffer_container,
                    std::unique_ptr<SSLContext> secure_context,
                    std::chrono::milliseconds timeout = std::chrono::milliseconds(5000),
-                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{0});
+                   std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{ 0 });
 
             void set_existing_socket(const std::shared_ptr<InetAddress>& address, int socket_id) override;
 
@@ -100,7 +100,11 @@ namespace smooth::core::network
                     : Socket<Protocol, Packet>(std::move(buffer_container)),
                       secure_context(std::move(context))
             {
-                mbedtls_ssl_set_bio(*secure_context, this, ssl_send, ssl_recv, nullptr);
+                mbedtls_ssl_set_bio(*secure_context,
+            this,
+            ssl_send,
+            ssl_recv,
+            nullptr);
             }
 
             void readable(ISocketBackOff& ops) override;
@@ -119,7 +123,6 @@ namespace smooth::core::network
 
             bool is_handshake_complete(const SSLContext& ctx) const;
 
-
             void do_handshake_step();
 
             bool needs_tls_transfer(int code) const
@@ -129,36 +132,39 @@ namespace smooth::core::network
 #ifdef MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
                        || code == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
 #endif
-                        ;
+                ;
             }
     };
 
     template<typename Protocol, typename Packet>
-    std::shared_ptr<SecureSocket<Protocol>>
-    SecureSocket<Protocol, Packet>::create(std::shared_ptr<smooth::core::network::InetAddress> ip,
-                                           int socket_id,
-                                           std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                           std::unique_ptr<SSLContext> context,
-                                           std::chrono::milliseconds send_timeout,
-                                           std::chrono::milliseconds receive_timeout)
+    std::shared_ptr<SecureSocket<Protocol>> SecureSocket<Protocol, Packet>::create(
+        std::shared_ptr<smooth::core::network::InetAddress> ip,
+        int socket_id,
+        std::weak_ptr<BufferContainer<Protocol>> buffer_container,
+        std::unique_ptr<SSLContext> context,
+        std::chrono::milliseconds send_timeout,
+        std::chrono::milliseconds receive_timeout)
     {
         auto s = create(buffer_container, std::move(context));
         s->set_send_timeout(send_timeout);
         s->set_receive_timeout(receive_timeout);
         s->set_existing_socket(ip, socket_id);
+
         return s;
     }
 
     template<typename Protocol, typename Packet>
-    std::shared_ptr<SecureSocket<Protocol>>
-    SecureSocket<Protocol, Packet>::create(std::weak_ptr<BufferContainer<Protocol>> buffer_container,
-                                           std::unique_ptr<SSLContext> context,
-                                           std::chrono::milliseconds send_timeout,
-                                           std::chrono::milliseconds receive_timeout)
+    std::shared_ptr<SecureSocket<Protocol>> SecureSocket<Protocol, Packet>::create(
+        std::weak_ptr<BufferContainer<Protocol>> buffer_container,
+        std::unique_ptr<SSLContext> context,
+        std::chrono::milliseconds send_timeout,
+        std::chrono::milliseconds receive_timeout)
     {
-        auto s = smooth::core::util::create_protected_shared<SecureSocket<Protocol, Packet>>(buffer_container, std::move(context));
+        auto s = smooth::core::util::create_protected_shared<SecureSocket<Protocol, Packet>>(buffer_container,
+        std::move(context));
         s->set_send_timeout(send_timeout);
         s->set_receive_timeout(receive_timeout);
+
         return s;
     }
 
@@ -221,7 +227,7 @@ namespace smooth::core::network
                 // readable() on this socket, in turn preventing this function be called again to read the
                 // remaining decrypted data. As such we have to wait a bit so the application consumes at
                 // least one packet.
-                std::this_thread::sleep_for(std::chrono::milliseconds{1});
+                std::this_thread::sleep_for(std::chrono::milliseconds{ 1 });
 
                 // Likely better solution: Set an artificial readable-indicator on the socket telling the
                 // SocketDispatcher there are more data to be read, forcing a readable()-call on the socket.
@@ -244,7 +250,7 @@ namespace smooth::core::network
                 }
                 else if (read_amount < 0)
                 {
-                    if(!needs_tls_transfer(read_amount))
+                    if (!needs_tls_transfer(read_amount))
                     {
                         char buf[128];
                         mbedtls_strerror(read_amount, buf, sizeof(buf));
@@ -254,6 +260,7 @@ namespace smooth::core::network
                 else
                 {
                     rx.data_received(read_amount);
+
                     if (rx.is_error())
                     {
                         Log::error(tag, "Assembly error");

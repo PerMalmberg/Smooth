@@ -32,6 +32,7 @@ namespace smooth::core::util
             auto dist = std::distance(current, end);
             auto to_move = std::min(static_cast<size_t>(dist), static_cast<size_t>(inc));
             res = inc == to_move;
+
             if (res)
             {
                 std::advance(current, to_move);
@@ -39,5 +40,5 @@ namespace smooth::core::util
         }
 
         return res;
-    };
+    }
 }

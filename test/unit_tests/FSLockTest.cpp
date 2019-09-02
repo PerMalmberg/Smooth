@@ -61,11 +61,11 @@ SCENARIO("Two threads opens files")
         std::vector<std::thread> ts{};
 
         auto thread_main = []()
-        {
-            FSLock lock1;
-            assert(FSLock::open_files() <= max_open);
-            std::this_thread::sleep_for(std::chrono::microseconds{100});
-        };
+                           {
+                               FSLock lock1;
+                               assert(FSLock::open_files() <= max_open);
+                               std::this_thread::sleep_for(std::chrono::microseconds{ 100 });
+                           };
 
         WHEN("Multiple threads opens files")
         {
@@ -73,7 +73,7 @@ SCENARIO("Two threads opens files")
             {
                 for (int i = 0; i < 10000; ++i)
                 {
-                    ts.emplace_back(std::thread{thread_main});
+                    ts.emplace_back(std::thread{ thread_main });
                 }
 
                 for (auto& t : ts)

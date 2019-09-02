@@ -43,6 +43,6 @@ namespace smooth::application::network::http::regular
 
             std::set<std::string> template_files;
             std::shared_ptr<ITemplateDataRetriever> data_retriever;
-            const std::regex token{R"!(\{\{[\d\_\-a-zA-Z]+\}\})!", std::regex::ECMAScript};
+            const std::regex token{ R"!(\{\{[\d\_\-a-zA-Z]+\}\})!", std::regex::ECMAScript };
     };
 }

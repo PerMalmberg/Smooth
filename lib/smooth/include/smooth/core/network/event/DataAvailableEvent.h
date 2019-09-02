@@ -28,7 +28,7 @@ namespace smooth::core::network::event
         public:
             DataAvailableEvent() = default;
 
-            explicit DataAvailableEvent(IPacketReceiveBuffer <Protocol>* rx)
+            explicit DataAvailableEvent(IPacketReceiveBuffer<Protocol>* rx)
                     : rx(rx)
             {
             }
@@ -39,14 +39,16 @@ namespace smooth::core::network::event
             bool get(Packet& target) const
             {
                 bool res = false;
+
                 if (rx)
                 {
                     res = rx->get(target);
                 }
+
                 return res;
             }
 
         private:
-            IPacketReceiveBuffer <Protocol>* rx = nullptr;
+            IPacketReceiveBuffer<Protocol>* rx = nullptr;
     };
 }

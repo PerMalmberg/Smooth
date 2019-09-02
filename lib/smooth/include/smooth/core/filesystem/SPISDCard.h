@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/SPISDCard.h"
-#else
-
 #include "SDCard.h"
 #include <driver/gpio.h>
 #include "MountPoint.h"
@@ -27,7 +23,7 @@
 namespace smooth::core::filesystem
 {
     class SPISDCard
-            : public SDCard
+        : public SDCard
     {
         public:
             SPISDCard(gpio_num_t miso,
@@ -49,5 +45,3 @@ namespace smooth::core::filesystem
             sdmmc_card_t* card;
     };
 }
-
-#endif

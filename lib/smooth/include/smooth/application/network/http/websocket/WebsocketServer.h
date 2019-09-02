@@ -36,13 +36,13 @@ namespace smooth::application::network::http::websocket
 
             virtual ~WebsocketServer() = default;
 
-            virtual void data_received(bool first_part, bool last_part, bool is_text, const std::vector<uint8_t>& data) = 0;
+            virtual void data_received(bool first_part, bool last_part, bool is_text,
+                                       const std::vector<uint8_t>& data) = 0;
 
             void close_connection();
 
         protected:
             IServerResponse& response;
             smooth::core::Task& task;
-
     };
 }

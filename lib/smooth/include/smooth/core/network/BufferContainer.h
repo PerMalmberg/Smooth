@@ -38,21 +38,17 @@ namespace smooth::core::network
                             smooth::core::ipc::IEventListener<event::ConnectionStatusEvent>& connection_status_receiver,
                             std::unique_ptr<Protocol> proto);
 
-
-            const auto&
-            get_tx_empty()
+            const auto& get_tx_empty()
             {
                 return tx_empty;
             }
 
-            const auto&
-            get_data_available()
+            const auto& get_data_available()
             {
                 return data_available;
             }
 
-            const auto&
-            get_connection_status()
+            const auto& get_connection_status()
             {
                 return connection_status;
             }
@@ -80,7 +76,6 @@ namespace smooth::core::network
             {
                 return rx_buffer.get_proto();
             }
-
 
         private:
             using TxEmptyQueue = smooth::core::ipc::TaskEventQueue<event::TransmitBufferEmptyEvent>;

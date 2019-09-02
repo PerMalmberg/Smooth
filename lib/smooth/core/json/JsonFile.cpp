@@ -15,16 +15,19 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <smooth/core/json/JsonFile.h>
-#include <cJSON.h>
-
 #include <memory>
 #include <vector>
-#include <iostream>
 
 namespace smooth::core::json
 {
-    JsonFile::JsonFile(std::string full_path)
-            : f(std::move(full_path))
+    JsonFile::JsonFile(const char* full_path)
+            : f(full_path)
+    {
+        load();
+    }
+
+    JsonFile::JsonFile(const smooth::core::filesystem::Path& full_path)
+        : f(full_path)
     {
         load();
     }
@@ -40,14 +43,13 @@ namespace smooth::core::json
             {
                 // Append terminating zero.
                 data.push_back(0);
-                v = Value{cJSON_Parse(reinterpret_cast<const char*>(data.data())), true};
+                v = nlohmann::json::parse(data.data(), nullptr, false);
             }
         }
     }
 
     bool JsonFile::save() const
     {
-        return f.write(v.to_string());
+        return f.write(v.dump());
     }
 }
-

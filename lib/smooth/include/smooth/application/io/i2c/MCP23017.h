@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,12 @@ namespace smooth::application::io
     /// MCP23017 I2C I/O extender.
     /// @note This class assumes IOCON.BANK = 0 and IOCON.SEQOP = 0
     class MCP23017
-            : public core::io::i2c::I2CMasterDevice
+        : public core::io::i2c::I2CMasterDevice
     {
         private:
             /// Register addresses used when IOCON.BANK = 0
             enum Register_BANK0
-                    : uint8_t
+            : uint8_t
             {
                 B0_IODIRA = 0x00,
                 B0_IODIRB = 0x01,
@@ -44,8 +45,9 @@ namespace smooth::application::io
                 B0_INTCONA = 0x08,
                 B0_INTCONB = 0x09,
                 B0_IOCON = 0x0A,
+
                 //B0_IOCON = 0x0B, // Second location
-                        B0_GPPUA = 0x0C,
+                B0_GPPUA = 0x0C,
                 B0_GPPUB = 0x0D,
                 B0_INTFA = 0x0E,
                 B0_INTFB = 0x0F,
@@ -59,7 +61,7 @@ namespace smooth::application::io
 
             /// Register addresses used when IOCON.BANK = 1
             enum Register_BANK1
-                    : uint8_t
+            : uint8_t
             {
                 B1_IODIRA = 0x00,
                 B1_IPOLA = 0x01,
@@ -77,14 +79,14 @@ namespace smooth::application::io
                 B1_GPINTENB = 0x12,
                 B1_DEFVALB = 0x13,
                 B1_INTCONB = 0x14,
+
                 //B1_IOCON = 0x15, // Second location
-                        B1_GPPUB = 0x16,
+                B1_GPPUB = 0x16,
                 B1_INTFB = 0x17,
                 B1_INTCAPB = 0x18,
                 B1_GPIOB = 0x19,
                 B1_OLATB = 0x1A,
             };
-
         public:
             enum Port
             {
@@ -103,11 +105,15 @@ namespace smooth::application::io
 
             /// Configures the I/O ports.
             /// \param port_a_direction A bit mask where 0 is output, 1 is input, for port A.
-            /// \param input_a_pullup For I/O configured as input, enable internal pull-up if the corresponding bit is set.
-            /// \param input_a_polarity For I/O configured as input, report the inverted read state if the corresponding bit is set. For port A.
+            /// \param input_a_pullup For I/O configured as input, enable internal pull-up if the corresponding bit is
+            // set.
+            /// \param input_a_polarity For I/O configured as input, report the inverted read state if the corresponding
+            // bit is set. For port A.
             /// \param port_b_direction A bit mask where 0 is output, 1 is input, for port B.
-            /// \param input_b_pullup For I/O that is configured as input, enable internal pull-up if the corresponding bit is set.
-            /// \param input_b_polarity For I/O configured as input, report the inverted read state if the corresponding bit is set. For port B.
+            /// \param input_b_pullup For I/O that is configured as input, enable internal pull-up if the corresponding
+            // bit is set.
+            /// \param input_b_polarity For I/O configured as input, report the inverted read state if the corresponding
+            // bit is set. For port B.
             /// \return true on success, false on failure
             bool configure_ports(uint8_t port_a_direction,
                                  uint8_t input_a_pull_up,
@@ -117,22 +123,33 @@ namespace smooth::application::io
                                  uint8_t input_b_polarity);
 
             /// Configures the device.
-            /// @note Only a subset if the capabilities of the device can be configured, i.e those supported by this implementation.
+            /// @note Only a subset if the capabilities of the device can be configured, i.e those supported by this
+            // implementation.
             /// \param mirror_change_interrupt If true, input change interrupts are logically OR:ed, resulting
             /// in both interrupts signaling on any change. If false, INTA is associated with PORTA and INTB with PORTB.
             /// \param interrupt_polarity_active_high If true, interrupt signaling is active-high.
-            /// \param interrupt_on_change_enable_port_a bit mask for enabling interrupt-on-change on per pin-basis for port A.
-            /// \param interrupt_control_register_a For port A, controls how the associated pin value is compared for the interrupt-on-change feature.
-            /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_a value. If a
+            /// \param interrupt_on_change_enable_port_a bit mask for enabling interrupt-on-change on per pin-basis for
+            // port A.
+            /// \param interrupt_control_register_a For port A, controls how the associated pin value is compared for
+            // the interrupt-on-change feature.
+            /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the
+            // interrupt_default_val_a value. If a
             /// bit value is clear, the corresponding I/O pin is compared against the previous value.
-            /// \param interrupt_default_val_a For port A, default compare register for interrupt on-change. If enabled (via GPINTEN and
-            /// INTCON) to compare against the DEFVAL register, as opposite value on the associated pin will cause an interrupt to occur.
-            /// \param interrupt_on_change_enable_port_b bit mask for enabling interrupt-on-change on per pin-basis for port A.
-            /// \param interrupt_control_register_b For port B, controls how the associated pin value is compared for the interrupt-on-change feature.
-            /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the interrupt_default_val_b value. If a
+            /// \param interrupt_default_val_a For port A, default compare register for interrupt on-change. If enabled
+            // (via GPINTEN and
+            /// INTCON) to compare against the DEFVAL register, as opposite value on the associated pin will cause an
+            // interrupt to occur.
+            /// \param interrupt_on_change_enable_port_b bit mask for enabling interrupt-on-change on per pin-basis for
+            // port A.
+            /// \param interrupt_control_register_b For port B, controls how the associated pin value is compared for
+            // the interrupt-on-change feature.
+            /// If a bit is set, the corresponding I/O pin is compared against the associated bit in the
+            // interrupt_default_val_b value. If a
             /// bit value is clear, the corresponding I/O pin is compared against the previous value.
-            /// \param interrupt_default_val_b For port B, default compare register for interrupt on-change. If enabled (via GPINTEN and
-            /// INTCON) to compare against the DEFVAL register, an opposite value on the associated pin will cause an interrupt to occur.
+            /// \param interrupt_default_val_b For port B, default compare register for interrupt on-change. If enabled
+            // (via GPINTEN and
+            /// INTCON) to compare against the DEFVAL register, an opposite value on the associated pin will cause an
+            // interrupt to occur.
             /// \return true on success, false on failure.
             bool configure_device(bool mirror_change_interrupt,
                                   bool interrupt_polarity_active_high,
@@ -170,6 +187,5 @@ namespace smooth::application::io
             bool read_interrupt_capture(Port port, uint8_t& state);
 
         private:
-
     };
 }

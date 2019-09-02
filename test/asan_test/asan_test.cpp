@@ -32,10 +32,9 @@ namespace asan_test
         auto mem = std::make_unique<char[]>(10);
 
         // Write outside the buffer.
-        for(size_t i= 0; i < 12; ++i)
+        for (size_t i = 0; i < 12; ++i)
         {
             mem[i] = 0;
         }
-
     }
 }

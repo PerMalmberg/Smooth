@@ -22,7 +22,7 @@
 namespace smooth::application::network::mqtt::state
 {
     class DisconnectState
-            : public ConnectedState
+        : public ConnectedState
     {
         public:
             explicit DisconnectState(MqttFSM<MQTTBaseState>& fsm)

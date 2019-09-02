@@ -22,8 +22,8 @@
 #include <smooth/application/network/http/regular/HTTPMethod.h>
 #include <smooth/application/network/http/regular/HTTPHeaderDef.h>
 
-using namespace smooth::core;
 using namespace smooth::core::util;
+using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
@@ -40,9 +40,11 @@ namespace smooth::application::network::http::regular
     bool MIMEParser::detect_mode(const std::string& content_type, std::size_t content_length)
     {
         std::smatch match;
+
         if (std::regex_match(content_type.begin(), content_type.end(), match, form_data_pattern))
         {
             auto b = match[1].str();
+
             // https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
             // Note that the encapsulation boundary must occur at the beginning of a line, i.e., following a CRLF,
             // and that that initial CRLF is considered to be part of the encapsulation boundary rather than part
@@ -52,7 +54,7 @@ namespace smooth::application::network::http::regular
 
             // Note that we don't include the leading CRLF in the boundary pattern - that is handled separately
             // so that we also match the very first boundary after the HTTP-headers.
-            boundary = {b.begin(), b.end()};
+            boundary = { b.begin(), b.end() };
             boundary.insert(boundary.begin(), '-');
             boundary.insert(boundary.begin(), '-');
 
@@ -96,6 +98,7 @@ namespace smooth::application::network::http::regular
 
             // Also find the end boundary
             p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
+
             if (p != data.end())
             {
                 b.emplace_back(p);
@@ -149,7 +152,7 @@ namespace smooth::application::network::http::regular
                 // The way this works is that split() places any leftovers last in the returned vector
                 // which means that it will be encountered last, thus the loops end at the same time.
 
-                auto parts = split(data, std::vector<uint8_t>{'&'});
+                auto parts = split(data, std::vector<uint8_t>{ '&' });
 
                 if (!parts.empty())
                 {
@@ -161,6 +164,7 @@ namespace smooth::application::network::http::regular
                 for (const auto& part : parts)
                 {
                     auto equal_sign = std::find(part.cbegin(), part.cend(), '=');
+
                     if (equal_sign == part.cend())
                     {
                         std::copy(std::make_move_iterator(part.begin()),
@@ -169,13 +173,14 @@ namespace smooth::application::network::http::regular
                     }
                     else
                     {
-                        auto key_value = split(part, std::vector<uint8_t>{'='});
+                        auto key_value = split(part, std::vector<uint8_t>{ '=' });
+
                         if (!key_value.empty())
                         {
-                            std::string key{key_value[0].begin(), key_value[0].end()};
+                            std::string key{ key_value[0].begin(), key_value[0].end() };
                             auto key_res = encoding.decode(key, key.begin(), key.end());
 
-                            std::string value{key_value[1].begin(), key_value[1].end()};
+                            std::string value{ key_value[1].begin(), key_value[1].end() };
                             auto value_res = encoding.decode(value, value.begin(), value.end());
 
                             if (key_res && value_res)
@@ -196,6 +201,7 @@ namespace smooth::application::network::http::regular
     {
         // Adjust for CRLF at beginning of boundary pattern
         auto offset = is_crlf(begin) ? 2 : 0;
+
         return begin + static_cast<Boundaries::difference_type>(boundary.size()) + offset;
     }
 
@@ -220,7 +226,7 @@ namespace smooth::application::network::http::regular
                 cb(content_dispositon["name"], content_dispositon["filename"], start_of_content, end_of_content);
             }
 
-            (void) headers;
+            (void)headers;
         }
     }
 
@@ -249,15 +255,17 @@ namespace smooth::application::network::http::regular
     }
 
     std::tuple<MIMEParser::BoundaryIterator,
-            std::unordered_map<std::string, std::string>,
-            std::unordered_map<std::string, std::string>>
-    MIMEParser::consume_headers(MIMEParser::BoundaryIterator begin, MIMEParser::BoundaryIterator end) const
+               std::unordered_map<std::string, std::string>,
+               std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
+        MIMEParser::BoundaryIterator begin,
+        MIMEParser::BoundaryIterator end) const
     {
         std::unordered_map<std::string, std::string> headers{};
         std::unordered_map<std::string, std::string> content_disp{};
         auto start_of_actual_content = end;
 
         auto end_of_headers = std::search(begin, end, crlf_double.begin(), crlf_double.end());
+
         if (end_of_headers != end)
         {
             start_of_actual_content = end_of_headers + static_cast<long>(crlf_double.size());
@@ -265,21 +273,23 @@ namespace smooth::application::network::http::regular
             std::stringstream ss;
 
             std::for_each(begin, end_of_headers, [&ss](auto& c) {
-                if (c != '\n')
-                {
-                    ss << static_cast<char>(c);
-                }
+                              if (c != '\n')
+                              {
+                                  ss << static_cast<char>(c);
+                              }
             });
 
             std::string s;
+
             while (std::getline(ss, s, '\r'))
             {
                 auto colon = std::find(s.begin(), s.end(), ':');
+
                 if (colon != s.end() && !s.empty())
                 {
                     if (std::distance(colon, s.end()) > 2)
                     {
-                        headers[string_util::to_lower_copy({s.begin(), colon})] = {colon + 2, s.end()};
+                        headers[string_util::to_lower_copy({ s.begin(), colon })] = { colon + 2, s.end() };
                     }
                 }
 
@@ -302,6 +312,7 @@ namespace smooth::application::network::http::regular
             for (const auto& p : part)
             {
                 auto key_value = string_util::split(p, "=", true);
+
                 if (key_value.size() > 1)
                 {
                     // Remove leading and ending quotation mark
@@ -316,7 +327,7 @@ namespace smooth::application::network::http::regular
             }
         }
         catch (...)
-        {}
+        {
+        }
     }
 }
-

@@ -48,7 +48,6 @@ namespace smooth::core::network
             {
                 return write_pos;
             }
-
         private:
             std::unique_lock<std::mutex> lock;
             uint8_t* write_pos = nullptr;

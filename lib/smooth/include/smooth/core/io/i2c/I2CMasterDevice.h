@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -28,7 +29,6 @@ namespace smooth::core::io::i2c
     /// Base class for all I2C master devices.
     class I2CMasterDevice
     {
-
         public:
             /// Constructor
             /// \param port The port
@@ -74,7 +74,8 @@ namespace smooth::core::io::i2c
             /// \param address The slave address
             /// \param slave_register The register to read from.
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
-            /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave address.
+            /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
+            // address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \return true on success, false on failure.
             bool read(uint8_t address,
@@ -86,7 +87,6 @@ namespace smooth::core::io::i2c
             uint8_t address;
         protected:
             i2c_port_t port;
-
         private:
             void log_error(esp_err_t err, const char* msg);
 

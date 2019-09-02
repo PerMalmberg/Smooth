@@ -21,7 +21,6 @@
 
 namespace publish
 {
-
     class ItemToPublish
     {
         public:
@@ -42,7 +41,7 @@ namespace publish
     };
 
     class PublisherTask
-            : public smooth::core::Task
+        : public smooth::core::Task
     {
         public:
             PublisherTask();
@@ -52,10 +51,9 @@ namespace publish
             void tick() override;
     };
 
-
     class App
-            : public smooth::core::Application,
-              smooth::core::ipc::IEventListener<ItemToPublish>
+        : public smooth::core::Application,
+        smooth::core::ipc::IEventListener<ItemToPublish>
     {
         public:
             App();
@@ -71,5 +69,4 @@ namespace publish
             std::shared_ptr<SubscribeQueue> sub;
             PublisherTask p{};
     };
-
 }

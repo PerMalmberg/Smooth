@@ -16,10 +16,6 @@
 
 #pragma once
 
-#ifndef ESP_PLATFORM
-#include "mock/ISRTaskEventQueue.h"
-#else
-
 #include "IISRTaskEventQueue.h"
 #include "IPolledTaskQueue.h"
 #include <freertos/FreeRTOS.h>
@@ -36,15 +32,15 @@ namespace smooth::core::ipc
     /// \tparam Size The size of the queue.
     template<typename DataType, int Size>
     class ISRTaskEventQueue
-            : public IISRTaskEventQueue<DataType>,
-              public IPolledTaskQueue,
-              public std::enable_shared_from_this<ISRTaskEventQueue<DataType, Size>>
+        : public IISRTaskEventQueue<DataType>,
+        public IPolledTaskQueue,
+        public std::enable_shared_from_this<ISRTaskEventQueue<DataType, Size>>
     {
 
         public:
             friend core::Task;
 
-            static auto create(Task& task, IEventListener <DataType>& listener)
+            static auto create(Task& task, IEventListener<DataType>& listener)
             {
                 return smooth::core::util::create_protected_shared<ISRTaskEventQueue<DataType, Size>>(task, listener);
             }
@@ -76,21 +72,21 @@ namespace smooth::core::ipc
             }
 
         protected:
-            ISRTaskEventQueue(Task& task, IEventListener <DataType>& listener);
+            ISRTaskEventQueue(Task& task, IEventListener<DataType>& listener);
 
         private:
             void forward_to_event_listener() override;
 
             QueueHandle_t queue;
             Task& task;
-            IEventListener <DataType>& listener;
+            IEventListener<DataType>& listener;
             QueueNotification* notification = nullptr;
             bool read_since_poll = true;
     };
 
     template<typename DataType, int Size>
-    ISRTaskEventQueue<DataType, Size>::ISRTaskEventQueue(Task& task, IEventListener <DataType>& listener)
-            :task(task), listener(listener)
+    ISRTaskEventQueue<DataType, Size>::ISRTaskEventQueue(Task& task, IEventListener<DataType>& listener)
+            : task(task), listener(listener)
     {
         queue = xQueueCreate(Size, sizeof(DataType));
         task.register_polled_queue_with_task(this);
@@ -130,5 +126,3 @@ namespace smooth::core::ipc
         task.unregister_polled_queue_with_task(this);
     }
 }
-
-#endif

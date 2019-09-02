@@ -22,7 +22,7 @@
 namespace smooth::application::network::mqtt::packet
 {
     class Subscribe
-            : public MQTTPacket
+        : public MQTTPacket
     {
         public:
             Subscribe() = default;

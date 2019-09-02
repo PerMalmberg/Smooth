@@ -18,13 +18,11 @@
 
 #include <esp_sntp.h>
 #include <ctime>
-#include <iostream>
 #include <utility>
 #include <smooth/core/ipc/Publisher.h>
 
 namespace smooth::core::sntp
 {
-
 	Sntp::Sntp(std::vector<std::string> servers)
 		: servers(std::move(servers))
 	{
