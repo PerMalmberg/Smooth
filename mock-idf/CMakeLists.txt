@@ -32,3 +32,4 @@ foreach(mock_comp ${mock_components})
     target_include_directories(${PROJECT_NAME} PUBLIC ${mock_comp}/include)
 endforeach()
 
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/components/lwip/include/lwip/apps)

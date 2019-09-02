@@ -19,11 +19,15 @@
 #include <smooth/core/Application.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/sntp/Sntp.h>
+#include <smooth/core/sntp/TimeSyncEvent.h>
+#include <smooth/core/ipc/IEventListener.h>
+#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 
 namespace sntp
 {
     class App
-        : public smooth::core::Application
+        : public smooth::core::Application,
+        public smooth::core::ipc::IEventListener<smooth::core::sntp::TimeSyncEvent>
     {
         public:
             App();
@@ -32,8 +36,13 @@ namespace sntp
 
             void tick() override;
 
+            void event(const smooth::core::sntp::TimeSyncEvent& ev) override;
+
         private:
+            using TimeSyncQueue = smooth::core::ipc::SubscribingTaskEventQueue<smooth::core::sntp::TimeSyncEvent>;
+
             smooth::core::sntp::Sntp sntp;
+            std::shared_ptr<TimeSyncQueue> sync_queue;
 
             void print_time() const;
     };

@@ -27,6 +27,7 @@ idf_component_register(SRCS ${SMOOTH_SOURCES}
                             ${SMOOTH_LIB_ROOT}/smooth/include
                             ${normalized_path}/components
                             ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
+                            ${CMAKE_CURRENT_LIST_DIR}/../externals/howard_hinnant_date/include
                         REQUIRES
                             mbedtls
                             json

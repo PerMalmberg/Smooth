@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,34 +17,34 @@
 
 #pragma once
 #include <chrono>
-#include <smooth/core/util/date.h>
 
 namespace smooth::core::sntp
 {
-	using namespace std::chrono;
-	using namespace date;
+    using namespace std::chrono;
 
     /// Event sent when a SNTP sync notification occurs
     class TimeSyncEvent
     {
         public:
-			TimeSyncEvent(system_clock::time_point& timePoint)
-				: timePoint(timePoint)
-			{
-			}
+            explicit TimeSyncEvent(const system_clock::time_point& timePoint)
+                    : timePoint(timePoint)
+            {
+            }
 
-			TimeSyncEvent() = default;
-			TimeSyncEvent(const TimeSyncEvent&) = default;
+            TimeSyncEvent() = default;
 
-			TimeSyncEvent& operator=(const TimeSyncEvent&) = default;
+            TimeSyncEvent(const TimeSyncEvent&) = default;
+
+            TimeSyncEvent& operator=(const TimeSyncEvent&) = default;
 
             /// Gets the system_clock::time_point of the SNTP sync notification
             /// \return The SNTP sync notification timeval.
-			system_clock::time_point get_timePoint() const
+            [[nodiscard]] system_clock::time_point get_timePoint() const
             {
                 return timePoint;
             }
+
         private:
-			system_clock::time_point timePoint = system_clock::from_time_t(0);
+            system_clock::time_point timePoint = system_clock::from_time_t(0);
     };
 }
