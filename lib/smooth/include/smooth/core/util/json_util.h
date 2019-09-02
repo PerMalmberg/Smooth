@@ -1,5 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
-// Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
+// Copyright (C) 2019 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,18 +16,16 @@
 
 #pragma once
 
-#include <smooth/core/Application.h>
+#include <nlohmann/json.hpp>
 
-namespace json_test
+namespace smooth::core::json_util
 {
-    class App
-        : public smooth::core::Application
+    /// Workaround for json::value() throwing when object is null even though
+    /// a default value has been provided.
+    /// https://github.com/nlohmann/json/issues/1733
+    template<typename T>
+    auto default_value(nlohmann::json& json, const std::string& key, T default_value)
     {
-        public:
-            App();
-
-            void tick() override;
-
-        private:
-    };
+        return json.is_object() ? json.value(key, default_value) : default_value;
+    }
 }

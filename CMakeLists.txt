@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project access_point)
+set(selected_test_project hello_world)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
@@ -31,7 +31,7 @@ list(APPEND available_tests
         asan_test
         access_point
         logging
-        json_test
+        jsonfile_test
         mqtt
         publish
         task_event_queue

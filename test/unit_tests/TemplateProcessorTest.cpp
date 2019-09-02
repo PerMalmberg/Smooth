@@ -60,7 +60,7 @@ SCENARIO("Parsing a text")
 
         THEN("Correctly replaces tokens")
         {
-            DataRetriever dr;
+            auto dr = std::make_shared<DataRetriever>();
             std::set<std::string> ss{ "html" };
 
             TemplateProcessor tp(std::move(ss), dr);
@@ -78,7 +78,7 @@ SCENARIO("Parsing a text with unknown tokens")
 
         THEN("Replaces with empty string")
         {
-            DataRetriever dr;
+            auto dr = std::make_shared<DataRetriever>();
             std::set<std::string> ss{ "html" };
 
             TemplateProcessor tp(std::move(ss), dr);
