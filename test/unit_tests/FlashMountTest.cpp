@@ -19,13 +19,13 @@
 
 using namespace smooth::core::filesystem;
 
-SCENARIO("SDCardMount")
+SCENARIO("FlashMount")
 {
-    const auto& instance = SDCardMount::instance("/first");
+    const auto& instance = FlashMount::instance("/first");
     REQUIRE(instance.mount_point() == "/first");
     WHEN("Calling factory method second time, mount point does not change")
     {
-        const auto& second = SDCardMount::instance("/second");
+        const auto& second = FlashMount::instance("/second");
         REQUIRE(second.mount_point() == "/first");
     }
 }

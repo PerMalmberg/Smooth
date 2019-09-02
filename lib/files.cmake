@@ -73,7 +73,6 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/io/Output.cpp
         ${smooth_dir}/core/ipc/QueueNotification.cpp
         ${smooth_dir}/core/json/JsonFile.cpp
-        ${smooth_dir}/core/json/Value.cpp
         ${smooth_dir}/core/network/CommonSocket.cpp
         ${smooth_dir}/core/network/IPv4.cpp
         ${smooth_dir}/core/network/IPv6.cpp
@@ -159,8 +158,6 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/network/Wifi.h
         ${smooth_inc_dir}/core/sntp/Sntp.h
         ${smooth_inc_dir}/core/SystemStatistics.h
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.c
-        $ENV{IDF_PATH}/components/json/cJSON/cJSON.h
         )
 
 if (${ESP_PLATFORM})

@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,42 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#include "catch.hpp"
 #include <smooth/core/json/JsonFile.h>
-#include <memory>
-#include <vector>
+#include <smooth/core/filesystem/MountPoint.h>
+#include <smooth/core/util/json_util.h>
 
-namespace smooth::core::json
+using namespace std;
+using namespace smooth::core::filesystem;
+using namespace smooth::core::json;
+using namespace smooth::core::json_util;
+
+SCENARIO("JsonFile Test")
 {
-    JsonFile::JsonFile(const char* full_path)
-            : f(full_path)
-    {
-        load();
-    }
+    FSLock::init(5);
 
-    JsonFile::JsonFile(const smooth::core::filesystem::Path& full_path)
-        : f(full_path)
     {
-        load();
+        JsonFile jf{ SDCardMount::instance().mount_point() / "jsonfile_test.json" };
+        jf.value()["Foo"] = 1;
+        REQUIRE(jf.save());
     }
-
-    void JsonFile::load()
     {
-        if (exists())
-        {
-            std::vector<uint8_t> data;
-            f.read(data);
-
-            if (!data.empty())
-            {
-                // Append terminating zero.
-                data.push_back(0);
-                v = nlohmann::json::parse(data.data(), nullptr, false);
-            }
-        }
+        JsonFile jf{ SDCardMount::instance().mount_point() / "jsonfile_test.json" };
+        REQUIRE(jf.value()["Foo"] == 1);
     }
-
-    bool JsonFile::save() const
     {
-        return f.write(v.dump());
+        nlohmann::json j{};
+        REQUIRE(default_value(j, "foo", "asdf") == "asdf");
+        REQUIRE(default_value(j, "bar", true));
     }
+}
+
+SCENARIO("Json default value test")
+{
+    nlohmann::json j{};
+    REQUIRE(default_value(j, "foo", "asdf") == "asdf");
+    REQUIRE(default_value(j, "bar", true));
 }

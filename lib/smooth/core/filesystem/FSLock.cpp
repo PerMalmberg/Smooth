@@ -45,6 +45,10 @@ namespace smooth::core::filesystem
     FSLock::FSLock()
     {
         std::unique_lock<std::mutex> guard{ lock };
+        if(max <= 0)
+        {
+            throw std::invalid_argument("Must call FSLock::init() before using FSLock");
+        }
         cv.wait(guard, [] { return count < max; });
 
         count++;

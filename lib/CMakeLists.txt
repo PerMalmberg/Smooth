@@ -33,6 +33,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
             ${SMOOTH_LIB_ROOT}/smooth/include
             $ENV{IDF_PATH}/components/json/cJSON
+            ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
         )
 
 # When building for Linux, mock-idf include paths must be make available.

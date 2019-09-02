@@ -24,7 +24,8 @@ add_executable(${PROJECT_NAME}
         StringUtilTest.cpp
         TemplateProcessorTest.cpp
         HashTest.cpp
-        MountPointTest.cpp)
+        FlashMountTest.cpp
+        JsonTest.cpp)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${SMOOTH_TEST_ROOT})
