@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -25,7 +26,6 @@ namespace smooth::core::network
 {
     /// Wifi management class
     class Wifi
-        : public smooth::core::ipc::IEventListener<system_event_t>
     {
         public:
             Wifi();
@@ -38,7 +38,7 @@ namespace smooth::core::network
 
             Wifi& operator=(Wifi&&) = delete;
 
-            ~Wifi() override;
+            ~Wifi();
 
             /// Sets the hostname
             /// \param name The name
@@ -67,9 +67,10 @@ namespace smooth::core::network
                 return host_name.length() > 0 && ssid.length() > 0 && password.length() > 0;
             }
 
-            /// Event response method
-            /// \param event The event
-            void event(const system_event_t& event) override;
+            static void wifi_event_callback(void* event_handler_arg,
+                                     esp_event_base_t event_base,
+                                     int32_t event_id,
+                                     void* event_data);
 
             [[nodiscard]] std::string get_mac_address() const;
 
