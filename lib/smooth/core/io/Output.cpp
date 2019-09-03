@@ -62,4 +62,12 @@ namespace smooth::core::io
     {
         gpio_set_level(io, active_high ? 0 : 1);
     }
+
+    bool Output::operator==(const Output& other) {
+        return io == other.io && active_high == other.active_high;
+    }
+
+    bool Output::operator!=(const Output& other) {
+        return !(*this == other);
+    }
 }
