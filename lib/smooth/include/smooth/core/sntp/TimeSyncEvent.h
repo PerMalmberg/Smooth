@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,35 +16,35 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
+#include <chrono>
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/sntp/Sntp.h>
-#include <smooth/core/sntp/TimeSyncEvent.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-
-namespace sntp
+namespace smooth::core::sntp
 {
-    class App
-        : public smooth::core::Application,
-        public smooth::core::ipc::IEventListener<smooth::core::sntp::TimeSyncEvent>
+    using namespace std::chrono;
+
+    /// Event sent when a SNTP sync notification occurs
+    class TimeSyncEvent
     {
         public:
-            App();
+            explicit TimeSyncEvent(const system_clock::time_point& timePoint)
+                    : timePoint(timePoint)
+            {
+            }
 
-            void init() override;
+            TimeSyncEvent() = default;
 
-            void tick() override;
+            TimeSyncEvent(const TimeSyncEvent&) = default;
 
-            void event(const smooth::core::sntp::TimeSyncEvent& ev) override;
+            TimeSyncEvent& operator=(const TimeSyncEvent&) = default;
+
+            /// Gets the system_clock::time_point of the SNTP sync notification
+            /// \return The SNTP sync notification timeval.
+            [[nodiscard]] system_clock::time_point get_timePoint() const
+            {
+                return timePoint;
+            }
 
         private:
-            using TimeSyncQueue = smooth::core::ipc::SubscribingTaskEventQueue<smooth::core::sntp::TimeSyncEvent>;
-
-            smooth::core::sntp::Sntp sntp;
-            std::shared_ptr<TimeSyncQueue> sync_queue;
-
-            void print_time() const;
+            system_clock::time_point timePoint = system_clock::from_time_t(0);
     };
 }

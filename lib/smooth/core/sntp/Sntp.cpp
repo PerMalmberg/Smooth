@@ -16,9 +16,11 @@
 
 #include <smooth/core/sntp/Sntp.h>
 
-#include <lwip/apps/sntp.h>
+#include <esp_sntp.h>
 #include <ctime>
 #include <utility>
+#include <smooth/core/ipc/Publisher.h>
+#include <smooth/core/sntp/TimeSyncEvent.h>
 
 namespace smooth::core::sntp
 {
@@ -41,8 +43,14 @@ namespace smooth::core::sntp
                 sntp_setservername(i++, const_cast<char*>(s.c_str()));
             }
 
+            sntp_set_time_sync_notification_cb(&Sntp::timeSyncNotificationCallback);
             sntp_init();
         }
+
+#ifndef ESP_PLATFORM
+        // Simulate sync
+        publish_sync_event(std::chrono::system_clock::now());
+#endif
     }
 
     bool Sntp::is_time_set() const
@@ -54,4 +62,17 @@ namespace smooth::core::sntp
 
         return timeinfo.tm_year > 70;
     }
+
+    void Sntp::timeSyncNotificationCallback(timeval* tv)
+    {
+        auto dateTime = system_clock::from_time_t(tv->tv_sec) + microseconds(tv->tv_usec);
+        publish_sync_event(dateTime);
+    }
+
+    void Sntp::publish_sync_event(const std::chrono::system_clock::time_point& tp)
+    {
+        TimeSyncEvent ev(tp);
+        smooth::core::ipc::Publisher<TimeSyncEvent>::publish(ev);
+    }
+
 }

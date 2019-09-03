@@ -16,7 +16,6 @@
 
 #include "sntp.h"
 #include <chrono>
-#include <cassert>
 #include <ctime>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
@@ -31,13 +30,16 @@ namespace sntp
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              sntp(std::vector<std::string>{ "0.se.pool.ntp.org", "1.se.pool.ntp.org" })
+              sntp(std::vector<std::string>{ "0.se.pool.ntp.org", "1.se.pool.ntp.org" }),
+              sync_queue(TimeSyncQueue::create("", 2, *this, *this))
     {
     }
 
     void App::init()
     {
+#ifdef ESP_PLATFORM
         assert(!sntp.is_time_set());
+#endif
         std::cout << "Time at startup:";
         print_time();
         sntp.start();
@@ -62,5 +64,13 @@ namespace sntp
         tm time{};
         localtime_r(&t, &time);
         std::cout << asctime(&time) << std::endl;
+    }
+
+    void App::event(const smooth::core::sntp::TimeSyncEvent& ev)
+    {
+        auto t = system_clock::to_time_t(ev.get_timePoint());
+        tm time{};
+        localtime_r(&t, &time);
+        std::cout << "Time set at at: " << asctime(&time) << std::endl;;
     }
 }
