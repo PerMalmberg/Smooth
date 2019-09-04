@@ -45,9 +45,9 @@ namespace smooth::core::network
             void set_host_name(const std::string& name);
 
             /// Sets the credentials for the Wifi network
-            /// \param ssid The SSID
-            /// \param password The password
-            void set_ap_credentials(const std::string& ssid, const std::string& password);
+            /// \param wifi_ssid The SSID
+            /// \param wifi_password The password
+            void set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password);
 
             /// Enables, disables auto reconnect on loss of Wifi connection.
             /// \param auto_connect

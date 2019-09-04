@@ -28,6 +28,11 @@
 #include <tcpip_adapter.h>
 #include <esp_wifi_types.h>
 
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+static_assert(CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE >= 3072, "Need enough stack to be able to log in the event loop callback.");
+#endif
+
 using namespace smooth::core::util;
 using namespace smooth::core;
 
@@ -36,7 +41,6 @@ namespace smooth::core::network
     Wifi::Wifi()
     {
         tcpip_adapter_init();
-        esp_event_loop_create_default(); // QQQ
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
     }
 
@@ -53,10 +57,10 @@ namespace smooth::core::network
         host_name = name;
     }
 
-    void Wifi::set_ap_credentials(const std::string& ssid, const std::string& password)
+    void Wifi::set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password)
     {
-        this->ssid = ssid;
-        this->password = password;
+        this->ssid = wifi_ssid;
+        this->password = wifi_password;
     }
 
     void Wifi::set_auto_connect(bool auto_connect)
@@ -87,8 +91,15 @@ namespace smooth::core::network
 
     void Wifi::connect() const
     {
+#ifdef ESP_PLATFORM
         esp_wifi_start();
         esp_wifi_connect();
+#else
+
+        // Assume network is available when running under POSIX system.
+        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
     }
 
     bool Wifi::is_connected_to_ap() const
@@ -97,15 +108,15 @@ namespace smooth::core::network
     }
 
     void Wifi::wifi_event_callback(void* event_handler_arg,
-                                             esp_event_base_t event_base,
-                                             int32_t event_id,
-                                             void* event_data)
+                                   esp_event_base_t event_base,
+                                   int32_t event_id,
+                                   void* event_data)
     {
+        // Note: be very careful with what you do in this method - it runs under the event task
+        // (sys_evt) with a very small default stack.
         Wifi* wifi = reinterpret_cast<Wifi*>(event_handler_arg);
 
-        Log::info("Wifi", Format("{1} {2}", Str(event_base), Int32(event_id)));
-
-        if(event_base == WIFI_EVENT)
+        if (event_base == WIFI_EVENT)
         {
             if (event_id == WIFI_EVENT_STA_START)
             {
@@ -133,6 +144,12 @@ namespace smooth::core::network
                 network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
                 core::ipc::Publisher<network::NetworkStatus>::publish(status);
             }
+            else if (event_id == WIFI_EVENT_AP_STOP)
+            {
+                Log::info("SoftAP", "AP stopped");
+                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+            }
             else if (event_id == WIFI_EVENT_AP_STACONNECTED)
             {
                 auto data = reinterpret_cast<wifi_event_ap_staconnected_t*>(event_data);
@@ -158,14 +175,8 @@ namespace smooth::core::network
                                            Hex(data->mac[5]),
                                            UInt32(data->aid)));
             }
-            else if (event_id == WIFI_EVENT_AP_STOP)
-            {
-                Log::info("SoftAP", "AP stopped");
-                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
-                core::ipc::Publisher<network::NetworkStatus>::publish(status);
-            }
         }
-        else if(event_base == IP_EVENT)
+        else if (event_base == IP_EVENT)
         {
             if (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_GOT_IP6)
             {
@@ -218,5 +229,12 @@ namespace smooth::core::network
         esp_wifi_start();
 
         Log::info("SoftAP", "SSID: " + ssid + "; Auth: " + (password.empty() ? "Open" : "WPA2/PSK"));
+
+#ifndef ESP_PLATFORM
+
+        // Assume network is available when running under POSIX system.
+        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
     }
 }
