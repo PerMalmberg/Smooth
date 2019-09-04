@@ -157,6 +157,7 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/io/Output.h
         ${smooth_inc_dir}/core/network/Wifi.h
         ${smooth_inc_dir}/core/sntp/Sntp.h
+        ${smooth_inc_dir}/core/sntp/TimeSyncEvent.h
         ${smooth_inc_dir}/core/SystemStatistics.h
         )
 
