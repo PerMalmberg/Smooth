@@ -36,6 +36,12 @@ namespace smooth::core
             ~EarlyInit() override;
     };
 
+    /// The Application 'attaches' itself to the main task and gives the application programmer
+    /// the same possibilities to perform work on the main task as if a separate Task had been created.
+    /// Any application written based on Smooth should have an instance of the Application
+    /// class (or a class derived from Application) on the stack in its app_main().
+    /// Be sure to adjust the stack size of the main task accordingly using 'make menuconfig'.
+    /// Note: Unlike the version of start() in Task, when called on an Application instance start() never returns.
     class Application
         : public EarlyInit
     {
