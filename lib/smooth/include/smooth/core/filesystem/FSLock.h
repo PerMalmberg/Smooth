@@ -24,7 +24,7 @@ namespace smooth::core::filesystem
     class FSLock
     {
         public:
-            static void init(int max_open_files);
+            static void set_limit(int max_open_files);
 
             static int open_files();
 

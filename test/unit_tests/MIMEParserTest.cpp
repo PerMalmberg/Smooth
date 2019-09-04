@@ -28,7 +28,7 @@ using namespace smooth::application::network::http::regular;
 SCENARIO("MIMEParser - multipart/form-data - Text files")
 {
     // Setup file system locks.
-    FSLock::init(5);
+    FSLock::set_limit(5);
 
     GIVEN("A mimeparser")
     {
@@ -97,7 +97,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
 SCENARIO("MIMEParser - multipart/form-data - Binary files")
 {
     // Setup file system locks.
-    FSLock::init(5);
+    FSLock::set_limit(5);
 
     GIVEN("A mimeparser")
     {
@@ -175,7 +175,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
 SCENARIO("MIMEParser - application/x-www-form-urlencoded")
 {
     // Setup file system locks.
-    FSLock::init(5);
+    FSLock::set_limit(5);
 
     GIVEN("A mimeparser")
     {

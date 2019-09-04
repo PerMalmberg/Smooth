@@ -30,7 +30,7 @@ namespace smooth::core::filesystem
               max_file_count(max_file_count),
               format_on_mount_failure(format_on_mount_failure)
     {
-        FSLock::init(max_file_count);
+        FSLock::set_limit(max_file_count);
     }
 
     bool SPIFlash::mount()

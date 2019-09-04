@@ -54,7 +54,7 @@ namespace smooth::core::filesystem
             }
         }
 
-        FSLock::init(max_file_count);
+        FSLock::set_limit(max_file_count);
 
         return initialized;
     }

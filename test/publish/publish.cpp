@@ -57,7 +57,6 @@ namespace publish
 
     void App::init()
     {
-        POSIXApplication::init();
         p.start();
     }
 

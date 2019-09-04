@@ -26,7 +26,7 @@ SCENARIO("Single thread")
 {
     GIVEN("An initialized FSLock")
     {
-        FSLock::init(2);
+        FSLock::set_limit(2);
 
         WHEN("A thread tries to open a file")
         {
@@ -57,7 +57,7 @@ SCENARIO("Two threads opens files")
     GIVEN("An initialized FSLock")
     {
         const int max_open = 5;
-        FSLock::init(max_open);
+        FSLock::set_limit(max_open);
         std::vector<std::thread> ts{};
 
         auto thread_main = []()

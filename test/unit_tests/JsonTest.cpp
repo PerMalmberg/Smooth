@@ -27,7 +27,7 @@ using namespace smooth::core::json_util;
 
 SCENARIO("JsonFile Test")
 {
-    FSLock::init(5);
+    FSLock::set_limit(5);
 
     {
         JsonFile jf{ SDCardMount::instance().mount_point() / "jsonfile_test.json" };

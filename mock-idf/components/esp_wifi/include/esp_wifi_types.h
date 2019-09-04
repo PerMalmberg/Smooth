@@ -1,6 +1,21 @@
 #pragma once
 
+// Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <cstdint>
+#include <esp_event_base.h>
 #include <esp_interface.h>
 
 typedef enum {
@@ -10,6 +25,8 @@ typedef enum {
     WIFI_MODE_APSTA,     /**< WiFi station + soft-AP mode */
     WIFI_MODE_MAX
 } wifi_mode_t;
+
+typedef esp_interface_t wifi_interface_t;
 
 #define WIFI_IF_STA ESP_IF_WIFI_STA
 #define WIFI_IF_AP  ESP_IF_WIFI_AP
@@ -488,9 +505,15 @@ typedef enum {
     WIFI_EVENT_AP_STOP,                  /**< ESP32 soft-AP stop */
     WIFI_EVENT_AP_STACONNECTED,          /**< a station connected to ESP32 soft-AP */
     WIFI_EVENT_AP_STADISCONNECTED,       /**< a station disconnected from ESP32 soft-AP */
-
     WIFI_EVENT_AP_PROBEREQRECVED,        /**< Receive probe request packet in soft-AP interface */
+
+    WIFI_EVENT_MAX,                      /**< Invalid WiFi event ID */
 } wifi_event_t;
+
+/** @cond **/
+/** @brief WiFi event base declaration */
+ESP_EVENT_DECLARE_BASE(WIFI_EVENT);
+/** @endcond **/
 
 /** Argument structure for WIFI_EVENT_SCAN_DONE event */
 typedef struct {
@@ -552,4 +575,3 @@ typedef struct {
     uint8_t mac[6];           /**< MAC address of the station which send probe request */
 } wifi_event_ap_probe_req_rx_t;
 
-typedef esp_interface_t wifi_interface_t;

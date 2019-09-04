@@ -189,7 +189,7 @@ namespace http_server_test
         template_data_retriever
         ->add("{{from_template}}", "This, and other text on this page are replaced on the fly from a template.");
 
-        FSLock::init(5);
+        FSLock::set_limit(5);
 
         HTTPServerConfig cfg{ web_root, { "index.html" }, { ".html" }, template_data_retriever, MaxHeaderSize,
                               ContentChunkSize };

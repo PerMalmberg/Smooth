@@ -1,4 +1,5 @@
 // Smooth - C++ framework for writing applications based on Espressif's ESP-IDF.
+
 // Copyright (C) 2017 Per Malmberg (https://github.com/PerMalmberg)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,35 +22,42 @@
 #include <unordered_map>
 #include <smooth/core/ipc/Queue.h>
 #include <smooth/core/Task.h>
-
 #include <smooth/core/ipc/TaskEventQueue.h>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
 #include <smooth/core/network/Wifi.h>
 
 namespace smooth::core
 {
+    class EarlyInit : public Task
+    {
+        public:
+            EarlyInit(uint32_t priority, const std::chrono::milliseconds& tick_interval);
+
+            ~EarlyInit() override;
+    };
+
     /// The Application 'attaches' itself to the main task and gives the application programmer
     /// the same possibilities to perform work on the main task as if a separate Task had been created.
-    /// The Application class is also responsible for hooking the system event queue and distributing
-    /// those events. Any application written based on Smooth should have an instance of the Application
+    /// Any application written based on Smooth should have an instance of the Application
     /// class (or a class derived from Application) on the stack in its app_main().
     /// Be sure to adjust the stack size of the main task accordingly using 'make menuconfig'.
     /// Note: Unlike the version of start() in Task, when called on an Application instance start() never returns.
-    class POSIXApplication
-        : public Task
+    class Application
+        : public EarlyInit
     {
         public:
             /// Constructor
-            /// \param priority The priority to run at. Usually tskIDLE_PRIORITY + an arbitrary value,
-            /// but should be lower than the priority of the ESP-IDFs task such as the Wifi driver.
+            /// \param priority The priority to run at. Usually smooth::core::APPLICATION_BASE_PRIO
+            /// + an arbitrary value, but should be lower than the priority of the ESP-IDFs task
+            /// such as the Wifi driver.
             /// \param tick_interval The tick interval
-            POSIXApplication(uint32_t priority, std::chrono::milliseconds tick_interval);
+            Application(uint32_t priority, std::chrono::milliseconds tick_interval)
+                    : EarlyInit(priority, tick_interval)
+            {
+            }
 
-            /// Initialize the application.
             void init() override;
 
-            /// Returns the Wifi manager
-            /// \return The Wifi management instance
             network::Wifi& get_wifi()
             {
                 return wifi;
@@ -57,63 +65,5 @@ namespace smooth::core
 
         private:
             network::Wifi wifi{};
-    };
-
-#ifdef ESP_PLATFORM
-
-    /// The IDFApplication extends Application with things needed to run under the IDF framework
-    class IDFApplication
-        : public POSIXApplication,
-        public smooth::core::ipc::IEventListener<system_event_t>
-    {
-        public:
-            /// Constructor
-            /// \param priority The priority to run at. Usually tskIDLE_PRIORITY + an arbitrary value,
-            /// but should be lower than the priority of the ESP-IDFs task such as the Wifi driver.
-            /// \param tick_interval The tick interval
-            IDFApplication(uint32_t priority, std::chrono::milliseconds tick_interval);
-
-            ~IDFApplication() override = default;
-
-            /// Event method for system events.
-            /// \param event The event.
-            void event(const system_event_t& event) override;
-
-        protected:
-            void init() override;
-
-        private:
-            static esp_err_t event_callback(void* ctx, system_event_t* event);
-
-            using SystemEventQueue = ipc::SubscribingTaskEventQueue<system_event_t>;
-            std::shared_ptr<SystemEventQueue> system_event;
-
-            static const std::unordered_map<int, const char*> id_to_system_event;
-    };
-
-#endif // END ESP_PLATFORM
-
-    class Application
-        :
-#ifdef ESP_PLATFORM
-        public IDFApplication
-#else
-        public POSIXApplication
-#endif
-    {
-        public:
-            /// Constructor
-            /// \param priority The priority to run at. Usually tskIDLE_PRIORITY + an arbitrary value,
-            /// but should be lower than the priority of the ESP-IDFs task such as the Wifi driver.
-            /// \param tick_interval The tick interval
-            Application(uint32_t priority, std::chrono::milliseconds tick_interval)
-                    :
-#ifdef ESP_PLATFORM
-                      IDFApplication(priority, tick_interval)
-#else
-                      POSIXApplication(priority, tick_interval)
-#endif
-            {
-            }
     };
 }

@@ -24,6 +24,14 @@
 #include <smooth/core/ipc/Publisher.h>
 #include <smooth/core/util/copy_n_to_buffer.h>
 #include <smooth/core/logging/log.h>
+#include <esp_event.h>
+#include <tcpip_adapter.h>
+#include <esp_wifi_types.h>
+
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+static_assert(CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE >= 3072, "Need enough stack to be able to log in the event loop callback.");
+#endif
 
 using namespace smooth::core::util;
 using namespace smooth::core;
@@ -33,10 +41,12 @@ namespace smooth::core::network
     Wifi::Wifi()
     {
         tcpip_adapter_init();
+        esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
     }
 
     Wifi::~Wifi()
     {
+        esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback);
         esp_wifi_disconnect();
         esp_wifi_stop();
         esp_wifi_deinit();
@@ -47,10 +57,10 @@ namespace smooth::core::network
         host_name = name;
     }
 
-    void Wifi::set_ap_credentials(const std::string& ssid, const std::string& password)
+    void Wifi::set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password)
     {
-        this->ssid = ssid;
-        this->password = password;
+        this->ssid = wifi_ssid;
+        this->password = wifi_password;
     }
 
     void Wifi::set_auto_connect(bool auto_connect)
@@ -81,8 +91,15 @@ namespace smooth::core::network
 
     void Wifi::connect() const
     {
+#ifdef ESP_PLATFORM
         esp_wifi_start();
         esp_wifi_connect();
+#else
+
+        // Assume network is available when running under POSIX system.
+        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
     }
 
     bool Wifi::is_connected_to_ap() const
@@ -90,68 +107,85 @@ namespace smooth::core::network
         return connected_to_ap;
     }
 
-    void Wifi::event(const system_event_t& event)
+    void Wifi::wifi_event_callback(void* event_handler_arg,
+                                   esp_event_base_t event_base,
+                                   int32_t event_id,
+                                   void* event_data)
     {
-        if (event.event_id == SYSTEM_EVENT_STA_START)
-        {
-            tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, host_name.c_str());
-        }
-        else if (event.event_id == SYSTEM_EVENT_STA_GOT_IP || event.event_id == SYSTEM_EVENT_AP_STA_GOT_IP6)
-        {
-            network::NetworkStatus status(network::NetworkEvent::GOT_IP, event.event_info.got_ip.ip_changed);
-            core::ipc::Publisher<network::NetworkStatus>::publish(status);
-        }
-        else if (event.event_id == SYSTEM_EVENT_STA_CONNECTED)
-        {
-            connected_to_ap = true;
-        }
-        else if (event.event_id == SYSTEM_EVENT_STA_DISCONNECTED)
-        {
-            network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
-            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+        // Note: be very careful with what you do in this method - it runs under the event task
+        // (sys_evt) with a very small default stack.
+        Wifi* wifi = reinterpret_cast<Wifi*>(event_handler_arg);
 
-            connected_to_ap = false;
-
-            if (auto_connect_to_ap)
+        if (event_base == WIFI_EVENT)
+        {
+            if (event_id == WIFI_EVENT_STA_START)
             {
-                esp_wifi_stop();
-                connect();
+                tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, wifi->host_name.c_str());
+            }
+            else if (event_id == WIFI_EVENT_STA_CONNECTED)
+            {
+                wifi->connected_to_ap = true;
+            }
+            else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
+            {
+                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+
+                wifi->connected_to_ap = false;
+
+                if (wifi->auto_connect_to_ap)
+                {
+                    esp_wifi_stop();
+                    wifi->connect();
+                }
+            }
+            else if (event_id == WIFI_EVENT_AP_START)
+            {
+                network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+            }
+            else if (event_id == WIFI_EVENT_AP_STOP)
+            {
+                Log::info("SoftAP", "AP stopped");
+                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
+                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+            }
+            else if (event_id == WIFI_EVENT_AP_STACONNECTED)
+            {
+                auto data = reinterpret_cast<wifi_event_ap_staconnected_t*>(event_data);
+                Log::info("SoftAP", Format("Station connected. MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
+                                           Hex(data->mac[0]),
+                                           Hex(data->mac[1]),
+                                           Hex(data->mac[2]),
+                                           Hex(data->mac[3]),
+                                           Hex(data->mac[4]),
+                                           Hex(data->mac[5]),
+                                           UInt32(data->aid)));
+            }
+            else if (event_id == WIFI_EVENT_AP_STADISCONNECTED)
+            {
+                auto data = reinterpret_cast<wifi_event_ap_stadisconnected_t*>(event_data);
+
+                Log::info("SoftAP", Format("Station disconnected. MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
+                                           Hex(data->mac[0]),
+                                           Hex(data->mac[1]),
+                                           Hex(data->mac[2]),
+                                           Hex(data->mac[3]),
+                                           Hex(data->mac[4]),
+                                           Hex(data->mac[5]),
+                                           UInt32(data->aid)));
             }
         }
-        else if (event.event_id == SYSTEM_EVENT_AP_START)
+        else if (event_base == IP_EVENT)
         {
-            network::NetworkStatus status(network::NetworkEvent::GOT_IP, event.event_info.got_ip.ip_changed);
-            core::ipc::Publisher<network::NetworkStatus>::publish(status);
-        }
-        else if (event.event_id == SYSTEM_EVENT_AP_STACONNECTED)
-        {
-            auto& event_info = event.event_info;
-            Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
-                    Hex(event_info.sta_connected.mac[0]),
-                    Hex(event_info.sta_connected.mac[1]),
-                    Hex(event_info.sta_connected.mac[2]),
-                    Hex(event_info.sta_connected.mac[3]),
-                    Hex(event_info.sta_connected.mac[4]),
-                    Hex(event_info.sta_connected.mac[5]),
-                    UInt32(event_info.sta_connected.aid)));
-        }
-        else if (event.event_id == SYSTEM_EVENT_AP_STADISCONNECTED)
-        {
-            auto& event_info = event.event_info;
-            Log::info("SoftAP", Format("station MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
-                    Hex(event_info.sta_connected.mac[0]),
-                    Hex(event_info.sta_connected.mac[1]),
-                    Hex(event_info.sta_connected.mac[2]),
-                    Hex(event_info.sta_connected.mac[3]),
-                    Hex(event_info.sta_connected.mac[4]),
-                    Hex(event_info.sta_connected.mac[5]),
-                    UInt32(event_info.sta_connected.aid)));
-        }
-        else if (event.event_id == SYSTEM_EVENT_AP_STOP)
-        {
-            Log::info("SoftAP", "AP stopped");
-            network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
-            core::ipc::Publisher<network::NetworkStatus>::publish(status);
+            if (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_GOT_IP6)
+            {
+                auto ip_changed = event_id == IP_EVENT_STA_GOT_IP ?
+                                  reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed : true;
+
+                network::NetworkStatus status(network::NetworkEvent::GOT_IP, ip_changed);
+                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+            }
         }
     }
 
@@ -195,5 +229,12 @@ namespace smooth::core::network
         esp_wifi_start();
 
         Log::info("SoftAP", "SSID: " + ssid + "; Auth: " + (password.empty() ? "Open" : "WPA2/PSK"));
+
+#ifndef ESP_PLATFORM
+
+        // Assume network is available when running under POSIX system.
+        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+#endif
     }
 }
