@@ -1,0 +1,35 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+		{
+			"appliesTo": "CMakeLists.txt",
+			"args": [
+				"ninja",
+				"flash"
+			],
+			"command": "${env.COMSPEC}",
+			"externalConsole": true,
+			"taskLabel": "Ninja Flash",
+			"taskName": "task-ninja-flash",
+			"type": "launch",
+			"workingDirectory": "${workspaceRoot}\\build\\Esp32-Debug",
+			"envVars": {
+				"ESPPORT": "COM8",
+				"ESPBAUD": "921600"
+			}
+		},
+		{
+			"appliesTo": "CMakeLists.txt",
+			"args": [
+				"ninja",
+				"clean"
+			],
+			"command": "${env.COMSPEC}",
+			"externalConsole": true,
+			"taskLabel": "Ninja Clean",
+			"taskName": "task-ninja-clean",
+			"type": "launch",
+			"workingDirectory": "${workspaceRoot}\\build\\Esp32-Debug"
+		}
+  ]
+}

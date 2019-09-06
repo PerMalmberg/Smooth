@@ -1,0 +1,29 @@
+﻿{
+	// See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+	"environments": [
+		{
+			"environment": "xtensa",
+			"INCLUDE": "${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\xtensa-esp32-elf\\include\\c++\\8.2.0;${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\xtensa-esp32-elf\\include\\c++\\8.2.0\\xtensa-esp32-elf;${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\xtensa-esp32-elf\\include\\c++\\8.2.0\\xtensa-esp32-elf\\esp32-psram;${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\lib\\gcc\\xtensa-esp32-elf\\8.2.0\\include;${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\lib\\gcc\\xtensa-esp32-elf\\8.2.0\\include-fixed;${env.IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp32-2019r1-8.2.0\\xtensa-esp32-elf\\xtensa-esp32-elf\\include;"
+		}
+	],
+	"configurations": [
+		{
+			"buildCommandArgs": "-v",
+			"buildRoot": "${projectDir}\\build\\${name}",
+			"cmakeCommandArgs": "",
+			"configurationType": "Debug",
+			"ctestCommandArgs": "",
+			"generator": "Ninja",
+			"inheritEnvironments": [ "xtensa" ],
+			"installRoot": "${projectDir}\\install\\${name}",
+			"intelliSenseMode": "linux-gcc-arm",
+			"name": "Esp32-Debug",
+			"variables": [
+				{
+					"name": "ESP_PLATFORM",
+					"value": "1"
+				}
+			]
+		}
+	]
+}
