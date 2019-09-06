@@ -1,3 +1,6 @@
 [submodule "externals/nlohman_json"]
 	path = externals/nlohman_json
 	url = https://github.com/nlohmann/json.git
+[submodule "externals/hinnant_date"]
+	path = externals/hinnant_date
+	url = https://github.com/HowardHinnant/date.git
