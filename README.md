@@ -65,6 +65,7 @@ In your ESP-IDF projects's root folder, type the following to add `smooth` as a 
 
 ```shell script
 git submodule add https://github.com/PerMalmberg/Smooth.git externals/smooth
+git submodule update --init --recursive
 ```
 
 Assuming you are following IDF's recommended way of [structuring projects](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#example-project), make your top `CMakeLists.txt` look something like this:
