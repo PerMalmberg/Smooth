@@ -31,8 +31,9 @@ set_compile_options(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
-            ${SMOOTH_LIB_ROOT}/smooth/include
+            ${smooth_dir}/include
             ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
+			${CMAKE_CURRENT_LIST_DIR}/../externals/hinnant_date/include
         )
 
 # When building for Linux, mock-idf include paths must be make available.

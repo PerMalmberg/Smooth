@@ -15,6 +15,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 function(set_compile_options target)
+	# not sure why but I can only get intellisense in VS2019 working with -std=c++17
+	target_compile_options(${target} PUBLIC -std=c++17)
     target_compile_options(${target} PRIVATE -Werror -Wall -Wextra)
     target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wnon-virtual-dtor>)
     #target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wuseless-cast>)
@@ -22,6 +24,7 @@ function(set_compile_options target)
     target_compile_options(${target} PRIVATE -Wconversion -Wsign-conversion)
     target_compile_options(${target} PRIVATE -Wlogical-op -Wdouble-promotion -Wformat=2)
     target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:CXX>: -fno-rtti>)
+	target_compile_definitions(${target} PUBLIC HAS_UNCAUGHT_EXCEPTIONS)
 
     if( NOT "${ESP_PLATFORM}" )
         target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)

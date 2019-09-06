@@ -22,18 +22,21 @@ include(${COMPONENT_DIR}/../lib/files.cmake)
 
 file(TO_CMAKE_PATH "$ENV{IDF_PATH}" normalized_path)
 
-idf_component_register(SRCS ${SMOOTH_SOURCES}
-                        INCLUDE_DIRS
-                            ${SMOOTH_LIB_ROOT}/smooth/include
-                            ${normalized_path}/components
-                            ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
-                        REQUIRES
-                            mbedtls
-                            json
-                            pthread
-                            nvs_flash
-                            fatfs
-                            libsodium
-                            )
+idf_component_register(
+	SRCS
+		${SMOOTH_SOURCES}
+    INCLUDE_DIRS
+		${smooth_dir}/include
+        ${normalized_path}/components
+        ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
+		${CMAKE_CURRENT_LIST_DIR}/../externals/hinnant_date/include
+    REQUIRES
+        mbedtls
+        json
+        pthread
+        nvs_flash
+        fatfs
+        libsodium
+)
 
 set_compile_options(${COMPONENT_LIB})
