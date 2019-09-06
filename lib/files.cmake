@@ -8,7 +8,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/application/hash/sha.cpp
         ${smooth_dir}/application/io/i2c/ADS1115.cpp
         ${smooth_dir}/application/io/i2c/BME280.cpp
-        ${smooth_dir}/application/io/i2c/MCP23017.cpp
+        ${smooth_dir}/application/io/i2c/DS3231.cpp
         ${smooth_dir}/application/io/i2c/MCP23017.cpp
         ${smooth_dir}/application/io/wiegand/Wiegand.cpp
         ${smooth_dir}/application/network/http/HTTPProtocol.cpp
@@ -87,6 +87,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/timer/TimerService.cpp
         ${smooth_dir}/core/util/string_util.cpp
         ${smooth_inc_dir}/application/io/i2c/ADS1115.h
+        ${smooth_inc_dir}/application/io/i2c/DS3231.h
         ${smooth_inc_dir}/application/io/i2c/MCP23017.h
         ${smooth_inc_dir}/application/network/http/HTTPProtocol.h
         ${smooth_inc_dir}/application/network/http/HTTPServerClient.h
