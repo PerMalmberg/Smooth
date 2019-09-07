@@ -43,11 +43,30 @@ Contributors will be given credit by being listed in the [CONTRIBUTORS.md](CONTR
 
 # Licensing
 
-This project is licensed under the [Appache 2.0](https://www.apache.org/licenses/LICENSE-2.0) and as such yor contributions must be compatible with this license.
+This project is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) and as such yor contributions must be compatible with this license.
 
 ## Source file header
 
-Each source file shall have a copy of the [Apache 2.0 notice](https://www.apache.org/licenses/LICENSE-2.0#apply) at the top of the file, adjusted to appropiately reflect the copyright of the original author.
+Each source file shall have a copy of the [Apache 2.0 notice](https://www.apache.org/licenses/LICENSE-2.0#apply) at the top of the file, adjusted to appropriately reflect the copyright of the original author.
+
+Here's a sample for your convenience:
+
+    /*
+    Smooth - A C++ framework for embedded programming on top of Espressif's ESP-IDF
+Copyright 2019 Per Malmberg (https://gitbub.com/PerMalmberg)
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    */
 
 # WiP
 
