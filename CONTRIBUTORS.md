@@ -1,8 +1,9 @@
 # Contributors
 
-Below is the list of persons that have contributed to the project with PRs, patches or other in other ways.
+Below is the list of indiviuals that have contributed to the project.
 
-|Name|GitHub User Name|
+|Name|Contribution details
 |----|----|
-|Kerry Jones|[KerryRJ](https://github.com/KerryRJ)|
-|Lothar|[squonk11]([https://github.com/squonk11)
+|[Per Malmberg](https://github.com/PerMalmberg)|Author and maintainer|
+|[KerryRJ](https://github.com/KerryRJ)|[PR#71](https://github.com/PerMalmberg/Smooth/pull/71)|
+|[squonk11]([https://github.com/squonk11)|[PR#65](https://github.com/PerMalmberg/Smooth/pull/65)|
