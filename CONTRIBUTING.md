@@ -10,6 +10,7 @@ Hello and thank you for you interest. To keep things in order, please adhere to 
 ## Multi-platform
 
 A major goal of Smooth is to ease development which it does by allowing projects to be compiled for, and run on, Linux prior to targeting the ESP32 device. All new code must support this dual platform capability by using (and expanding) mocks such as [mock-idf](https://github.com/PerMalmberg/Smooth/tree/master/mock-idf) or other abstractions. Hardware mocks should pretend to be functioning (e.g. return success-values), but are not expected to be full simulators. They are however expected to not cause crashes at runtime.
+All code must compile with the warning levels defined in [compiler_options.cmake](smooth/lib/compiler_options.cmake]) targeting both native Linux (gcc8) and Xtensa (gcc8). 
 
 ## Code
 
