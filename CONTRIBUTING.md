@@ -32,6 +32,7 @@ All code must compile with the warning levels defined in [compiler_options.cmake
   - Don't mix condition types without parentheses to avoid unintentional logic errors, e.g. `if(a && (b || c))` vs. `if(a && b || c)`
   - Don't call multiple methods in a condition statement; this avoids unintentional short circuits.
   - Place chained `&&` and `||` in if-statements at a new line.
+  - Source files shall be UTF-8 encoded, no BOM.
 
 ## Code reviews
 
