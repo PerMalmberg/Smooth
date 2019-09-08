@@ -81,10 +81,13 @@ namespace smooth::core::network
         private:
             void connect() const;
 
+            static void publish_status(bool connected, bool ip_changed);
+
             bool auto_connect_to_ap = false;
             bool connected_to_ap = false;
             std::string host_name = "Smooth-Wifi";
             std::string ssid{};
+
             std::string password{};
     };
 }

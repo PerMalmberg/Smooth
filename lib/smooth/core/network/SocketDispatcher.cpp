@@ -294,13 +294,13 @@ namespace smooth::core::network
 
         if (event.get_event() == NetworkEvent::GOT_IP)
         {
-            Log::info(tag, Format(Str("Station got IP, sockets will be restarted.")));
+            Log::info(tag, Format(Str("Network up, sockets will be restarted.")));
             has_ip = true;
             shall_close_sockets = true;
         }
         else if (event.get_event() == NetworkEvent::DISCONNECTED)
         {
-            Log::warning(tag, Format(Str("Station disconnected or IP lost, closing all sockets.")));
+            Log::warning(tag, Format(Str("Network down, closing all sockets.")));
 
             // Close all sockets
             has_ip = false;

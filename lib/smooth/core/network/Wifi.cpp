@@ -42,10 +42,12 @@ namespace smooth::core::network
     {
         tcpip_adapter_init();
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
+        esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
     }
 
     Wifi::~Wifi()
     {
+        esp_event_handler_unregister(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback);
         esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback);
         esp_wifi_disconnect();
         esp_wifi_stop();
@@ -97,8 +99,7 @@ namespace smooth::core::network
 #else
 
         // Assume network is available when running under POSIX system.
-        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
-        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+        publish_status(true, true);
 #endif
     }
 
@@ -128,10 +129,8 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
             {
-                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
-                core::ipc::Publisher<network::NetworkStatus>::publish(status);
-
                 wifi->connected_to_ap = false;
+                publish_status(wifi->connected_to_ap, true);
 
                 if (wifi->auto_connect_to_ap)
                 {
@@ -141,14 +140,12 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_AP_START)
             {
-                network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
-                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+                publish_status(true, true);
             }
             else if (event_id == WIFI_EVENT_AP_STOP)
             {
                 Log::info("SoftAP", "AP stopped");
-                network::NetworkStatus status(network::NetworkEvent::DISCONNECTED, true);
-                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+                publish_status(false, true);
             }
             else if (event_id == WIFI_EVENT_AP_STACONNECTED)
             {
@@ -178,13 +175,17 @@ namespace smooth::core::network
         }
         else if (event_base == IP_EVENT)
         {
-            if (event_id == IP_EVENT_STA_GOT_IP || event_id == IP_EVENT_GOT_IP6)
+            if (event_id == IP_EVENT_STA_GOT_IP
+                || event_id == IP_EVENT_GOT_IP6
+                || event_id == IP_EVENT_ETH_GOT_IP)
             {
                 auto ip_changed = event_id == IP_EVENT_STA_GOT_IP ?
                                   reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed : true;
-
-                network::NetworkStatus status(network::NetworkEvent::GOT_IP, ip_changed);
-                core::ipc::Publisher<network::NetworkStatus>::publish(status);
+                publish_status(true, ip_changed);
+            }
+            else if (event_id == IP_EVENT_STA_LOST_IP)
+            {
+                publish_status(false, true);
             }
         }
     }
@@ -233,8 +234,15 @@ namespace smooth::core::network
 #ifndef ESP_PLATFORM
 
         // Assume network is available when running under POSIX system.
-        network::NetworkStatus status(network::NetworkEvent::GOT_IP, true);
-        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+        publish_status(true, true);
 #endif
+    }
+
+    void Wifi::publish_status(bool connected, bool ip_changed)
+    {
+        network::NetworkStatus status(connected
+                                      ? network::NetworkEvent::GOT_IP : network::NetworkEvent::DISCONNECTED,
+                                      ip_changed);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
 }
