@@ -50,6 +50,6 @@ namespace smooth::core::json
 
     bool JsonFile::save() const
     {
-        return f.write(v.dump());
+        return f.write(v.dump(4, ' '));
     }
 }
