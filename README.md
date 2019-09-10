@@ -61,7 +61,7 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
 
 ## Using Smooth in your project (compiling for ESP)
 
-In your ESP-IDF projects's root folder, type the following to add `smooth` as a submodule.
+In your projects's root folder, type the following to add `smooth` as a submodule.
 
 ```shell script
 git submodule add https://github.com/PerMalmberg/Smooth.git externals/smooth
