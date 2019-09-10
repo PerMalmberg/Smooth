@@ -57,6 +57,7 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
 - Sensor BME280
 - 16 channel I/O expander MCP23017
 - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
+- Filesystem helpers
 
 
 ## Using Smooth in your project (compiling for ESP)
@@ -185,4 +186,32 @@ else()
     target_link_libraries(${PROJECT_NAME} smooth pthread)
     target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 endif()
+```
+
+Here's an example of how your `main.cpp` could look like if you want to compile for both ESP and Linux. The example
+ assumes you have named your main class `App`  and it is derived from `smooth::core::Application`, which most
+  applications based on Smooth do. Doing so is not mandatory, it saves you some setup; see
+   [Application.cpp](https://github.com/PerMalmberg/Smooth/blob/master/lib/smooth/core/Application.cpp) for 
+   details on what it does for you.  
+
+```c++
+
+extern "C"
+{
+#ifdef ESP_PLATFORM
+void app_main()
+{
+    App app{};
+    app.start();
+}
+#else
+int main(int /*argc*/, char** /*argv*/)
+{
+    App app{};
+    app.start();
+    return 0;
+}
+#endif
+
+}
 ```
