@@ -1,0 +1,8 @@
+Smooth - A C++ framework for embedded programming on top of Espressif's ESP-IDF
+Copyright 2017-2019 Per Malmberg
+
+This product includes software developed by Per Malmberg (https://github.com/PerMalmberg)
+
+Portions of this software were developed by Espressif Systems (Shanghai) PTE LTD. (see mock-idf)
+
+Portions of this software were developed by Niels Lohmann and contributors (nlohmann_json)
