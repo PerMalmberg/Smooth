@@ -145,9 +145,24 @@ Please see the the different test projects under the test folder. When compiling
 root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
 in the top `CMakeLists.txt`. **You will likely have to re-generate your build files after changing the selection.**  
 
-## Using Smooth in your project (compiling for Linux)
+## Using Smooth in your project (compiling for Linux or MacOS)
 
-To build you application for Linux you must maintain a parallel build configuration as follows:
+### System Libraries
+Some libraries provided in the ESP distribution need to be installed as system libraries on the host. On Debian / Ubuntu:
+
+```shell
+apt-get install libsodium-dev libmbedtls-dev
+```
+
+With Homebrew on MacOS:
+
+```shell
+brew install libsodium mbedtls
+```
+
+
+### CMake Config
+To build your application on the host platform you must maintain a parallel build configuration as follows:
 
 Top `CMakeList.txt`
 
@@ -160,6 +175,10 @@ if(${ESP_PLATFORM})
              externals/smooth/smooth_component)
     project(your_project_name)
 else()
+    # first two entries are needed only on MacOS - brew installs libraries into /usr/local
+    include_directories(SYSTEM /usr/local/include)
+    link_directories(/usr/local/lib)
+
     add_subdirectory(main)
     add_subdirectory(externals/smooth/lib)
     add_subdirectory(externals/smooth/mock-idf)
