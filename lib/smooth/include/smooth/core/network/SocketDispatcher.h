@@ -44,9 +44,9 @@ namespace smooth::core::network
     {
         public:
 #ifdef ESP_PLATFORM
-            typedef size_t FD;
+            using FD = size_t;
 #else
-            typedef int FD;
+            using fD = int;
 #endif
             ~SocketDispatcher() override = default;
 
