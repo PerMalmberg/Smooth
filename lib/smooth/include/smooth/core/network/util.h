@@ -17,7 +17,7 @@ limitations under the License.
 
 #pragma once
 
-#ifdef ESP_PLATFORM
+#if defined(ESP_PLATFORM) || defined(__APPLE__)
     #include <machine/endian.h>
     #if _BYTE_ORDER == _LITTLE_ENDIAN
         #define SMOOTH_LITTLE_ENDIAN

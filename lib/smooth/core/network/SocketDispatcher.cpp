@@ -361,12 +361,12 @@ namespace smooth::core::network
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 
-    void SocketDispatcher::set_fd(std::size_t socket_id, fd_set& fd)
+    void SocketDispatcher::set_fd(FD socket_id, fd_set& fd)
     {
         FD_SET(socket_id, &fd);
     }
 
-    bool SocketDispatcher::is_fd_set(std::size_t socket_id, fd_set& fd)
+    bool SocketDispatcher::is_fd_set(FD socket_id, fd_set& fd)
     {
         return FD_ISSET(socket_id, &fd);
     }
