@@ -175,9 +175,11 @@ if(${ESP_PLATFORM})
              externals/smooth/smooth_component)
     project(your_project_name)
 else()
-    # first two entries are needed only on MacOS - brew installs libraries into /usr/local
-    include_directories(SYSTEM /usr/local/include)
-    link_directories(/usr/local/lib)
+    if(${APPLE})
+        include_directories(SYSTEM /usr/local/include)
+        link_directories(/usr/local/lib)
+    endif()
+
 
     add_subdirectory(main)
     add_subdirectory(externals/smooth/lib)
