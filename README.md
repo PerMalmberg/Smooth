@@ -207,6 +207,18 @@ else()
 endif()
 ```
 
+### Building on MacOS
+Currently only GCC is supported. You can install GCC via homebrew and then pass flags to CMake to use that compiler:
+
+```shell
+brew install gcc
+mkdir cmake-macos
+cd cmake-macos
+cmake -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
+make
+```
+
+
 Here's an example of how your `main.cpp` could look like if you want to compile for both ESP and Linux. The example
  assumes you have named your main class `App`  and it is derived from `smooth::core::Application`, which most
   applications based on Smooth do. Doing so is not mandatory, it saves you some setup; see
