@@ -145,9 +145,24 @@ Please see the the different test projects under the test folder. When compiling
 root of the repo as a CMake project. Select the project you wish to build by setting `selected_test_project` 
 in the top `CMakeLists.txt`. **You will likely have to re-generate your build files after changing the selection.**  
 
-## Using Smooth in your project (compiling for Linux)
+## Using Smooth in your project (compiling for Linux or MacOS)
 
-To build you application for Linux you must maintain a parallel build configuration as follows:
+### System Libraries
+Some libraries provided in the ESP distribution need to be installed as system libraries on the host. On Debian / Ubuntu:
+
+```shell
+apt-get install libsodium-dev libmbedtls-dev
+```
+
+With Homebrew on MacOS:
+
+```shell
+brew install libsodium mbedtls
+```
+
+
+### CMake Config
+To build your application on the host platform you must maintain a parallel build configuration as follows:
 
 Top `CMakeList.txt`
 
@@ -160,6 +175,12 @@ if(${ESP_PLATFORM})
              externals/smooth/smooth_component)
     project(your_project_name)
 else()
+    if(${APPLE})
+        include_directories(SYSTEM /usr/local/include)
+        link_directories(/usr/local/lib)
+    endif()
+
+
     add_subdirectory(main)
     add_subdirectory(externals/smooth/lib)
     add_subdirectory(externals/smooth/mock-idf)
@@ -187,6 +208,18 @@ else()
     target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 endif()
 ```
+
+### Building on MacOS
+Currently only GCC is supported. You can install GCC via homebrew and then pass flags to CMake to use that compiler:
+
+```shell
+brew install gcc
+mkdir cmake-macos
+cd cmake-macos
+cmake -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
+make
+```
+
 
 Here's an example of how your `main.cpp` could look like if you want to compile for both ESP and Linux. The example
  assumes you have named your main class `App`  and it is derived from `smooth::core::Application`, which most

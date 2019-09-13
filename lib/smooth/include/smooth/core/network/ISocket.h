@@ -33,7 +33,7 @@ namespace smooth::core::network
         friend class smooth::core::network::SocketDispatcher;
         public:
             static const int INVALID_SOCKET = -1;
-#ifdef ESP_PLATFORM
+#if defined(ESP_PLATFORM) || defined(__APPLE__)
 
             // lwip doesn't signal SIGPIPE
             static const int SEND_FLAGS = 0;

@@ -43,6 +43,11 @@ namespace smooth::core::network
         private ISocketBackOff
     {
         public:
+#ifdef ESP_PLATFORM
+            using FD = size_t;
+#else
+            using fD = int;
+#endif
             ~SocketDispatcher() override = default;
 
             static SocketDispatcher& instance();
@@ -90,9 +95,9 @@ namespace smooth::core::network
             using SocketOperationQueue = smooth::core::ipc::TaskEventQueue<SocketOperation>;
             std::shared_ptr<SocketOperationQueue> socket_op;
 
-            static void set_fd(std::size_t socket_id, fd_set& fd);
+            static void set_fd(FD socket_id, fd_set& fd);
 
-            static bool is_fd_set(std::size_t socket_id, fd_set& fd);
+            static bool is_fd_set(FD socket_id, fd_set& fd);
 
             void print_status() const;
 
