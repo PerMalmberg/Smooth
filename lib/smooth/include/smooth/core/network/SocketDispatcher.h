@@ -46,7 +46,7 @@ namespace smooth::core::network
 #ifdef ESP_PLATFORM
             using FD = size_t;
 #else
-            using fD = int;
+            using FD = int;
 #endif
             ~SocketDispatcher() override = default;
 
