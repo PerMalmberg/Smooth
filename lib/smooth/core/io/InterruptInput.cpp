@@ -17,7 +17,6 @@ limitations under the License.
 
 #include <smooth/core/io/InterruptInput.h>
 #include <driver/gpio.h>
-#include <chrono>
 
 namespace smooth::core::io
 {

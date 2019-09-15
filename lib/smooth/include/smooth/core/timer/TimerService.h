@@ -29,10 +29,10 @@ namespace smooth::core::timer
 {
     class Timer;
 
-    typedef std::shared_ptr<Timer> SharedTimer;
+    using SharedTimer = std::shared_ptr<Timer>;
 
-    typedef std::function<bool (SharedTimer left,
-                                SharedTimer right)> TimerComparator;
+    using TimerComparator = std::function<bool (SharedTimer left,
+                                SharedTimer right)>;
 
     /// TimerQueue extends std::priority_queue with the ability to remove an item.
     class TimerQueue
@@ -49,7 +49,7 @@ namespace smooth::core::timer
             {
                 auto it = find_if(c.begin(),
                                   c.end(),
-                                  [timer](SharedTimer o) {
+                                  [timer](const SharedTimer& o) {
                                       // Compare pointers
                                       bool found = timer == o;
 
@@ -76,9 +76,9 @@ namespace smooth::core::timer
 
             static TimerService& get();
 
-            void add_timer(SharedTimer timer);
+            void add_timer(const SharedTimer& timer);
 
-            void remove_timer(SharedTimer timer);
+            void remove_timer(const SharedTimer& timer);
 
         protected:
             void tick() override;

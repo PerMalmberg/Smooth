@@ -29,7 +29,7 @@ namespace smooth::core::timer
                    1024 * 3,
                    TIMER_SERVICE_PRIO,
                    milliseconds(0)),
-              cmp([](SharedTimer left, SharedTimer right) {
+              cmp([](const SharedTimer& left, const SharedTimer& right) {
                       // We want the timer with the least time left to be first in the list
                       return left->expires_at() > right->expires_at();
                   }),
@@ -50,7 +50,7 @@ namespace smooth::core::timer
         get().start();
     }
 
-    void TimerService::add_timer(SharedTimer timer)
+    void TimerService::add_timer(const SharedTimer& timer)
     {
         std::lock_guard<std::mutex> lock(guard);
         timer->calculate_next_execution();
@@ -58,7 +58,7 @@ namespace smooth::core::timer
         cond.notify_one();
     }
 
-    void TimerService::remove_timer(SharedTimer timer)
+    void TimerService::remove_timer(const SharedTimer& timer)
     {
         std::lock_guard<std::mutex> lock(guard);
         queue.remove_timer(timer);
