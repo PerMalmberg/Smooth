@@ -15,17 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#include <smooth/core/io/InterruptInputCB.h>
+#include <driver/gpio.h>
 
-namespace smooth::application::io::wiegand
+namespace smooth::core::io
 {
-    class IWiegandSignal
+    InterruptInputCB::InterruptInputCB(callback cb,
+                                       void* context,
+                                       gpio_num_t io,
+                                       bool pull_up,
+                                       bool pull_down,
+                                       gpio_int_type_t interrupt_trigger)
+            : Input(io, pull_up, pull_down, interrupt_trigger)
     {
-        public:
-            virtual ~IWiegandSignal() = default;
+        gpio_isr_handler_add(io, cb, context);
+    }
 
-            virtual void wiegand_number(uint8_t num) = 0;
-
-            virtual void wiegand_id(uint32_t id) = 0;
-    };
+    InterruptInputCB::~InterruptInputCB()
+    {
+        gpio_isr_handler_remove(get_io());
+    }
 }

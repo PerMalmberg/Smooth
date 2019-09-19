@@ -18,41 +18,55 @@ limitations under the License.
 #pragma once
 
 #include <bitset>
+#include <memory>
 #include <smooth/core/Task.h>
-#include <smooth/core/io/InterruptInput.h>
+#include <smooth/core/io/InterruptInputCB.h>
 #include <smooth/core/ipc/IEventListener.h>
 #include <smooth/core/ipc/ISRTaskEventQueue.h>
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/timer/Timer.h>
-#include <memory>
 #include "IWiegandSignal.h"
 
 namespace smooth::application::io::wiegand
 {
-    class Wiegand
-        : public smooth::core::ipc::IEventListener<smooth::core::io::InterruptInputEvent>,
-        public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
+
+
+    class Wiegand : public smooth::core::ipc::IEventListener<uint8_t>,
+                    public smooth::core::ipc::IEventListener<uint32_t>,
+                    public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
     {
         public:
             Wiegand(smooth::core::Task& task, IWiegandSignal& receiver, gpio_num_t d0_pin, gpio_num_t d1_pin);
 
-            void event(const smooth::core::io::InterruptInputEvent& event) override;
+            void zero();
+            void one();
 
+            void event(const uint8_t&) override;
+            void event(const uint32_t&) override;
             void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 
         private:
+            void clear_bits();
+            void parse();
+            static void isr_d0(void* context);
+            static void isr_d1(void* context);
+
             IWiegandSignal& receiver;
             gpio_num_t d0_pin;
             gpio_num_t d1_pin;
-            using ISRTaskQueue = smooth::core::ipc::ISRTaskEventQueue<smooth::core::io::InterruptInputEvent, 40>;
-            std::shared_ptr<ISRTaskQueue> bit_queue;
-            smooth::core::io::InterruptInput d0;
-            smooth::core::io::InterruptInput d1;
+            using KeyQueue = smooth::core::ipc::ISRTaskEventQueue<uint8_t, 5>;
+            std::shared_ptr<KeyQueue> key_queue;
+            using NumberQueue = smooth::core::ipc::ISRTaskEventQueue<uint32_t, 5>;
+            std::shared_ptr<NumberQueue> number_queue;
+            using TimerQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
+            std::shared_ptr<TimerQueue> tick_queue;
+            smooth::core::timer::TimerOwner tick;
+            smooth::core::io::InterruptInputCB d0;
+            smooth::core::io::InterruptInputCB d1;
             std::bitset<34> data{};
             uint8_t bit_count = 0;
 
-            using TimerQueue = smooth::core::ipc::TaskEventQueue<smooth::core::timer::TimerExpiredEvent>;
-            std::shared_ptr<TimerQueue> line_silent;
-            smooth::core::timer::TimerOwner expire;
+            using clock = std::chrono::high_resolution_clock;
+            int64_t last_data = esp_timer_get_time();
     };
 }

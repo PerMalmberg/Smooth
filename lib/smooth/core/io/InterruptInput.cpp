@@ -40,6 +40,11 @@ namespace smooth::core::io
         gpio_isr_handler_add(io, input_interrupt_handler, this);
     }
 
+    InterruptInput::~InterruptInput()
+    {
+        gpio_isr_handler_remove(get_io());
+    }
+
     void InterruptInput::update()
     {
         InterruptInputEvent ev(io, read());

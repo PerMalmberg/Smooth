@@ -17,34 +17,38 @@ limitations under the License.
 
 #pragma once
 
-#include "InterruptEvent.h"
-
 #include "Input.h"
-#include <smooth/core/ipc/IISRTaskEventQueue.h>
-#include <memory>
 
 namespace smooth::core::io
 {
-    class InterruptInput
+    class InterruptInputCB
         : private Input
     {
         public:
+            using callback = void(void* context);
 
-            /// Constructs an InterruptInput
-            /// \param queue The queue to put events on
+            /// Constructs an InterruptInputCB
+            /// \brief Input with callback running in ISR.
+            /// \param cb The callback to attach to the interrupt. Note: called in ISR context.
+            /// \param context The context to pass to the callback
             /// \param io GPIO pin number
             /// \param pull_up Set to true if the input has a pull-up (also enables the internal pull up)
             /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
             /// \param interrupt_trigger When the interrupt should trigger
-            InterruptInput(std::weak_ptr<core::ipc::IISRTaskEventQueue<InterruptInputEvent>> queue, gpio_num_t io,
+            InterruptInputCB(callback cb,
+                           void* context,
+                           gpio_num_t io,
                            bool pull_up,
                            bool pull_down,
-                           gpio_int_type_t interrupt_trigger
-                           );
+                           gpio_int_type_t interrupt_trigger);
 
-            ~InterruptInput() override;
+            ~InterruptInputCB() override;
 
-            void update();
+            InterruptInputCB() = delete;
+            InterruptInputCB(const InterruptInputCB&) = delete;
+            InterruptInputCB(const InterruptInputCB&&) = delete;
+            InterruptInputCB& operator=(const InterruptInputCB&) = delete;
+            InterruptInputCB& operator=(InterruptInputCB&&) = delete;
 
             [[nodiscard]] gpio_num_t get_io() const
             {
@@ -52,6 +56,5 @@ namespace smooth::core::io
             }
 
         private:
-            std::weak_ptr<ipc::IISRTaskEventQueue<InterruptInputEvent>> queue;
     };
 }

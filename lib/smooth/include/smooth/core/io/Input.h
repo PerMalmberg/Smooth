@@ -31,6 +31,8 @@ namespace smooth::core::io
                   bool pull_down,
                   gpio_int_type_t interrupt_type = GPIO_INTR_DISABLE);
 
+            virtual ~Input() = default;
+
             bool read();
 
             Input(const Input&) = delete;

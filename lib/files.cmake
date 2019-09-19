@@ -70,6 +70,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/io/i2c/Master.cpp
         ${smooth_dir}/core/io/Input.cpp
         ${smooth_dir}/core/io/InterruptInput.cpp
+        ${smooth_dir}/core/io/InterruptInputCB.cpp
         ${smooth_dir}/core/io/Output.cpp
         ${smooth_dir}/core/ipc/QueueNotification.cpp
         ${smooth_dir}/core/json/JsonFile.cpp
@@ -154,6 +155,7 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/io/Input.h
         ${smooth_inc_dir}/core/io/Input.h
         ${smooth_inc_dir}/core/io/InterruptInput.h
+        ${smooth_inc_dir}/core/io/InterruptInputCB.h
         ${smooth_inc_dir}/core/io/Output.h
         ${smooth_inc_dir}/core/network/Wifi.h
         ${smooth_inc_dir}/core/sntp/Sntp.h

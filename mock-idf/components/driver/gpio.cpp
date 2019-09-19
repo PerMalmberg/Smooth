@@ -6,6 +6,11 @@ esp_err_t gpio_isr_handler_add(gpio_num_t /*gpio_num*/, gpio_isr_t /*isr_handler
     return ESP_OK;
 }
 
+esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num)
+{
+    return ESP_OK;
+}
+
 esp_err_t gpio_config(const gpio_config_t* /*pGPIOConfig*/)
 {
     return ESP_OK;
@@ -38,4 +43,14 @@ esp_err_t gpio_install_isr_service(int /*intr_alloc_flags*/)
 
 void gpio_uninstall_isr_service()
 {
+}
+
+esp_err_t gpio_intr_enable(gpio_num_t /*gpio_num*/)
+{
+    return ESP_OK;
+}
+
+esp_err_t gpio_intr_disable(gpio_num_t /*gpio_num*/)
+{
+    return ESP_OK;
 }
