@@ -25,12 +25,11 @@ limitations under the License.
 #include <smooth/core/ipc/ISRTaskEventQueue.h>
 #include <smooth/core/ipc/ITaskEventQueue.h>
 #include <smooth/core/timer/Timer.h>
+#include <esp_timer.h>
 #include "IWiegandSignal.h"
 
 namespace smooth::application::io::wiegand
 {
-
-
     class Wiegand : public smooth::core::ipc::IEventListener<uint8_t>,
                     public smooth::core::ipc::IEventListener<uint32_t>,
                     public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
