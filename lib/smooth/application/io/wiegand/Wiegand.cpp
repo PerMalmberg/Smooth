@@ -59,7 +59,6 @@ namespace smooth::application::io::wiegand
             gpio_intr_disable(d0_pin);
             gpio_intr_disable(d1_pin);
 
-            Log::info("bit_count", std::to_string(bit_count));
             if (bit_count == 4)
             {
                 // No integrity data
@@ -148,7 +147,7 @@ namespace smooth::application::io::wiegand
     {
         ++bit_count;
         data <<= 1;
-        data.set(0, 1);
+        data.set(0, true);
         last_data = esp_timer_get_time();
     }
 
