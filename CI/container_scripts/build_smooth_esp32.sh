@@ -1,13 +1,8 @@
 #!/bin/bash
 
-. /esp/esp-idf/export.sh
+. /src/CI/container_scripts/prepare_idf.sh
+. /src/CI/container_scripts/prepare_build_dir.sh
 
-cd /src
-mkdir build
-cd build
-export IDF_PATH=/esp/esp-idf
+cd /src/build
 cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=/esp/esp-idf/tools/cmake/toolchain-esp32.cmake
 ninja
-
-cd /src
-rm -rf build
