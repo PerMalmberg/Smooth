@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
 else
 	if [ -f "CMakeLists.txt" ]; then
 		# Run as current user to prevent the build directory being owned by root
-	    docker run -u `id -u` -it --rm --mount type=bind,source="$(pwd)",target=/src permalmberg/smooth:latest $1
+	    docker run -u `id -u` --rm --mount type=bind,source="$(pwd)",target=/src permalmberg/smooth:latest $1
 	    exit $?
 	else
 	    echo "Missing CMakeList.txt, please run this script from the root of Smooth."
