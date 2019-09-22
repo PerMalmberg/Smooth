@@ -1,8 +1,6 @@
 name: C/C++ CI
 
-on: [push, pull_request]
-  pull_request:
-    types: [opened, synchronize, reopened, edited, ready_for_review]  
+on: pull_request
 
 jobs:
   CI:
