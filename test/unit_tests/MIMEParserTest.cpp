@@ -40,7 +40,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------8819839691792623414370909194", 0));
 
-            const auto file = Path{ __FILE__ }.parent() / "test_data" / "post_result_data.txt";
+            const auto file = Path{ "test_data" } / "post_result_data.txt";
             File f{ file };
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
@@ -109,7 +109,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
             REQUIRE(mime.detect_mode(
                     "multipart/form-data; boundary=---------------------------7184603361412956941791020073", 0));
 
-            const auto file = Path{ __FILE__ }.parent() / "test_data" / "post_binary_data.bin";
+            const auto file = Path{ "test_data" } / "post_binary_data.bin";
             File f{ file };
             std::vector<uint8_t> data;
             REQUIRE(f.read(data));
@@ -184,7 +184,7 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
 
         WHEN("Provided with chunks of url encoded data")
         {
-            auto file = Path{ __FILE__ }.parent() / "test_data" / "url_encoded.txt";
+            auto file = Path{ "test_data" } / "url_encoded.txt";
             FileInfo info{ file };
 
             REQUIRE(mime.detect_mode("application/x-www-form-urlencoded", info.size()));

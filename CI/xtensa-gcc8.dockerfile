@@ -28,7 +28,7 @@ RUN	cd / \
 	&& git clone --recursive https://github.com/espressif/esp-idf.git
 	# Checkout desired branch
 RUN	cd /esp/esp-idf \
-	&& git checkout ${idf_branch} \
+	&& git checkout ${IDF_BRANCH} \
 	# Install IDF tools
 	&& cd /esp/esp-idf \ 
 	&& ./install.sh \
@@ -36,8 +36,8 @@ RUN	cd /esp/esp-idf \
 	&& rm -rf /esp/tools/dist/
 
 # Entrypoint
-COPY ./entrypoint.sh /
-COPY ./gnu-toolchain.cmake /
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]
-CMD []
+#COPY ./entrypoint.sh /
+#COPY ./gnu-toolchain.cmake /
+#RUN chmod +x /entrypoint.sh
+#ENTRYPOINT [ "/entrypoint.sh" ]
+#CMD []

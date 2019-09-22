@@ -37,3 +37,5 @@ target_link_libraries(${PROJECT_NAME} smooth pthread)
 
 include(../../lib/compiler_options.cmake)
 set_compile_options(${PROJECT_NAME})
+
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/test_data DESTINATION ${CMAKE_BINARY_DIR}/test/unit_tests)
