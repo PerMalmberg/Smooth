@@ -9,10 +9,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: build
-      run: |
-        git submodule update --init --checkout --recursive
-        CI/build-smooth.sh
+    - name: Get submodules
+      run: git submodule update --init --checkout --recursive
+    - name: Build for host platform
+      run: CI/build-smooth.sh host
+    - name: Build for ESP32 platform
+      run: CI/build-smooth.sh esp32
 #    - name: make
 #      run: make
 #    - name: make check
