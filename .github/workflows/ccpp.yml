@@ -12,7 +12,9 @@ jobs:
     - name: Get submodules
       run: git submodule update --init --checkout --recursive
     - name: Build for host platform
-      run: CI/build-smooth.sh host
+      run: |
+        CI/build-smooth.sh host
+        ./build/test/unit_tests/unit_test
     - name: Build for ESP32 platform
       run: CI/build-smooth.sh esp32
 #    - name: make
