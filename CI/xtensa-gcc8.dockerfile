@@ -7,13 +7,19 @@ ENV IDF_TOOLS_PATH=/esp/tools
 
 # Install prerequisites
 RUN apt update && \
-    apt install --no-install-recommends -y git wget libncurses-dev \
+    apt install --no-install-recommends -y \ 
+	git wget libncurses-dev \
 	flex bison gperf python python-pip \
 	python-setuptools python-serial \
 	python-click python-cryptography \
 	python-future python-pyparsing \
 	python-pyelftools cmake ninja-build \
-	ccache libusb-1.0 \
+	ccache \ 
+	libusb-1.0 \
+	libsodium-dev \
+	libmbedtls-dev \
+	gcc-8 \
+	g++-8 \
 	&& rm -rf /var/lib/apt/lists/*
 	# Get ESP-IDF
 RUN	cd / \
@@ -31,6 +37,7 @@ RUN	cd /esp/esp-idf \
 
 # Entrypoint
 COPY ./entrypoint.sh /
+COPY ./gnu-toolchain.cmake /
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD []
