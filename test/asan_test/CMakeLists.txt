@@ -15,19 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_CXX_STANDARD 17)
 
+set(smooth_root ${CMAKE_CURRENT_LIST_DIR}/../..)
 
-get_filename_component(TEST_PROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(asan_test)
 
-set(TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/generated_test_smooth_${TEST_PROJECT}.cpp)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../test.cpp.in ${TEST_SRC})
-set(TEST_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
-
-# As project() isn't scriptable and the entire file is evaluated we work around the limitation by generating
-# the actual file used for the respective platform.
-if(NOT "${COMPONENT_DIR}" STREQUAL "")
-    message(FATAL_ERROR "This project can only be compiled and run on Linux")
-else()
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/../test_project_template_linux.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake @ONLY)
-    include(${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake)
+if(${APPLE})
+    target_link_directories(${PROJECT_NAME} /usr/local/lib)
+    target_include_directories(${PROJECT_NAME} SYSTEM /usr/local/include)
 endif()
+
+add_executable(${PROJECT_NAME} asan_test.h asan_test.cpp)
+target_link_libraries(${PROJECT_NAME} smooth pthread)
+

@@ -23,10 +23,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(smooth)
 include(files.cmake)
 include(compiler_options.cmake)
-
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512)
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
-add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
+include(smooth_config.cmake)
 
 add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
 target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf)

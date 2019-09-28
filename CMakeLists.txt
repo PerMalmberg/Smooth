@@ -15,70 +15,51 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-# This CMakeLists.txt is meant for use when developing the smooth framework and running the tests.
+# This CMakeLists.txt is meant for use when developing the smooth framework on Linux.
+# To run the a test, open the specific project as a CMake project.
 
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project hello_world)
+set(selected_test_project access_point)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
 set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
-list(APPEND available_tests
-        hello_world
-        asan_test
-        access_point
-        logging
-        jsonfile_test
-        mqtt
-        publish
-        task_event_queue
-        timer
-        secure_socket_test
-        server_socket_test
-        secure_server_socket_test
-        http_server_test
-        destructing_event_queues
-        destructing_subscribing_event_queues
-        security
-        sntp
-        hw_interrupt_queue
-        hw_sdcard_test
-        hw_spiflash
-        hw_jsonfile_test
-        )
-
-# These tests needs actual hardware to run
 if(${ESP_PLATFORM})
-    list(APPEND available_tests
-            hw_wrover_kit_blinky
-            )
-endif()
-
-list(FIND available_tests ${selected_test_project} test_found)
-if(${test_found} EQUAL -1)
-    message(FATAL_ERROR "'${selected_test_project}' not found or not a valid test project for the current platform.")
-endif()
-
-if(${ESP_PLATFORM})
-    message(STATUS "Compiling for ESP")
-    set(EXTRA_COMPONENT_DIRS
-            ${CMAKE_CURRENT_SOURCE_DIR}/smooth_component
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/${selected_test_project})
-
-    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-    project(${selected_test_project})
+    message(STATUS "Compiling for ESP, no actual project will be available")
 else()
     message(STATUS "Compiling for Host Platform")
     if(${APPLE})
         include_directories(SYSTEM /usr/local/include)
         link_directories(/usr/local/lib)
     endif()
-    add_subdirectory(mock-idf)
+
     add_subdirectory(lib)
-    add_subdirectory(test/${selected_test_project})
+    add_subdirectory(mock-idf)
+
     add_subdirectory(test/unit_tests)
+    add_subdirectory(test/access_point)
+    add_subdirectory(test/asan_test)
+    add_subdirectory(test/destructing_event_queues)
+    add_subdirectory(test/destructing_subscribing_event_queues)
+    add_subdirectory(test/hello_world)
+    add_subdirectory(test/http_server_test)
+    add_subdirectory(test/hw_interrupt_queue)
+    add_subdirectory(test/hw_jsonfile_test)
+    add_subdirectory(test/hw_sdcard_test)
+    add_subdirectory(test/hw_spiflash)
+    add_subdirectory(test/hw_wrover_kit_blinky)
+    add_subdirectory(test/logging)
+    add_subdirectory(test/mqtt)
+    add_subdirectory(test/publish)
+    add_subdirectory(test/secure_server_socket_test)
+    add_subdirectory(test/secure_socket_test)
+    add_subdirectory(test/security)
+    add_subdirectory(test/server_socket_test)
+    add_subdirectory(test/sntp)
+    add_subdirectory(test/task_event_queue)
+    add_subdirectory(test/timer)
 endif()

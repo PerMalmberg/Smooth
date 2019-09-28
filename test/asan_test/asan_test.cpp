@@ -18,6 +18,7 @@ limitations under the License.
 #include "asan_test.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/core/SystemStatistics.h>
 
 using namespace smooth::core;
 
@@ -38,4 +39,18 @@ namespace asan_test
             mem[i] = 0;
         }
     }
+}
+
+using namespace asan_test;
+
+extern "C"
+{
+int main(int /*argc*/, char** /*argv*/)
+{
+    smooth::core::SystemStatistics::instance().dump();
+    App app{};
+    app.start();
+
+    return 0;
+}
 }

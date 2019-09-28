@@ -1,16 +1,41 @@
-get_filename_component(TEST_PROJECT ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+#[[
+Smooth - A C++ framework for embedded programming on top of Espressif's ESP-IDF
+Copyright 2019 Per Malmberg (https://gitbub.com/PerMalmberg)
 
-set(TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/generated_test_smooth_${TEST_PROJECT}.cpp)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../test.cpp.in ${TEST_SRC})
-set(TEST_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-# As project() isn't scriptable and the entire file is evaluated we work around the limitation by generating
-# the actual file used for the respective platform.
-if(NOT "${COMPONENT_DIR}" STREQUAL "")
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/../test_project_template_esp.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/generated_test_esp.cmake @ONLY)
-    include(${CMAKE_CURRENT_BINARY_DIR}/generated_test_esp.cmake)
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+]]
+
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_CXX_STANDARD 17)
+
+set(smooth_root ${CMAKE_CURRENT_LIST_DIR}/../..)
+
+get_filename_component(project_name ${CMAKE_CURRENT_LIST_DIR} NAME)
+
+if(${ESP_PLATFORM})
+    set(EXTRA_COMPONENT_DIRS
+            ${smooth_root}/smooth_component)
+    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+    project(${project_name})
 else()
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/../test_project_template_linux.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake @ONLY)
-    include(${CMAKE_CURRENT_BINARY_DIR}/generated_test_linux.cmake)
-endif()
+    project("${project_name}.elf")
 
+    if(${APPLE})
+        target_link_directories(${PROJECT_NAME} /usr/local/lib)
+        target_include_directories(${PROJECT_NAME} SYSTEM /usr/local/include)
+    endif()
+
+    file(GLOB project_sources main/*)
+    add_executable(${PROJECT_NAME} ${project_sources})
+    target_link_libraries(${PROJECT_NAME} smooth pthread)
+endif()
