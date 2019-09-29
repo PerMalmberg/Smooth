@@ -1,3 +1,3 @@
 [submodule "externals/nlohmann_json"]
 	path = externals/nlohmann_json
-	url = git@github.com:nlohmann/json.git
+	url = ../nlohmann/json.git
