@@ -37,5 +37,5 @@ else()
 
     file(GLOB project_sources main/*)
     add_executable(${PROJECT_NAME} ${project_sources})
-    target_link_libraries(${PROJECT_NAME} smooth pthread)
+    target_link_libraries(${PROJECT_NAME} smooth.elf pthread)
 endif()

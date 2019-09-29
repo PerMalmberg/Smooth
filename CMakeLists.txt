@@ -21,15 +21,19 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-# Select the test project to build
-set(selected_test_project access_point)
-
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
 set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
 if(${ESP_PLATFORM})
-    message(STATUS "Compiling for ESP, no actual project will be available")
+    message(STATUS "Compiling for ESP")
+    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
+    set(EXTRA_COMPONENT_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/smooth_component
+            ${CMAKE_CURRENT_SOURCE_DIR}/example)
+
+    project(example)
 else()
     message(STATUS "Compiling for Host Platform")
     if(${APPLE})
@@ -40,12 +44,14 @@ else()
     add_subdirectory(lib)
     add_subdirectory(mock-idf)
 
-    add_subdirectory(test/unit_tests)
+    add_subdirectory(example)
+
+    add_subdirectory(host_only_test/unit_tests)
+	add_subdirectory(host_only_test/asan_test)
+	
     add_subdirectory(test/access_point)
-    add_subdirectory(test/asan_test)
     add_subdirectory(test/destructing_event_queues)
     add_subdirectory(test/destructing_subscribing_event_queues)
-    add_subdirectory(test/hello_world)
     add_subdirectory(test/http_server_test)
     add_subdirectory(test/hw_interrupt_queue)
     add_subdirectory(test/hw_jsonfile_test)

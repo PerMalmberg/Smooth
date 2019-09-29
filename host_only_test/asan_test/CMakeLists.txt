@@ -18,24 +18,13 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 17)
 
-set(smooth_root ${CMAKE_CURRENT_LIST_DIR}/../..)
+project(asan_test)
 
-get_filename_component(project_name ${CMAKE_CURRENT_LIST_DIR} NAME)
-
-if(${ESP_PLATFORM})
-    set(EXTRA_COMPONENT_DIRS
-            ${smooth_root}/smooth_component)
-    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-    project(${project_name})
-else()
-    project("${project_name}.elf")
-
-    if(${APPLE})
-        target_link_directories(${PROJECT_NAME} /usr/local/lib)
-        target_include_directories(${PROJECT_NAME} SYSTEM /usr/local/include)
-    endif()
-
-    file(GLOB project_sources main/*)
-    add_executable(${PROJECT_NAME} ${project_sources})
-    target_link_libraries(${PROJECT_NAME} smooth pthread)
+if(${APPLE})
+    target_link_directories(${PROJECT_NAME} /usr/local/lib)
+    target_include_directories(${PROJECT_NAME} SYSTEM /usr/local/include)
 endif()
+
+add_executable(${PROJECT_NAME} asan_test.h asan_test.cpp)
+target_link_libraries(${PROJECT_NAME} smooth.elf pthread)
+

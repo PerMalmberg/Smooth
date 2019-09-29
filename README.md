@@ -24,9 +24,7 @@ with the only consideration that the mocks do not actually simulate the hardware
 ## Requirements
 
 * ESP-IDF v4.x
-* GCC 8
-
-Smooth is developed on a Linux machine so how well it compiles using the Windows toolset povided by Espressif is unknown. 
+* GCC 8 / Xtensa-gcc 8.2
 
 ### Provided functionality
 
@@ -186,7 +184,6 @@ else()
         link_directories(/usr/local/lib)
     endif()
 
-
     add_subdirectory(main)
     add_subdirectory(externals/smooth/lib)
     add_subdirectory(externals/smooth/mock-idf)
@@ -210,7 +207,7 @@ if(${ESP_PLATFORM})
 else()
     project(your_project_name.elf)
     add_executable(${PROJECT_NAME} ${SOURCES})
-    target_link_libraries(${PROJECT_NAME} smooth pthread)
+    target_link_libraries(${PROJECT_NAME} smooth.elf pthread)
     target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 endif()
 ```
@@ -228,10 +225,10 @@ make
 
 
 Here's an example of how your `main.cpp` could look like if you want to compile for both ESP and Linux. The example
- assumes you have named your main class `App`  and it is derived from `smooth::core::Application`, which most
-  applications based on Smooth do. Doing so is not mandatory, it saves you some setup; see
-   [Application.cpp](https://github.com/PerMalmberg/Smooth/blob/master/lib/smooth/core/Application.cpp) for 
-   details on what it does for you.  
+assumes you have named your main class `App`  and it is derived from `smooth::core::Application`, which most
+applications based on Smooth do. Doing so is not mandatory, it saves you some setup; see
+[Application.cpp](https://github.com/PerMalmberg/Smooth/blob/master/lib/smooth/core/Application.cpp) for 
+details on what it does for you.  
 
 ```c++
 

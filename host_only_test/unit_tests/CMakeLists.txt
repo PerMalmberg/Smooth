@@ -15,18 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CXX_STANDARD 17)
+project(unit_test)
 
-set(smooth_root ${CMAKE_CURRENT_LIST_DIR}/../..)
+add_executable(${PROJECT_NAME}
+        url_encoding_test.cpp
+        PathTest.cpp
+        FSLockTest.cpp
+        MIMEParserTest.cpp
+        StringUtilTest.cpp
+        TemplateProcessorTest.cpp
+        HashTest.cpp
+        FlashMountTest.cpp
+        JsonTest.cpp)
 
-project(asan_test)
+target_include_directories(${PROJECT_NAME}
+        PRIVATE ${SMOOTH_TEST_ROOT})
 
-if(${APPLE})
-    target_link_directories(${PROJECT_NAME} /usr/local/lib)
-    target_include_directories(${PROJECT_NAME} SYSTEM /usr/local/include)
-endif()
+target_link_libraries(${PROJECT_NAME} smooth.elf pthread)
 
-add_executable(${PROJECT_NAME} asan_test.h asan_test.cpp)
-target_link_libraries(${PROJECT_NAME} smooth pthread)
+include(../../lib/compiler_options.cmake)
+set_compile_options(${PROJECT_NAME})
 
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/test_data DESTINATION ${CMAKE_BINARY_DIR}/host_only_test/unit_tests)

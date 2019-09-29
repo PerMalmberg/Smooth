@@ -20,7 +20,7 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-project(smooth)
+project(smooth.elf)
 include(files.cmake)
 include(compiler_options.cmake)
 include(smooth_config.cmake)
@@ -31,7 +31,7 @@ set_compile_options(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
-            ${SMOOTH_LIB_ROOT}/smooth/include
+            ${CMAKE_CURRENT_LIST_DIR}/smooth/include
             ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
         )
 
