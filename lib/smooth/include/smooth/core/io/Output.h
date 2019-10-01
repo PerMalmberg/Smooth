@@ -36,6 +36,10 @@ namespace smooth::core::io
 
             Output& operator=(const Output&) = delete;
 
+            bool operator==(const Output& other);
+
+            bool operator!=(const Output& other);
+
         private:
             gpio_num_t io;
             bool active_high;
