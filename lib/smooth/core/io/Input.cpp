@@ -46,11 +46,13 @@ namespace smooth::core::io
         return gpio_get_level(io) == 1;
     }
 
-    bool Input::operator==(const Input& other) {
+    bool Input::operator==(const Input& other)
+    {
         return io == other.io;
     }
 
-    bool Input::operator!=(const Input& other) {
+    bool Input::operator!=(const Input& other)
+    {
         return !(*this == other);
     }
 }

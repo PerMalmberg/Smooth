@@ -39,9 +39,9 @@ namespace smooth::core::io
 
             Input& operator=(const Input&) = delete;
 
-            bool operator==(const Input &other);
+            bool operator==(const Input& other);
 
-            bool operator!=(const Input &other);
+            bool operator!=(const Input& other);
 
         protected:
             gpio_num_t io;
