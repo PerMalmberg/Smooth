@@ -12,11 +12,6 @@ jobs:
     - uses: actions/checkout@v1
     - name: Get submodules
       run: git submodule update --init --checkout --recursive
-    - name: Build and test on host platform
+    - name: Build and test
       run: |
-        docker run -u `id -u` --rm --mount type=bind,source="$(pwd)",target=/src --workdir /src permalmberg/smooth:latest /src/CI/container_scripts/build_smooth_host.sh
-        docker run -u `id -u` --rm --mount type=bind,source="$(pwd)",target=/src --workdir /src/build/test/unit_tests permalmberg/smooth:latest ./unit_test
-    - name: Build for ESP32 platform
-      run: |
-        docker run -u `id -u` --rm --mount type=bind,source="$(pwd)",target=/src --workdir /src permalmberg/smooth:latest /src/CI/container_scripts/build_smooth_esp32.sh
-
+        ./CI/main.sh
