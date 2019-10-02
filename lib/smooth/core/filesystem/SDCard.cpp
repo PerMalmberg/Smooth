@@ -34,7 +34,7 @@ namespace smooth::core::filesystem
 
         //mount_config.allocation_unit_size = 16 * 1024;
 
-        auto mount_result = esp_vfs_fat_sdmmc_mount(*mount_point, &host, slot_config, &mount_config, &card);
+        auto mount_result = esp_vfs_fat_sdmmc_mount((*mount_point).c_str(), &host, slot_config, &mount_config, &card);
 
         initialized = mount_result == ESP_OK;
 

@@ -22,7 +22,6 @@ limitations under the License.
 #include <cassert>
 #include <unistd.h>
 #include <smooth/core/task_priorities.h>
-#include <smooth/core/json/Value.h>
 #include <smooth/core/json/JsonFile.h>
 #include <smooth/core/filesystem/SPIFlash.h>
 
@@ -51,14 +50,14 @@ namespace hw_jsonfile_test
             unlink(FlashMount::instance().mount_point() / "file.jsn");
             JsonFile jf{ FlashMount::instance().mount_point() / "file.jsn" };
             auto& v = jf.value();
-            assert(v["Foo"].get_string("").empty());
+            assert(v["Foo"].is_null());
             v["Foo"] = "Bar";
             assert(jf.save());
         }
         {
             JsonFile jf{ FlashMount::instance().mount_point() / "file.jsn" };
             auto& v = jf.value();
-            assert(v["Foo"].get_string("") == "Bar");
+            assert(v["Foo"].get<std::string>() == "Bar");
             unlink(FlashMount::instance().mount_point() / "file.json");
         }
 
