@@ -29,7 +29,6 @@ set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
 list(APPEND available_tests
         hello_world
-        asan_test
         access_point
         logging
         jsonfile_test
@@ -49,6 +48,7 @@ list(APPEND available_tests
         hw_sdcard_test
         hw_spiflash
         hw_jsonfile_test
+        linux_asan_test
         )
 
 # These tests needs actual hardware to run
@@ -80,5 +80,5 @@ else()
     add_subdirectory(mock-idf)
     add_subdirectory(lib)
     add_subdirectory(test/${selected_test_project})
-    add_subdirectory(test/unit_tests)
+    add_subdirectory(test/linux_unit_tests)
 endif()

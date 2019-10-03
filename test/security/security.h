@@ -1,4 +1,4 @@
-#[[
+/*
 Smooth - A C++ framework for embedded programming on top of Espressif's ESP-IDF
 Copyright 2019 Per Malmberg (https://gitbub.com/PerMalmberg)
 
@@ -13,29 +13,29 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-]]
+*/
 
+#pragma once
 
+#include <functional>
+#include <smooth/core/Application.h>
+#include <smooth/application/security/PasswordHash.h>
 
-project(unit_test)
+namespace security
+{
+    class App
+        : public smooth::core::Application
+    {
+        public:
+            App();
 
-add_executable(${PROJECT_NAME}
-        url_encoding_test.cpp
-        PathTest.cpp
-        FSLockTest.cpp
-        MIMEParserTest.cpp
-        StringUtilTest.cpp
-        TemplateProcessorTest.cpp
-        HashTest.cpp
-        FlashMountTest.cpp
-        JsonTest.cpp)
+            void init() override;
 
-target_include_directories(${PROJECT_NAME}
-        PRIVATE ${SMOOTH_TEST_ROOT})
+            void tick() override;
 
-target_link_libraries(${PROJECT_NAME} smooth pthread)
+        private:
+            void time(const std::string& password, size_t ops);
 
-include(../../lib/compiler_options.cmake)
-set_compile_options(${PROJECT_NAME})
-
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/test_data DESTINATION ${CMAKE_BINARY_DIR}/test/unit_tests)
+            smooth::application::security::PasswordHash ph{};
+    };
+}

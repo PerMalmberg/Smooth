@@ -17,9 +17,6 @@ limitations under the License.
 
 #include "publish.h"
 #include <smooth/core/task_priorities.h>
-#include <smooth/core/json/Value.h>
-#include <fstream>
-#include <cassert>
 #include <smooth/core/logging/log.h>
 #include <chrono>
 #include <smooth/core/ipc/SubscribingTaskEventQueue.h>
@@ -29,7 +26,6 @@ limitations under the License.
 using namespace smooth;
 
 using namespace smooth::core;
-using namespace smooth::core::json;
 using namespace smooth::core::ipc;
 using namespace smooth::core::logging;
 using namespace std::chrono;

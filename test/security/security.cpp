@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "hw_security.h"
+#include "security.h"
 #include <iostream>
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
@@ -26,7 +26,7 @@ using namespace smooth::core;
 using namespace smooth::core::timer;
 using namespace smooth::application::security;
 
-namespace hw_security
+namespace security
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))

@@ -25,11 +25,12 @@ static smooth::core::filesystem::Path FMount{ "/flash" };
 static smooth::core::filesystem::Path SDMount{ "/sdcard" };
 #else
 
+#include <sys/stat.h>
 // Place files in home folder on Linux.
 static smooth::core::filesystem::Path FMount = smooth::core::filesystem::Path{ getenv("HOME") }
-                                                    / "smooth-data" / "flash";
+                                               / "smooth-data";
 static smooth::core::filesystem::Path SDMount = smooth::core::filesystem::Path{ getenv("HOME") }
-                                                    / "smooth-data" / "sdcard";
+                                                / "smooth-data";
 #endif
 
 namespace smooth::core::filesystem
@@ -53,9 +54,9 @@ namespace smooth::core::filesystem
                 return point;
             }
 
-            const char* operator*() const
+            std::string operator*() const
             {
-                return point.str().c_str();
+                return point.str();
             }
 
         protected:
@@ -82,7 +83,12 @@ namespace smooth::core::filesystem
         private:
             explicit SDCardMount(Path mount_point)
                     : MountPoint(std::move(mount_point))
-            {}
+            {
+#ifndef ESP_PLATFORM
+                const auto& parent = SDMount.parent().str();
+                mkdir(parent.c_str(), S_IWUSR|S_IRUSR|S_IXUSR);
+#endif
+            }
     };
 
     class FlashMount
@@ -99,6 +105,11 @@ namespace smooth::core::filesystem
         private:
             explicit FlashMount(Path mount_point)
                     : MountPoint(std::move(mount_point))
-            {}
+            {
+#ifndef ESP_PLATFORM
+                const auto& parent = FMount.parent().str();
+                mkdir(parent.c_str(), S_IWUSR|S_IRUSR|S_IXUSR);
+#endif
+            }
     };
 }
