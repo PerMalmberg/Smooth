@@ -2,7 +2,7 @@
 
 set -e
 
-docker_image="permalmberg/smooth:latest"
+docker_image="permalmberg/smooth:v4.1-dev-281-g96b96ae24"
 start_dir="$(pwd)"
 source_root="/src"
 
