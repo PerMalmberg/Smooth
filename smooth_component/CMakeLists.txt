@@ -27,7 +27,7 @@ idf_component_register(SRCS ${SMOOTH_SOURCES}
                         INCLUDE_DIRS
                             ${SMOOTH_LIB_ROOT}/smooth/include
                             ${normalized_path}/components
-                            ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohman_json/include
+                            ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohmann_json/include
                         REQUIRES
                             mbedtls
                             json
