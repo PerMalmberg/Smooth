@@ -25,10 +25,9 @@ using namespace std::chrono;
 
 namespace smooth::core::timer
 {
-    Timer::Timer(std::string name, int id, std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> event_queue,
+    Timer::Timer(int id, std::weak_ptr<ipc::TaskEventQueue<TimerExpiredEvent>> event_queue,
                  bool repeating, milliseconds interval)
-            : timer_name(std::move(name)),
-              id(id),
+            : id(id),
               repeating(repeating),
               timer_interval(interval),
               queue(std::move(event_queue)),
@@ -66,11 +65,6 @@ namespace smooth::core::timer
         return id;
     }
 
-    const std::string& Timer::get_name()
-    {
-        return timer_name;
-    }
-
     void Timer::expired()
     {
         TimerExpiredEvent ev(id);
@@ -82,13 +76,12 @@ namespace smooth::core::timer
         }
     }
 
-    TimerOwner Timer::create(const std::string& name,
-                             int id,
+    TimerOwner Timer::create(int id,
                              const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                              bool auto_reload,
                              std::chrono::milliseconds interval)
     {
-        return TimerOwner(create_protected_shared<Timer>(name, id, event_queue, auto_reload, interval));
+        return TimerOwner(create_protected_shared<Timer>(id, event_queue, auto_reload, interval));
     }
 
     std::chrono::steady_clock::time_point Timer::expires_at() const
@@ -105,13 +98,12 @@ namespace smooth::core::timer
             : t(std::move(t))
     {}
 
-    TimerOwner::TimerOwner(const std::string& name,
-                           int id,
+    TimerOwner::TimerOwner(int id,
                            const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                            bool auto_reload,
                            std::chrono::milliseconds interval)
     {
-        *this = Timer::create(name, id, event_queue, auto_reload, interval);
+        *this = Timer::create(id, event_queue, auto_reload, interval);
     }
 
     TimerOwner::~TimerOwner()

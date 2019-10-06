@@ -33,8 +33,7 @@ namespace smooth::core::timer
     class TimerOwner
     {
         public:
-            TimerOwner(const std::string& name,
-                       int id,
+            TimerOwner(int id,
                        const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                        bool auto_reload,
                        std::chrono::milliseconds interval);
@@ -71,13 +70,11 @@ namespace smooth::core::timer
     {
         public:
             /// Factory method
-            /// \param name The name of the timer, mainly used for debugging and logging.
             /// \param id The ID of the timer. Solely for use by the application programmer.
             /// \param event_queue The vent queue to send events on.
             /// \param auto_reload If true, the timer will restart itself when it expires.
             /// \param interval The interval between the start time and when the timer expiers.
-            static TimerOwner create(const std::string& name,
-                                     int id,
+            static TimerOwner create(int id,
                                      const std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>>& event_queue,
                                      bool auto_reload,
                                      std::chrono::milliseconds interval);
@@ -106,26 +103,22 @@ namespace smooth::core::timer
 
             int get_id() const override;
 
-            const std::string& get_name() override;
-
             bool is_repeating() const
             { return repeating; }
 
             std::chrono::steady_clock::time_point expires_at() const;
 
         protected:
-            const std::string timer_name;
             int id;
             bool repeating;
             std::chrono::milliseconds timer_interval;
 
             /// Constructor
-            /// \param name The name of the timer, mainly used for debugging and logging.
             /// \param id The ID of the timer. Solely for use by the application programmer.
             /// \param event_queue The vent queue to send events on.
             /// \param auto_reload If true, the timer will restart itself when it expires.
             /// \param interval The interval between the start time and when the timer expiers.
-            Timer(std::string name, int id, std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
+            Timer(int id, std::weak_ptr<ipc::TaskEventQueue<timer::TimerExpiredEvent>> event_queue,
                   bool auto_reload, std::chrono::milliseconds interval);
 
         private:

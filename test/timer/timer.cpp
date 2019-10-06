@@ -74,7 +74,7 @@ namespace timer
     void App::create_timer(std::chrono::milliseconds interval)
     {
         TimerInfo t;
-        t.timer = Timer::create("Timer", static_cast<int32_t>(timers.size()), queue, true, interval);
+        t.timer = Timer::create(static_cast<int32_t>(timers.size()), queue, true, interval);
         t.interval = interval;
         timers.push_back(t);
     }

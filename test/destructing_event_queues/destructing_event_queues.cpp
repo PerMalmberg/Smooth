@@ -43,7 +43,7 @@ namespace destructing_event_queues
         public:
             explicit TimerUser(Task& task)
                     : queue(TimerExpiredQueue_t::create(10, task, *this)),
-                      timer("", 0, queue, true, milliseconds{ 300 })
+                      timer(0, queue, true, milliseconds{ 300 })
             {
                 timer->start();
             }
