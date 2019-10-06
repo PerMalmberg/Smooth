@@ -53,9 +53,9 @@ namespace smooth::core::ipc
                 return this->push_internal(item, this->template shared_from_base<SubscribingTaskEventQueue<T>>());
             }
 
-            static auto create(const std::string& name, int size, Task& task, IEventListener<T>& listener)
+            static auto create(int size, Task& task, IEventListener<T>& listener)
             {
-                auto queue = smooth::core::util::create_protected_shared<SubscribingTaskEventQueue<T>>(name, size, task,
+                auto queue = smooth::core::util::create_protected_shared<SubscribingTaskEventQueue<T>>(size, task,
                                                                                                        listener);
                 queue->link_up();
 
@@ -69,9 +69,9 @@ namespace smooth::core::ipc
             /// \param task The Task to which to signal when an event is available.
             /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
             /// any object instance.
-            SubscribingTaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
+            SubscribingTaskEventQueue(int size, Task& task, IEventListener<T>& listener)
                     :
-                      TaskEventQueue<T>(name, size, task, listener),
+                      TaskEventQueue<T>(size, task, listener),
                       link()
             {
             }
@@ -99,7 +99,7 @@ namespace smooth::core::ipc
 
                     LinkWrapper& operator=(const LinkWrapper&) = delete;
 
-                    LinkWrapper& operator=(LinkWrapper&&) = default;
+                    LinkWrapper& operator=(LinkWrapper&&) noexcept = default;
 
                     ~LinkWrapper() = default;
 

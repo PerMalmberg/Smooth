@@ -32,7 +32,7 @@ namespace sntp
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
               sntp(std::vector<std::string>{ "0.se.pool.ntp.org", "1.se.pool.ntp.org" }),
-              sync_queue(TimeSyncQueue::create("", 2, *this, *this))
+              sync_queue(TimeSyncQueue::create(2, *this, *this))
     {
     }
 

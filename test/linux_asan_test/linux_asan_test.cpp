@@ -15,13 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "asan_test.h"
+#include "linux_asan_test.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
 
 using namespace smooth::core;
 
-namespace asan_test
+namespace linux_asan_test
 {
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))

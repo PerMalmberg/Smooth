@@ -159,7 +159,7 @@ namespace http_server_test
         const int listen_backlog = 6;
 
         Application::init();
-#ifdef ESP_PLATFORM
+
         Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
@@ -167,6 +167,7 @@ namespace http_server_test
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
 
+#ifdef ESP_PLATFORM
         Path web_root(SDCardMount::instance().mount_point() / "web_root");
         Path uploads{ SDCardMount::instance().mount_point() / "uploads" };
 

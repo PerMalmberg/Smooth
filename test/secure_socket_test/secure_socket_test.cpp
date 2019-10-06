@@ -118,21 +118,20 @@ namespace secure_socket_test
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
-              net_status(NetworkStatusQueue::create("", 2, *this, *this))
+              net_status(NetworkStatusQueue::create(2, *this, *this))
     {
     }
 
     void App::init()
     {
         Application::init();
-#ifdef ESP_PLATFORM
+
         Log::info("App::Init", Format("Starting wifi..."));
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
-#endif
     }
 
     void App::tick()

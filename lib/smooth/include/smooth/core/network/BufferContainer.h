@@ -95,9 +95,9 @@ namespace smooth::core::network
                                                            smooth::core::ipc::IEventListener<event::DataAvailableEvent<Protocol>>& data_receiver,
                                                            smooth::core::ipc::IEventListener<event::ConnectionStatusEvent>& connection_status_receiver,
                                                            std::unique_ptr<Protocol> proto)
-            : tx_empty(TxEmptyQueue::create("", BufferSize, task, transmit_buffer_empty)),
-              data_available(DataAvailableQueue::create("", BufferSize, task, data_receiver)),
-              connection_status(ConnectionStatusQueue::create("", BufferSize, task, connection_status_receiver)),
+            : tx_empty(TxEmptyQueue::create(BufferSize, task, transmit_buffer_empty)),
+              data_available(DataAvailableQueue::create(BufferSize, task, data_receiver)),
+              connection_status(ConnectionStatusQueue::create(BufferSize, task, connection_status_receiver)),
               rx_buffer(std::move(proto))
     {
     }

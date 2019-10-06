@@ -23,7 +23,7 @@ build_host() {
 }
 
 run_host_tests() {
-  run_in_docker --workdir $source_root/build/test/linux_unit_tests $docker_image ./unit_test
+  run_in_docker --workdir $source_root/build/test/linux_unit_tests $docker_image ./linux_unit_tests
 }
 
 build_esp32_test_projects() {

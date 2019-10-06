@@ -54,9 +54,8 @@ namespace smooth::core::network
               active_sockets(),
               inactive_sockets(),
               socket_guard(),
-              network_events(NetworkEventQueue::create(tag, 10, *this, *this)),
-              socket_op(SocketOperationQueue::create("SocketOperations",
-
+              network_events(NetworkEventQueue::create(10, *this, *this)),
+              socket_op(SocketOperationQueue::create(
                                                      // TODO: When compiled for IDF, get proper value based on number of
                                                      // allowed sockets in sdkconfig
                                                      //  Note: If there are more than 20 sockets, this queue is too
@@ -254,7 +253,7 @@ namespace smooth::core::network
 
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
-        const auto predicate = [&socket](std::pair<int, const std::shared_ptr<ISocket>> o) {
+        const auto predicate = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
                                    return o.second.get() == socket.get();
                                };
 

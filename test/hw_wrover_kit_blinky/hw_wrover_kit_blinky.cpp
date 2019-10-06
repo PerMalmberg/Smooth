@@ -15,10 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef ESP_PLATFORM
-#error "This example requires H/W to run on and can only be compiled with IDF."
-#endif
-
 #include "hw_wrover_kit_blinky.h"
 
 #include <smooth/core/task_priorities.h>

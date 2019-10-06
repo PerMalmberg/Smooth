@@ -41,9 +41,9 @@ namespace smooth::core::ipc
             static_assert(std::is_default_constructible<T>::value, "DataType must be default-constructible");
             static_assert(std::is_assignable<T, T>::value, "DataType must be a assignable");
 
-            static auto create(const std::string& name, int size, Task& owner_task, IEventListener<T>& event_listener)
+            static auto create(int size, Task& owner_task, IEventListener<T>& event_listener)
             {
-                return smooth::core::util::create_protected_shared<TaskEventQueue<T>>(name, size, owner_task,
+                return smooth::core::util::create_protected_shared<TaskEventQueue<T>>(size, owner_task,
                                                                                       event_listener);
             }
 
@@ -105,9 +105,9 @@ namespace smooth::core::ipc
             /// \param task The Task to which to signal when an event is available.
             /// \param listener The receiver of the events. Normally this is the same as the task, but it can be
             /// any object instance.
-            TaskEventQueue(const std::string& name, int size, Task& task, IEventListener<T>& listener)
+            TaskEventQueue(int size, Task& task, IEventListener<T>& listener)
                     :
-                      queue(name + std::string("-TaskEventQueue"), size),
+                      queue(size),
                       task(task),
                       listener(listener)
             {

@@ -33,7 +33,7 @@ namespace task_event_queue
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           std::chrono::milliseconds(1000)),
-              queue(ElapsedTimeQueue::create("string queue", 10, *this, *this)),
+              queue(ElapsedTimeQueue::create(10, *this, *this)),
               sender(queue)
     {
     }

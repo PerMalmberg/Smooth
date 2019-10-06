@@ -43,9 +43,9 @@ namespace smooth::application::network::mqtt
                            std::weak_ptr<TaskEventQueue<MQTTData>> application_queue)
             : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
               application_queue(std::move(application_queue)),
-              timer_events(TimerQueue::create("timer_events", 5, *this, *this)),
-              control_event(ControlQueue::create("control_event", 5, *this, *this)),
-              system_event(SystemQueue::create("system_event", 5, *this, *this)),
+              timer_events(TimerQueue::create(5, *this, *this)),
+              control_event(ControlQueue::create(5, *this, *this)),
+              system_event(SystemQueue::create(5, *this, *this)),
               guard(),
               client_id(mqtt_client_id),
               keep_alive(keep_alive),

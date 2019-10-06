@@ -38,7 +38,7 @@ namespace smooth::application::io::wiegand
               d1_pin(d1_pin),
               key_queue(KeyQueue::create(task, *this)),
               number_queue(NumberQueue::create(task, *this)),
-              tick_queue(TimerQueue::create("", 1, task, *this)),
+              tick_queue(TimerQueue::create(1, task, *this)),
               tick("", 0, tick_queue, true, timeout),
               d0(&Wiegand::isr_d0, this, d0_pin, false, false, GPIO_INTR_NEGEDGE),
               d1(&Wiegand::isr_d1, this, d1_pin, false, false, GPIO_INTR_NEGEDGE)

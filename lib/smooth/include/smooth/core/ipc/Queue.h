@@ -43,17 +43,11 @@ namespace smooth::core::ipc
             /// Constructor
             /// \param name The name of the queue, mainly used for debugging and logging.
             /// \param size The size of the queue, i.e. the number of items it can hold.
-            Queue(const std::string& name, int size)
-                    : name(name),
-                      queue_size(size),
+            explicit Queue(int size)
+                    : queue_size(size),
                       items(),
                       guard()
             {
-                Log::verbose("Queue",
-                             Format("Creating queue '{1}', with {2} items of size {3}.",
-                                    Str(name),
-                                    Int32(size),
-                                    UInt32(sizeof(T))));
                 items.reserve(static_cast<size_t>(size));
             }
 
@@ -62,7 +56,6 @@ namespace smooth::core::ipc
             {
                 std::lock_guard<std::mutex> lock(guard);
                 items.clear();
-                Log::verbose("Queue", Format("Destructing '{1}'", Str(name)));
             }
 
             /// Gets the size of the queue.
@@ -126,7 +119,6 @@ namespace smooth::core::ipc
             }
 
         private:
-            const std::string name;
             const int queue_size;
             std::vector<T> items;
             std::mutex guard;

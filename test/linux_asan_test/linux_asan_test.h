@@ -21,7 +21,7 @@ limitations under the License.
 #include <smooth/core/task_priorities.h>
 #include <iostream>
 
-namespace asan_test
+namespace linux_asan_test
 {
     class App
         : public smooth::core::Application
