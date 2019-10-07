@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <sstream>
 #include <smooth/application/network/mqtt/packet/MQTTPacket.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
@@ -153,8 +154,7 @@ namespace smooth::application::network::mqtt::packet
 
         if (error)
         {
-            smooth::core::logging::Log::error(mqtt_log_tag, smooth::core::logging::Format(
-                    "Invalid remaining length"));
+            smooth::core::logging::Log::error(mqtt_log_tag, "Invalid remaining length");
         }
 
         return res;
@@ -184,8 +184,7 @@ namespace smooth::application::network::mqtt::packet
 
             if (left_over != 0)
             {
-                Log::error(mqtt_log_tag,
-                           Format("Invalid packet, lengths do not add up: {1}", Int64(left_over)));
+                Log::error(mqtt_log_tag, "Invalid packet, lengths do not add up: {}", left_over);
                 res = false;
             }
         }
@@ -223,7 +222,8 @@ namespace smooth::application::network::mqtt::packet
         core::util::ByteSet b(data[0]);
         ss << "R(" << b.test(0) << ") ";
         ss << "D(" << b.test(3) << ") ";
-        Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
+
+        Log::verbose(mqtt_log_tag, "{}: {}", header, ss.str());
 
         if (has_payload() && get_payload_length() > 0)
         {
@@ -241,7 +241,7 @@ namespace smooth::application::network::mqtt::packet
                 }
             }
 
-            Log::verbose(mqtt_log_tag, Format("{1}: {2}", Str(header), Str(ss.str())));
+            Log::verbose(mqtt_log_tag, "{}: {}", header, ss.str());
         }
     }
 

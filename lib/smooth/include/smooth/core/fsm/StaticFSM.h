@@ -52,7 +52,7 @@ namespace smooth::core::fsm
             /// \param state
             void set_state(BaseState* state);
 
-            void * select_memory_area(size_t size);
+            void* select_memory_area(size_t size);
 
         protected:
             /// Called as a notification to the subclassing FSM before a new state is entered.
@@ -69,7 +69,7 @@ namespace smooth::core::fsm
 
             /// Gets the current state
             /// \return The current state
-            BaseState * get_state() const
+            BaseState* get_state() const
             {
                 return current_state;
             }
@@ -98,10 +98,8 @@ namespace smooth::core::fsm
 
         if (size > max)
         {
-            Log::error("StaticFSM",
-                       Format("Attempted to activate state that is larger ({1}) than the designated buffer ({2})",
-                              UInt64(size),
-                              UInt64(max)));
+            Log::error("StaticFSM", "Attempted to activate state that is larger ({}) than the designated buffer ({})",
+                              size, max);
             abort();
         }
 

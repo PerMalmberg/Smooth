@@ -47,7 +47,7 @@ namespace mqtt
     {
         Application::init();
 
-        Log::info("App::Init", Format("Starting wifi..."));
+        Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);
@@ -62,7 +62,7 @@ namespace mqtt
 
     void App::event(const smooth::application::network::mqtt::MQTTData& event)
     {
-        Log::info("Rec", Format("T:{1}, M:{2}", Str(event.first), Vector<uint8_t>(event.second, true)));
+        Log::info("Rec", "T:{}, M:{} {}", event.first, fmt::join(event.second, ""));
 
         send_message();
     }

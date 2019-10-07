@@ -29,7 +29,7 @@ add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
 add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
 
 add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
-target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf)
+target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf fmt)
 set_compile_options(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}

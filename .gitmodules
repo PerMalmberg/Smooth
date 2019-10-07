@@ -1,3 +1,6 @@
 [submodule "externals/nlohmann_json"]
 	path = externals/nlohmann_json
 	url = https://github.com/nlohmann/json.git
+[submodule "externals/fmt"]
+	path = externals/fmt
+	url = https://github.com/fmtlib/fmt.git

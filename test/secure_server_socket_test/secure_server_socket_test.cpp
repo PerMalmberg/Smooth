@@ -144,7 +144,7 @@ namespace secure_server_socket_test
     {
         Application::init();
 
-        Log::info("App::Init", Format("Starting wifi..."));
+        Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);

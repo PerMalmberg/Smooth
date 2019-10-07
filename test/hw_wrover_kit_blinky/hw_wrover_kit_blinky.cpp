@@ -34,7 +34,7 @@ namespace hw_wrover_kit_blinky
     void App::init()
     {
         Application::init();
-        Log::info("LED fun", Format("Lets blink some LEDs"));
+        Log::info("LED fun", "Lets blink some LEDs");
     }
 
     void App::tick()

@@ -192,8 +192,7 @@ namespace smooth::application::network::mqtt
 
     void MqttClient::event(const core::network::event::ConnectionStatusEvent& event)
     {
-        Log::info(mqtt_log_tag, Format("MQTT {1} server",
-                                       Str(event.is_connected() ? "connected to" : "disconnected from")));
+        Log::info(mqtt_log_tag, "MQTT {} server", event.is_connected() ? "connected to" : "disconnected from");
         connected = event.is_connected();
         fsm.event(event);
     }

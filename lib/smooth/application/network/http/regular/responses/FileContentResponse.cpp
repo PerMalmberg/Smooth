@@ -65,11 +65,6 @@ namespace smooth::application::network::http::regular::responses
 
     void FileContentResponse::dump() const
     {
-        Log::debug("FileContentResponse",
-        Format("Code: {1}; Status: {2}/{3} bytes, Path: {4}",
-                Int32{ static_cast<int>(code) },
-                UInt64{ sent },
-                UInt64{ info.size() },
-                Str{ static_cast<const std::string&>(path) }));
+        Log::debug("FileContentResponse", "Code: {}; Status: {}/{} bytes, Path: {}", code, sent, info.size(), path);
     }
 }

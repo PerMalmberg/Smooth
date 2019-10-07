@@ -20,28 +20,28 @@ limitations under the License.
 
 namespace smooth::core::logging
 {
-    void Log::error(const std::string& tag, const Format& fmt)
+    void Log::error(const std::string& tag, const std::string& msg)
     {
-        ESP_LOGE(tag.c_str(), "%s", fmt.get());
+        ESP_LOGE(tag.c_str(), "%s", msg.c_str());
     }
 
-    void Log::warning(const std::string& tag, const Format& fmt)
+    void Log::warning(const std::string& tag, const std::string& msg)
     {
-        ESP_LOGW(tag.c_str(), "%s", fmt.get());
+        ESP_LOGW(tag.c_str(), "%s", msg.c_str());
     }
 
-    void Log::info(const std::string& tag, const Format& fmt)
+    void Log::info(const std::string& tag, const const std::string& msg)
     {
-        ESP_LOGI(tag.c_str(), "%s", fmt.get());
+        ESP_LOGI(tag.c_str(), "%s", msg.c_str());
     }
 
-    void Log::debug(const std::string& tag, const Format& fmt)
+    void Log::debug(const std::string& tag, const std::string& msg)
     {
-        ESP_LOGD(tag.c_str(), "%s", fmt.get());
+        ESP_LOGD(tag.c_str(), "%s", msg.c_str());
     }
 
-    void Log::verbose(const std::string& tag, const Format& fmt)
+    void Log::verbose(const std::string& tag, const std::string& msg)
     {
-        ESP_LOGV(tag.c_str(), "%s", fmt.get());
+        ESP_LOGV(tag.c_str(), "%s", msg.c_str());
     }
 }

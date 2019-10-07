@@ -278,8 +278,7 @@ namespace smooth::application::network::http
     {
         auto found = false;
 
-        Log::info(tag,
-                  Format("Request: {1}: '{2}'", Str(utils::http_method_to_string(method)), Str(requested_url)));
+        Log::info(tag, "Request: {}: '{}'", utils::http_method_to_string(method), requested_url);
 
         filesystem::Path search{ config.web_root() };
         search /= requested_url;
@@ -382,7 +381,7 @@ namespace smooth::application::network::http
     void HTTPServer<ServerType>::reply_with(IServerResponse& response,
                                             std::unique_ptr<IResponseOperation> res)
     {
-        Log::info(tag, Format("Reply: {1}", Str(response_code_to_text.at(res->get_response_code()))));
+        Log::info(tag, "Reply: {}", response_code_to_text.at(res->get_response_code()));
         response.reply(std::move(res), false);
     }
 
@@ -471,7 +470,7 @@ namespace smooth::application::network::http
             }
             catch (std::exception& ex)
             {
-                Log::warning(tag, Format("Websocket upgrade request failed: {1}", Str(ex.what())));
+                Log::warning(tag, "Websocket upgrade request failed: {}", ex.what());
             }
 
             if (!did_upgrade)

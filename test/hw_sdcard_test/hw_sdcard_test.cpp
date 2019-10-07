@@ -21,6 +21,7 @@ limitations under the License.
 #include <random>
 #include <cstring>
 #include <cstdio>
+#include <fmt/core.h>
 #include <smooth/core/filesystem/MMCSDCard.h>
 #include <smooth/core/filesystem/SPISDCard.h>
 #include <smooth/core/timer/ElapsedTime.h>
@@ -34,6 +35,7 @@ using namespace smooth::core::logging;
 using namespace smooth::core::timer;
 using namespace smooth::core::filesystem;
 using namespace std::chrono;
+using namespace fmt::literals;
 
 // Select appropriate interface - SPI or MMC
 //#define USE_SPI
@@ -105,13 +107,12 @@ namespace hw_sdcard_test
                      !error && chunk_size <= 1024 / sizeof(int) * 12; chunk_size += 1024)
                 {
                     auto path = SDCardMount::instance().mount_point() / std::to_string(chunk_size);
-                    Log::info(tag, Format("Writing to {1}", Str(path.str())));
+                    Log::info(tag, "Writing to {}", path.str());
 
                     ElapsedTime t;
                     t.reset();
 
-                    Log::info(tag,
-                              Format("Writing {1} bytes, chunk size {2}.", UInt64{ total_size }, UInt64{ chunk_size }));
+                    Log::info(tag, "Writing {} bytes, chunk size {}.", total_size, chunk_size );
                     auto write = std::make_unique<int[]>(chunk_size);
                     auto read = std::make_unique<int[]>(chunk_size);
                     auto block_size = sizeof(int) * chunk_size;
@@ -167,12 +168,12 @@ namespace hw_sdcard_test
                             {
                                 if (++write_count % 1000 == 0)
                                 {
-                                    Log::info(tag, Format("Still working {1}", UInt64(i)));
+                                    Log::info(tag, "Still working {}", i);
                                 }
                             }
                             else
                             {
-                                Log::error(tag, Format("Data not equal, chunk size {1}", UInt64(chunk_size)));
+                                Log::error(tag, "Data not equal, chunk size {}", chunk_size);
                                 std::this_thread::sleep_for(seconds{ 1 });
                                 error = true;
                             }
@@ -187,14 +188,12 @@ namespace hw_sdcard_test
                         if (second.count() < 1)
                         {
                             auto millis = duration_cast<std::chrono::milliseconds>(t.get_running_time()).count();
-                            speed = Format("{1} bytes/ms.\n", UInt64(total_size / static_cast<unsigned long>(millis)));
+                            speed = "{} bytes/ms."_format(total_size / static_cast<unsigned long>(millis));
                             Log::info(tag, speed.c_str());
                         }
                         else
                         {
-                            speed = Format("{1} bytes/s, ", UInt64(total_size
-                                                                                                                                                   /
-                            static_cast<unsigned long>(std::max<int64_t>(1, second.count()))));
+                            speed = "{} bytes/s"_format(total_size /static_cast<unsigned long>(std::max<int64_t>(1, second.count())));
                             Log::info(tag, speed.c_str());
                         }
 

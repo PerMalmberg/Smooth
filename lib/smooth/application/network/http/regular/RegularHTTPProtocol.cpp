@@ -77,8 +77,7 @@ namespace smooth::application::network::http
                     if (incoming_content_length < 0)
                     {
                         error = true;
-                        Log::error("HTTPProtocol",
-                                   Format("{1} is < 0: {1}.", Str(CONTENT_LENGTH), Int32(incoming_content_length)));
+                        Log::error("HTTPProtocol", "{} is < 0: {}.", CONTENT_LENGTH, incoming_content_length);
                     }
                 }
                 catch (...)
@@ -91,9 +90,11 @@ namespace smooth::application::network::http
                 // Headers are too large
                 response.reply_error(
                         std::make_unique<responses::ErrorResponse>(ResponseCode::Request_Header_Fields_Too_Large));
+
                 Log::error("HTTPProtocol",
-                           Format("Headers larger than max header size of {1}: {2} bytes.", Int32(max_header_size),
-                                  Int32(total_bytes_received)));
+                           "Headers larger than max header size of {}: {} bytes.",
+                           max_header_size,
+                           total_bytes_received);
                 reset();
             }
         }
@@ -219,8 +220,8 @@ namespace smooth::application::network::http
                         catch (...)
                         {
                             error = true;
-                            Log::error("HTTPProtocol",
-                                       Format("Invalid response code: {1}", Str(m[2].str())));
+
+                            Log::error("HTTPProtocol", "Invalid response code: {}", m[2].str());
                         }
                     }
                 }

@@ -77,15 +77,15 @@ namespace smooth::core::io::spi
 
         if (res == ESP_ERR_INVALID_ARG)
         {
-            Log::error(log_tag, Format("Invalid parameter"));
+            Log::error(log_tag, "Invalid parameter");
         }
         else if (res == ESP_ERR_NOT_FOUND)
         {
-            Log::error(log_tag, Format("No free CS slots"));
+            Log::error(log_tag, "No free CS slots");
         }
         else if (res == ESP_ERR_NO_MEM)
         {
-            Log::error(log_tag, Format("Out of memory"));
+            Log::error(log_tag, "Out of memory");
         }
 
         return res == ESP_OK;
@@ -99,7 +99,7 @@ namespace smooth::core::io::spi
 
         if (res != ESP_OK)
         {
-            Log::error(log_tag, Format("write() failed"));
+            Log::error(log_tag, "write() failed");
         }
 
         return res == ESP_OK;

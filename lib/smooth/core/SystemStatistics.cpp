@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <smooth/core/logging/log.h>
 #include <smooth/core/SystemStatistics.h>
+#include <fmt/core.h>
 
 #ifdef ESP_PLATFORM
 
@@ -27,7 +28,7 @@ limitations under the License.
 
 using namespace smooth::core::logging;
 
-static const char* tag = "MemStat";
+static constexpr const char* tag = "MemStat";
 
 namespace smooth::core
 {
@@ -43,8 +44,6 @@ namespace smooth::core
 
     void SystemStatistics::dump() const noexcept
     {
-        //auto current_free = esp_get_free_heap_size();
-        //auto all_time_free_low = esp_get_minimum_free_heap_size();
 #ifdef ESP_PLATFORM
         Log::info(tag, "[INTERNAL]");
         dump_mem_stats(MALLOC_CAP_INTERNAL);
@@ -56,12 +55,11 @@ namespace smooth::core
 
         { // Only need to lock while accessing the shared data
             synch guard{ lock };
-            Log::info(tag, Format("Name\tStack\tMin free stack"));
+            Log::info(tag, "Name\tStack\tMin free stack" );
 
             for (const auto& stat : task_info)
             {
-                Log::info(tag, Format("{1}\t{2}\t{3}", Str(stat.first), UInt32(stat.second.get_stack_size()),
-                                      UInt32(stat.second.get_high_water_mark())));
+                Log::info(tag, "{}\t{}\t{}", stat.first, stat.second.get_stack_size(), stat.second.get_high_water_mark());
             }
         }
     }
@@ -70,13 +68,13 @@ namespace smooth::core
 
     void SystemStatistics::dump_mem_stats(uint32_t caps) const noexcept
     {
-        Log::info(tag, Format("8-bit F:{1} LB:{2} M:{3} | 32-bit: F:{4} LB:{5} M:{6}",
-                              UInt32(heap_caps_get_free_size(caps | MALLOC_CAP_8BIT)),
-                              UInt32(heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT)),
-                              UInt32(heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT)),
-                              UInt32(heap_caps_get_free_size(caps | MALLOC_CAP_32BIT)),
-                              UInt32(heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT)),
-                              UInt32(heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT))));
+        Log::info(tag, "8-bit F:{} LB:{} M:{} | 32-bit: F:{} LB:{} M:{}",
+                              heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
+                              heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
+                              heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),
+                              heap_caps_get_free_size(caps | MALLOC_CAP_32BIT),
+                              heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT),
+                              heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT));
     }
 
 #endif

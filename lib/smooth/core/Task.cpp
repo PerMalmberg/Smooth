@@ -131,7 +131,6 @@ namespace smooth::core
         }
 
         Log::verbose(name, "Initializing...");
-
         init();
 
         Log::verbose(name, "Initialized");

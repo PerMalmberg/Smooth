@@ -89,10 +89,7 @@ namespace destructing_event_queues
                     }
                 }
 
-                Log::info("Worker",
-                          Format("User count: {1}, expire count: {2}",
-                                 UInt64(users.size()),
-                                 UInt64(expire_count)));
+                Log::info("Worker", "User count: {1}, expire count: {2}", users.size(), expire_count);
             }
 
         private:

@@ -23,6 +23,7 @@ limitations under the License.
 
 using namespace std;
 using namespace smooth::core::logging;
+using namespace fmt::literals;
 
 namespace logging
 {
@@ -39,15 +40,12 @@ namespace logging
     {
         std::vector<int> arr{ 1, 2, 3, 4 };
 
-        Log::info("Tag", Format("Log a 32-bit int: {1}", Int32(numeric_limits<int32_t>::min())));
-        Log::info("Tag", Format("Log a 64-bit int: {1}", Int64(numeric_limits<int64_t>::max())));
-        Log::info("Tag", Format("Log {1} {2} {3} {4} {5} vector: {6}",
-                                Str("multiple"),
-                                Str("hex values of different types:"),
-                                Hex<uint32_t>(numeric_limits<uint32_t>::max()),
-                                Hex<uint64_t>(numeric_limits<uint64_t>::max()),
-                                Hex<uint8_t>(numeric_limits<uint8_t>::max(), true),
-                                Vector<int>(arr, false))
-                  );
+        Log::info("Tag", "Log a 32-bit int: {0:d}"_format(numeric_limits<int32_t>::min()));
+        Log::info("Tag", "Log {} {} {:#x} {:#x} {:#x}",
+                                "multiple",
+                                "hex values of different types:",
+                                numeric_limits<uint32_t>::max(),
+                                numeric_limits<uint64_t>::max(),
+                                numeric_limits<uint8_t>::max());
     }
 }

@@ -64,11 +64,11 @@ namespace timer
         info.count++;
         info.total += duration;
 
-        Log::verbose("Interval", Format("{1} ({2}ms): {3}ms, avg: {4}",
-                                        Int32(event.get_id()),
-                                        Int64(info.interval.count()),
-                                        Int64(duration.count()),
-                                        Double(static_cast<double>(info.total.count()) / info.count)));
+        Log::verbose("Interval", "{} ({}ms): {}ms, avg: {}",
+                     event.get_id(),
+                     info.interval.count(),
+                     duration.count(),
+                     static_cast<double>(info.total.count()) / info.count);
     }
 
     void App::create_timer(std::chrono::milliseconds interval)

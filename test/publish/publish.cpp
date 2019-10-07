@@ -69,6 +69,6 @@ namespace publish
         // at 1000 so there is a noticeable difference in overhead with a higher tick rate.
 
         auto duration = duration_cast<microseconds>(std::chrono::steady_clock::now() - item.get_start());
-        Log::info("event", Format("Time in queue: {1} us", Int64(duration.count())));
+        Log::info("event", "Time in queue: {} us", duration.count());
     }
 }

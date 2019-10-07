@@ -88,9 +88,9 @@ namespace smooth::core::network
             if (res != 0)
             {
 #if ESP_PLATFORM
-                Log::error("IPv4", Format("Failed to lookup hostname {1}", Int32(res)));
+                Log::error("IPv4", "Failed to lookup hostname {}", res);
 #else
-                Log::error("IPv4", Format("Failed to lookup hostname {1}", Str(gai_strerror(res))));
+                Log::error("IPv4", "Failed to lookup hostname {}", gai_strerror(res));
 #endif
             }
             else
@@ -110,7 +110,7 @@ namespace smooth::core::network
 
                     resolved_ip = address;
 
-                    Log::info("IPv4", Format("{1} resolved to {2}", Str(host), Str(get_resolved_ip())));
+                    Log::info("IPv4", "{} resolved to {}", host, get_resolved_ip());
                 }
 
                 freeaddrinfo(result);

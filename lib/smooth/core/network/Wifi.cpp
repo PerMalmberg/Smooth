@@ -31,7 +31,8 @@ limitations under the License.
 
 #ifdef ESP_PLATFORM
 #include "sdkconfig.h"
-static_assert(CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE >= 3072, "Need enough stack to be able to log in the event loop callback.");
+static_assert(CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE >= 3072,
+"Need enough stack to be able to log in the event loop callback.");
 #endif
 
 using namespace smooth::core::util;
@@ -151,27 +152,27 @@ namespace smooth::core::network
             else if (event_id == WIFI_EVENT_AP_STACONNECTED)
             {
                 auto data = reinterpret_cast<wifi_event_ap_staconnected_t*>(event_data);
-                Log::info("SoftAP", Format("Station connected. MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
-                                           Hex(data->mac[0]),
-                                           Hex(data->mac[1]),
-                                           Hex(data->mac[2]),
-                                           Hex(data->mac[3]),
-                                           Hex(data->mac[4]),
-                                           Hex(data->mac[5]),
-                                           UInt32(data->aid)));
+                Log::info("SoftAP", "Station connected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
+                                         data->mac[0],
+                                         data->mac[1],
+                                         data->mac[2],
+                                         data->mac[3],
+                                         data->mac[4],
+                                         data->mac[5],
+                                         data->aid);
             }
             else if (event_id == WIFI_EVENT_AP_STADISCONNECTED)
             {
                 auto data = reinterpret_cast<wifi_event_ap_stadisconnected_t*>(event_data);
 
-                Log::info("SoftAP", Format("Station disconnected. MAC: {1}:{2}:{3}:{4}:{5}:{6} join, AID={7}",
-                                           Hex(data->mac[0]),
-                                           Hex(data->mac[1]),
-                                           Hex(data->mac[2]),
-                                           Hex(data->mac[3]),
-                                           Hex(data->mac[4]),
-                                           Hex(data->mac[5]),
-                                           UInt32(data->aid)));
+                Log::info("SoftAP", "Station disconnected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
+                                         data->mac[0],
+                                         data->mac[1],
+                                         data->mac[2],
+                                         data->mac[3],
+                                         data->mac[4],
+                                         data->mac[5],
+                                         data->aid);
             }
         }
         else if (event_base == IP_EVENT)
@@ -230,7 +231,7 @@ namespace smooth::core::network
         esp_wifi_set_config(ESP_IF_WIFI_AP, &config);
         esp_wifi_start();
 
-        Log::info("SoftAP", "SSID: " + ssid + "; Auth: " + (password.empty() ? "Open" : "WPA2/PSK"));
+        Log::info("SoftAP", "SSID: {}; Auth {}", ssid, (password.empty() ? "Open" : "WPA2/PSK"));
 
 #ifndef ESP_PLATFORM
 

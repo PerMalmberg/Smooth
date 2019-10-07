@@ -161,14 +161,8 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/sntp/Sntp.h
         ${smooth_inc_dir}/core/sntp/TimeSyncEvent.h
         ${smooth_inc_dir}/core/SystemStatistics.h
+        ${smooth_dir}/core/logging/log.cpp
         )
 
-if (${ESP_PLATFORM})
-    list(APPEND SMOOTH_SOURCES
-            ${smooth_dir}/core/logging/idf/idf_log.cpp
-            )
-else()
-    list(APPEND SMOOTH_SOURCES
-            ${smooth_dir}/core/logging/posix/posix_log.cpp
-            )
-endif()
+
+

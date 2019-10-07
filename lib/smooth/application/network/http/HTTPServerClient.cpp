@@ -21,7 +21,7 @@ limitations under the License.
 
 namespace smooth::application::network::http
 {
-    static const char* tag = "HTTPServerClient";
+    static constexpr const char* tag = "HTTPServerClient";
     using namespace websocket::responses;
     using namespace websocket;
 

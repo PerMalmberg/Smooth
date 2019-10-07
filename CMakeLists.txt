@@ -63,8 +63,11 @@ if(${ESP_PLATFORM})
             ${CMAKE_CURRENT_SOURCE_DIR}/smooth_component
             ${CMAKE_CURRENT_SOURCE_DIR}/test/${selected_test_project})
 
+    add_subdirectory(externals/fmt)
+
     include($ENV{IDF_PATH}/tools/cmake/project.cmake)
     project(${selected_test_project})
+    target_link_libraries( ${selected_test_project}.elf fmt)
 else()
     message(STATUS "Compiling for Host Platform")
     if(${APPLE})
@@ -73,5 +76,6 @@ else()
     endif()
     add_subdirectory(mock-idf)
     add_subdirectory(lib)
+    add_subdirectory(externals/fmt)
     add_subdirectory(test/${selected_test_project})
 endif()

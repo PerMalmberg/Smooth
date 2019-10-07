@@ -42,7 +42,7 @@ namespace smooth::core::filesystem
     {
         host = SDMMC_HOST_DEFAULT();
 
-        // QQQ host.max_freq_khz = SDMMC_FREQ_HIGHSPEED()
+        // host.max_freq_khz = SDMMC_FREQ_HIGHSPEED()
 
         sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
 

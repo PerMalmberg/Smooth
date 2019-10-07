@@ -136,15 +136,12 @@ namespace smooth::application::network::mqtt
                 // Fire and forget
                 if (mqtt.send_packet(packet))
                 {
-                    Log::verbose(mqtt_log_tag,
-                                 Format("QoS {1} publish completed", Int32(packet.get_qos())));
+                    Log::verbose(mqtt_log_tag, "QoS {} publish completed", packet.get_qos());
                     in_progress.erase(in_progress.begin());
                 }
                 else
                 {
-                    Log::error(mqtt_log_tag,
-                               Format("Could not enqueue packet of QoS {1}",
-                                      Int32(packet.get_qos())));
+                    Log::error(mqtt_log_tag, "Could not enqueue packet of QoS {}", packet.get_qos());
                 }
             }
             else if (flight.get_waiting_for() == PacketType::Reserved)
@@ -162,9 +159,7 @@ namespace smooth::application::network::mqtt
                     }
                     else
                     {
-                        Log::error(mqtt_log_tag,
-                                   Format("Could not enqueue packet of QoS {1}",
-                                          Int32(packet.get_qos())));
+                        Log::error(mqtt_log_tag, "Could not enqueue packet of QoS {}", packet.get_qos());
                     }
                 }
                 else if (packet.get_qos() == QoS::EXACTLY_ONCE)
@@ -177,9 +172,7 @@ namespace smooth::application::network::mqtt
                     }
                     else
                     {
-                        Log::error(mqtt_log_tag,
-                                   Format("Could not enqueue packet of QoS {1}",
-                                          Int32(packet.get_qos())));
+                        Log::error(mqtt_log_tag, "Could not enqueue packet of QoS {}", packet.get_qos());
                     }
                 }
 
@@ -193,8 +186,7 @@ namespace smooth::application::network::mqtt
                 {
                     // Waited too long, force a disconnect.
                     Log::error(mqtt_log_tag,
-                               Format(Str(
-                                       "Too long since a reply was received to a publish message, forcing disconnect.")));
+                    "Too long since a reply was received to a publish message, forcing disconnect.");
 
                     flight.stop_timer();
                     mqtt.force_disconnect();
@@ -202,11 +194,11 @@ namespace smooth::application::network::mqtt
                 else
                 {
                     Log::debug(mqtt_log_tag,
-                               Format("Waiting to send: {1}, QoS {1}, waiting for: {3}, timer: {4}ms",
-                                      Str(packet.get_mqtt_type_as_string()),
-                                      Int32(packet.get_qos()),
-                                      Int32(flight.get_waiting_for()),
-                                      Int64(flight.get_elapsed_time().count())));
+                               "Waiting to send: {}, QoS {}, waiting for: {}, timer: {}ms",
+                               packet.get_mqtt_type_as_string(),
+                               packet.get_qos(),
+                               flight.get_waiting_for(),
+                               flight.get_elapsed_time().count());
                 }
             }
         }
@@ -223,8 +215,7 @@ namespace smooth::application::network::mqtt
 
             if (flight.get_packet().get_packet_identifier() == pub_ack.get_packet_identifier())
             {
-                Log::verbose(mqtt_log_tag,
-                             Format("QoS {1} publish completed", Int32(flight.get_packet().get_qos())));
+                Log::verbose(mqtt_log_tag, "QoS {} publish completed", flight.get_packet().get_qos());
                 in_progress.erase(in_progress.begin());
             }
         }
@@ -271,9 +262,7 @@ namespace smooth::application::network::mqtt
             if (flight.get_waiting_for() == PUBCOMP
                 && flight.get_packet().get_packet_identifier() == pub_rec.get_packet_identifier())
             {
-                Log::verbose(mqtt_log_tag,
-                             Format("QoS {1} publish completed",
-                                    Int32(flight.get_packet().get_qos())));
+                Log::verbose(mqtt_log_tag, "QoS {} publish completed", flight.get_packet().get_qos());
                 in_progress.erase(in_progress.begin());
             }
         }

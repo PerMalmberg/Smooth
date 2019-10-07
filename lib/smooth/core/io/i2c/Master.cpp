@@ -63,7 +63,7 @@ namespace smooth::core::io::i2c
 
             if (!initialized)
             {
-                Log::error(log_tag, Format("Initialization failed"));
+                Log::error(log_tag, "Initialization failed");
             }
         }
     }

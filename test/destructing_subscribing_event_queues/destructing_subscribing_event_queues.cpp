@@ -94,9 +94,7 @@ namespace destructing_subscribing_event_queues
                 if (last_count != queues.size())
                 {
                     last_count = queues.size();
-                    Log::info("Rec",
-                Format("Queue count: {1}, Removed: {2}, Evt count: {3}", UInt64(last_count), UInt64(removed),
-                UInt64(event_count)));
+                    Log::info("Rec", "Queue count: {}, Removed: {}, Evt count: {}", last_count, removed, event_count);
                 }
             }
 
