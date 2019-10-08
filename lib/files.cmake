@@ -74,6 +74,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/io/Output.cpp
         ${smooth_dir}/core/ipc/QueueNotification.cpp
         ${smooth_dir}/core/json/JsonFile.cpp
+        ${smooth_dir}/core/logging/log.cpp
         ${smooth_dir}/core/network/CommonSocket.cpp
         ${smooth_dir}/core/network/IPv4.cpp
         ${smooth_dir}/core/network/IPv6.cpp
@@ -161,7 +162,6 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/sntp/Sntp.h
         ${smooth_inc_dir}/core/sntp/TimeSyncEvent.h
         ${smooth_inc_dir}/core/SystemStatistics.h
-        ${smooth_dir}/core/logging/log.cpp
         )
 
 

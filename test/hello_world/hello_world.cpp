@@ -31,11 +31,11 @@ namespace hello_world
 
             void tick() override
             {
-                std::cout << "Hello from other task" << std::endl;
+                Log::info("App::Init", "Hello from other task");
             }
-    }
+    };
 
-    a_instance;
+    ATask a_instance{};
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
@@ -44,12 +44,12 @@ namespace hello_world
 
     void App::init()
     {
-        std::cout << "Hello world!" << std::endl;
+        Log::info("App::Init", "Starting...");
         a_instance.start();
     }
 
     void App::tick()
     {
-        std::cout << "Tick!" << std::endl;
+        Log::info("App", "Hello world!");
     }
 }

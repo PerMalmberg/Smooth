@@ -24,6 +24,7 @@ limitations under the License.
 #include <fmt/format.h>
 #pragma GCC diagnostic pop
 #include <iostream>
+#include "esp_log.h"
 
 namespace smooth::core::logging
 {
