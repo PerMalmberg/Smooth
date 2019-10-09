@@ -45,9 +45,15 @@ namespace smooth::core::logging
             }
 
             template<typename ...Args>
-            static void error(const std::string&& tag, const std::string&& fmt, Args...args)
+            static void error(const std::string& tag, Args&&...args)
             {
-                log('E', tag, fmt, args...);
+                log('E', tag, args...);
+            }
+
+            template<typename Arg>
+            static void error(const std::string& tag, const Arg val)
+            {
+                log('E', tag, "{}", val);
             }
 
             template<typename ...Args>
@@ -56,10 +62,22 @@ namespace smooth::core::logging
                 log('W', tag, args...);
             }
 
+            template<typename Arg>
+            static void warning(const std::string& tag, const Arg val)
+            {
+                log('W', tag, "{}", val);
+            }
+
             template<typename ...Args>
             static void info(const std::string& tag, Args&&...args)
             {
                 log('I', tag, args...);
+            }
+
+            template<typename Arg>
+            static void info(const std::string& tag, const Arg val)
+            {
+                log('I', tag, "{}", val);
             }
 
             template<typename ...Args>
@@ -68,10 +86,22 @@ namespace smooth::core::logging
                 log('D', tag, args...);
             }
 
+            template<typename Arg>
+            static void debug(const std::string& tag, const Arg val)
+            {
+                log('D', tag, "{}", val);
+            }
+
             template<typename ...Args>
             static void verbose(const std::string& tag, Args&&...args)
             {
                 log('V', tag, args...);
+            }
+
+            template<typename Arg>
+            static void verbose(const std::string& tag, const Arg val)
+            {
+                log('V', tag, "{}", val);
             }
     };
 }

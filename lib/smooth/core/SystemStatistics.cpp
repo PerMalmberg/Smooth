@@ -55,11 +55,12 @@ namespace smooth::core
 
         { // Only need to lock while accessing the shared data
             synch guard{ lock };
-            Log::info(tag, "Name\tStack\tMin free stack" );
+            constexpr const char* format = "{:<16} | {:>10} | {:>15} | {:>15}";
+            Log::info(tag, format, "Name", "Stack", "Min free stack", "Max used stack" );
 
             for (const auto& stat : task_info)
             {
-                Log::info(tag, "{}\t{}\t{}", stat.first, stat.second.get_stack_size(), stat.second.get_high_water_mark());
+                Log::error(tag, format, stat.first, stat.second.get_stack_size(), stat.second.get_high_water_mark(), stat.second.get_stack_size() - stat.second.get_high_water_mark());
             }
         }
     }
@@ -68,7 +69,7 @@ namespace smooth::core
 
     void SystemStatistics::dump_mem_stats(uint32_t caps) const noexcept
     {
-        Log::info(tag, "8-bit F:{} LB:{} M:{} | 32-bit: F:{} LB:{} M:{}",
+        Log::info(tag, "8-bit F:{:>10} LB:{:>10} M:{:>10} | 32-bit: F:{:>10} LB:{:>10} M:{:>10}",
                               heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
                               heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
                               heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),

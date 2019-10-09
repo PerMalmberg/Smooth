@@ -18,6 +18,7 @@ limitations under the License.
 #include "hello_world.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/core/SystemStatistics.h>
 
 using namespace smooth::core;
 
@@ -38,7 +39,7 @@ namespace hello_world
     ATask a_instance{};
 
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(3))
     {
     }
 
@@ -51,5 +52,6 @@ namespace hello_world
     void App::tick()
     {
         Log::info("App", "Hello world!");
+        SystemStatistics::instance().dump();
     }
 }
