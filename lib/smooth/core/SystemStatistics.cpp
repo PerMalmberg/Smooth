@@ -55,12 +55,17 @@ namespace smooth::core
 
         { // Only need to lock while accessing the shared data
             synch guard{ lock };
-            constexpr const char* format = "{:<16} | {:>10} | {:>15} | {:>15}";
+            constexpr const char* format = "{:>16} | {:>10} | {:>15} | {:>15}";
             Log::info(tag, format, "Name", "Stack", "Min free stack", "Max used stack" );
 
             for (const auto& stat : task_info)
             {
-                Log::error(tag, format, stat.first, stat.second.get_stack_size(), stat.second.get_high_water_mark(), stat.second.get_stack_size() - stat.second.get_high_water_mark());
+                Log::info(tag,
+                format,
+                stat.first,
+                stat.second.get_stack_size(),
+                stat.second.get_high_water_mark(),
+                stat.second.get_stack_size() - stat.second.get_high_water_mark());
             }
         }
     }

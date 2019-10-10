@@ -24,7 +24,10 @@ limitations under the License.
 #include <fmt/format.h>
 #pragma GCC diagnostic pop
 #include <iostream>
+
+#ifdef ESP_PLATFORM
 #include "esp_log.h"
+#endif
 
 namespace smooth::core::logging
 {
@@ -34,74 +37,109 @@ namespace smooth::core::logging
             static std::mutex guard;
 
             static fmt::basic_memory_buffer<char, 500> buff;
+            static constexpr const char warning_level = 'W';
+            static constexpr const char error_level = 'E';
+            static constexpr const char information_level = 'I';
+            static constexpr const char verbose_level = 'V';
+            static constexpr const char debug_level = 'D';
 
-            template<typename ...Args>
-            static void log(const char level, const std::string& tag, Args&&...args)
+#ifdef ESP_PLATFORM
+            template<typename... Args>
+            static void log(const char level, const std::string& tag, Args&&... args)
+            {
+                std::unique_lock<std::mutex> lock(guard);
+                buff.clear();
+                fmt::format_to(buff, args...);
+                if(level == error_level)
+                {
+                    ESP_LOGE(tag.c_str(), "%s", fmt::to_string(buff).c_str());
+                }
+                else if(level == warning_level)
+                {
+                    ESP_LOGW(tag.c_str(), "%s", fmt::to_string(buff).c_str());
+                }
+                else if(level == information_level)
+                {
+                    ESP_LOGI(tag.c_str(), "%s", fmt::to_string(buff).c_str());
+                }
+                else if(level == verbose_level)
+                {
+                    ESP_LOGV(tag.c_str(), "%s", fmt::to_string(buff).c_str());
+                }
+                else
+                {
+                    ESP_LOGD(tag.c_str(), "%s", fmt::to_string(buff).c_str());
+                }
+            }
+#else
+            template<typename... Args>
+            static void log(const char level, const std::string& tag, Args&&... args)
             {
                 std::unique_lock<std::mutex> lock(guard);
                 buff.clear();
                 fmt::format_to(buff, args...);
                 std::cout << "(" << level << ")" << tag << ": " << fmt::to_string(buff) << std::endl;
             }
+#endif
 
-            template<typename ...Args>
-            static void error(const std::string& tag, Args&&...args)
+            template<typename... Args>
+            static void error(const std::string& tag, Args&&... args)
             {
-                log('E', tag, args...);
+                log(error_level, tag, args...);
             }
 
             template<typename Arg>
             static void error(const std::string& tag, const Arg val)
             {
-                log('E', tag, "{}", val);
+                log(error_level, tag, "{}", val);
             }
 
-            template<typename ...Args>
-            static void warning(const std::string& tag, Args&&...args)
+            template<typename... Args>
+            static void warning(const std::string& tag, Args&&... args)
             {
-                log('W', tag, args...);
+                log(warning_level, tag, args...);
             }
 
             template<typename Arg>
             static void warning(const std::string& tag, const Arg val)
             {
-                log('W', tag, "{}", val);
+                log(warning_level, tag, "{}", val);
             }
 
-            template<typename ...Args>
-            static void info(const std::string& tag, Args&&...args)
+            template<typename... Args>
+            static void info(const std::string& tag, Args&&... args)
             {
-                log('I', tag, args...);
+                log(information_level, tag, args...);
             }
 
             template<typename Arg>
             static void info(const std::string& tag, const Arg val)
             {
-                log('I', tag, "{}", val);
+                log(information_level, tag, "{}", val);
             }
 
-            template<typename ...Args>
-            static void debug(const std::string& tag, Args&&...args)
+            template<typename... Args>
+            static void debug(const std::string& tag, Args&&... args)
             {
-                log('D', tag, args...);
+                log(debug_level, tag, args...);
             }
 
             template<typename Arg>
             static void debug(const std::string& tag, const Arg val)
             {
-                log('D', tag, "{}", val);
+                log(debug_level, tag, "{}", val);
             }
 
-            template<typename ...Args>
-            static void verbose(const std::string& tag, Args&&...args)
+            template<typename... Args>
+            static void verbose(const std::string& tag, Args&&... args)
             {
-                log('V', tag, args...);
+                log(verbose_level, tag, args...);
             }
 
             template<typename Arg>
             static void verbose(const std::string& tag, const Arg val)
             {
-                log('V', tag, "{}", val);
+                log(verbose_level, tag, "{}", val);
             }
     };
 }
