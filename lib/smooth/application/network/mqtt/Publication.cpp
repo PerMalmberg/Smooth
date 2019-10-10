@@ -20,6 +20,7 @@ limitations under the License.
 #include <smooth/application/network/mqtt/packet/PubComp.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
+#include <smooth/config_constants.h>
 
 #ifdef ESP_PLATFORM
 #include "sdkconfig.h"

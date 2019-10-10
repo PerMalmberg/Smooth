@@ -19,6 +19,7 @@ limitations under the License.
 #include <functional>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/config_constants.h>
 
 #ifndef ESP_PLATFORM
 
@@ -33,6 +34,7 @@ using namespace std::chrono;
 
 namespace smooth::core::network
 {
+
     SocketDispatcher& SocketDispatcher::instance()
     {
         static SocketDispatcher instance;
@@ -50,20 +52,15 @@ namespace smooth::core::network
     }
 
     SocketDispatcher::SocketDispatcher()
-            : Task(tag, 1024 * 20, SOCKET_DISPATCHER_PRIO, std::chrono::milliseconds(0)),
+            : Task(tag, CONFIG_SMOOTH_SOCKET_DISPATCHER_STACK_SIZE, SOCKET_DISPATCHER_PRIO,
+                   std::chrono::milliseconds(0)),
               active_sockets(),
               inactive_sockets(),
               socket_guard(),
               network_events(NetworkEventQueue::create(10, *this, *this)),
-              socket_op(SocketOperationQueue::create(
-
-                            // TODO: When compiled for IDF, get proper value based on number of
-                            // allowed sockets in sdkconfig
-                            //  Note: If there are more than 20 sockets, this queue is too
-                            // small.
-                            20,
-                            *this,
-                            *this))
+              socket_op(SocketOperationQueue::create(CONFIG_LWIP_MAX_SOCKETS,
+                                                     *this,
+                                                     *this))
     {
         clear_sets();
     }
