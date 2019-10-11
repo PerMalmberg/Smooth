@@ -57,7 +57,7 @@ namespace smooth::core::network
                 return in_progress;
             }
 
-            const uint8_t * get_data_to_send() override
+            const uint8_t* get_data_to_send() override
             {
                 std::lock_guard<std::mutex> lock(guard);
 

@@ -60,6 +60,4 @@ namespace smooth::core
             get_wifi().connect_to_ap();
         }
     }
-
-
 }

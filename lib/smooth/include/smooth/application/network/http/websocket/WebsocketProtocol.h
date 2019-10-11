@@ -61,7 +61,7 @@ namespace smooth::application::network::http::websocket
 
             void data_received(HTTPPacket& packet, int length) override;
 
-            uint8_t * get_write_pos(HTTPPacket& packet) override;
+            uint8_t* get_write_pos(HTTPPacket& packet) override;
 
             bool is_complete(HTTPPacket& packet) const override;
 

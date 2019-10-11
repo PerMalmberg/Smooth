@@ -110,7 +110,7 @@ namespace smooth::application::io::wiegand
                 if (valid)
                 {
                     auto id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFF)
-                                                        | (lower.to_ullong() >> 1));
+                                                    | (lower.to_ullong() >> 1));
                     number_queue->signal(id);
                 }
             }

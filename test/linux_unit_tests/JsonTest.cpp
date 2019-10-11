@@ -30,12 +30,12 @@ SCENARIO("JsonFile Test")
     FSLock::set_limit(5);
 
     {
-        JsonFile jf{ Path{"test_data" } / "jsonfile_test.json" };
+        JsonFile jf{ Path{ "test_data" } / "jsonfile_test.json" };
         jf.value()["Foo"] = 1;
         REQUIRE(jf.save());
     }
     {
-        JsonFile jf{ Path{"test_data" } / "jsonfile_test.json" };
+        JsonFile jf{ Path{ "test_data" } / "jsonfile_test.json" };
         REQUIRE(jf.value()["Foo"] == 1);
     }
     {

@@ -46,7 +46,7 @@ namespace smooth::core::network
             /// get_wanted_amount().
             /// \param packet The packet being assembled
             /// \return Write position
-            virtual uint8_t * get_write_pos(Packet& packet) = 0;
+            virtual uint8_t* get_write_pos(Packet& packet) = 0;
 
             /// Must return true when the packet has received all data it needs
             /// to fully assemble.

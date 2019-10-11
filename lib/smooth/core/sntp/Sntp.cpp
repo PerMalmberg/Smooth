@@ -49,6 +49,7 @@ namespace smooth::core::sntp
         }
 
 #ifndef ESP_PLATFORM
+
         // Simulate sync
         publish_sync_event(std::chrono::system_clock::now());
 #endif
@@ -75,5 +76,4 @@ namespace smooth::core::sntp
         TimeSyncEvent ev(tp);
         smooth::core::ipc::Publisher<TimeSyncEvent>::publish(ev);
     }
-
 }

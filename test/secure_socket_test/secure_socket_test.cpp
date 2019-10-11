@@ -225,12 +225,20 @@ namespace secure_socket_test
         {
             Log::info("Connection status: ", "{1}", ev.is_connected());
 
-            sock->send(HTTPPacket(HTTPMethod::GET, "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
-            {
-                { "UserAgent", "Mozilla/4.0" },
-                { "Host", "ftp.sunet.se" }
-                        },
-                        {}));
+            // *INDENT-OFF*
+            sock->send(
+                       HTTPPacket(
+                           HTTPMethod::GET,
+                           "/debian-cd/current-live/amd64/iso-hybrid/MD5SUMS.sign",
+                           {
+                               { "UserAgent", "Mozilla/4.0" },
+                               { "Host", "ftp.sunet.se" }
+                           },
+                           {
+                           }
+                       )
+                    );
+            // *INDENT-ON*
         }
     }
 }

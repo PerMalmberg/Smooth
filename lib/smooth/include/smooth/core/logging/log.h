@@ -44,25 +44,27 @@ namespace smooth::core::logging
             static constexpr const char debug_level = 'D';
 
 #ifdef ESP_PLATFORM
+
             template<typename... Args>
             static void log(const char level, const std::string& tag, Args&&... args)
             {
                 std::unique_lock<std::mutex> lock(guard);
                 buff.clear();
                 fmt::format_to(buff, args...);
-                if(level == error_level)
+
+                if (level == error_level)
                 {
                     ESP_LOGE(tag.c_str(), "%s", fmt::to_string(buff).c_str());
                 }
-                else if(level == warning_level)
+                else if (level == warning_level)
                 {
                     ESP_LOGW(tag.c_str(), "%s", fmt::to_string(buff).c_str());
                 }
-                else if(level == information_level)
+                else if (level == information_level)
                 {
                     ESP_LOGI(tag.c_str(), "%s", fmt::to_string(buff).c_str());
                 }
-                else if(level == verbose_level)
+                else if (level == verbose_level)
                 {
                     ESP_LOGV(tag.c_str(), "%s", fmt::to_string(buff).c_str());
                 }
@@ -71,7 +73,9 @@ namespace smooth::core::logging
                     ESP_LOGD(tag.c_str(), "%s", fmt::to_string(buff).c_str());
                 }
             }
+
 #else
+
             template<typename... Args>
             static void log(const char level, const std::string& tag, Args&&... args)
             {
@@ -80,6 +84,7 @@ namespace smooth::core::logging
                 fmt::format_to(buff, args...);
                 std::cout << "(" << level << ")" << tag << ": " << fmt::to_string(buff) << std::endl;
             }
+
 #endif
 
             template<typename... Args>

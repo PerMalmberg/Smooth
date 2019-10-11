@@ -37,7 +37,6 @@ namespace smooth::core::ipc
         public IPolledTaskQueue,
         public std::enable_shared_from_this<ISRTaskEventQueue<DataType, Size>>
     {
-
         public:
             friend core::Task;
 

@@ -48,4 +48,3 @@ namespace smooth::core::filesystem
             gpio_num_t write_protect;
     };
 }
-

@@ -40,7 +40,7 @@ namespace logging
     {
         std::vector<int> arr{ 1, 2, 3, 4 };
 
-        Log::info("Tag", "Log a 32-bit int: {0:d}"_format(numeric_limits<int32_t>::min()));
+        Log::info("Tag", "Log a 32-bit int: {0:d}"_format (numeric_limits<int32_t>::min()));
         Log::info("Tag", "Log {} {} {:#x} {:#x} {:#x}",
                                 "multiple",
                                 "hex values of different types:",

@@ -133,7 +133,6 @@ namespace smooth::application::network::mqtt
             static std::string get_payload(const MQTTData& data);
 
         private:
-
             void event(const core::network::event::TransmitBufferEmptyEvent& event) override;
 
             void event(const core::network::event::ConnectionStatusEvent& event) override;

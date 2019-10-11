@@ -188,12 +188,15 @@ namespace hw_sdcard_test
                         if (second.count() < 1)
                         {
                             auto millis = duration_cast<std::chrono::milliseconds>(t.get_running_time()).count();
-                            speed = "{} bytes/ms."_format(total_size / static_cast<unsigned long>(millis));
+                            speed = "{} bytes/ms."_format (total_size / static_cast<unsigned long>(millis));
                             Log::info(tag, speed.c_str());
                         }
                         else
                         {
-                            speed = "{} bytes/s"_format(total_size /static_cast<unsigned long>(std::max<int64_t>(1, second.count())));
+                            speed =
+                                "{} bytes/s"_format (total_size
+                                                     / static_cast<unsigned long>(std::max<int64_t>(1,
+                            second.count())));
                             Log::info(tag, speed.c_str());
                         }
 

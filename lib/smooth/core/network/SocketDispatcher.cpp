@@ -34,7 +34,6 @@ using namespace std::chrono;
 
 namespace smooth::core::network
 {
-
     SocketDispatcher& SocketDispatcher::instance()
     {
         static SocketDispatcher instance;

@@ -28,7 +28,7 @@ namespace smooth::core::json
     }
 
     JsonFile::JsonFile(const smooth::core::filesystem::Path& full_path)
-        : f(full_path)
+            : f(full_path)
     {
         load();
     }

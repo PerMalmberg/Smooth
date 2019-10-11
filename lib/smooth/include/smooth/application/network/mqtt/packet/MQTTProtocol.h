@@ -49,7 +49,7 @@ namespace smooth::application::network::mqtt::packet
             // Must return the current write position of the internal buffer.
             // Must point to a buffer than can accept the number of bytes returned by
             // get_wanted_amount().
-            uint8_t * get_write_pos(MQTTProtocol::packet_type& packet) override;
+            uint8_t* get_write_pos(MQTTProtocol::packet_type& packet) override;
 
             // Must return true when the packet has received all data it needs
             // to fully assemble.

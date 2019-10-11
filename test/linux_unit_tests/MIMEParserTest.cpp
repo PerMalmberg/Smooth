@@ -50,20 +50,21 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                 int count = 0;
 
                 auto form_data = [&count](const std::string& name,
-                                          const std::string& actual_file_name,
+                                          const std::string& /*actual_file_name*/,
                                           const MIMEParser::BoundaryIterator& begin,
-                                          const MIMEParser::BoundaryIterator& end) {
-                                     (void)actual_file_name;
+                                          const MIMEParser::BoundaryIterator& end)
+                                 {
+                                     constexpr auto text_txt =
+                                         std::array<uint8_t, 32>{ 0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
+                                                                  0xe3, 0xb1, 0x4c, 0x36, 0x1d, 0xc2, 0xa9, 0x3a,
+                                                                  0x96, 0xef, 0x37, 0x76, 0xdf, 0x76, 0xfb, 0xab,
+                                                                  0x2a, 0xbb, 0x23, 0xb8, 0xf5, 0x10, 0x71, 0x2a };
 
-                    constexpr auto text_txt = std::array<uint8_t, 32>{0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
-                                                                      0xe3, 0xb1, 0x4c, 0x36, 0x1d, 0xc2, 0xa9, 0x3a,
-                                                                      0x96, 0xef, 0x37, 0x76, 0xdf, 0x76, 0xfb, 0xab,
-                                                                      0x2a, 0xbb, 0x23, 0xb8, 0xf5, 0x10, 0x71, 0x2a};
-
-                    constexpr auto text2_txt = std::array<uint8_t, 32>{0xb2, 0x9e, 0x68, 0x2f, 0x6b, 0x24, 0xb9, 0xfc,
-                                                                       0x7c, 0xf0, 0x89, 0x09, 0x8c, 0x63, 0x5c, 0xc6,
-                                                                       0xd2, 0x95, 0x1e, 0x19, 0x16, 0x16, 0xcd, 0x97,
-                                                                       0x2c, 0x5d, 0x49, 0x00, 0x4d, 0x45, 0x65, 0xe6};
+                                     constexpr auto text2_txt =
+                                         std::array<uint8_t, 32>{ 0xb2, 0x9e, 0x68, 0x2f, 0x6b, 0x24, 0xb9, 0xfc,
+                                                                  0x7c, 0xf0, 0x89, 0x09, 0x8c, 0x63, 0x5c, 0xc6,
+                                                                  0xd2, 0x95, 0x1e, 0x19, 0x16, 0x16, 0xcd, 0x97,
+                                                                  0x2c, 0x5d, 0x49, 0x00, 0x4d, 0x45, 0x65, 0xe6 };
 
                                      count++;
 

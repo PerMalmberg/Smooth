@@ -86,7 +86,7 @@ namespace smooth::core::network
                 client_context = ctx;
             }
 
-            ClientContext * get_client_context()
+            ClientContext* get_client_context()
             {
                 return client_context;
             }

@@ -62,12 +62,12 @@ namespace smooth::application::network::mqtt::packet
 
             void set_dup_flag();
 
-            const char * get_mqtt_type_as_string() const;
+            const char* get_mqtt_type_as_string() const;
 
             int get_send_length() override
             { return static_cast<int>(data.size()); }
 
-            const uint8_t * get_data() override
+            const uint8_t* get_data() override
             { return data.data(); }
         protected:
             std::string get_string(std::vector<uint8_t>::const_iterator offset) const;

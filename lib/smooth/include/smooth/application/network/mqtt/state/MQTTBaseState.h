@@ -48,7 +48,7 @@ namespace smooth::application::network::mqtt::state
             {
             }
 
-            const char * get_name() const
+            const char* get_name() const
             {
                 return state_name;
             }

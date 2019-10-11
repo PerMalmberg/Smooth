@@ -25,7 +25,7 @@ namespace smooth::core::io
         : private Input
     {
         public:
-            using callback = void(void* context);
+            using callback = void (void* context);
 
             /// Constructs an InterruptInputCB
             /// \brief Input with callback running in ISR.
@@ -36,18 +36,22 @@ namespace smooth::core::io
             /// \param pull_down Set to true if the input has a pull-down (also enables the internal pull-down)
             /// \param interrupt_trigger When the interrupt should trigger
             InterruptInputCB(callback cb,
-                           void* context,
-                           gpio_num_t io,
-                           bool pull_up,
-                           bool pull_down,
-                           gpio_int_type_t interrupt_trigger);
+                             void* context,
+                             gpio_num_t io,
+                             bool pull_up,
+                             bool pull_down,
+                             gpio_int_type_t interrupt_trigger);
 
             ~InterruptInputCB() override;
 
             InterruptInputCB() = delete;
+
             InterruptInputCB(const InterruptInputCB&) = delete;
+
             InterruptInputCB(const InterruptInputCB&&) = delete;
+
             InterruptInputCB& operator=(const InterruptInputCB&) = delete;
+
             InterruptInputCB& operator=(InterruptInputCB&&) = delete;
 
             [[nodiscard]] gpio_num_t get_io() const

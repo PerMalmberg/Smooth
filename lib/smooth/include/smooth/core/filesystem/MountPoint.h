@@ -26,11 +26,12 @@ static smooth::core::filesystem::Path SDMount{ "/sdcard" };
 #else
 
 #include <sys/stat.h>
+
 // Place files in home folder on Linux.
-static smooth::core::filesystem::Path FMount = smooth::core::filesystem::Path{ getenv("HOME") }
-                                               / "smooth-data";
-static smooth::core::filesystem::Path SDMount = smooth::core::filesystem::Path{ getenv("HOME") }
-                                                / "smooth-data";
+static smooth::core::filesystem::Path FMount =
+    smooth::core::filesystem::Path{ getenv("HOME") } / "smooth-data";
+static smooth::core::filesystem::Path SDMount =
+    smooth::core::filesystem::Path{ getenv("HOME") } / "smooth-data";
 #endif
 
 namespace smooth::core::filesystem
@@ -86,7 +87,7 @@ namespace smooth::core::filesystem
             {
 #ifndef ESP_PLATFORM
                 const auto& parent = SDMount.parent().str();
-                mkdir(parent.c_str(), S_IWUSR|S_IRUSR|S_IXUSR);
+                mkdir(parent.c_str(), S_IWUSR | S_IRUSR | S_IXUSR);
 #endif
             }
     };
@@ -108,7 +109,7 @@ namespace smooth::core::filesystem
             {
 #ifndef ESP_PLATFORM
                 const auto& parent = FMount.parent().str();
-                mkdir(parent.c_str(), S_IWUSR|S_IRUSR|S_IXUSR);
+                mkdir(parent.c_str(), S_IWUSR | S_IRUSR | S_IXUSR);
 #endif
             }
     };

@@ -31,7 +31,6 @@ namespace smooth::core::network
         : public ServerSocket<Client, Protocol, ClientContext>
     {
         public:
-
             template<typename... ProtocolArguments>
             static std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
             create(smooth::core::Task& task,

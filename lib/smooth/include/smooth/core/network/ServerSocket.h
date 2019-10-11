@@ -49,7 +49,6 @@ namespace smooth::core::network
         : public CommonSocket
     {
         public:
-
             template<typename... ProtocolArguments>
             static std::shared_ptr<ServerSocket<Client, Protocol, ClientContext>>
             create(smooth::core::Task& task, int max_client_count, int backlog, ProtocolArguments... proto_args);
@@ -67,7 +66,6 @@ namespace smooth::core::network
             }
 
         protected:
-
             void readable(ISocketBackOff& ops) override;
 
             void writable() override;

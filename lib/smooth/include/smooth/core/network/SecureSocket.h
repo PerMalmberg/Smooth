@@ -24,7 +24,6 @@ limitations under the License.
 
 namespace smooth::core::network
 {
-
     static int ssl_recv(void* ctx, uint8_t* buf, size_t len)
     {
         auto socket = reinterpret_cast<ISocket*>(ctx);

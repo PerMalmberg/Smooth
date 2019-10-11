@@ -55,7 +55,8 @@ namespace smooth::application::network::http
         }
     }
 
-    HTTPPacket::HTTPPacket(HTTPMethod method, const std::string& url,
+    HTTPPacket::HTTPPacket(HTTPMethod method,
+                           const std::string& url,
                            const std::unordered_map<std::string, std::string>& new_headers,
                            const std::vector<uint8_t>& response_content)
     {

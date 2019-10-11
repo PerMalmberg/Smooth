@@ -31,23 +31,29 @@ limitations under the License.
 namespace smooth::application::io::wiegand
 {
     class Wiegand : public smooth::core::ipc::IEventListener<uint8_t>,
-                    public smooth::core::ipc::IEventListener<uint32_t>,
-                    public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
+        public smooth::core::ipc::IEventListener<uint32_t>,
+        public smooth::core::ipc::IEventListener<smooth::core::timer::TimerExpiredEvent>
     {
         public:
             Wiegand(smooth::core::Task& task, IWiegandSignal& receiver, gpio_num_t d0_pin, gpio_num_t d1_pin);
 
             void zero();
+
             void one();
 
             void event(const uint8_t&) override;
+
             void event(const uint32_t&) override;
+
             void event(const smooth::core::timer::TimerExpiredEvent& event) override;
 
         private:
             void clear_bits();
+
             void parse();
+
             static void isr_d0(void* context);
+
             static void isr_d1(void* context);
 
             IWiegandSignal& receiver;

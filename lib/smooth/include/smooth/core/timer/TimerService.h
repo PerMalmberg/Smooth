@@ -31,8 +31,7 @@ namespace smooth::core::timer
 
     using SharedTimer = std::shared_ptr<Timer>;
 
-    using TimerComparator = std::function<bool (SharedTimer left,
-                                SharedTimer right)>;
+    using TimerComparator = std::function<bool (SharedTimer left, SharedTimer right)>;
 
     /// TimerQueue extends std::priority_queue with the ability to remove an item.
     class TimerQueue

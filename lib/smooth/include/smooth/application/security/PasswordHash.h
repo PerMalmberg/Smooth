@@ -28,7 +28,7 @@ namespace smooth::application::security
     class PasswordHash
     {
         public:
-            PasswordHash(size_t memory_limit = 8 * 1024)
+            explicit PasswordHash(size_t memory_limit = 8* 1024)
                     : mem_limit(memory_limit)
             {
                 if (sodium_init() < 0)
@@ -37,8 +37,8 @@ namespace smooth::application::security
                 }
             }
 
-            [[nodiscard]] std::tuple<bool, std::string>
-            hash(const std::string& password, size_t computation_count = crypto_pwhash_OPSLIMIT_SENSITIVE) const;
+            [[nodiscard]] std::tuple<bool, std::string> hash(
+                const std::string& password, size_t computation_count = crypto_pwhash_OPSLIMIT_SENSITIVE) const;
 
             bool verify_password_against_hash(const std::string& password, const std::string& hash);
 

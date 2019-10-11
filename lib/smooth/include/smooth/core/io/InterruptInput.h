@@ -29,7 +29,6 @@ namespace smooth::core::io
         : private Input
     {
         public:
-
             /// Constructs an InterruptInput
             /// \param queue The queue to put events on
             /// \param io GPIO pin number

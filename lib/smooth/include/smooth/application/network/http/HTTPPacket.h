@@ -61,7 +61,7 @@ namespace smooth::application::network::http
             }
 
             // Must return a pointer to the data to be sent.
-            const uint8_t * get_data() override
+            const uint8_t* get_data() override
             {
                 return content.data();
             }

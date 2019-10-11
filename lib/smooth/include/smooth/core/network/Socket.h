@@ -61,7 +61,6 @@ namespace smooth::core::network
         : public CommonSocket
     {
         public:
-
             /// Creates a socket for network communication, with the specified packet type.
             /// \param tx_buffer The transmit buffer where outgoing packets are put by the application.
             /// \param rx_buffer The receive buffer used when receiving data
@@ -149,7 +148,6 @@ namespace smooth::core::network
 
             std::weak_ptr<BufferContainer<Protocol>> buffers{};
         private:
-
             void clear_buffers();
     };
 

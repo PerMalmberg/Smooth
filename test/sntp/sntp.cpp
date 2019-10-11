@@ -72,6 +72,6 @@ namespace sntp
         auto t = system_clock::to_time_t(ev.get_timePoint());
         tm time{};
         localtime_r(&t, &time);
-        std::cout << "Time set at at: " << asctime(&time) << std::endl;;
+        std::cout << "Time set at at: " << asctime(&time) << std::endl;
     }
 }
