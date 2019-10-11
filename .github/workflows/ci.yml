@@ -15,7 +15,7 @@ jobs:
     - name: Build and test
       run: |
         ./CI/main.sh
-  Formatting:
+  Formatting-check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
