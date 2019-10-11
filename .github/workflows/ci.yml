@@ -23,4 +23,3 @@ jobs:
       run: |
         docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/lib",target="/src" permalmberg/uncrustify:latest
         docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/test",target="/src" permalmberg/uncrustify:latest
-        docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/mock-idf",target="/src" permalmberg/uncrustify:latest
