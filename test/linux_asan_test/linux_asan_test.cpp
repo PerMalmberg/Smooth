@@ -15,33 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/logging/log.h>
-#include "esp_log.h"
+#include "linux_asan_test.h"
+#include <smooth/core/Task.h>
+#include <smooth/core/task_priorities.h>
 
-namespace smooth::core::logging
+using namespace smooth::core;
+
+namespace linux_asan_test
 {
-    void Log::error(const std::string& tag, const Format& fmt)
+    App::App()
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
     {
-        ESP_LOGE(tag.c_str(), "%s", fmt.get());
     }
 
-    void Log::warning(const std::string& tag, const Format& fmt)
+    void App::tick()
     {
-        ESP_LOGW(tag.c_str(), "%s", fmt.get());
-    }
+        auto mem = std::make_unique<char[]>(10);
 
-    void Log::info(const std::string& tag, const Format& fmt)
-    {
-        ESP_LOGI(tag.c_str(), "%s", fmt.get());
-    }
-
-    void Log::debug(const std::string& tag, const Format& fmt)
-    {
-        ESP_LOGD(tag.c_str(), "%s", fmt.get());
-    }
-
-    void Log::verbose(const std::string& tag, const Format& fmt)
-    {
-        ESP_LOGV(tag.c_str(), "%s", fmt.get());
+        // Write outside the buffer.
+        for (size_t i = 0; i < 12; ++i)
+        {
+            mem[i] = 0;
+        }
     }
 }

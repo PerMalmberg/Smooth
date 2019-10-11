@@ -36,3 +36,4 @@ cmake-build-*
 sdkconfig.old
 generated_test_smooth_*
 /test/http_server_test/uploads
+.idea/.name

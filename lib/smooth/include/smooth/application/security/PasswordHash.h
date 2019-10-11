@@ -37,7 +37,7 @@ namespace smooth::application::security
                 }
             }
 
-            std::tuple<bool, std::string>
+            [[nodiscard]] std::tuple<bool, std::string>
             hash(const std::string& password, size_t computation_count = crypto_pwhash_OPSLIMIT_SENSITIVE) const;
 
             bool verify_password_against_hash(const std::string& password, const std::string& hash);

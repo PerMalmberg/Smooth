@@ -18,10 +18,8 @@ limitations under the License.
 #include "mqtt.h"
 #include <smooth/core/task_priorities.h>
 
-#ifdef ESP_PLATFORM
 #include <smooth/core/network/Wifi.h>
 #include "wifi_creds.h"
-#endif
 
 using namespace smooth;
 using namespace smooth::core;
@@ -40,7 +38,7 @@ namespace mqtt
 
     App::App()
             : Application(APPLICATION_BASE_PRIO, seconds(10)),
-              mqtt_data(MQTTDataQueue::create("mqtt_data", 10, *this, *this)),
+              mqtt_data(MQTTDataQueue::create(10, *this, *this)),
               client(client_id, seconds(10), 8192, 10, mqtt_data)
     {
     }
@@ -48,14 +46,13 @@ namespace mqtt
     void App::init()
     {
         Application::init();
-#ifdef ESP_PLATFORM
-        Log::info("App::Init", Format("Starting wifi..."));
+
+        Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
-#endif
 
         client.connect_to(std::make_shared<smooth::core::network::IPv4>(broker, 1883), true);
         client.subscribe("network_test", QoS::EXACTLY_ONCE);
@@ -65,7 +62,7 @@ namespace mqtt
 
     void App::event(const smooth::application::network::mqtt::MQTTData& event)
     {
-        Log::info("Rec", Format("T:{1}, M:{2}", Str(event.first), Vector<uint8_t>(event.second, true)));
+        Log::info("Rec", "T:{}, M:{} {}", event.first, fmt::join(event.second, ""));
 
         send_message();
     }

@@ -32,7 +32,7 @@ namespace smooth::core::filesystem
     {
         std::unique_lock<std::mutex> guard{ lock };
         max = max_open_files;
-        Log::info("FSLock", Format("Max number of open files set to: {1}", Int32(max_open_files)));
+        Log::info("FSLock", "Max number of open files set to: {}", max_open_files);
     }
 
     int FSLock::open_files()
@@ -45,10 +45,12 @@ namespace smooth::core::filesystem
     FSLock::FSLock()
     {
         std::unique_lock<std::mutex> guard{ lock };
-        if(max <= 0)
+
+        if (max <= 0)
         {
             throw std::invalid_argument("Must call FSLock::set_limit() before using FSLock");
         }
+
         cv.wait(guard, [] { return count < max; });
 
         count++;

@@ -83,9 +83,9 @@ namespace smooth::application::network::mqtt
                     else if (flight.get_elapsed_time() > std::chrono::seconds(5))
                     {
                         // Waited too long, force a disconnect.
-                        Log::error(mqtt_log_tag, Format(
-                                "Too long since a reply was received to a {1} request, forcing disconnect.",
-                                Str(control_type)));
+                        Log::error(mqtt_log_tag,
+                                   "Too long since a reply was received to a {} request, forcing disconnect.",
+                                   control_type);
                         flight.stop_timer();
                         all_ok = false;
                         mqtt.force_disconnect();

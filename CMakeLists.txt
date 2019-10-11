@@ -31,7 +31,6 @@ list(APPEND available_tests
         hello_world
         access_point
         logging
-        jsonfile_test
         mqtt
         publish
         task_event_queue
@@ -49,14 +48,9 @@ list(APPEND available_tests
         hw_spiflash
         hw_jsonfile_test
         linux_asan_test
+        linux_unit_tests
+        hw_wrover_kit_blinky
         )
-
-# These tests needs actual hardware to run
-if(${ESP_PLATFORM})
-    list(APPEND available_tests
-            hw_wrover_kit_blinky
-            )
-endif()
 
 list(FIND available_tests ${selected_test_project} test_found)
 if(${test_found} EQUAL -1)
@@ -80,5 +74,4 @@ else()
     add_subdirectory(mock-idf)
     add_subdirectory(lib)
     add_subdirectory(test/${selected_test_project})
-    add_subdirectory(test/linux_unit_tests)
 endif()

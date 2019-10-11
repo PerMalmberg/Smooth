@@ -45,7 +45,7 @@ namespace smooth::application::network::mqtt::packet
         {
             // We can't do anything with packets that are too big as their contents
             // is invalid; not even the variable header can be considered intact.
-            Log::verbose(mqtt_log_tag, Format("Too big packet discarded"));
+            Log::verbose(mqtt_log_tag, "Too big packet discarded");
         }
         else
         {

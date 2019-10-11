@@ -38,7 +38,7 @@ namespace smooth::core::network
 
     static void mbedtls_debug(void* /*ctx*/, int /*level*/, const char* /*file*/, int /*line*/, const char* str)
     {
-        Log::debug(tag, str);
+        Log::debug(tag, "{}", str);
     }
 
 #endif
@@ -47,7 +47,7 @@ namespace smooth::core::network
     {
         char buf[128];
         mbedtls_strerror(err_code, buf, sizeof(buf));
-        Log::error(log_tag, Format("{1} returned {2}: {3}", Str(prefix), Int32(err_code), Str(buf)));
+        Log::error(log_tag, "{} returned {}: {}", prefix, err_code, buf);
     }
 
     MBedTLSContext::MBedTLSContext()
@@ -189,8 +189,7 @@ namespace smooth::core::network
         }
         else if (res > 0)
         {
-            Log::error("MBedTLSContext",
-                       Format("mbedtls_x509_crt_parse failed to parse {1} certificates.", Int32(res)));
+            Log::error("MBedTLSContext", "mbedtls_x509_crt_parse failed to parse {} certificates.", res);
         }
 
         return res;

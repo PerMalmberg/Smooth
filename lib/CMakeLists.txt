@@ -24,12 +24,10 @@ project(smooth)
 include(files.cmake)
 include(compiler_options.cmake)
 
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE=512)
-add_definitions(-DCONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES=10)
-add_definitions(-DSMOOTH_MQTT_LOGGING_LEVEL=1)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../externals/fmt ${CMAKE_BINARY_DIR}/externals/fmt)
 
 add_library(${PROJECT_NAME} ${SMOOTH_SOURCES})
-target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf)
+target_link_libraries(${PROJECT_NAME} mbedtls mbedx509 mbedcrypto sodium mock-idf fmt)
 set_compile_options(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}

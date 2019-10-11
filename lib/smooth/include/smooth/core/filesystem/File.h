@@ -63,7 +63,7 @@ namespace smooth::core::filesystem
                 catch (std::exception& ex)
                 {
                     using namespace smooth::core::logging;
-                    Log::error("File", Format("Error reading file: {1}", Str(ex.what())));
+                    Log::error("File", "Error reading file: {}", ex.what());
                 }
 
                 return res;
@@ -78,7 +78,7 @@ namespace smooth::core::filesystem
             /// Writes the entire vector to the file, overwriting any existing file.
             /// \param data The source container
             /// \return true on success, false on failure
-            bool write(const std::string& data) const;
+            [[nodiscard]] bool write(const std::string& data) const;
 
             /// Writes the provided data to the file, overwriting any existing file.
             /// \param data The data
@@ -87,7 +87,7 @@ namespace smooth::core::filesystem
             bool write(const uint8_t* data, int length) const;
 
             /// Determines if the file exists
-            bool exists() const;
+            [[nodiscard]] bool exists() const;
 
             /// Determines if the file exists
             static bool exists(const char* name);

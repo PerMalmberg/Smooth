@@ -16,13 +16,12 @@ limitations under the License.
 */
 
 #include <bitset>
-#include <sstream>
-#include <iterator>
 #include <algorithm>
 #include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
 #include <smooth/application/network/mqtt/Logging.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
+#include <smooth/config_constants.h>
 
 #ifdef ESP_PLATFORM
 
@@ -83,9 +82,9 @@ namespace smooth::application::network::mqtt::packet
 
                 if (remaining_bytes_to_read > CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)
                 {
-                    Log::verbose(mqtt_log_tag, Format("Too big packet detected: {1} > {2}",
-                                                      Int32(remaining_bytes_to_read),
-                                                      Int32(CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE)));
+                    Log::verbose(mqtt_log_tag, "Too big packet detected: {} > {}",
+                                                    remaining_bytes_to_read,
+                                                    CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE);
                     state = DATA;
                     packet.too_big = true;
                 }

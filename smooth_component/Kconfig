@@ -1,5 +1,19 @@
 menu "Smooth"
 
+config SMOOTH_SOCKET_DISPATCHER_STACK_SIZE
+    int "Socket Dispatcher stack size"
+    range 16384 30720
+    default 20480
+    help
+        Stack size for the Socket Dispatcher.
+
+config SMOOTH_TIMER_SERVICE_STACK_SIZE
+    int "Timer Service stack size"
+    range 2048 4069
+    default 3072
+    help
+        Stack size for the Timer Service.
+
 config SMOOTH_MAX_MQTT_MESSAGE_SIZE
     int "Maximum size of incoming messages"
     range 128 4096

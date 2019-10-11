@@ -61,7 +61,7 @@ namespace smooth::application::network::mqtt::state
 
             void packet_received(const packet::MQTTPacket& packet);
 
-            mqtt::IMqttClient& get_mqtt() const
+            [[nodiscard]] mqtt::IMqttClient& get_mqtt() const
             {
                 return mqtt;
             }
@@ -74,13 +74,13 @@ namespace smooth::application::network::mqtt::state
     template<typename BaseState>
     void MqttFSM<BaseState>::entering_state(BaseState* state)
     {
-        Log::debug(mqtt_log_tag, Format("Entering {1}", Str(state->get_name())));
+        Log::debug(mqtt_log_tag, "Entering {}", state->get_name());
     }
 
     template<typename BaseState>
     void MqttFSM<BaseState>::leaving_state(BaseState* state)
     {
-        Log::debug(mqtt_log_tag, Format("Leaving {1}", Str(state->get_name())));
+        Log::debug(mqtt_log_tag, "Leaving {}", state->get_name());
     }
 
     template<typename BaseState>

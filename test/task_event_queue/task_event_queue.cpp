@@ -33,7 +33,7 @@ namespace task_event_queue
     App::App()
             : Application(APPLICATION_BASE_PRIO,
                           std::chrono::milliseconds(1000)),
-              queue(ElapsedTimeQueue::create("string queue", 10, *this, *this)),
+              queue(ElapsedTimeQueue::create(10, *this, *this)),
               sender(queue)
     {
     }
@@ -52,10 +52,10 @@ namespace task_event_queue
 
         if (count % 100 == 0)
         {
-            Log::debug("Stats", Format("Avg: {1}us per message, Count: {2}, Last msg: {3}us",
-                                       Double(static_cast<double>(total.count()) / count, 2),
-                                       Int64(count),
-                                       Int64(val.count())));
+            Log::debug("Stats", "Avg: {}us per message, Count: {}, Last msg: {}us",
+                                       static_cast<double>(total.count()) / count, 2,
+                                       count,
+                                       val.count());
         }
     }
 

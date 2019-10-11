@@ -18,6 +18,7 @@ limitations under the License.
 #include "hello_world.h"
 #include <smooth/core/Task.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/core/SystemStatistics.h>
 
 using namespace smooth::core;
 
@@ -31,25 +32,26 @@ namespace hello_world
 
             void tick() override
             {
-                std::cout << "Hello from other task" << std::endl;
+                Log::info("App::Init", "Hello from other task");
             }
-    }
+    };
 
-    a_instance;
+    ATask a_instance{};
 
     App::App()
-            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(3))
     {
     }
 
     void App::init()
     {
-        std::cout << "Hello world!" << std::endl;
+        Log::info("App::Init", "Starting...");
         a_instance.start();
     }
 
     void App::tick()
     {
-        std::cout << "Tick!" << std::endl;
+        Log::info("App", "Hello world!");
+        SystemStatistics::instance().dump();
     }
 }

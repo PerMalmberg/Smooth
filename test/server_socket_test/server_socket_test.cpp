@@ -42,14 +42,13 @@ namespace server_socket_test
     void App::init()
     {
         Application::init();
-#ifdef ESP_PLATFORM
-        Log::info("App::Init", Format("Starting wifi..."));
+
+        Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
         wifi.connect_to_ap();
-#endif
 
         // The server creates StreamingClients which are self-sufficient and never seen by the main
         // application (unless the implementor adds such bindings).

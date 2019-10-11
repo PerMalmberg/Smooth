@@ -15,10 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef ESP_PLATFORM
-#error "This example requires H/W to run on and can only be compiled with IDF."
-#endif
-
 #include "hw_wrover_kit_blinky.h"
 
 #include <smooth/core/task_priorities.h>
@@ -38,7 +34,7 @@ namespace hw_wrover_kit_blinky
     void App::init()
     {
         Application::init();
-        Log::info("LED fun", Format("Lets blink some LEDs"));
+        Log::info("LED fun", "Lets blink some LEDs");
     }
 
     void App::tick()

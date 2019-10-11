@@ -18,6 +18,7 @@ limitations under the License.
 #include <smooth/core/timer/TimerService.h>
 #include <smooth/core/timer/Timer.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/config_constants.h>
 
 using namespace smooth::core::logging;
 using namespace std::chrono;
@@ -26,7 +27,7 @@ namespace smooth::core::timer
 {
     TimerService::TimerService()
             : Task("TimerService",
-                   1024 * 3,
+                   CONFIG_SMOOTH_TIMER_SERVICE_STACK_SIZE,
                    TIMER_SERVICE_PRIO,
                    milliseconds(0)),
               cmp([](const SharedTimer& left, const SharedTimer& right) {

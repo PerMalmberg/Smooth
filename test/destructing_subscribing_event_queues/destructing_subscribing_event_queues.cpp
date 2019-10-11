@@ -47,9 +47,9 @@ namespace destructing_subscribing_event_queues
             {
                 Publisher<Item>::publish(Item{});
             }
-    }
+    };
 
-    sender;
+    Sender sender{};
 
     class Receiver
         : public smooth::core::Task,
@@ -72,7 +72,7 @@ namespace destructing_subscribing_event_queues
                 {
                     for (int i = 0; i < 10; ++i)
                     {
-                        queues.emplace_back(ReveiverQueue_t::create("", 50, *this, *this));
+                        queues.emplace_back(ReveiverQueue_t::create(50, *this, *this));
                     }
                 }
                 else
@@ -94,9 +94,7 @@ namespace destructing_subscribing_event_queues
                 if (last_count != queues.size())
                 {
                     last_count = queues.size();
-                    Log::info("Rec",
-                Format("Queue count: {1}, Removed: {2}, Evt count: {3}", UInt64(last_count), UInt64(removed),
-                UInt64(event_count)));
+                    Log::info("Rec", "Queue count: {}, Removed: {}, Evt count: {}", last_count, removed, event_count);
                 }
             }
 
@@ -106,9 +104,9 @@ namespace destructing_subscribing_event_queues
             std::mt19937 gen;
             std::uniform_int_distribution<> dis;
             std::size_t removed = 0;
-    }
+    };
 
-    receiver;
+    Receiver receiver{};
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1))

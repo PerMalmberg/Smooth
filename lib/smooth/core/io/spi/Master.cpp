@@ -52,19 +52,19 @@ namespace smooth::core::io::spi
 
             if (res == ESP_ERR_INVALID_ARG)
             {
-                Log::error(log_tag, Format("Invalid configuration"));
+                Log::error(log_tag, "Invalid configuration");
             }
             else if (res == ESP_ERR_INVALID_STATE)
             {
-                Log::error(log_tag, Format("Host already is in use"));
+                Log::error(log_tag, "Host already is in use");
             }
             else if (res == ESP_ERR_NO_MEM)
             {
-                Log::error(log_tag, Format("Out of memory"));
+                Log::error(log_tag, "Out of memory");
             }
             else
             {
-                Log::verbose(log_tag, Format("SPI initialized, Host {1}, DMA {2}", Int32(host), Int32(dma_channel)));
+                Log::verbose(log_tag, "SPI initialized, Host {}, DMA {}", host, dma_channel);
             }
 
             initialized = res == ESP_OK;

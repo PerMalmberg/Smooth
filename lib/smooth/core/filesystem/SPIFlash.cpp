@@ -39,20 +39,14 @@ namespace smooth::core::filesystem
         mount_config.format_if_mount_failed = format_on_mount_failure;
         mount_config.max_files = max_file_count;
 
-        {
-            Format msg("Mounting partition {1} in root {2}, with max file count {3}...",
-                       Str(partition_name),
-                       Str(root),
-                       Int32(max_file_count));
-            Log::info(tag, msg);
-        }
+        Log::info(tag, "Mounting partition {} in root {}, with max file count {}",
+                           partition_name, root,
+                           max_file_count);
 
         auto res = esp_vfs_fat_spiflash_mount(root.c_str(),
                                               partition_name.c_str(),
                                               &mount_config,
                                               &wl_instance);
-
-        Format msg("Result: {1}", Str(res == ESP_OK ? "OK" : "FAIL"));
 
         // Getting mount failures? Make sure that the partition is large enough.
         // https://www.esp32.com/viewtopic.php?f=13&t=1897&p=8909&hilit=f_mkfs+failed+14#p8911
@@ -60,11 +54,11 @@ namespace smooth::core::filesystem
 
         if (res == ESP_OK)
         {
-            Log::info(tag, msg);
+            Log::info(tag, "Result: OK");
         }
         else
         {
-            Log::error(tag, msg);
+            Log::error(tag, "Result: FAILE");
         }
 
         return res == ESP_OK;
@@ -75,23 +69,18 @@ namespace smooth::core::filesystem
         if (wl_instance != WL_INVALID_HANDLE)
         {
             {
-                Format msg("Unmounting partition {1} in root {2}.",
-                           Str(partition_name),
-                           Str(root));
-                Log::info(tag, msg);
+                Log::info(tag, "Unmounting partition {} in root {}.", partition_name, root);
             }
 
             auto res = esp_vfs_fat_spiflash_unmount(root.c_str(), wl_instance);
 
-            Format msg("Result: {1}", Str(res == ESP_OK ? "OK" : "FAIL"));
-
             if (res == ESP_OK)
             {
-                Log::info(tag, msg);
+                Log::info(tag, "Result: OK");
             }
             else
             {
-                Log::error(tag, msg);
+                Log::error(tag, "Result: FAIL");
             }
         }
     }

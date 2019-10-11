@@ -17,7 +17,7 @@ limitations under the License.
 
 
 
-project(unit_test)
+project(linux_unit_tests)
 
 add_executable(${PROJECT_NAME}
         url_encoding_test.cpp

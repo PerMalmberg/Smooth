@@ -143,9 +143,7 @@ namespace smooth::application::network::mqtt
 
                 for (auto& t : topics)
                 {
-                    Log::debug(mqtt_log_tag, Format("Subscription of topic {1} completed, QoS: {2}",
-                                                    Str(t.first),
-                                                    Int32(t.second)));
+                    Log::debug(mqtt_log_tag, "Subscription of topic {} completed, QoS: {}", t.first, t.second);
                     active_subscription.emplace(t.first, t.second);
                 }
 
@@ -228,7 +226,7 @@ namespace smooth::application::network::mqtt
 
                 for (auto& t : topics)
                 {
-                    Log::debug(mqtt_log_tag, Format("Unsubscription of topic {1} completed", Str(t)));
+                    Log::debug(mqtt_log_tag, "Unsubscription of topic {} completed", t);
                     active_subscription.erase(t);
                 }
 
@@ -239,7 +237,7 @@ namespace smooth::application::network::mqtt
 
     void Subscription::forward_to_application(const packet::Publish& publish, IMqttClient& mqtt) const
     {
-        Log::debug(mqtt_log_tag, Format("Reception of QoS {1} complete", Int32(publish.get_qos())));
+        Log::debug(mqtt_log_tag, "Reception of QoS {} complete", publish.get_qos());
 
         // Grab the payload
         std::vector<uint8_t> payload;

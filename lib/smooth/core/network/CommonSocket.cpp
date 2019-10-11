@@ -63,25 +63,22 @@ namespace smooth::core::network
     void CommonSocket::log(const char* message)
     {
         Log::info("Socket",
-                  Format("[{1}, {2}, {3}, {4}]: {5}",
-                         Str(ip->get_host()),
-                         Int32(ip->get_port()),
-                         Int32(socket_id),
-                         Pointer(this),
-                         Str(message)));
+        "[{}, {}, {}, {}]: {}",
+        ip->get_host(),
+        ip->get_port(),
+        socket_id,
+        static_cast<void*>(this),
+        message);
     }
 
     void CommonSocket::loge(const char* message)
     {
-        Log::error("Socket",
-                   Format("[{1}, {2}, {3} {4}]: {5}: {6} ({7})",
-                          Str(ip->get_host()),
-                          Int32(ip->get_port()),
-                          Int32(socket_id),
-                          Pointer(this),
-                          Str(message),
-                          Str(strerror(errno)),
-                          Int32(errno)));
+        Log::error("Socket", "[{}, {}, {} {}]: {}: {} ({})", ip->get_host(), ip->get_port(),
+                   socket_id,
+                   static_cast<void*>(this),
+                   message,
+                   strerror(errno),
+                   errno);
     }
 
     void CommonSocket::stop(const char* reason)

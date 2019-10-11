@@ -60,7 +60,7 @@ namespace smooth::core::filesystem
         }
         catch (std::exception& ex)
         {
-            Log::error("File", Format("Error reading file: {1}", Str(ex.what())));
+            Log::error("File", "Error reading file: {}", ex.what());
         }
 
         return res;
@@ -87,7 +87,7 @@ namespace smooth::core::filesystem
         }
         catch (std::exception& ex)
         {
-            Log::error("File", Format("Error reading file: {1}", Str(ex.what())));
+            Log::error("File", "Error reading file: {}", ex.what());
         }
 
         return res;

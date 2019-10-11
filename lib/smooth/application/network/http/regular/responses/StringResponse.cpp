@@ -73,8 +73,7 @@ namespace smooth::application::network::http::regular::responses
 
     void StringResponse::dump() const
     {
-        Log::debug("Response",
-                   Format("Code: {1}; Remaining: {2} bytes", Int32(static_cast<int>(code)), UInt64(data.size())));
+        Log::debug("Response", "Code: {}; Remaining: {} bytes", code, data.size());
     }
 
     void StringResponse::add_string(std::string str)

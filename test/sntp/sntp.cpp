@@ -32,7 +32,7 @@ namespace sntp
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(1)),
               sntp(std::vector<std::string>{ "0.se.pool.ntp.org", "1.se.pool.ntp.org" }),
-              sync_queue(TimeSyncQueue::create("", 2, *this, *this))
+              sync_queue(TimeSyncQueue::create(2, *this, *this))
     {
     }
 
@@ -45,7 +45,7 @@ namespace sntp
         print_time();
         sntp.start();
 
-        Log::info("App::Init", Format("Starting wifi..."));
+        Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_auto_connect(true);

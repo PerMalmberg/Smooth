@@ -42,8 +42,8 @@ namespace destructing_event_queues
     {
         public:
             explicit TimerUser(Task& task)
-                    : queue(TimerExpiredQueue_t::create("", 10, task, *this)),
-                      timer("", 0, queue, true, milliseconds{ 300 })
+                    : queue(TimerExpiredQueue_t::create(10, task, *this)),
+                      timer(0, queue, true, milliseconds{ 300 })
             {
                 timer->start();
             }
@@ -82,17 +82,14 @@ namespace destructing_event_queues
                 }
                 else
                 {
-//                    for (int i = 0; i < 50 - val && !users.empty(); ++i)
-//                    {
-//                        users.erase(users.begin());
-//                        removed++;
-//                    }
+                    for (int i = 0; i < 50 - val && !users.empty(); ++i)
+                    {
+                        users.erase(users.begin());
+                        removed++;
+                    }
                 }
 
-                Log::info("Worker",
-                          Format("User count: {1}, expire count: {2}",
-                                 UInt64(users.size()),
-                                 UInt64(expire_count)));
+                Log::info("Worker", "User count: {1}, expire count: {2}", users.size(), expire_count);
             }
 
         private:
@@ -101,9 +98,9 @@ namespace destructing_event_queues
             std::mt19937 gen;
             std::uniform_int_distribution<> dis;
             std::size_t removed = 0;
-    }
+    };
 
-    test_worker;
+    Worker test_worker{};
 
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::seconds(10))

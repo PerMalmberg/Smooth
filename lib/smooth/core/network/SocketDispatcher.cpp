@@ -19,6 +19,7 @@ limitations under the License.
 #include <functional>
 #include <smooth/core/network/SocketDispatcher.h>
 #include <smooth/core/task_priorities.h>
+#include <smooth/config_constants.h>
 
 #ifndef ESP_PLATFORM
 
@@ -33,6 +34,7 @@ using namespace std::chrono;
 
 namespace smooth::core::network
 {
+
     SocketDispatcher& SocketDispatcher::instance()
     {
         static SocketDispatcher instance;
@@ -50,18 +52,13 @@ namespace smooth::core::network
     }
 
     SocketDispatcher::SocketDispatcher()
-            : Task(tag, 1024 * 20, SOCKET_DISPATCHER_PRIO, std::chrono::milliseconds(0)),
+            : Task(tag, CONFIG_SMOOTH_SOCKET_DISPATCHER_STACK_SIZE, SOCKET_DISPATCHER_PRIO,
+                   std::chrono::milliseconds(0)),
               active_sockets(),
               inactive_sockets(),
               socket_guard(),
-              network_events(NetworkEventQueue::create(tag, 10, *this, *this)),
-              socket_op(SocketOperationQueue::create("SocketOperations",
-
-                                                     // TODO: When compiled for IDF, get proper value based on number of
-                                                     // allowed sockets in sdkconfig
-                                                     //  Note: If there are more than 20 sockets, this queue is too
-                                                     // small.
-                                                     20,
+              network_events(NetworkEventQueue::create(10, *this, *this)),
+              socket_op(SocketOperationQueue::create(CONFIG_LWIP_MAX_SOCKETS,
                                                      *this,
                                                      *this))
     {
@@ -84,13 +81,13 @@ namespace smooth::core::network
 
             if (res == -1)
             {
-                Log::error(tag, Format("Error during select: {1}", Str(strerror(errno))));
+                Log::error(tag, "Error during select: {}", strerror(errno));
             }
             else if (res > 0)
             {
                 for (int i = 0; i <= max_file_descriptor; ++i)
                 {
-                    if (is_fd_set(static_cast<size_t>(i), read_set))
+                    if (is_fd_set(static_cast<FD>(i), read_set))
                     {
                         auto it = active_sockets.find(i);
 
@@ -100,7 +97,7 @@ namespace smooth::core::network
                         }
                     }
 
-                    if (is_fd_set(static_cast<size_t>(i), write_set))
+                    if (is_fd_set(static_cast<FD>(i), write_set))
                     {
                         auto it = active_sockets.find(i);
 
@@ -198,9 +195,7 @@ namespace smooth::core::network
     {
         std::lock_guard<std::mutex> lock(socket_guard);
 
-        Log::verbose(tag, Format("Shutting down socket {1}, ID: {2}",
-                                 Pointer(socket.get()),
-                                 Int32(socket->get_socket_id())));
+        Log::verbose(tag, "Shutting down socket {}, ID: {}", static_cast<void*>(socket.get()), socket->get_socket_id());
         socket->stop_internal();
         remove_socket_from_active_sockets(socket);
         remove_socket_from_collection(inactive_sockets, socket);
@@ -215,14 +210,14 @@ namespace smooth::core::network
             // Don't log "Not connected" errors
             if (res < 0 && errno != ENOTCONN)
             {
-                Log::error(tag, Format("Shutdown error: {1}", Str(strerror(errno))));
+                Log::error(tag, "Shutdown error: {}", strerror(errno));
             }
 
             res = close(socket_id);
 
             if (res < 0)
             {
-                Log::error(tag, Format("Close error: {1}", Str(strerror(errno))));
+                Log::error(tag, "Close error: {}", strerror(errno));
             }
 
             socket->clear_socket_id();
@@ -254,7 +249,7 @@ namespace smooth::core::network
 
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
-        const auto predicate = [&socket](std::pair<int, const std::shared_ptr<ISocket>> o) {
+        const auto predicate = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
                                    return o.second.get() == socket.get();
                                };
 
@@ -295,13 +290,13 @@ namespace smooth::core::network
 
         if (event.get_event() == NetworkEvent::GOT_IP)
         {
-            Log::info(tag, Format(Str("Network up, sockets will be restarted.")));
+            Log::info(tag, "Network up, sockets will be restarted.");
             has_ip = true;
             shall_close_sockets = true;
         }
         else if (event.get_event() == NetworkEvent::DISCONNECTED)
         {
-            Log::warning(tag, Format(Str("Network down, closing all sockets.")));
+            Log::warning(tag, "Network down, closing all sockets.");
 
             // Close all sockets
             has_ip = false;
@@ -345,14 +340,15 @@ namespace smooth::core::network
         {
             if (pair.second->has_send_expired())
             {
-                Log::warning(tag, Format("Send timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
-                                         Int64(pair.second->get_send_timeout().count())));
+                Log::warning(tag, "Send timeout on socket {} ({} ms)", static_cast<void*>(pair.second.get()),
+                                         pair.second->get_send_timeout().count());
                 pair.second->stop("Send timeout");
             }
             else if (pair.second->has_receive_expired())
             {
-                Log::warning(tag, Format("Receive timeout on socket {1} ({2} ms)", Pointer(pair.second.get()),
-                                         Int64(pair.second->get_receive_timeout().count())));
+                Log::warning(tag, "Receive timeout on socket {} ({} ms)",
+                                      static_cast<void*>(pair.second.get()),
+                                      pair.second->get_receive_timeout().count());
                 pair.second->stop("Receive timeout");
             }
         }
@@ -379,7 +375,8 @@ namespace smooth::core::network
         if (now - last > seconds{ 15 })
         {
             last = now;
-            Log::info(tag, Format("Active sockets: {1}", UInt64(active_sockets.size())));
+
+            Log::info(tag, "Active sockets: {}", active_sockets.size());
         }
     }
 

@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 #include <algorithm>
+#include <sstream>
 #include <smooth/core/Task.h>
 #include <smooth/core/io/i2c/I2CMasterDevice.h>
 #include <smooth/core/io/i2c/I2CCommandLink.h>
@@ -180,23 +181,23 @@ namespace smooth::core::io::i2c
     {
         if (err == ESP_ERR_INVALID_ARG)
         {
-            Log::error(log_tag, Format("{1} - Parameter error", Str(msg)));
+            Log::error(log_tag, "{} - Parameter error", msg);
         }
         else if (err == ESP_FAIL)
         {
-            Log::error(log_tag, Format("{1} - Send command error, no ACK from slave", Str(msg)));
+            Log::error(log_tag, "{} - Send command error, no ACK from slave", msg);
         }
         else if (err == ESP_ERR_INVALID_STATE)
         {
-            Log::error(log_tag, Format("{1} - I2C driver not installed or not in master mode", Str(msg)));
+            Log::error(log_tag, "{} - I2C driver not installed or not in master mode", msg);
         }
         else if (err == ESP_ERR_TIMEOUT)
         {
-            Log::error(log_tag, Format("{1} - Operation timeout, bus busy", Str(msg)));
+            Log::error(log_tag, "{} - Operation timeout, bus busy", msg);
         }
         else if (err != ESP_OK)
         {
-            Log::error(log_tag, Format("{1} - unknown error: {2}", Str(msg), Int32(err)));
+            Log::error(log_tag, "{} - unknown error: {}", msg, err);
         }
     }
 }

@@ -66,6 +66,6 @@ namespace smooth::application::network::http::regular::responses
 
     void HeaderOnlyResponse::dump() const
     {
-        Log::debug("Response", Format("Code: {1}", Int32(static_cast<int>(code))));
+        Log::debug("Response", "Code: {}", code);
     }
 }

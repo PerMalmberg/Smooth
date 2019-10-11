@@ -43,20 +43,18 @@ namespace smooth::application::network::mqtt
                            std::weak_ptr<TaskEventQueue<MQTTData>> application_queue)
             : Task(mqtt_client_id, stack_size, priority, std::chrono::milliseconds(50)),
               application_queue(std::move(application_queue)),
-              timer_events(TimerQueue::create("timer_events", 5, *this, *this)),
-              control_event(ControlQueue::create("control_event", 5, *this, *this)),
-              system_event(SystemQueue::create("system_event", 5, *this, *this)),
+              timer_events(TimerQueue::create(5, *this, *this)),
+              control_event(ControlQueue::create(5, *this, *this)),
+              system_event(SystemQueue::create(5, *this, *this)),
               guard(),
               client_id(mqtt_client_id),
               keep_alive(keep_alive),
               mqtt_socket(),
-              reconnect_timer("reconnect_timer",
-                              MQTT_FSM_RECONNECT_TIMER_ID,
+              reconnect_timer(MQTT_FSM_RECONNECT_TIMER_ID,
                               timer_events,
                               false,
                               std::chrono::seconds(5)),
-              keep_alive_timer("keep_alive_timer",
-                               MQTT_FSM_KEEP_ALIVE_TIMER_ID,
+              keep_alive_timer(MQTT_FSM_KEEP_ALIVE_TIMER_ID,
                                timer_events,
                                true,
                                std::chrono::seconds(1)),
@@ -194,8 +192,7 @@ namespace smooth::application::network::mqtt
 
     void MqttClient::event(const core::network::event::ConnectionStatusEvent& event)
     {
-        Log::info(mqtt_log_tag, Format("MQTT {1} server",
-                                       Str(event.is_connected() ? "connected to" : "disconnected from")));
+        Log::info(mqtt_log_tag, "MQTT {} server", event.is_connected() ? "connected to" : "disconnected from");
         connected = event.is_connected();
         fsm.event(event);
     }

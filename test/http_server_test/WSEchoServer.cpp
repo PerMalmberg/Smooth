@@ -31,8 +31,8 @@ namespace http_server_test
 
     WSEchoServer::WSEchoServer(smooth::application::network::http::IServerResponse& response, smooth::core::Task& task)
             : WebsocketServer(response, task),
-              timer_queue(TaskEventQueue<TimerExpiredEvent>::create("time_queue", 1, task, *this)),
-              timer(Timer::create("Ping", 0, timer_queue, true, seconds {1}))
+              timer_queue(TaskEventQueue<TimerExpiredEvent>::create(1, task, *this)),
+              timer(Timer::create(0, timer_queue, true, seconds {1}))
     {
         timer->start();
     }

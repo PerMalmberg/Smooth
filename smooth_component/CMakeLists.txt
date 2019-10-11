@@ -28,6 +28,7 @@ idf_component_register(SRCS ${SMOOTH_SOURCES}
                             ${SMOOTH_LIB_ROOT}/smooth/include
                             ${normalized_path}/components
                             ${CMAKE_CURRENT_LIST_DIR}/../externals/nlohmann_json/include
+                            ${CMAKE_CURRENT_LIST_DIR}/../externals/fmt/include
                         REQUIRES
                             mbedtls
                             json
@@ -36,5 +37,9 @@ idf_component_register(SRCS ${SMOOTH_SOURCES}
                             fatfs
                             libsodium
                             )
+
+add_subdirectory(${COMPONENT_DIR}/../externals/fmt ${CMAKE_BINARY_DIR}/externals/fmt)
+
+target_link_libraries(${COMPONENT_LIB} fmt)
 
 set_compile_options(${COMPONENT_LIB})

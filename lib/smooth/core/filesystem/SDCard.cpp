@@ -40,18 +40,18 @@ namespace smooth::core::filesystem
 
         if (initialized)
         {
-            Log::info("SPISDCard", Format("SD Card initialized"));
+            Log::info("SPISDCard", "SD Card initialized");
             sdmmc_card_print_info(stdout, card);
         }
         else
         {
             if (mount_result == ESP_FAIL)
             {
-                Log::error("SPISDCard", Format("Failed to mount the file system."));
+                Log::error("SPISDCard", "Failed to mount the file system.");
             }
             else
             {
-                Log::error("SPISDCard", Format("Failed to initialize SD Card."));
+                Log::error("SPISDCard", "Failed to initialize SD Card.");
             }
         }
 
