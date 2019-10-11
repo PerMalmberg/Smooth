@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 #include <smooth/core/json/JsonFile.h>
 #include <smooth/core/filesystem/MountPoint.h>
 #include <smooth/core/util/json_util.h>

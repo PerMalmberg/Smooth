@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 #include <cstdint>
 #include <smooth/application/hash/sha.h>
 #include <smooth/application/hash/base64.h>

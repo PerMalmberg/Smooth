@@ -31,7 +31,8 @@ add_executable(${PROJECT_NAME}
         JsonTest.cpp)
 
 target_include_directories(${PROJECT_NAME}
-        PRIVATE ${SMOOTH_TEST_ROOT})
+        PRIVATE ${SMOOTH_TEST_ROOT}
+        ${CMAKE_CURRENT_LIST_DIR}/../../externals/catch2/single_include)
 
 target_link_libraries(${PROJECT_NAME} smooth pthread)
 

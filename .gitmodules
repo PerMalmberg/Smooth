@@ -4,3 +4,6 @@
 [submodule "externals/fmt"]
 	path = externals/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "externals/catch2"]
+	path = externals/catch2
+	url = https://github.com/catchorg/Catch2.git

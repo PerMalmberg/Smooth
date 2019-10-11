@@ -17,7 +17,7 @@ limitations under the License.
 
 #define CATCH_CONFIG_MAIN
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 #include <array>
 #include <unordered_map>
 

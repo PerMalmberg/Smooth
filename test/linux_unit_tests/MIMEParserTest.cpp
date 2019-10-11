@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 #include <smooth/application/network/http/regular/MIMEParser.h>
 #include <smooth/core/filesystem/Path.h>
 #include <smooth/core/filesystem/File.h>
