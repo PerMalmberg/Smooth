@@ -24,7 +24,7 @@ typedef struct {
 /**
  * Macro defining default configuration of SPI host
  */
-#define SDSPI_SLOT_CONFIG_DEFAULT() {\
+#define SDSPI_SLOT_CONFIG_DEFAULT() { \
     .gpio_miso = GPIO_NUM_2, \
     .gpio_mosi = GPIO_NUM_15, \
     .gpio_sck  = GPIO_NUM_14, \
@@ -83,7 +83,7 @@ esp_err_t sdspi_host_init_slot(int slot, const sdspi_slot_config_t* slot_config)
  *      - ESP_ERR_INVALID_CRC if response or data transfer CRC check has failed
  *      - ESP_ERR_INVALID_RESPONSE if the card has sent an invalid response
  */
-esp_err_t sdspi_host_do_transaction(int slot, sdmmc_command_t *cmdinfo);
+esp_err_t sdspi_host_do_transaction(int slot, sdmmc_command_t* cmdinfo);
 
 /**
  * @brief Set card clock frequency
@@ -101,7 +101,6 @@ esp_err_t sdspi_host_do_transaction(int slot, sdmmc_command_t *cmdinfo);
  *      - other error codes may be returned in the future
  */
 esp_err_t sdspi_host_set_card_clk(int slot, uint32_t freq_khz);
-
 
 /**
  * @brief Release resources allocated using sdspi_host_init

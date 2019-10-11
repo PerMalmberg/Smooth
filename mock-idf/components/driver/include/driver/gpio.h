@@ -12,6 +12,7 @@
                                                                       excluding pins 20, 24 and 28..31.
                                                                       They are not shown here
                                                                       to reduce redundant information. */
+
 /** @cond */
 #define GPIO_SEL_3              (BIT(3))                         /*!< Pin 3 selected */
 #define GPIO_SEL_4              (BIT(4))                         /*!< Pin 4 selected */
@@ -95,23 +96,41 @@
 #define GPIO_MODE_DEF_OUTPUT          (BIT1)
 #define GPIO_MODE_DEF_OD              (BIT2)
 
-
 /** @endcond */
 
-#define GPIO_IS_VALID_GPIO(gpio_num)      ((gpio_num < GPIO_PIN_COUNT && GPIO_PIN_MUX_REG[gpio_num] != 0))   /*!< Check whether it is a valid GPIO number */
-#define GPIO_IS_VALID_OUTPUT_GPIO(gpio_num)      ((GPIO_IS_VALID_GPIO(gpio_num)) && (gpio_num < 34))         /*!< Check whether it can be a valid GPIO number of output mode */
+#define GPIO_IS_VALID_GPIO(gpio_num)      ((gpio_num < GPIO_PIN_COUNT && GPIO_PIN_MUX_REG[gpio_num] != 0))   /*!< Check
+                                                                                                                whether
+                                                                                                                it is a
+                                                                                                                valid
+                                                                                                                GPIO
+                                                                                                                number
+                                                                                                                */
+#define GPIO_IS_VALID_OUTPUT_GPIO(gpio_num)      ((GPIO_IS_VALID_GPIO(gpio_num)) && (gpio_num < 34))         /*!< Check
+                                                                                                                whether
+                                                                                                                it can
+                                                                                                                be a
+                                                                                                                valid
+                                                                                                                GPIO
+                                                                                                                number
+                                                                                                                of
+                                                                                                                output
+                                                                                                                mode */
 
-typedef enum {
+typedef enum
+{
     GPIO_NUM_NC = -1,    /*!< Use to signal not connected to S/W */
     GPIO_NUM_0 = 0,     /*!< GPIO0, input and output */
     GPIO_NUM_1 = 1,     /*!< GPIO1, input and output */
-    GPIO_NUM_2 = 2,     /*!< GPIO2, input and output
-                             @note There are more enumerations like that
-                             up to GPIO39, excluding GPIO20, GPIO24 and GPIO28..31.
-                             They are not shown here to reduce redundant information.
-                             @note GPIO34..39 are input mode only. */
+    GPIO_NUM_2 = 2,
+
+    /*!< GPIO2, input and output
+                         @note There are more enumerations like that
+                         up to GPIO39, excluding GPIO20, GPIO24 and GPIO28..31.
+                         They are not shown here to reduce redundant information.
+                         @note GPIO34..39 are input mode only. */
+
 /** @cond */
-            GPIO_NUM_3 = 3,     /*!< GPIO3, input and output */
+    GPIO_NUM_3 = 3,             /*!< GPIO3, input and output */
     GPIO_NUM_4 = 4,     /*!< GPIO4, input and output */
     GPIO_NUM_5 = 5,     /*!< GPIO5, input and output */
     GPIO_NUM_6 = 6,     /*!< GPIO6, input and output */
@@ -146,10 +165,12 @@ typedef enum {
     GPIO_NUM_38 = 38,   /*!< GPIO38, input mode only */
     GPIO_NUM_39 = 39,   /*!< GPIO39, input mode only */
     GPIO_NUM_MAX = 40,
+
 /** @endcond */
 } gpio_num_t;
 
-typedef enum {
+typedef enum
+{
     GPIO_INTR_DISABLE = 0,     /*!< Disable GPIO interrupt                             */
     GPIO_INTR_POSEDGE = 1,     /*!< GPIO interrupt type : rising edge                  */
     GPIO_INTR_NEGEDGE = 2,     /*!< GPIO interrupt type : falling edge                 */
@@ -159,21 +180,46 @@ typedef enum {
     GPIO_INTR_MAX,
 } gpio_int_type_t;
 
-typedef enum {
-    GPIO_MODE_DISABLE = GPIO_MODE_DEF_DISABLE,                                        /*!< GPIO mode : disable input and output             */
-    GPIO_MODE_INPUT = GPIO_MODE_DEF_INPUT,                                                         /*!< GPIO mode : input only                           */
-    GPIO_MODE_OUTPUT = GPIO_MODE_DEF_OUTPUT,                                                       /*!< GPIO mode : output only mode                     */
-    GPIO_MODE_OUTPUT_OD = ((GPIO_MODE_DEF_OUTPUT)|(GPIO_MODE_DEF_OD)),                             /*!< GPIO mode : output only with open-drain mode     */
-    GPIO_MODE_INPUT_OUTPUT_OD = ((GPIO_MODE_DEF_INPUT)|(GPIO_MODE_DEF_OUTPUT)|(GPIO_MODE_DEF_OD)), /*!< GPIO mode : output and input with open-drain mode*/
-    GPIO_MODE_INPUT_OUTPUT = ((GPIO_MODE_DEF_INPUT)|(GPIO_MODE_DEF_OUTPUT)),                       /*!< GPIO mode : output and input mode                */
+typedef enum
+{
+    GPIO_MODE_DISABLE = GPIO_MODE_DEF_DISABLE,                                        /*!< GPIO mode : disable input and
+                                                                                         output             */
+    GPIO_MODE_INPUT = GPIO_MODE_DEF_INPUT,                                                         /*!< GPIO mode :
+                                                                                                      input only
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                                    */
+    GPIO_MODE_OUTPUT = GPIO_MODE_DEF_OUTPUT,                                                       /*!< GPIO mode :
+                                                                                                      output only mode
+                                                                                                        
+                                                                                                        
+                                                                                                                    */
+    GPIO_MODE_OUTPUT_OD = ((GPIO_MODE_DEF_OUTPUT) | (GPIO_MODE_DEF_OD)),                             /*!< GPIO mode :
+                                                                                                        output only with
+                                                                                                        open-drain mode
+                                                                                                            */
+    GPIO_MODE_INPUT_OUTPUT_OD = ((GPIO_MODE_DEF_INPUT) | (GPIO_MODE_DEF_OUTPUT) | (GPIO_MODE_DEF_OD)), /*!< GPIO mode :
+                                                                                                          output and
+                                                                                                          input with
+                                                                                                          open-drain
+                                                                                                          mode*/
+    GPIO_MODE_INPUT_OUTPUT = ((GPIO_MODE_DEF_INPUT) | (GPIO_MODE_DEF_OUTPUT)),                       /*!< GPIO mode :
+                                                                                                        output and input
+                                                                                                        mode
+                                                                                                          
+                                                                                                                    */
 } gpio_mode_t;
 
-typedef enum {
+typedef enum
+{
     GPIO_PULLUP_DISABLE = 0x0,     /*!< Disable GPIO pull-up resistor */
     GPIO_PULLUP_ENABLE = 0x1,      /*!< Enable GPIO pull-up resistor */
 } gpio_pullup_t;
 
-typedef enum {
+typedef enum
+{
     GPIO_PULLDOWN_DISABLE = 0x0,   /*!< Disable GPIO pull-down resistor */
     GPIO_PULLDOWN_ENABLE = 0x1,    /*!< Enable GPIO pull-down resistor  */
 } gpio_pulldown_t;
@@ -189,23 +235,25 @@ typedef struct {
     gpio_int_type_t intr_type;      /*!< GPIO interrupt type                                  */
 } gpio_config_t;
 
-typedef enum {
+typedef enum
+{
     GPIO_PULLUP_ONLY,               /*!< Pad pull up            */
     GPIO_PULLDOWN_ONLY,             /*!< Pad pull down          */
     GPIO_PULLUP_PULLDOWN,           /*!< Pad pull up + pull down*/
     GPIO_FLOATING,                  /*!< Pad floating           */
 } gpio_pull_mode_t;
 
-typedef enum {
-    GPIO_DRIVE_CAP_0       = 0,    /*!< Pad drive capability: weak          */
-    GPIO_DRIVE_CAP_1       = 1,    /*!< Pad drive capability: stronger      */
-    GPIO_DRIVE_CAP_2       = 2,    /*!< Pad drive capability: default value */
+typedef enum
+{
+    GPIO_DRIVE_CAP_0 = 0,          /*!< Pad drive capability: weak          */
+    GPIO_DRIVE_CAP_1 = 1,          /*!< Pad drive capability: stronger      */
+    GPIO_DRIVE_CAP_2 = 2,          /*!< Pad drive capability: default value */
     GPIO_DRIVE_CAP_DEFAULT = 2,    /*!< Pad drive capability: default value */
-    GPIO_DRIVE_CAP_3       = 3,    /*!< Pad drive capability: strongest     */
+    GPIO_DRIVE_CAP_3 = 3,          /*!< Pad drive capability: strongest     */
     GPIO_DRIVE_CAP_MAX,
 } gpio_drive_cap_t;
 
-typedef void (*gpio_isr_t)(void*);
+typedef void (* gpio_isr_t)(void*);
 typedef intr_handle_t gpio_isr_handle_t;
 
 /**
@@ -220,7 +268,7 @@ typedef intr_handle_t gpio_isr_handle_t;
  *     - ESP_ERR_INVALID_ARG Parameter error
  *
  */
-esp_err_t gpio_config(const gpio_config_t *pGPIOConfig);
+esp_err_t gpio_config(const gpio_config_t* pGPIOConfig);
 
 /**
  * @brief Reset an gpio to default state (select gpio function, enable pullup and disable input and output).
@@ -381,7 +429,7 @@ esp_err_t gpio_wakeup_disable(gpio_num_t gpio_num);
  *     - ESP_ERR_INVALID_ARG GPIO error
  *     - ESP_ERR_NOT_FOUND No free interrupt found with the specified flags
  */
-esp_err_t gpio_isr_register(void (*fn)(void*), void * arg, int intr_alloc_flags, gpio_isr_handle_t *handle);
+esp_err_t gpio_isr_register(void (* fn)(void*), void* arg, int intr_alloc_flags, gpio_isr_handle_t* handle);
 
 /**
   * @brief Enable pull-up on GPIO.

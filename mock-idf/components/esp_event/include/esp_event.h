@@ -188,7 +188,8 @@ esp_err_t esp_event_handler_register_with(esp_event_loop_handle_t event_loop,
  * @return ESP_ERR_INVALID_ARG invalid combination of event base and event id
  * @return others fail
  */
-esp_err_t esp_event_handler_unregister(esp_event_base_t event_base, int32_t event_id, esp_event_handler_t event_handler);
+esp_err_t esp_event_handler_unregister(esp_event_base_t event_base, int32_t event_id,
+                                       esp_event_handler_t event_handler);
 
 /**
  * @brief Unregister a handler with the system event loop.

@@ -26,4 +26,3 @@ esp_err_t esp_vfs_fat_sdmmc_unmount()
 {
     return ESP_OK;
 }
-

@@ -11,6 +11,7 @@ typedef struct {
      */
     bool format_if_mount_failed;
     int max_files;                  ///< Max number of open files
+
     /**
      * If format_if_mount_failed is set, and mount fails, format the card
      * with given allocation unit size. Must be a power of 2, between sector
@@ -50,4 +51,4 @@ esp_err_t esp_vfs_fat_spiflash_mount(const char* base_path,
                                      const esp_vfs_fat_mount_config_t* mount_config,
                                      wl_handle_t* wl_handle);
 
-esp_err_t esp_vfs_fat_spiflash_unmount(const char *base_path, wl_handle_t wl_handle);
+esp_err_t esp_vfs_fat_spiflash_unmount(const char* base_path, wl_handle_t wl_handle);

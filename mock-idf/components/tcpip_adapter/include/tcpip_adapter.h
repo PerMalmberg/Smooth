@@ -16,7 +16,8 @@ typedef struct {
 
 ESP_EVENT_DECLARE_BASE(IP_EVENT);
 
-typedef enum {
+typedef enum
+{
     TCPIP_ADAPTER_IF_STA = 0,     /**< Wi-Fi STA (station) interface */
     TCPIP_ADAPTER_IF_AP,          /**< Wi-Fi soft-AP interface */
     TCPIP_ADAPTER_IF_ETH,         /**< Ethernet interface */
@@ -42,7 +43,8 @@ typedef struct {
 } ip_event_got_ip6_t;
 
 /** IP event declarations */
-typedef enum {
+typedef enum
+{
     IP_EVENT_STA_GOT_IP,               /*!< ESP32 station got IP from connected AP */
     IP_EVENT_STA_LOST_IP,              /*!< ESP32 station lost IP and the IP is reset to 0 */
     IP_EVENT_AP_STAIPASSIGNED,         /*!< ESP32 soft-AP assign an IP to a connected station */
@@ -53,4 +55,3 @@ typedef enum {
 void tcpip_adapter_init();
 
 esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char* hostname);
-

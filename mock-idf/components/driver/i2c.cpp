@@ -19,7 +19,8 @@ esp_err_t i2c_param_config(i2c_port_t /*i2c_num*/, const i2c_config_t* /*i2c_con
     return ESP_OK;
 }
 
-esp_err_t i2c_master_write(i2c_cmd_handle_t /*cmd_handle*/, uint8_t* /*data*/, std::size_t /*data_len*/, bool /*ack_en*/)
+esp_err_t i2c_master_write(i2c_cmd_handle_t /*cmd_handle*/, uint8_t* /*data*/, std::size_t /*data_len*/,
+                           bool /*ack_en*/)
 {
     return ESP_OK;
 }

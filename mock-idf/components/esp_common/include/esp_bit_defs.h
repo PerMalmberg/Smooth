@@ -33,7 +33,6 @@
 #define BIT1     0x00000002
 #define BIT0     0x00000001
 
-
 #ifndef __ASSEMBLER__
 #define BIT(nr)                 (1UL << (nr))
 #define BIT64(nr)               (1ULL << (nr))

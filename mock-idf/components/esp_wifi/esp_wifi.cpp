@@ -52,7 +52,7 @@ esp_err_t esp_wifi_connect()
 
 esp_err_t esp_wifi_get_mac(wifi_interface_t /*ifx*/, uint8_t mac[6])
 {
-    for( std::size_t i = 0; i < 6; ++i)
+    for (std::size_t i = 0; i < 6; ++i)
     {
         mac[i] = static_cast<uint8_t>(i);
     }
