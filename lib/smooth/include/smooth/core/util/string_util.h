@@ -25,9 +25,9 @@ limitations under the License.
 
 namespace smooth::core::string_util
 {
-    inline std::string left_trim(std::string s, std::function<bool(char c)> filter = [](auto c) {
-                                                                                         return !std::isspace(c);
-                                                                                     })
+    constexpr auto is_not_space = [](auto c) { return !std::isspace(c); };
+
+    inline std::string left_trim(std::string s, std::function<bool(char c)> filter = is_not_space)
     {
         s.erase(s.begin(),
                 std::find_if(s.begin(), s.end(), std::move(filter)));
@@ -35,9 +35,7 @@ namespace smooth::core::string_util
         return s;
     }
 
-    inline std::string right_trim(std::string s, std::function<bool(char c)> filter = [](auto c) {
-                                                                                          return !std::isspace(c);
-                                                                                      })
+    inline std::string right_trim(std::string s, std::function<bool(char c)> filter = is_not_space)
     {
         auto erase_start = std::find_if(s.rbegin(), s.rend(), std::move(filter)).base();
         s.erase(erase_start, s.end());
@@ -45,9 +43,7 @@ namespace smooth::core::string_util
         return s;
     }
 
-    inline std::string trim(std::string s, const std::function<bool(char c)>& filter = [](auto c) {
-                                                                                           return !std::isspace(c);
-                                                                                       })
+    inline std::string trim(std::string s, const std::function<bool(char c)>& filter = is_not_space)
     {
         return right_trim(left_trim(std::move(s), filter), filter);
     }
