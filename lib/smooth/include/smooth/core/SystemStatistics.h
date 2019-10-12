@@ -73,7 +73,7 @@ namespace smooth::core
         private:
 #ifdef ESP_PLATFORM
 
-            void dump_mem_stats(uint32_t caps) const noexcept;
+            void dump_mem_stats(const char* header, uint32_t caps) const noexcept;
 
 #endif
 

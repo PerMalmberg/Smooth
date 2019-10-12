@@ -42,27 +42,40 @@ namespace smooth::core
 #endif
     }
 
+    static constexpr const char* dump_fmt = "{:>8} | {:>11} | {:>14} | {:>12} | {:>11} | {:>14} | {:>12}";
+
     void SystemStatistics::dump() const noexcept
     {
 #ifdef ESP_PLATFORM
-        dump_mem_stats("[INTERNAL]", MALLOC_CAP_INTERNAL);
-        dump_mem_stats("[INTERNAL | DMA]", MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
-        dump_mem_stats("[SPIRAM]", MALLOC_CAP_SPIRAM);
+        Log::info(tag,
+        dump_fmt,
+                       "Mem type",
+        "8-bit free",
+        "Smallest block",
+        "Minimum free",
+        "32-bit free",
+        "Smallest block",
+        "Minimum free");
+
+        dump_mem_stats("INTERNAL", MALLOC_CAP_INTERNAL);
+        dump_mem_stats("DMA", MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
+        dump_mem_stats("SPIRAM", MALLOC_CAP_SPIRAM);
 #endif
 
         { // Only need to lock while accessing the shared data
             synch guard{ lock };
-            constexpr const char* format = "{:>16} | {:>10} | {:>15} | {:>15}";
-            Log::info(tag, format, "Name", "Stack", "Min free stack", "Max used stack" );
+            constexpr const char* stack_format = "{:>16} | {:>10} | {:>15} | {:>15}";
+            Log::info(tag, "");
+            Log::info(tag, stack_format, "Name", "Stack", "Min free stack", "Max used stack" );
 
             for (const auto& stat : task_info)
             {
                 Log::info(tag,
-                format,
-                stat.first,
-                stat.second.get_stack_size(),
-                stat.second.get_high_water_mark(),
-                stat.second.get_stack_size() - stat.second.get_high_water_mark());
+                          stack_format,
+                          stat.first,
+                          stat.second.get_stack_size(),
+                          stat.second.get_high_water_mark(),
+                          stat.second.get_stack_size() - stat.second.get_high_water_mark());
             }
         }
     }
@@ -71,14 +84,14 @@ namespace smooth::core
 
     void SystemStatistics::dump_mem_stats(const char* header, uint32_t caps) const noexcept
     {
-        Log::info(tag, "{:>16} 8-bit F:{:>10} LB:{:>10} M:{:>10} | 32-bit: F:{:>10} LB:{:>10} M:{:>10}",
-                        header,
-                        heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
-                        heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
-                        heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),
-                        heap_caps_get_free_size(caps | MALLOC_CAP_32BIT),
-                        heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT),
-                        heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT));
+        Log::info(tag, dump_fmt,
+                       header,
+                       heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
+                       heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
+                       heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),
+                       heap_caps_get_free_size(caps | MALLOC_CAP_32BIT),
+                       heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT),
+                       heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT));
     }
 
 #endif
