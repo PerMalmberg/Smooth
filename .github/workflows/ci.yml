@@ -15,3 +15,11 @@ jobs:
     - name: Build and test
       run: |
         ./CI/main.sh
+  Formatting-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Check formatting
+      run: |
+        docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/lib",target="/src" permalmberg/uncrustify:latest
+        docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/test",target="/src" permalmberg/uncrustify:latest
