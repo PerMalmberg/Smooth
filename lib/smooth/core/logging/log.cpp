@@ -3,5 +3,5 @@
 namespace smooth::core::logging
 {
     std::mutex Log::guard{};
-    fmt::memory_buffer Log::buff{};
+    fmt::basic_memory_buffer<char, 500> Log::buff{};
 }

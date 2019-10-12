@@ -45,12 +45,9 @@ namespace smooth::core
     void SystemStatistics::dump() const noexcept
     {
 #ifdef ESP_PLATFORM
-        Log::info(tag, "[INTERNAL]");
-        dump_mem_stats(MALLOC_CAP_INTERNAL);
-        Log::info(tag, "[INTERNAL | DMA]");
-        dump_mem_stats(MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
-        Log::info(tag, "[SPIRAM]");
-        dump_mem_stats(MALLOC_CAP_SPIRAM);
+        dump_mem_stats("[INTERNAL]", MALLOC_CAP_INTERNAL);
+        dump_mem_stats("[INTERNAL | DMA]", MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
+        dump_mem_stats("[SPIRAM]", MALLOC_CAP_SPIRAM);
 #endif
 
         { // Only need to lock while accessing the shared data
@@ -72,15 +69,16 @@ namespace smooth::core
 
 #ifdef ESP_PLATFORM
 
-    void SystemStatistics::dump_mem_stats(uint32_t caps) const noexcept
+    void SystemStatistics::dump_mem_stats(const char* header, uint32_t caps) const noexcept
     {
-        Log::info(tag, "8-bit F:{:>10} LB:{:>10} M:{:>10} | 32-bit: F:{:>10} LB:{:>10} M:{:>10}",
-                              heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
-                              heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
-                              heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),
-                              heap_caps_get_free_size(caps | MALLOC_CAP_32BIT),
-                              heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT),
-                              heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT));
+        Log::info(tag, "{:>16} 8-bit F:{:>10} LB:{:>10} M:{:>10} | 32-bit: F:{:>10} LB:{:>10} M:{:>10}",
+                        header,
+                        heap_caps_get_free_size(caps | MALLOC_CAP_8BIT),
+                        heap_caps_get_largest_free_block(caps | MALLOC_CAP_8BIT),
+                        heap_caps_get_minimum_free_size(caps | MALLOC_CAP_8BIT),
+                        heap_caps_get_free_size(caps | MALLOC_CAP_32BIT),
+                        heap_caps_get_largest_free_block(caps | MALLOC_CAP_32BIT),
+                        heap_caps_get_minimum_free_size(caps | MALLOC_CAP_32BIT));
     }
 
 #endif

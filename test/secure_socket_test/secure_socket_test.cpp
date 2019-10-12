@@ -223,7 +223,7 @@ namespace secure_socket_test
     {
         if (ev.is_connected())
         {
-            Log::info("Connection status: ", "{1}", ev.is_connected());
+            Log::info("Connection status: ", "{}", ev.is_connected());
 
             // *INDENT-OFF*
             sock->send(
