@@ -250,11 +250,11 @@ namespace smooth::core::network
 
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
-        const auto predicate = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
-                                   return o.second.get() == socket.get();
-                               };
+        const auto is_same_socket = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
+                                        return o.second == socket;
+                                    };
 
-        const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), predicate);
+        const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), is_same_socket);
 
         if (found != active_sockets.end())
         {
