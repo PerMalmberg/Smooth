@@ -100,6 +100,7 @@ namespace smooth::core::io::i2c
             {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+
                 return pdMS_TO_TICKS(ms.count());
 #pragma GCC diagnostic pop
             }

@@ -105,12 +105,14 @@ namespace smooth::core::ipc
         // There is a possibility that we loose signals here if the queue is full.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+
         while (xQueueSendToBackFromISR(queue, &data, nullptr) == errQUEUE_FULL)
         {
             // Drop oldest message, this way we'll always get the last data value onto the queue
             DataType lost;
             xQueueReceiveFromISR(queue, &lost, nullptr);
         }
+
 #pragma GCC diagnostic pop
     }
 
@@ -123,10 +125,12 @@ namespace smooth::core::ipc
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+
         if (xQueueReceive(queue, &m, 1) == pdTRUE)
         {
             listener.event(m);
         }
+
 #pragma GCC diagnostic pop
 
         read_since_poll = true;
