@@ -16,17 +16,27 @@ limitations under the License.
 ]]
 
 function(set_compile_options target)
-    target_compile_options(${target} PRIVATE -Werror -Wall -Wextra)
-    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wnon-virtual-dtor>)
-    #target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wuseless-cast>)
-    target_compile_options(${target} PRIVATE -Wcast-align -Wunused )
-    target_compile_options(${target} PRIVATE -Wconversion -Wsign-conversion)
-    target_compile_options(${target} PRIVATE -Wlogical-op -Wdouble-promotion -Wformat=2)
     target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:CXX>: -fno-rtti>)
+    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -Wnon-virtual-dtor -Wold-style-cast>)
+    target_compile_options(${target} PRIVATE
+                                            -Werror
+                                            -Wall
+                                            -Wextra
+                                            -Wcast-align
+                                            -Wunused
+                                            -Wconversion
+                                            -Wsign-conversion
+                                            -Wlogical-op
+                                            -Wdouble-promotion
+                                            -Wformat=2
+                                            -Wimplicit-fallthrough
+                                            -Wcast-align
+                                            -Wmisleading-indentation
+                                            -Wduplicated-cond
+                                            -Wduplicated-branches
+                                            -Wnull-dereference)
 
     if( NOT "${ESP_PLATFORM}" )
-        target_compile_options(${target} PRIVATE -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnull-dereference)
-
         if(${SMOOTH_ENABLE_ASAN})
             if(NOT DEFINED SMOOTH_ASAN_OPTIMIZATION_LEVEL)
                 message(FATAL_ERROR "SMOOTH_ASAN_OPTIMIZATION_LEVEL not set")

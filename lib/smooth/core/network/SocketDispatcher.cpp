@@ -67,7 +67,6 @@ namespace smooth::core::network
     void SocketDispatcher::tick()
     {
         std::lock_guard<std::mutex> lock(socket_guard);
-        print_status();
         restart_inactive_sockets();
         check_socket_timeouts();
 
@@ -135,8 +134,11 @@ namespace smooth::core::network
 
     void SocketDispatcher::clear_sets()
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         FD_ZERO(&read_set);
         FD_ZERO(&write_set);
+#pragma GCC diagnostic pop
     }
 
     int SocketDispatcher::build_sets()
@@ -158,13 +160,13 @@ namespace smooth::core::network
                     if (s->has_data_to_transmit() || !s->is_connected())
                     {
                         // A valid socket id is >= 0 so casting to unsigned is safe
-                        set_fd(static_cast<size_t>(s->get_socket_id()), write_set);
+                        set_fd(static_cast<FD>(s->get_socket_id()), write_set);
                     }
 
                     if (s->is_connected())
                     {
                         // A valid socket id is >= 0 so casting to unsigned is safe
-                        set_fd(static_cast<size_t>(s->get_socket_id()), read_set);
+                        set_fd(static_cast<FD>(s->get_socket_id()), read_set);
                     }
                 }
             }
@@ -232,7 +234,7 @@ namespace smooth::core::network
     }
 
     void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
-                                                         const std::shared_ptr<ISocket>& socket)
+                                                         const std::shared_ptr<ISocket>& socket) const
     {
         const auto predicate = [&socket](const std::shared_ptr<ISocket>& o) {
                                    return (o.get()) == (socket.get());
@@ -248,11 +250,11 @@ namespace smooth::core::network
 
     void SocketDispatcher::remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket)
     {
-        const auto predicate = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
-                                   return o.second.get() == socket.get();
-                               };
+        const auto is_same_socket = [&socket](const std::pair<int, const std::shared_ptr<ISocket>>& o) {
+                                        return o.second == socket;
+                                    };
 
-        const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), predicate);
+        const auto found = std::find_if(active_sockets.begin(), active_sockets.end(), is_same_socket);
 
         if (found != active_sockets.end())
         {
@@ -305,7 +307,7 @@ namespace smooth::core::network
         if (shall_close_sockets)
         {
             std::for_each(active_sockets.begin(), active_sockets.end(),
-                          [this](decltype(*active_sockets.begin())& s) {
+                          [this](const auto& s) {
                               this->perform_op(SocketOperation::Op::Stop, s.second);
                           });
         }
@@ -320,12 +322,14 @@ namespace smooth::core::network
         else if (event.get_op() == SocketOperation::Op::AddActiveSocket)
         {
             auto socket = event.get_socket();
-            active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
+            active_sockets.emplace(socket->get_socket_id(), socket);
         }
         else
         {
             shutdown_socket(event.get_socket());
         }
+
+        Log::info(tag, "Active sockets: {}", active_sockets.size());
     }
 
     void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
@@ -364,19 +368,6 @@ namespace smooth::core::network
     bool SocketDispatcher::is_fd_set(FD socket_id, fd_set& fd)
     {
         return FD_ISSET(socket_id, &fd);
-    }
-
-    void SocketDispatcher::print_status() const
-    {
-        static steady_clock::time_point last = steady_clock::now();
-        auto now = steady_clock::now();
-
-        if (now - last > seconds{ 15 })
-        {
-            last = now;
-
-            Log::info(tag, "Active sockets: {}", active_sockets.size());
-        }
     }
 
     void SocketDispatcher::back_off(int socket_id, std::chrono::milliseconds duration)

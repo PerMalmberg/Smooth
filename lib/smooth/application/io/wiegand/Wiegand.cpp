@@ -15,11 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <chrono>
-#include <string>
-#include <bitset>
 #include <smooth/application/io/wiegand/Wiegand.h>
-#include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;
 using namespace smooth::core::timer;
@@ -62,13 +58,13 @@ namespace smooth::application::io::wiegand
             if (bit_count == 4)
             {
                 // No integrity data
-                key_queue->signal(static_cast<uint8_t>(data.to_ullong() & 0xF));
+                key_queue->signal(static_cast<uint8_t>(data.to_ullong() & 0xFu));
             }
             else if (bit_count == 8)
             {
                 // Integrity via high nibble = ~(low nibble), where low nibble is actual data.
-                auto low = data.to_ullong() & 0x0F;
-                auto high = data.to_ullong() & 0xF0;
+                auto low = data.to_ullong() & 0x0Fu;
+                auto high = data.to_ullong() & 0xF0u;
 
                 if (low == ~high)
                 {
@@ -79,18 +75,18 @@ namespace smooth::application::io::wiegand
             {
                 // Integrity data: MSB; even parity for 12 upper data bits, and LSB; odd parity for lower 12
                 // data bits
-                std::bitset<13> upper(data.to_ullong() >> 13);
-                std::bitset<13> lower(data.to_ullong() & 0x1FFF);
+                std::bitset<13> upper(data.to_ullong() >> 13u);
+                std::bitset<13> lower(data.to_ullong() & 0x1FFFu);
 
                 // Validate even parity on upper part...
-                bool valid = (upper.count() & 1) == 0;
+                bool valid = (upper.count() & 1u) == 0;
 
                 // ...and odd parity on lower part
-                valid &= lower.count() & 1;
+                valid &= lower.count() & 1u;
 
                 if (valid)
                 {
-                    auto id = static_cast<uint32_t>((upper.to_ullong() & 0xFFF) | (lower.to_ullong() >> 1));
+                    auto id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFu) | (lower.to_ullong() >> 1u));
                     number_queue->signal(id);
                 }
             }
@@ -98,19 +94,19 @@ namespace smooth::application::io::wiegand
             {
                 // Integrity data: MSB; even parity for 16 upper data bits, and LSB; odd parity for lower 16
                 // data bits
-                std::bitset<17> upper(data.to_ullong() >> 17);
-                std::bitset<17> lower(data.to_ullong() & 0x1FFFF);
+                std::bitset<17> upper(data.to_ullong() >> 17u);
+                std::bitset<17> lower(data.to_ullong() & 0x1FFFFu);
 
                 // Validate even parity on upper part...
-                bool valid = (upper.count() & 1) == 0;
+                bool valid = (upper.count() & 1u) == 0;
 
                 // ...and odd parity on lower part
-                valid &= lower.count() & 1;
+                valid &= lower.count() & 1u;
 
                 if (valid)
                 {
-                    auto id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFF)
-                                                    | (lower.to_ullong() >> 1));
+                    auto id = static_cast<uint32_t>((upper.to_ullong() & 0xFFFFu)
+                                                    | (lower.to_ullong() >> 1u));
                     number_queue->signal(id);
                 }
             }

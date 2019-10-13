@@ -26,7 +26,8 @@ All code must compile with the warning levels defined in [compiler_options.cmake
   - Do __not__ use Hungarian notation for variables, i.e. warts `m_` 
   - Classes shall be named using [UpperCamelCase](https://en.wikipedia.org/wiki/Camel_case) using characters a-z or A-Z. Digits are rarely used.
   - No multiple `return`-statements.
-  - No switch, goto, jmp-statements.
+  - No goto or jmp-statements.
+  - Switch statements are allowed, but no implicit fallthrough. Use C++17's [`[[fallthrough]]` attribute](https://en.cppreference.com/w/cpp/language/attributes/fallthrough).
   - Prefer positive logic, e.g. `if (ready) {...} else {...}` over  `if (!ready) {...} else {...}`
   - Do not use exceptions for code flow, i.e. use exceptions only for exceptional __uncrecoverable__ situations. That said, prefer error codes over exceptions.
   - Don't mix condition types without parentheses to avoid unintentional logic errors, e.g. `if(a && (b || c))` vs. `if(a && b || c)`

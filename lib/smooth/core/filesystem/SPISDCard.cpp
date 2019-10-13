@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <smooth/core/filesystem/SDCard.h>
 #include <smooth/core/filesystem/SPISDCard.h>
+
 #include <driver/sdspi_host.h>
 
 namespace smooth::core::filesystem

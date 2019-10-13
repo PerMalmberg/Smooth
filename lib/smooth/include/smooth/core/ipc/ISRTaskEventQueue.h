@@ -20,7 +20,10 @@ limitations under the License.
 #include "IISRTaskEventQueue.h"
 #include "IPolledTaskQueue.h"
 #include <freertos/FreeRTOS.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <freertos/queue.h>
+#pragma GCC diagnostic pop
 #include <smooth/core/Task.h>
 #include <smooth/core/util/create_protected.h>
 
@@ -54,9 +57,9 @@ namespace smooth::core::ipc
                 return Size;
             }
 
-            void register_notification(QueueNotification* notification) override
+            void register_notification(QueueNotification* notif) override
             {
-                this->notification = notification;
+                notification = notif;
             }
 
             void poll() override
@@ -88,7 +91,10 @@ namespace smooth::core::ipc
     ISRTaskEventQueue<DataType, Size>::ISRTaskEventQueue(Task& task, IEventListener<DataType>& listener)
             : task(task), listener(listener)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         queue = xQueueCreate(Size, sizeof(DataType));
+#pragma GCC diagnostic pop
         task.register_polled_queue_with_task(this);
     }
 
@@ -97,12 +103,17 @@ namespace smooth::core::ipc
     void ISRTaskEventQueue<DataType, Size>::signal(const DataType& data)
     {
         // There is a possibility that we loose signals here if the queue is full.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
         while (xQueueSendToBackFromISR(queue, &data, nullptr) == errQUEUE_FULL)
         {
             // Drop oldest message, this way we'll always get the last data value onto the queue
             DataType lost;
             xQueueReceiveFromISR(queue, &lost, nullptr);
         }
+
+#pragma GCC diagnostic pop
     }
 
     template<typename DataType, int Size>
@@ -112,10 +123,15 @@ namespace smooth::core::ipc
         // and must be copyable and have the assignment operator.
         DataType m;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
         if (xQueueReceive(queue, &m, 1) == pdTRUE)
         {
             listener.event(m);
         }
+
+#pragma GCC diagnostic pop
 
         read_since_poll = true;
     }
