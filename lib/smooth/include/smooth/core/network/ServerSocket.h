@@ -185,15 +185,13 @@ namespace smooth::core::network
     template<typename Client, typename Protocol, typename ClientContext>
     void ServerSocket<Client, Protocol, ClientContext>::readable(ISocketBackOff& ops)
     {
-        auto accepted = accept_request(ops);
-        auto ip = std::get<0>(accepted);
-        auto socket_id = std::get<1>(accepted);
+        const auto& [ip, accepted_socket_id] = accept_request(ops);
 
         if (ip)
         {
             auto client = pool.get();
             auto socket = Socket<Protocol>::create(ip,
-                                                   socket_id,
+                                                   accepted_socket_id,
                                                    client->get_buffers(),
                                                    client->get_send_timeout());
 
