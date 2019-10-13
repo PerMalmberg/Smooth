@@ -135,8 +135,11 @@ namespace smooth::core::network
 
     void SocketDispatcher::clear_sets()
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         FD_ZERO(&read_set);
         FD_ZERO(&write_set);
+#pragma GCC diagnostic pop
     }
 
     int SocketDispatcher::build_sets()

@@ -20,7 +20,10 @@ limitations under the License.
 #include <memory>
 #include <vector>
 #include <mutex>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <driver/i2c.h>
+#pragma GCC diagnostic pop
 #include <driver/gpio.h>
 #include <smooth/core/util/FixedBufferBase.h>
 
@@ -45,18 +48,18 @@ namespace smooth::core::io::i2c
             /// \param found_devices Where the address of found devices are placed
             void scan_i2c_bus(std::vector<uint8_t>& found_devices) const;
 
-            std::mutex& get_guard() const
+            [[nodiscard]] std::mutex& get_guard() const
             {
                 return guard;
             }
 
             /// Determines if a device with the given address is present on the bus.
             /// \return true if present, otherwise false.
-            bool is_present() const;
+            [[nodiscard]] bool is_present() const;
 
             /// Gets the address of the device
             /// \return The address
-            uint8_t get_address() const
+            [[nodiscard]] uint8_t get_address() const
             {
                 return address;
             }
@@ -93,9 +96,12 @@ namespace smooth::core::io::i2c
             /// Convert time to ticks
             /// \param ms Time
             /// \return Ticks
-            inline TickType_t to_tick(std::chrono::milliseconds ms) const
+            [[nodiscard]] inline TickType_t to_tick(std::chrono::milliseconds ms) const
             {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
                 return pdMS_TO_TICKS(ms.count());
+#pragma GCC diagnostic pop
             }
 
             std::mutex& guard;

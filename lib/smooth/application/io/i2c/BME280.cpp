@@ -121,7 +121,10 @@ namespace smooth::application::sensor
     {
         if (!trimming_read)
         {
-            uint8_t h4, h4_1, h5, h5_1;
+            uint8_t h4{};
+            uint8_t h4_1{};
+            uint8_t h5{};
+            uint8_t h5_1{};
 
             trimming_read =
                 read_16bit(DIG_T1_REG, trimming.dig_T1)
@@ -198,6 +201,8 @@ namespace smooth::application::sensor
 
     BME280::BME280_S32_t BME280::BME280_compensate_T_int32(BME280_S32_t adc_T)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         BME280_S32_t var1, var2, T;
         var1 = ((((adc_T >> 3) - ((BME280_S32_t)trimming.dig_T1 << 1)))
                 * ((BME280_S32_t)trimming.dig_T2)) >> 11;
@@ -209,10 +214,13 @@ namespace smooth::application::sensor
         T = (t_fine * 5 + 128) >> 8;
 
         return T;
+#pragma GCC diagnostic pop
     }
 
     BME280::BME280_U32_t BME280::BME280_compensate_P_int64(BME280_S32_t adc_P)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         BME280_S64_t var1, var2, p;
         var1 = ((BME280_S64_t)t_fine) - 128000;
         var2 = var1 * var1 * (BME280_S64_t)trimming.dig_P6;
@@ -234,13 +242,13 @@ namespace smooth::application::sensor
         p = ((p + var1 + var2) >> 8) + (((BME280_S64_t)trimming.dig_P7) << 4);
 
         return (BME280_U32_t)p;
+#pragma GCC diagnostic pop
     }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuseless-cast"
 
     BME280::BME280_U32_t BME280::BME280_compensate_H_int32(BME280_S32_t adc_H)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
         BME280_S32_t v_x1_u32r;
         v_x1_u32r = (t_fine - ((BME280_S32_t)76800));
         v_x1_u32r = (((((adc_H << 14) - (((BME280_S32_t)trimming.dig_H4) << 20)
@@ -262,7 +270,6 @@ namespace smooth::application::sensor
         v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
 
         return (BME280_U32_t)(v_x1_u32r >> 12);
-    }
-
 #pragma GCC diagnostic pop
+    }
 }
