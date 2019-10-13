@@ -73,7 +73,7 @@ namespace smooth::core::network
             void restart_inactive_sockets();
 
             void remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
-                                               const std::shared_ptr<ISocket>& socket);
+                                               const std::shared_ptr<ISocket>& socket) const;
 
             void remove_socket_from_active_sockets(std::shared_ptr<ISocket>& socket);
 
@@ -98,8 +98,6 @@ namespace smooth::core::network
             static void set_fd(FD socket_id, fd_set& fd);
 
             static bool is_fd_set(FD socket_id, fd_set& fd);
-
-            void print_status() const;
 
             fd_set read_set{};
             fd_set write_set{};

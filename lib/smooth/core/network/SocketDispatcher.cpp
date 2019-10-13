@@ -67,7 +67,6 @@ namespace smooth::core::network
     void SocketDispatcher::tick()
     {
         std::lock_guard<std::mutex> lock(socket_guard);
-        print_status();
         restart_inactive_sockets();
         check_socket_timeouts();
 
@@ -235,7 +234,7 @@ namespace smooth::core::network
     }
 
     void SocketDispatcher::remove_socket_from_collection(std::vector<std::shared_ptr<ISocket>>& col,
-                                                         const std::shared_ptr<ISocket>& socket)
+                                                         const std::shared_ptr<ISocket>& socket) const
     {
         const auto predicate = [&socket](const std::shared_ptr<ISocket>& o) {
                                    return (o.get()) == (socket.get());
@@ -308,7 +307,7 @@ namespace smooth::core::network
         if (shall_close_sockets)
         {
             std::for_each(active_sockets.begin(), active_sockets.end(),
-                          [this](decltype(*active_sockets.begin())& s) {
+                          [this](const auto& s) {
                               this->perform_op(SocketOperation::Op::Stop, s.second);
                           });
         }
@@ -323,12 +322,14 @@ namespace smooth::core::network
         else if (event.get_op() == SocketOperation::Op::AddActiveSocket)
         {
             auto socket = event.get_socket();
-            active_sockets.insert(std::make_pair(socket->get_socket_id(), socket));
+            active_sockets.emplace(socket->get_socket_id(), socket);
         }
         else
         {
             shutdown_socket(event.get_socket());
         }
+
+        Log::info(tag, "Active sockets: {}", active_sockets.size());
     }
 
     void SocketDispatcher::perform_op(SocketOperation::Op op, std::shared_ptr<ISocket> socket)
@@ -367,19 +368,6 @@ namespace smooth::core::network
     bool SocketDispatcher::is_fd_set(FD socket_id, fd_set& fd)
     {
         return FD_ISSET(socket_id, &fd);
-    }
-
-    void SocketDispatcher::print_status() const
-    {
-        static steady_clock::time_point last = steady_clock::now();
-        auto now = steady_clock::now();
-
-        if (now - last > seconds{ 15 })
-        {
-            last = now;
-
-            Log::info(tag, "Active sockets: {}", active_sockets.size());
-        }
     }
 
     void SocketDispatcher::back_off(int socket_id, std::chrono::milliseconds duration)
