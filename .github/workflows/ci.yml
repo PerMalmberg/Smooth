@@ -4,22 +4,20 @@ on: [pull_request]
 
 jobs:
   CI:
+    # This job can be run locally through ./CI/main.sh
     runs-on: ubuntu-latest
-    
-    # This job can be run locally through CI/main.sh
-
     steps:
     - uses: actions/checkout@v1
     - name: Get submodules
       run: git submodule update --init --checkout --recursive
     - name: Build and test
       run: |
-        ./CI/main.sh
+        ./CI/build_test.sh
   Formatting-check:
+    # This job can be run locally through ./CI/check_formatting.sh
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Check formatting
       run: |
-        docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/lib",target="/src" permalmberg/uncrustify:latest
-        docker run --rm --mount type=bind,source="$(pwd)",target="/cfg" --mount type=bind,source="$(pwd)/test",target="/src" permalmberg/uncrustify:latest
+        ./CI/check_formatting.sh
