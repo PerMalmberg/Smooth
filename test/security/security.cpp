@@ -64,11 +64,11 @@ namespace security
     {
         ElapsedTime t;
         t.start();
-        auto res = ph.hash(password, ops);
+        const auto& [result, hash] = ph.hash(password, ops);
         auto elapsed = duration_cast<milliseconds>(t.get_running_time()).count();
-        auto verified = ph.verify_password_against_hash(password, std::get<1>(res));
-        auto not_verified = ph.verify_password_against_hash("Wrong pass", std::get<1>(res));
-        std::cout << ops << "\t" << elapsed << "ms\t" << std::get<0>(res) << " " << std::get<1>(res) << " verified: "
+        auto verified = ph.verify_password_against_hash(password, hash);
+        auto not_verified = ph.verify_password_against_hash("Wrong pass", hash);
+        std::cout << ops << "\t" << elapsed << "ms\t" << result << " " << hash << " verified: "
                   << verified << " not verified: " << !not_verified << std::endl;
     }
 }

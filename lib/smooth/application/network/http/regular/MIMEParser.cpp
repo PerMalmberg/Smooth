@@ -217,10 +217,10 @@ namespace smooth::application::network::http::regular
         }
         else
         {
-            auto header_data = consume_headers(start_of_content, end_of_content);
-            start_of_content = std::get<0>(header_data);
-            auto& headers = std::get<1>(header_data);
-            auto& content_dispositon = std::get<2>(header_data);
+            auto [new_start_of_content, headers,
+                  content_dispositon] = consume_headers(start_of_content, end_of_content);
+
+            start_of_content = new_start_of_content;
 
             if (start_of_content != end_of_content)
             {
@@ -298,7 +298,7 @@ namespace smooth::application::network::http::regular
             }
         }
 
-        return std::make_tuple(start_of_actual_content, headers, content_disp);
+        return std::make_tuple(start_of_actual_content, std::move(headers), std::move(content_disp));
     }
 
     void MIMEParser::parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
