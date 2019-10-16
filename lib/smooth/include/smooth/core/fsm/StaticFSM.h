@@ -18,6 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <cstdlib>
+#include <type_traits>
 #include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;
@@ -36,7 +37,7 @@ namespace smooth::core::fsm
     /// \tparam StateSize The maximum size, in bytes, of the largest state used by the FSM.
     /// i.e. sizeof(LargestState). The reason that this has to be specified is that states are
     /// created using placement new in a pre-allocated memory area.
-    template<typename BaseState, int StateSize>
+    template<typename BaseState, std::size_t StateSize>
     class StaticFSM
     {
         public:
@@ -75,13 +76,11 @@ namespace smooth::core::fsm
             }
 
         private:
-#pragma pack(push, 1)
-            uint8_t state[2][static_cast<size_t>(StateSize)]{};
-#pragma pack(pop)
+            typename std::aligned_storage<StateSize>::type state[2];
             BaseState* current_state = nullptr;
     };
 
-    template<typename BaseState, int StateSize>
+    template<typename BaseState, std::size_t StateSize>
     StaticFSM<BaseState, StateSize>::~StaticFSM()
     {
         // Destroy any currently active state
@@ -91,7 +90,7 @@ namespace smooth::core::fsm
         }
     }
 
-    template<typename BaseState, int StateSize>
+    template<typename BaseState, std::size_t StateSize>
     void* StaticFSM<BaseState, StateSize>::select_memory_area(size_t size)
     {
         auto max = sizeof(state[0]);
@@ -104,14 +103,13 @@ namespace smooth::core::fsm
         }
 
         // Get the memory not used by the active state.
-        void* reclaimed =
-            current_state == reinterpret_cast<void*>(&state[0][0]) ? &state[1][0] : &state[0][0];
+        void* reclaimed = current_state == reinterpret_cast<void*>(&state[0]) ? &state[1] : &state[0];
 
         return reclaimed;
     }
 
-    template<typename BaseState, int StateSize>
-    void StaticFSM<BaseState, StateSize>::set_state(BaseState* state)
+    template<typename BaseState, std::size_t StateSize>
+    void StaticFSM<BaseState, StateSize>::set_state(BaseState* new_state)
     {
         if (current_state != nullptr)
         {
@@ -120,23 +118,21 @@ namespace smooth::core::fsm
             current_state->~BaseState();
         }
 
-        current_state = state;
+        current_state = new_state;
         entering_state(current_state);
         current_state->enter_state();
     }
 }
 
-template<typename BaseState, int StateSize>
+template<typename BaseState, std::size_t StateSize>
 void* operator new(size_t size, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
     // Return the memory area to use for placement new.
     return fsm.select_memory_area(size);
 }
 
-template<typename BaseState, int StateSize>
+template<typename BaseState, std::size_t StateSize>
 void operator delete(void*, smooth::core::fsm::StaticFSM<BaseState, StateSize>& fsm)
 {
     fsm.select_memory_area(0);
 }
-
-#pragma GCC diagnostic pop
