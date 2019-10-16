@@ -62,7 +62,9 @@ namespace mqtt
 
     void App::event(const smooth::application::network::mqtt::MQTTData& event)
     {
-        Log::info("Rec", "T:{}, M:{} {}", event.first, fmt::join(event.second, ""));
+        std::stringstream ss{};
+        std::for_each(event.second.begin(), event.second.end(), [&ss](auto c) { ss << static_cast<char>(c);});
+        Log::info("Rec", "T:{}, M:{}", event.first, ss.str());
 
         send_message();
     }
