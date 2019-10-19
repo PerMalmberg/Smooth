@@ -18,7 +18,6 @@ limitations under the License.
 #pragma once
 
 #include <cstdlib>
-#include <type_traits>
 #include <smooth/core/logging/log.h>
 
 using namespace smooth::core::logging;
@@ -76,7 +75,9 @@ namespace smooth::core::fsm
             }
 
         private:
-            typename std::aligned_storage<StateSize>::type state[2];
+#pragma pack(push, 1)
+            uint8_t state[2][static_cast<size_t>(StateSize)]{};
+#pragma pack(pop)
             BaseState* current_state = nullptr;
     };
 
@@ -103,7 +104,8 @@ namespace smooth::core::fsm
         }
 
         // Get the memory not used by the active state.
-        void* reclaimed = current_state == reinterpret_cast<void*>(&state[0]) ? &state[1] : &state[0];
+        void* reclaimed =
+            current_state == reinterpret_cast<void*>(&state[0][0]) ? &state[1][0] : &state[0][0];
 
         return reclaimed;
     }
