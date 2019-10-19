@@ -19,7 +19,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
-    /// Interface for a circular buffer.
+    /// \brief Interface for a circular buffer.
     template<typename T>
     class ICircularBuffer
     {

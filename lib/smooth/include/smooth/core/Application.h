@@ -28,6 +28,7 @@ limitations under the License.
 
 namespace smooth::core
 {
+    /// EarlyInit is used to initialize things that needs to be initialized before the Application.
     class EarlyInit : public Task
     {
         public:

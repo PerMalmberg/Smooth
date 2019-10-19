@@ -65,9 +65,10 @@ namespace smooth::core::timer
             /// \return The amount of time.
             std::chrono::microseconds get_running_time();
 
-            std::chrono::microseconds get_running_time() const;
+            [[nodiscard]] std::chrono::microseconds get_running_time() const;
 
-            bool is_running() const
+            /// \returns true if the timer is running, false if not.
+            [[nodiscard]] bool is_running() const
             {
                 return active;
             }

@@ -20,6 +20,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
+    /// \brief Copies at min(SourceLen, size) bytes from source to target buffer.
     template<typename InputIt, typename SourceLen, typename T, std::size_t size>
     void copy_min_to_buffer(InputIt source, SourceLen source_length, T (& target)[size])
     {

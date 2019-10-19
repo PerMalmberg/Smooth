@@ -24,9 +24,11 @@ limitations under the License.
 
 namespace smooth::core::sntp
 {
+    /// Handles SNTP.
     class Sntp
     {
         public:
+            /// \arg servers The sntp servers to use.
             explicit Sntp(std::vector<std::string> servers);
 
             void start();

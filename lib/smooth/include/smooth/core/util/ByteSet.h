@@ -21,6 +21,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
+    /// \brief ByteSet extends std::bitset<> with the ability to get specified bits as a byte.
     class ByteSet
         : public std::bitset<8>
     {
@@ -35,7 +36,7 @@ namespace smooth::core::util
                 return static_cast<uint8_t>(to_ulong());
             }
 
-            /// Gets the value of the specified bits aligned to LSB.
+            /// \brief Gets the value of the specified bits aligned to LSB.
             /// \param lsb Least Significant Bit, >= 0
             /// \param msb Most Significant Bit <= 7
             /// \return The resulting value

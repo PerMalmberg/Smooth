@@ -27,6 +27,7 @@ namespace smooth::core::string_util
 {
     constexpr auto is_not_space = [](auto c) { return !std::isspace(c); };
 
+    /// \brief Trims characters at the beginning ('left') side of the string.
     inline std::string left_trim(std::string s, std::function<bool(char c)> filter = is_not_space)
     {
         s.erase(s.begin(),
@@ -35,6 +36,7 @@ namespace smooth::core::string_util
         return s;
     }
 
+    /// \brief Trims characters at the end ('right') side of the string.
     inline std::string right_trim(std::string s, std::function<bool(char c)> filter = is_not_space)
     {
         auto erase_start = std::find_if(s.rbegin(), s.rend(), std::move(filter)).base();
@@ -43,11 +45,13 @@ namespace smooth::core::string_util
         return s;
     }
 
+    /// \brief Trims characters at the beginning and end of the string.
     inline std::string trim(std::string s, const std::function<bool(char c)>& filter = is_not_space)
     {
         return right_trim(left_trim(std::move(s), filter), filter);
     }
 
+    /// \brief Returns a lower-case copy of the provided string.
     inline std::string to_lower_copy(std::string s)
     {
         std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -55,6 +59,7 @@ namespace smooth::core::string_util
         return s;
     }
 
+    /// \brief Splits the provided string at the found token, excluding the token.
     inline std::vector<std::string> split(const std::string& s, const std::string& token, bool trim_spaces = false)
     {
         auto res = util::split<std::string>(s, token);
@@ -70,11 +75,15 @@ namespace smooth::core::string_util
         return res;
     }
 
+    /// \brief Checks if 'to_find' exists in 's', case insensitive.
     bool icontains(const std::string& s, const std::string& to_find);
 
+    /// \brief Replaces 'token' with 'replacement' in 's'
     void replace_all(std::string& s, const std::string& token, const std::string& replacement);
 
+    /// \brief Compares s with s2, case sensitive.
     int equals(const std::string& s, const std::string& s2);
 
+    /// \brief Compares s with s2, case insensitive.
     int iequals(const std::string& s, const std::string& s2);
 }

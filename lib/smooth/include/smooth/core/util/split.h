@@ -21,6 +21,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
+    /// \brief Splits a container in two, at the point where the token is found, excluding the token itself.
     template<typename Container>
     std::vector<Container> split(const Container& c, const Container& token)
     {

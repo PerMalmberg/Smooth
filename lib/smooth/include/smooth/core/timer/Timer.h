@@ -30,6 +30,7 @@ namespace smooth::core::timer
 
     class Timer;
 
+    /// RAII helper for Timer.
     class TimerOwner
     {
         public:
@@ -93,19 +94,28 @@ namespace smooth::core::timer
             // Use a TimerOwner for RAII-style destruction.
             ~Timer() override = default;
 
+            /// Starts the timer
             void start() override;
 
+            /// Starts the timer with the given interval.
             void start(std::chrono::milliseconds interval) override;
 
+            // Stops the timer
             void stop() override;
 
+            // Resets the timer (stop and re-start)
             void reset() override;
 
+            /// Gets the i of the timer.
             int get_id() const override;
 
+            /// \returns true if the timer is repeating.
             bool is_repeating() const
-            { return repeating; }
+            {
+                return repeating;
+            }
 
+            /// \r Returns the time point where the timer expires.
             std::chrono::steady_clock::time_point expires_at() const;
 
         protected:

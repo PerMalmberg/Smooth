@@ -21,7 +21,7 @@ limitations under the License.
 
 namespace smooth::core::json_util
 {
-    /// Workaround for json::value() throwing when object is null even though
+    /// \brief Workaround for json::value() throwing when object is null even though
     /// a default value has been provided.
     /// https://github.com/nlohmann/json/issues/1733
     template<typename T>

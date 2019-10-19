@@ -18,16 +18,13 @@ limitations under the License.
 #include <smooth/core/network/Wifi.h>
 #include <cstring>
 #include <sstream>
-#include <esp_log.h>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
 #include <smooth/core/network/NetworkStatus.h>
 #include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/util/copy_n_to_buffer.h>
+#include <smooth/core/util/copy_min_to_buffer.h>
 #include <smooth/core/logging/log.h>
 #include <esp_event.h>
-#include <tcpip_adapter.h>
-#include <esp_wifi_types.h>
 
 #ifdef ESP_PLATFORM
 #include "sdkconfig.h"

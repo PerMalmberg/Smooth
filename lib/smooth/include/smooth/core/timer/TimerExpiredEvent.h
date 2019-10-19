@@ -34,7 +34,7 @@ namespace smooth::core::timer
 
             /// Gets the timer that has expired
             /// \return The timer that expired.
-            int get_id() const
+            [[nodiscard]] int get_id() const
             {
                 return id;
             }

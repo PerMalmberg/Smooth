@@ -23,6 +23,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
+    /// \brief FixedBuffer<T> adds range checking on top if std::array<T>
     template<typename T, size_t Size>
     class FixedBuffer
         : public FixedBufferBase<T>

@@ -50,6 +50,7 @@ namespace smooth::core
             uint32_t high_water_mark{};
     };
 
+    /// \brief Displays system statistics; memory and stack usage.
     class SystemStatistics
     {
         public:
