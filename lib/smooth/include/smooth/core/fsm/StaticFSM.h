@@ -75,11 +75,9 @@ namespace smooth::core::fsm
             }
 
         private:
-            struct alignas(StateSize) state_t
-            {
-                uint8_t mem[2][StateSize]{};
-            } state;
-
+#pragma pack(push, 1)
+            uint8_t state[2][static_cast<size_t>(StateSize)]{};
+#pragma pack(pop)
             BaseState* current_state = nullptr;
     };
 
@@ -105,7 +103,7 @@ namespace smooth::core::fsm
 
         // Get the memory not used by the active state.
         void* reclaimed =
-            current_state == reinterpret_cast<void*>(&state.mem[0][0]) ? &state.mem[1][0] : &state.mem[0][0];
+            current_state == reinterpret_cast<void*>(&state[0][0]) ? &state[1][0] : &state[0][0];
 
         return reclaimed;
     }
