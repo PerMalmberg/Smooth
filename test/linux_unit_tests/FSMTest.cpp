@@ -20,7 +20,7 @@ limitations under the License.
 
 using namespace smooth::core::fsm;
 
-constexpr std::size_t size = 50;
+constexpr std::size_t size = 64;
 
 class MyFsm;
 
