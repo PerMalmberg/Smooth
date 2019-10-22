@@ -211,20 +211,22 @@ namespace smooth::application::network::http
                 else
                 {
                     auto& tx = this->container->get_tx_buffer();
+                    auto buffer_consumed_data = false;
 
                     if (mode == Mode::HTTP)
                     {
                         // Whether or not everything is sent, send the current (possibly header-only) packet.
                         HTTPPacket p{ current_operation->get_response_code(), "1.1", headers, data };
-                        tx.put(p);
+                        buffer_consumed_data = tx.put(p);
                     }
                     else
                     {
                         HTTPPacket p{ data };
-                        tx.put(p);
+                        buffer_consumed_data = tx.put(p);
                     }
 
-                    if (res == ResponseStatus::NoData)
+                    if (!buffer_consumed_data
+                        || res == ResponseStatus::NoData)
                     {
                         current_operation.reset();
                     }
