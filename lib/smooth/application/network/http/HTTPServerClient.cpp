@@ -160,18 +160,29 @@ namespace smooth::application::network::http
             }
         }
 
-        if (place_first)
+        if (operations.size() >= max_enqueued_responses)
         {
-            operations.insert(operations.begin(), std::move(response));
+            // To prevent a build up of unsent responses, which all consume a bit of memory
+            // (f.ex. echoing incoming data) we don't let the total amount of operations grow beyond
+            // the set number.
+            Log::error(tag, "Overflow protection triggered.");
+            close();
         }
         else
         {
-            operations.emplace_back(std::move(response));
-        }
+            if (place_first)
+            {
+                operations.insert(operations.begin(), std::move(response));
+            }
+            else
+            {
+                operations.emplace_back(std::move(response));
+            }
 
-        if (!current_operation)
-        {
-            send_first_part();
+            if (!current_operation)
+            {
+                send_first_part();
+            }
         }
     }
 
@@ -211,20 +222,22 @@ namespace smooth::application::network::http
                 else
                 {
                     auto& tx = this->container->get_tx_buffer();
+                    auto buffer_consumed_data = false;
 
                     if (mode == Mode::HTTP)
                     {
                         // Whether or not everything is sent, send the current (possibly header-only) packet.
                         HTTPPacket p{ current_operation->get_response_code(), "1.1", headers, data };
-                        tx.put(p);
+                        buffer_consumed_data = tx.put(p);
                     }
                     else
                     {
                         HTTPPacket p{ data };
-                        tx.put(p);
+                        buffer_consumed_data = tx.put(p);
                     }
 
-                    if (res == ResponseStatus::NoData)
+                    if (!buffer_consumed_data
+                        || res == ResponseStatus::NoData)
                     {
                         current_operation.reset();
                     }
@@ -237,7 +250,7 @@ namespace smooth::application::network::http
 
     bool HTTPServerClient::translate_method(
         const smooth::application::network::http::HTTPPacket& packet,
-        smooth::application::network::http::HTTPMethod& method)
+        smooth::application::network::http::HTTPMethod& method) const
     {
         auto res = true;
 

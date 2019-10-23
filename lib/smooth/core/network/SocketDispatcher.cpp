@@ -159,13 +159,11 @@ namespace smooth::core::network
                 {
                     if (s->has_data_to_transmit() || !s->is_connected())
                     {
-                        // A valid socket id is >= 0 so casting to unsigned is safe
                         set_fd(static_cast<FD>(s->get_socket_id()), write_set);
                     }
 
                     if (s->is_connected())
                     {
-                        // A valid socket id is >= 0 so casting to unsigned is safe
                         set_fd(static_cast<FD>(s->get_socket_id()), read_set);
                     }
                 }

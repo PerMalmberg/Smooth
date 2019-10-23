@@ -36,12 +36,12 @@ namespace smooth::core::network
             {
             }
 
-            Op get_op() const
+            [[nodiscard]] Op get_op() const
             {
                 return op;
             }
 
-            std::shared_ptr<core::network::ISocket> get_socket() const
+            [[nodiscard]] std::shared_ptr<core::network::ISocket> get_socket() const
             {
                 return sock;
             }

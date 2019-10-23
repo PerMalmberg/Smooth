@@ -194,7 +194,7 @@ namespace http_server_test
         FSLock::set_limit(5);
 
         HTTPServerConfig cfg{ web_root, { "index.html" }, { ".html" }, template_data_retriever, MaxHeaderSize,
-                              ContentChunkSize };
+                              ContentChunkSize, MaxResponses };
 
         insecure_server = std::make_unique<InsecureServer>(*this, cfg);
 

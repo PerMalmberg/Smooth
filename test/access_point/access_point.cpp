@@ -74,7 +74,7 @@ namespace access_point
         flash->mount();
 
         HTTPServerConfig cfg{ web_root, { "index.html" }, { ".html" }, nullptr, MaxHeaderSize,
-                              ContentChunkSize };
+                              ContentChunkSize, MaxResponses };
 
         insecure_server = std::make_unique<InsecureServer>(*this, cfg);
 

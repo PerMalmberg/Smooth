@@ -1,6 +1,7 @@
 #pragma once
 
 #ifndef ESP_PLATFORM
+
 // Values used when compiling Smooth for the host system.
 const int CONFIG_SMOOTH_MAX_MQTT_MESSAGE_SIZE = 512;
 const int CONFIG_SMOOTH_MAX_MQTT_OUTGOING_MESSAGES = 10;
