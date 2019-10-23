@@ -49,7 +49,8 @@ namespace smooth::application::network::http
             HTTPServerClient(smooth::core::Task& task,
                              smooth::core::network::ClientPool<HTTPServerClient>& pool,
                              std::size_t max_header_size,
-                             std::size_t content_chunk_size)
+                             std::size_t content_chunk_size,
+                             std::size_t max_enqueued_responses)
                     : core::network::ServerClient<HTTPServerClient,
                                                   smooth::application::network::http::HTTPProtocol, IRequestHandler>(
                           task,
@@ -59,7 +60,8 @@ namespace smooth::application::network::http
                                                                                        content_chunk_size,
                                                                                        *this)),
                       content_chunk_size(content_chunk_size),
-                      task(task)
+                      task(task),
+                      max_enqueued_responses(max_enqueued_responses)
             {
             }
 
@@ -121,7 +123,7 @@ namespace smooth::application::network::http
 
             void send_first_part();
 
-            bool translate_method(const HTTPPacket& packet, HTTPMethod& method);
+            bool translate_method(const HTTPPacket& packet, HTTPMethod& method) const;
 
             const std::size_t content_chunk_size;
             smooth::core::Task& task;
@@ -132,6 +134,7 @@ namespace smooth::application::network::http
             std::deque<std::unique_ptr<IResponseOperation>> operations{};
             std::unique_ptr<IResponseOperation> current_operation{};
             MIMEParser mime{};
+            const std::size_t max_enqueued_responses;
 
             void set_keep_alive();
     };

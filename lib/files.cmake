@@ -91,8 +91,9 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/application/io/i2c/ADS1115.h
         ${smooth_inc_dir}/application/io/i2c/MCP23017.h
         ${smooth_inc_dir}/application/network/http/HTTPProtocol.h
-        ${smooth_inc_dir}/application/network/http/HTTPServerClient.h
         ${smooth_inc_dir}/application/network/http/HTTPServer.h
+        ${smooth_inc_dir}/application/network/http/HTTPServerClient.h
+        ${smooth_inc_dir}/application/network/http/HTTPServerConfig.h
         ${smooth_inc_dir}/application/network/http/http_utils.h
         ${smooth_inc_dir}/application/network/http/IResponseOperation.h
         ${smooth_inc_dir}/application/network/http/regular/ITemplateDataRetriever.h

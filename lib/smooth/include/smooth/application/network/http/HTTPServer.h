@@ -42,77 +42,11 @@ limitations under the License.
 #include <smooth/application/network/http/regular/TemplateProcessor.h>
 #include <smooth/application/hash/sha.h>
 #include "regular/RequestHandlerSignature.h"
+#include "HTTPServerConfig.h"
 
 namespace smooth::application::network::http
 {
     // https://upload.wikimedia.org/wikipedia/commons/8/88/Http-headers-status.png
-
-    class HTTPServerConfig
-    {
-        public:
-            using DataRetriever = std::function<std::string(void)>;
-
-            HTTPServerConfig(const HTTPServerConfig&) = default;
-
-            HTTPServerConfig(HTTPServerConfig&&) noexcept = default;
-
-            HTTPServerConfig& operator=(const HTTPServerConfig&) = delete;
-
-            HTTPServerConfig& operator=(HTTPServerConfig&&) = delete;
-
-            HTTPServerConfig(smooth::core::filesystem::Path web_root,
-                             std::vector<std::string> index_files,
-                             std::set<std::string> template_files,
-                             std::shared_ptr<ITemplateDataRetriever> template_data_retriever,
-                             std::size_t max_header_size,
-                             std::size_t content_chunk_size)
-                    : root_path(std::move(web_root)),
-                      index(std::move(index_files)),
-                      template_files(std::move(template_files)),
-                      template_data_retriever(std::move(template_data_retriever)),
-                      maximum_header_size(max_header_size),
-                      content_chunk_size(content_chunk_size)
-            {
-            }
-
-            [[nodiscard]] smooth::core::filesystem::Path web_root() const
-            {
-                return root_path;
-            }
-
-            [[nodiscard]] const std::vector<std::string>& indexes() const
-            {
-                return index;
-            }
-
-            [[nodiscard]] const std::set<std::string>& templates() const
-            {
-                return template_files;
-            }
-
-            [[nodiscard]] std::size_t max_header_size() const
-            {
-                return maximum_header_size;
-            }
-
-            [[nodiscard]] std::size_t chunck_size() const
-            {
-                return content_chunk_size;
-            }
-
-            [[nodiscard]] std::shared_ptr<ITemplateDataRetriever> data_retriever() const
-            {
-                return template_data_retriever;
-            }
-
-        private:
-            smooth::core::filesystem::Path root_path{};
-            std::vector<std::string> index{};
-            std::set<std::string> template_files{};
-            std::shared_ptr<ITemplateDataRetriever> template_data_retriever{};
-            std::size_t maximum_header_size{};
-            std::size_t content_chunk_size{};
-    };
 
     template<typename ServerType>
     class HTTPServer
@@ -127,7 +61,8 @@ namespace smooth::application::network::http
                                             max_client_count,
                                             backlog,
                                             config.max_header_size(),
-                                            config.chunck_size());
+                                            config.chunk_size(),
+                                            config.max_responses());
                 server->set_client_context(this);
                 server->start(std::move(bind_to));
             }
@@ -148,7 +83,8 @@ namespace smooth::application::network::http
                                             private_key,
                                             password,
                                             config.max_header_size(),
-                                            config.chunck_size());
+                                            config.chunk_size(),
+                                            config.max_responses());
 
                 server->set_client_context(this);
                 server->start(std::move(bind_to));

@@ -160,18 +160,29 @@ namespace smooth::application::network::http
             }
         }
 
-        if (place_first)
+        if(operations.size() >= max_enqueued_responses)
         {
-            operations.insert(operations.begin(), std::move(response));
+            // To prevent a build up of unsent responses, which all consume a bit of memory
+            // (f.ex. echoing incoming data) we don't let the total amount of operations grow beyond
+            // the set number.
+            Log::error(tag, "Overflow protection triggered.");
+            close();
         }
         else
         {
-            operations.emplace_back(std::move(response));
-        }
+            if (place_first)
+            {
+                operations.insert(operations.begin(), std::move(response));
+            }
+            else
+            {
+                operations.emplace_back(std::move(response));
+            }
 
-        if (!current_operation)
-        {
-            send_first_part();
+            if (!current_operation)
+            {
+                send_first_part();
+            }
         }
     }
 
@@ -239,7 +250,7 @@ namespace smooth::application::network::http
 
     bool HTTPServerClient::translate_method(
         const smooth::application::network::http::HTTPPacket& packet,
-        smooth::application::network::http::HTTPMethod& method)
+        smooth::application::network::http::HTTPMethod& method) const
     {
         auto res = true;
 
@@ -370,6 +381,7 @@ namespace smooth::application::network::http
                     bool last_part = !packet.is_continued();
                     const auto& data = packet.data();
                     ws_server->data_received(first_part, last_part, packet.ws_control_code() == OpCode::Text, data);
+
                 }
             }
         }
