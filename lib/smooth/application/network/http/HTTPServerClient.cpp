@@ -160,7 +160,7 @@ namespace smooth::application::network::http
             }
         }
 
-        if(operations.size() >= max_enqueued_responses)
+        if (operations.size() >= max_enqueued_responses)
         {
             // To prevent a build up of unsent responses, which all consume a bit of memory
             // (f.ex. echoing incoming data) we don't let the total amount of operations grow beyond
@@ -381,7 +381,6 @@ namespace smooth::application::network::http
                     bool last_part = !packet.is_continued();
                     const auto& data = packet.data();
                     ws_server->data_received(first_part, last_part, packet.ws_control_code() == OpCode::Text, data);
-
                 }
             }
         }
