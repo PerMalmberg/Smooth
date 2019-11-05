@@ -39,6 +39,7 @@ namespace smooth::core::network
 {
     Wifi::Wifi()
     {
+        ip.addr = 0;
         tcpip_adapter_init();
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
         esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
@@ -128,6 +129,7 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
             {
+                wifi->ip.addr = 0;
                 wifi->connected_to_ap = false;
                 publish_status(wifi->connected_to_ap, true);
 
@@ -139,10 +141,12 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_AP_START)
             {
+                wifi->ip.addr = 0xC0A80401; // 192.168.4.1
                 publish_status(true, true);
             }
             else if (event_id == WIFI_EVENT_AP_STOP)
             {
+                wifi->ip.addr = 0;
                 Log::info("SoftAP", "AP stopped");
                 publish_status(false, true);
             }
@@ -181,9 +185,11 @@ namespace smooth::core::network
                 auto ip_changed = event_id == IP_EVENT_STA_GOT_IP ?
                                   reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed : true;
                 publish_status(true, ip_changed);
+                wifi->ip.addr = reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_info.ip.addr;
             }
             else if (event_id == IP_EVENT_STA_LOST_IP)
             {
+                wifi->ip.addr = 0;
                 publish_status(false, true);
             }
         }
@@ -194,21 +200,52 @@ namespace smooth::core::network
         std::stringstream mac;
 
         uint8_t m[6];
-
-        if (esp_wifi_get_mac(WIFI_IF_STA, m) == ESP_OK)
+        
+        wifi_mode_t mode;
+        if(esp_wifi_get_mode(&mode) == ESP_OK) 
         {
-            for (const auto& v : m)
-            {
-                if (mac.tellp() > 0)
-                {
-                    mac << "_";
-                }
+            esp_err_t ret;
+            if(mode == WIFI_MODE_STA) 
+                ret = esp_wifi_get_mac(WIFI_IF_STA, m);
+            else
+                ret = esp_wifi_get_mac(WIFI_IF_AP, m);
 
-                mac << std::hex << static_cast<int>(v);
+            if (ret == ESP_OK)
+            {
+                for (const auto& v : m)
+                {
+                    if (mac.tellp() > 0)
+                    {
+                        mac << "_";
+                    }
+
+                    mac << std::hex << static_cast<int>(v);
+                }
             }
         }
-
         return mac.str();
+    }
+
+    esp_err_t Wifi::get_local_mac_address(uint8_t m[6]) const
+    {
+        wifi_mode_t mode;
+        esp_err_t ret;
+        if((ret = esp_wifi_get_mode(&mode)) == ESP_OK)
+        {
+            if(mode == WIFI_MODE_STA) 
+                return esp_wifi_get_mac(WIFI_IF_STA, m);
+            else if(mode == WIFI_MODE_AP)
+                return esp_wifi_get_mac(WIFI_IF_AP, m);
+            else 
+                return ESP_FAIL;
+        }
+        
+        return ret;
+    }
+
+    ip4_addr_t Wifi::get_local_ip() const
+    {
+        return ip;
     }
 
     void Wifi::start_softap(uint8_t max_conn)

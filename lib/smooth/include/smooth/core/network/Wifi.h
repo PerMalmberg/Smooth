@@ -73,6 +73,8 @@ namespace smooth::core::network
                                             void* event_data);
 
             [[nodiscard]] std::string get_mac_address() const;
+            esp_err_t get_local_mac_address(uint8_t m[6]) const;
+            ip4_addr_t get_local_ip() const;
 
             /// Start providing an access point
             /// \param max_conn maximum number of clients to connect to this AP
@@ -89,5 +91,6 @@ namespace smooth::core::network
             std::string ssid{};
 
             std::string password{};
+            ip4_addr_t ip;
     };
 }
