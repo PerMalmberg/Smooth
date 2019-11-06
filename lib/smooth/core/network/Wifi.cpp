@@ -39,7 +39,7 @@ namespace smooth::core::network
 {
     Wifi::Wifi()
     {
-        ip.addr = 0;
+        this->ip.addr = 0;
         tcpip_adapter_init();
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
         esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
@@ -199,51 +199,55 @@ namespace smooth::core::network
     {
         std::stringstream mac;
 
-        uint8_t m[6];
-        
-        wifi_mode_t mode;
-        if(esp_wifi_get_mode(&mode) == ESP_OK) 
+        std::array<uint8_t, 6> m;
+        bool ret = get_local_mac_address(m);
+
+        if (ret)
         {
-            esp_err_t ret;
-            if(mode == WIFI_MODE_STA) 
-                ret = esp_wifi_get_mac(WIFI_IF_STA, m);
-            else
-                ret = esp_wifi_get_mac(WIFI_IF_AP, m);
-
-            if (ret == ESP_OK)
+            for (const auto& v : m)
             {
-                for (const auto& v : m)
+                if (mac.tellp() > 0)
                 {
-                    if (mac.tellp() > 0)
-                    {
-                        mac << "_";
-                    }
-
-                    mac << std::hex << static_cast<int>(v);
+                    mac << "_";
                 }
+
+                mac << std::hex << static_cast<int>(v);
             }
         }
+
         return mac.str();
     }
 
-    esp_err_t Wifi::get_local_mac_address(uint8_t m[6]) const
+    bool Wifi::get_local_mac_address(std::array<uint8_t, 6>& m)
     {
         wifi_mode_t mode;
-        esp_err_t ret;
-        if((ret = esp_wifi_get_mode(&mode)) == ESP_OK)
+        esp_err_t err = esp_wifi_get_mode(&mode);
+
+        if (err == ESP_OK)
         {
-            if(mode == WIFI_MODE_STA) 
-                return esp_wifi_get_mac(WIFI_IF_STA, m);
-            else if(mode == WIFI_MODE_AP)
-                return esp_wifi_get_mac(WIFI_IF_AP, m);
-            else 
-                return ESP_FAIL;
+            if (mode == WIFI_MODE_STA)
+            {
+                err = esp_wifi_get_mac(WIFI_IF_STA, m.data());
+            }
+            else if (mode == WIFI_MODE_AP)
+            {
+                err = esp_wifi_get_mac(WIFI_IF_AP, m.data());
+            }
+            else
+            {
+                err = ESP_FAIL;
+            }
         }
-        
-        return ret;
+
+        if (err != ESP_OK)
+        {
+            Log::error("Wifi", "get_local_mac_address(): {}", esp_err_to_name(err));
+        }
+
+        return err == ESP_OK;
     }
 
-    ip4_addr_t Wifi::get_local_ip() const
+    ip4_addr_t Wifi::get_local_ip()
     {
         return ip;
     }
@@ -281,4 +285,6 @@ namespace smooth::core::network
                                       ip_changed);
         core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
+
+    ip4_addr_t Wifi::ip;
 }
