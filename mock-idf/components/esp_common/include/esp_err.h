@@ -25,3 +25,5 @@ typedef int32_t esp_err_t;
 #define ESP_ERR_FLASH_BASE          0x6000  /*!< Starting number of flash error codes */
 
 #define ESP_ERROR_CHECK(x) (x)
+
+const char *esp_err_to_name(esp_err_t code);
