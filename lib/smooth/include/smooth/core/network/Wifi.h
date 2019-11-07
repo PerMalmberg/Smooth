@@ -72,7 +72,7 @@ namespace smooth::core::network
                                             int32_t event_id,
                                             void* event_data);
 
-            [[nodiscard]] std::string get_mac_address() const;
+            [[nodiscard]] static std::string get_mac_address();
 
             [[nodiscard]] static bool get_local_mac_address(std::array<uint8_t, 6>& m);
 

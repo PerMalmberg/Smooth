@@ -37,6 +37,8 @@ using namespace smooth::core;
 
 namespace smooth::core::network
 {
+    ip4_addr_t Wifi::ip = {0};
+
     Wifi::Wifi()
     {
         this->ip.addr = 0;
@@ -195,7 +197,7 @@ namespace smooth::core::network
         }
     }
 
-    std::string Wifi::get_mac_address() const
+    std::string Wifi::get_mac_address()
     {
         std::stringstream mac;
 
@@ -247,6 +249,8 @@ namespace smooth::core::network
         return err == ESP_OK;
     }
 
+    // attention: access to this function might have a threading issue. 
+    // It should be called from the main thread only!
     ip4_addr_t Wifi::get_local_ip()
     {
         return ip;
@@ -286,5 +290,4 @@ namespace smooth::core::network
         core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
 
-    ip4_addr_t Wifi::ip;
 }
