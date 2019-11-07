@@ -37,7 +37,7 @@ using namespace smooth::core;
 
 namespace smooth::core::network
 {
-    ip4_addr_t Wifi::ip = {0};
+    ip4_addr_t Wifi::ip = { 0 };
 
     Wifi::Wifi()
     {
@@ -248,7 +248,7 @@ namespace smooth::core::network
         return err == ESP_OK;
     }
 
-    // attention: access to this function might have a threading issue. 
+    // attention: access to this function might have a threading issue.
     // It should be called from the main thread only!
     ip4_addr_t Wifi::get_local_ip()
     {
@@ -288,5 +288,4 @@ namespace smooth::core::network
                                       ip_changed);
         core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
-
 }
