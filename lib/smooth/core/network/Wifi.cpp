@@ -37,11 +37,10 @@ using namespace smooth::core;
 
 namespace smooth::core::network
 {
-    ip4_addr_t Wifi::ip = { 0 };
+    ip4_addr_t Wifi::ip = {0};
 
     Wifi::Wifi()
     {
-        this->ip.addr = 0;
         tcpip_adapter_init();
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
         esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this);
@@ -249,7 +248,7 @@ namespace smooth::core::network
         return err == ESP_OK;
     }
 
-    // attention: access to this function might have a threading issue.
+    // attention: access to this function might have a threading issue. 
     // It should be called from the main thread only!
     ip4_addr_t Wifi::get_local_ip()
     {
@@ -289,4 +288,5 @@ namespace smooth::core::network
                                       ip_changed);
         core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
+
 }
