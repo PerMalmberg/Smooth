@@ -99,8 +99,8 @@ namespace access_point
             Log::info("Tag",
             "loacal IP: {}.{}.{}.{}",
             ip >> 24,
-            (ip & 0x00FF0000) >> 16,
-            (ip & 0x0000FF00) >> 8,
+                      (ip & 0x00FF0000) >> 16,
+                      (ip & 0x0000FF00) >> 8,
             ip & 0xFF);
         }
 
