@@ -182,9 +182,9 @@ namespace smooth::application::sensor
         static_assert((ctrl_meas_data & 15) == 0);
         static_assert((config_data & 15) == 0);
 
-        auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2) &&
-                   read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2) &&
-                   read(BME280Core::CONFIG_REG, config_data.data(), 2);
+        auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2)
+                   && read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2)
+                   && read(BME280Core::CONFIG_REG, config_data.data(), 2);
 
         if (res)
         {
@@ -221,8 +221,8 @@ namespace smooth::application::sensor
 
             core::util::FixedBuffer<uint8_t, 32> calibration_data;
 
-            trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27) &&
-                            read(BME280Core::CALIB26_REG, calib26_calib32_data.data(), 8);
+            trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27)
+                            && read(BME280Core::CALIB26_REG, calib26_calib32_data.data(), 8);
 
             if (trimming_read)
             {
@@ -265,9 +265,8 @@ namespace smooth::application::sensor
 
         core::util::FixedBuffer<uint8_t, 8> measurement_data;
 
-        bool res = read_trimming_parameters();
-
-        res = res && read(BME280Core::PRESS_MSB_REG, temp_data.data(), 9);
+        bool res = read_trimming_parameters()
+                   && read(BME280Core::PRESS_MSB_REG, temp_data.data(), 9);
 
         if (res)
         {
