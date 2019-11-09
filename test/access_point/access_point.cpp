@@ -17,6 +17,8 @@ limitations under the License.
 
 #include "access_point.h"
 #include <memory>
+#include <string>
+#include <fmt/format.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
@@ -52,6 +54,7 @@ namespace access_point
 
     void App::init()
     {
+        constexpr const char* tag = "App::Init";
         std::stringstream ss;
 
         const int max_client_count = 6;
@@ -59,7 +62,7 @@ namespace access_point
 
         Application::init();
 
-        Log::info("App::Init", "Starting wifi...");
+        Log::info(tag, "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
@@ -80,7 +83,36 @@ namespace access_point
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
-        auto hello_world = [](
+        constexpr const char* mac_format = "Local MAC: {:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}";
+        constexpr const char* ip_format = "Access Point IP: {}.{}.{}.{}";
+        std::string mac_str{};
+        std::string ip_str{};
+
+        std::array<uint8_t, 6> mac{};
+
+        if (Wifi::get_local_mac_address(mac))
+        {
+            mac_str = fmt::format(mac_format, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            Log::info(tag, mac_str);
+        }
+        else
+        {
+            Log::error(tag, "Could not get local MAC");
+        }
+
+        auto ip = Wifi::get_local_ip();
+
+        if (ip)
+        {
+            ip_str = fmt::format(ip_format, ip >> 24, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF, ip & 0xFF);
+            Log::info(tag, ip_str);
+        }
+        else
+        {
+            Log::error(tag, "Local IP unavailable");
+        }
+
+        auto hello_world = [ip_str, mac_str](
             IServerResponse& response,
             IConnectionTimeoutModifier& /*timeout_modifier*/,
             const std::string& /*url*/,
@@ -89,13 +121,19 @@ namespace access_point
             const std::unordered_map<std::string, std::string>& /*headers*/,
             const std::unordered_map<std::string, std::string>& /*request_parameters*/,
             const std::vector<uint8_t>& /*content*/,
-            MIMEParser& /*mime*/) {
+            MIMEParser& /*mime*/)
+                           {
                                if (last_part)
                                {
+                                   auto s = fmt::format(
+                                           "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>"
+                                           "{}<br>{}</BODY></HTML>",
+                                            ip_str, mac_str);
+
                                    response.reply(std::make_unique<responses::StringResponse>(
-                                   ResponseCode::OK,
-                                   "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
-                                   false);
+                                                  ResponseCode::OK,
+                                                  s),
+                                                  false);
                                }
                            };
 

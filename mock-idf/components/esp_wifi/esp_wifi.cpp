@@ -59,3 +59,9 @@ esp_err_t esp_wifi_get_mac(wifi_interface_t /*ifx*/, uint8_t mac[6])
 
     return ESP_OK;
 }
+
+esp_err_t esp_wifi_get_mode(wifi_mode_t * mode)
+{
+    *mode = WIFI_MODE_STA;
+    return ESP_OK;
+}
