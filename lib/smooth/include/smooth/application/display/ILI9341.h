@@ -28,9 +28,9 @@ limitations under the License.
    16MHz but data sheet recommends 10MHz.
 
    NOTE 3: Most applications will not need the ability to read regsiters and are
-   only writing to the display.  In this case MISO can be set to -1.  Also the spi
-   clock speed can be increased to either 26MHz or 40MHz.  The 2 displays I tested
-   this driver with operated at 40MHz with no problem.
+   only writing to the display.  In this case MISO can be set to GPIO_NUM_NC.  Also
+   the spi clock speed can be increased to either 26MHz or 40MHz.  The 2 displays I
+   tested this driver with operated at 40MHz with no problem.
   ************************************************************************************/
 #pragma once
 
