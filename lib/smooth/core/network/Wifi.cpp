@@ -250,9 +250,9 @@ namespace smooth::core::network
 
     // attention: access to this function might have a threading issue.
     // It should be called from the main thread only!
-    ip4_addr_t Wifi::get_local_ip()
+    uint32_t Wifi::get_local_ip()
     {
-        return ip;
+        return ip.addr;
     }
 
     void Wifi::start_softap(uint8_t max_conn)
