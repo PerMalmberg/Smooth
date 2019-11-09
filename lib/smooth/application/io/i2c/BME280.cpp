@@ -23,7 +23,7 @@ using namespace smooth::core::logging;
 
 namespace smooth::application::sensor
 {
-    static const char TAG[] = "BME280SPI:";
+    static const char* TAG = "BME280SPI";
 
     BME280::BME280(i2c_port_t port, uint8_t address, std::mutex& guard)
             : I2CMasterDevice(port, address, guard)
@@ -95,9 +95,9 @@ namespace smooth::application::sensor
         core::util::FixedBuffer<uint8_t, 1> rest;
         core::util::FixedBuffer<uint8_t, 1> config;
 
-        auto res = read(address, BME280Core::CTRL_HUM_REG, hum) &&
-                   read(address, BME280Core::CTRL_MEAS_REG, rest) &&
-                   read(address, BME280Core::CONFIG_REG, config);
+        auto res = read(address, BME280Core::CTRL_HUM_REG, hum)
+                   && read(address, BME280Core::CTRL_MEAS_REG, rest)
+                   && read(address, BME280Core::CONFIG_REG, config);
 
         if (res)
         {
@@ -125,8 +125,8 @@ namespace smooth::application::sensor
             core::util::FixedBuffer<uint8_t, 26> calib00_calib25_data;    // 0x88-0xA1
             core::util::FixedBuffer<uint8_t, 7> calib26_calib32_data;     // 0xE1-0xE7
 
-            trimming_read = read(address, BME280Core::CALIB00_REG, calib00_calib25_data) &&
-                            read(address, BME280Core::CALIB26_REG, calib26_calib32_data);
+            trimming_read = read(address, BME280Core::CALIB00_REG, calib00_calib25_data)
+                            && read(address, BME280Core::CALIB26_REG, calib26_calib32_data);
 
             if (trimming_read)
             {
@@ -165,8 +165,8 @@ namespace smooth::application::sensor
         pressure = 0;
         temperature = 0;
 
-        bool res = read_trimming_parameters();
-        res = res && read(address, BME280Core::PRESS_MSB_REG, measurement_data);
+        bool res = read_trimming_parameters()
+                   && read(address, BME280Core::PRESS_MSB_REG, measurement_data);
 
         if (res)
         {
