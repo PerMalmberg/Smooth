@@ -28,3 +28,5 @@ esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t* conf);
 esp_err_t esp_wifi_connect();
 
 esp_err_t esp_wifi_get_mac(wifi_interface_t ifx, uint8_t mac[6]);
+
+esp_err_t esp_wifi_get_mode(wifi_mode_t * mode);

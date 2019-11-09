@@ -17,6 +17,8 @@ limitations under the License.
 
 #include "access_point.h"
 #include <memory>
+#include <string>
+#include <fmt/format.h>
 #include <smooth/core/logging/log.h>
 #include <smooth/core/task_priorities.h>
 #include <smooth/core/network/IPv4.h>
@@ -80,7 +82,36 @@ namespace access_point
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
-        auto hello_world = [](
+        std::string str_response = "";
+
+        std::array<uint8_t, 6> mac;
+
+        if (wifi.get_local_mac_address(mac))
+        {
+            Log::info("Tag", "loacal MAC: {:X}:{:X}:{:X}:{:X}:{:X}:{:X}", mac[0], mac[1], mac[2], mac[3], mac[4],
+            mac[5]);
+        }
+
+        uint32_t ip = static_cast<uint32_t>(wifi.get_local_ip().addr);
+
+        if (ip)
+        {
+            Log::info("Tag",
+            "loacal IP: {}.{}.{}.{}",
+            ip >> 24,
+                      (ip & 0x00FF0000) >> 16,
+                      (ip & 0x0000FF00) >> 8,
+            ip & 0xFF);
+        }
+
+        std::string MAC = fmt::format("{:X}:{:X}:{:X}:{:X}:{:X}:{:X}", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        std::string IP =
+            fmt::format("{}.{}.{}.{}", ip >> 24, (ip & 0x00FF0000) >> 16, (ip & 0x0000FF00) >> 8, ip & 0xFF);
+        str_response = "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>";
+        str_response += "Access point IP is: " + IP + "<br>";
+        str_response += "Access point MAC is:" + MAC + "</BODY></HTML>";
+
+        auto hello_world = [str_response](
             IServerResponse& response,
             IConnectionTimeoutModifier& /*timeout_modifier*/,
             const std::string& /*url*/,
@@ -94,7 +125,7 @@ namespace access_point
                                {
                                    response.reply(std::make_unique<responses::StringResponse>(
                                    ResponseCode::OK,
-                                   "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1></BODY></HTML>"),
+                                   str_response),
                                    false);
                                }
                            };
