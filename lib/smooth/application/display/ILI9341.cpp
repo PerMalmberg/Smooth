@@ -26,11 +26,9 @@ using namespace smooth::core::io::spi;
 
 namespace smooth::application::display
 {
-    static const char TAG[] = "ILI9314:";
+    static const char* TAG = "ILI9314";
     static const bool PIN_HIGH = true;
     static const bool PIN_LOW = false;
-    static const bool GOOD = true;
-    static const gpio_num_t CHIP_SELECT_NOT_USED = static_cast<gpio_num_t>(-1);
 
     ILI9341::ILI9341(std::mutex& guard,
                      gpio_num_t chip_select_pin,
@@ -72,7 +70,7 @@ namespace smooth::application::display
     bool ILI9341::init(spi_host_device_t host)
     {
         // spi_transaction will not control chip select
-        bool res = initialize(host, CHIP_SELECT_NOT_USED);
+        bool res = initialize(host, GPIO_NUM_NC);
 
         return res;
     }
