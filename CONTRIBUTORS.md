@@ -1,6 +1,6 @@
 # Contributors
 
-Below is the list of indiviuals that have contributed to the project.
+Below is the list of individuals that have contributed to the project.
 
 |Name|Contribution details
 |----|----|
