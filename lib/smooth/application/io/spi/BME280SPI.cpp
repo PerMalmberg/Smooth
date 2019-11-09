@@ -24,7 +24,7 @@ using namespace smooth::core::io::spi;
 
 namespace smooth::application::sensor
 {
-    static const char TAG[] = "BME280SPI:";
+    static const char* TAG = "BME280SPI";
 
     BME280SPI::BME280SPI(std::mutex& guard,
                          gpio_num_t chip_select_pin,
@@ -94,7 +94,12 @@ namespace smooth::application::sensor
 
     uint8_t BME280SPI::read_id()
     {
-        alignas(4) std::array<uint8_t, 4> rxdata;
+        std::array<uint8_t, 4> rxdata;
+
+        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
+        // see esp-idf/components/driver/spi_master.c line 865
+        static_assert((rxdata.data() & 15) == 0);
+
         auto res = read(BME280Core::ID_REG, rxdata.data(), 2);
 
         return res ? rxdata.at(1) : 0;
@@ -116,8 +121,11 @@ namespace smooth::application::sensor
 
     bool BME280SPI::read_status(bool& is_measuring, bool& updating_from_nvm)
     {
+        std::array<uint8_t, 4> rxdata;
+
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        alignas(4) std::array<uint8_t, 4> rxdata;
+        // see esp-idf/components/driver/spi_master.c line 865
+        static_assert((rxdata.data() & 15) == 0);
 
         auto res = read(BME280Core::STATUS_REG, rxdata.data(), 2);
 
@@ -164,10 +172,15 @@ namespace smooth::application::sensor
                                        BME280Core::FilterCoeff& filter,
                                        BME280Core::SpiInterface& spi_interface)
     {
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.c
-        alignas(4) core::util::FixedBuffer<uint8_t, 4> ctrl_hum_data;
-        alignas(4) core::util::FixedBuffer<uint8_t, 4> ctrl_meas_data;
-        alignas(4) core::util::FixedBuffer<uint8_t, 4> config_data;
+        core::util::FixedBuffer<uint8_t, 4> ctrl_hum_data;
+        core::util::FixedBuffer<uint8_t, 4> ctrl_meas_data;
+        core::util::FixedBuffer<uint8_t, 4> config_data;
+
+        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
+        // see esp-idf/components/driver/spi_master.c line 865
+        static_assert((ctrl_hum_data & 15) == 0);
+        static_assert((ctrl_meas_data & 15) == 0);
+        static_assert((config_data & 15) == 0);
 
         auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2) &&
                    read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2) &&
@@ -175,6 +188,10 @@ namespace smooth::application::sensor
 
         if (res)
         {
+            // Since we are using 4-line spi (full duplex) the sck clocks both data out
+            // and data in at the same time.  The first byte going out is the register we want
+            // to read and so the first byte received is garbage or dummy byte.  So we
+            // will pass the 2nd byte received to get_configuration_settings.
             bme280_core.get_configuration_settings(ctrl_hum_data[1],
                                                    ctrl_meas_data[1],
                                                    config_data[1],
@@ -194,9 +211,14 @@ namespace smooth::application::sensor
     {
         if (!trimming_read)
         {
+            core::util::FixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
+            core::util::FixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
+
             // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-            alignas(4) core::util::FixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
-            alignas(4) core::util::FixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
+            // see esp-idf/components/driver/spi_master.c line 865
+            static_assert((calib00_calib25_data & 15) == 0);
+            static_assert((calib26_calib32_data & 15) == 0);
+
             core::util::FixedBuffer<uint8_t, 32> calibration_data;
 
             trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27) &&
@@ -204,7 +226,10 @@ namespace smooth::application::sensor
 
             if (trimming_read)
             {
-                // don't copy dummy byte but copy 0x88-0x9F into calibration_data
+                // Since we are using 4-line spi (full duplex) the sck clocks both data out
+                // and data in at the same time.  The first byte going out is the register we want
+                // to read and so the first byte received is garbage or dummy byte.  So we
+                // don't want to copy the dummy byte but copy 0x88-0x9F into calibration_data
                 for (size_t i = 0; i < 24; i++)
                 {
                     calibration_data[i] = calib00_calib25_data[i + 1];
@@ -232,8 +257,12 @@ namespace smooth::application::sensor
 
     bool BME280SPI::read_measurements(float& humidity, float& pressure, float& temperature)
     {
+        core::util::FixedBuffer<uint8_t, 12> temp_data{};
+
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        alignas(4) core::util::FixedBuffer<uint8_t, 12> temp_data{};
+        // see esp-idf/components/driver/spi_master.c line 865
+        static_assert((temp_data & 15) == 0);
+
         core::util::FixedBuffer<uint8_t, 8> measurement_data;
 
         bool res = read_trimming_parameters();
@@ -242,7 +271,10 @@ namespace smooth::application::sensor
 
         if (res)
         {
-            // don't copy dummy byte but copy actual data into measurement_data
+            // Since we are using 4-line spi (full duplex) the sck clocks both data out
+            // and data in at the same time.  The first byte going out is the register we want
+            // to read and so the first byte received is garbage or dummy byte.  So we
+            // don't want to copy the dummy byte but copy actual data into measurement_data
             for (size_t i = 0; i < 8; i++)
             {
                 measurement_data[i] = temp_data[i + 1];
