@@ -98,7 +98,7 @@ namespace smooth::application::sensor
 
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
         // see esp-idf/components/driver/spi_master.c line 865
-        static_assert((rxdata.data() & 15) == 0);
+        //static_assert(&rxdata % 4 == 0, "Error:c rxdata not 32 bit aligned ");
 
         auto res = read(BME280Core::ID_REG, rxdata.data(), 2);
 
@@ -125,7 +125,7 @@ namespace smooth::application::sensor
 
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
         // see esp-idf/components/driver/spi_master.c line 865
-        static_assert((rxdata.data() & 15) == 0);
+        //static_assert(&rxdata % 4 == 0, "Error: rxdata not 32 bit aligned ");
 
         auto res = read(BME280Core::STATUS_REG, rxdata.data(), 2);
 
@@ -178,9 +178,9 @@ namespace smooth::application::sensor
 
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
         // see esp-idf/components/driver/spi_master.c line 865
-        static_assert((ctrl_hum_data & 15) == 0);
-        static_assert((ctrl_meas_data & 15) == 0);
-        static_assert((config_data & 15) == 0);
+        //static_assert(ctrl_hum_data % 4 == 0, "Error: ctrl_hum_data not 32 bit aligned");
+        //static_assert(ctrl_meas_data % 4 == 0, "Error: ctrl_meas_data not 32 bit aligned");
+        //static_assert(config_data % 4 == 0, "Error: config_data not 32 bit aligned");
 
         auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2)
                    && read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2)
@@ -216,8 +216,8 @@ namespace smooth::application::sensor
 
             // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
             // see esp-idf/components/driver/spi_master.c line 865
-            static_assert((calib00_calib25_data & 15) == 0);
-            static_assert((calib26_calib32_data & 15) == 0);
+            //static_assert(calib00_calib25_data % 4 == 0, "Error: calib00_calib25_data not 32 bit aligned");
+            //static_assert(calib26_calib32_data % 4 == 0, "Error: calib26_calib32_data not 32 bit aligned");
 
             core::util::FixedBuffer<uint8_t, 32> calibration_data;
 
@@ -261,7 +261,7 @@ namespace smooth::application::sensor
 
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
         // see esp-idf/components/driver/spi_master.c line 865
-        static_assert((temp_data & 15) == 0);
+        //static_assert(temp_data % 4 == 0, "Error: "temp_data not 32 bit aligned");
 
         core::util::FixedBuffer<uint8_t, 8> measurement_data;
 
