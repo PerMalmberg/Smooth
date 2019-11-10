@@ -16,9 +16,9 @@ limitations under the License.
 */
 
 #include <algorithm>
-#include <smooth/application/network/mqtt/Subscription.h>
-#include <smooth/application/network/mqtt/packet/Subscribe.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/application/network/mqtt/Subscription.h"
+#include "smooth/application/network/mqtt/packet/Subscribe.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 using namespace std::chrono;

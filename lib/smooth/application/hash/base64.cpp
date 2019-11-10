@@ -17,7 +17,7 @@ limitations under the License.
 
 #include <memory>
 #include <string>
-#include <smooth/application/hash/base64.h>
+#include "smooth/application/hash/base64.h"
 #include <mbedtls/base64.h>
 
 namespace smooth::application::hash::base64

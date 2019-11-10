@@ -19,7 +19,7 @@ limitations under the License.
 
 #include <mutex>
 #include <memory>
-#include <smooth/core/util/CircularBuffer.h>
+#include "smooth/core/util/CircularBuffer.h"
 #include "IPacketReceiveBuffer.h"
 
 namespace smooth::core::network

@@ -22,11 +22,11 @@ limitations under the License.
 #include <cstring>
 #include <cstdio>
 #include <fmt/core.h>
-#include <smooth/core/filesystem/MMCSDCard.h>
-#include <smooth/core/filesystem/SPISDCard.h>
-#include <smooth/core/timer/ElapsedTime.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/filesystem/MMCSDCard.h"
+#include "smooth/core/filesystem/SPISDCard.h"
+#include "smooth/core/timer/ElapsedTime.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/core/task_priorities.h"
 
 using namespace smooth;
 using namespace smooth::core;

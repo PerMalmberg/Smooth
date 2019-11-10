@@ -16,8 +16,8 @@ limitations under the License.
 */
 
 #include "hw_interrupt_queue.h"
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
 
 using namespace smooth::core;
 

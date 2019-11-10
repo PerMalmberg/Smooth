@@ -18,10 +18,10 @@ limitations under the License.
 #include <chrono>
 
 #include "hw_spiflash.h"
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/task_priorities.h"
 #include <fstream>
 #include <iostream>
-#include <smooth/core/filesystem/MountPoint.h>
+#include "smooth/core/filesystem/MountPoint.h"
 
 using namespace smooth;
 using namespace smooth::core;

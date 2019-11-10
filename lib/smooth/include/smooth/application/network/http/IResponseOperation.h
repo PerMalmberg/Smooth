@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <unordered_map>
-#include <smooth/core/network/BufferContainer.h>
-#include <smooth/application/network/http/regular/ResponseCodes.h>
+#include "smooth/core/network/BufferContainer.h"
+#include "smooth/application/network/http/regular/ResponseCodes.h"
 
 namespace smooth::application::network::http
 {

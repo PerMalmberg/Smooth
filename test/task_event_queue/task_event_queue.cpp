@@ -17,8 +17,8 @@ limitations under the License.
 
 #include "task_event_queue.h"
 
-#include <smooth/core/logging/log.h>
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/core/task_priorities.h"
 
 #include <utility>
 

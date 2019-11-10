@@ -21,7 +21,7 @@ limitations under the License.
 #include <array>
 #include <unordered_map>
 
-#include <smooth/application/network/http/URLEncoding.h>
+#include "smooth/application/network/http/URLEncoding.h"
 
 using namespace smooth::application::network::http;
 

@@ -21,8 +21,8 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <smooth/core/network/IPacketDisassembly.h>
-#include <smooth/application/network/http/regular/ResponseCodes.h>
+#include "smooth/core/network/IPacketDisassembly.h"
+#include "smooth/application/network/http/regular/ResponseCodes.h"
 #include "regular/HTTPMethod.h"
 #include "websocket/OpCode.h"
 

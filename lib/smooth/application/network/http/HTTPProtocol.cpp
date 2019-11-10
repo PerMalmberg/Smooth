@@ -32,8 +32,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/regular//responses/ErrorResponse.h>
+#include "smooth/application/network/http/HTTPProtocol.h"
+#include "smooth/application/network/http/regular//responses/ErrorResponse.h"
 #include <algorithm>
 
 namespace smooth::application::network::http

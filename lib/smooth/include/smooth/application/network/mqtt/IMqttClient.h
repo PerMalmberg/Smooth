@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <chrono>
-#include <smooth/core/ipc/TaskEventQueue.h>
+#include "smooth/core/ipc/TaskEventQueue.h"
 
 namespace smooth::application::network::mqtt
 {

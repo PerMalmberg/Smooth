@@ -16,15 +16,15 @@ limitations under the License.
 */
 
 #include "secure_socket_test.h"
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/Application.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/network/BufferContainer.h>
-#include <smooth/core/network/MbedTLSContext.h>
-#include <smooth/application/network/http/HTTPPacket.h>
-#include <smooth/application/network/http/regular/HTTPMethod.h>
-#include <smooth/application/network/http/regular/ResponseCodes.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/Application.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/core/network/BufferContainer.h"
+#include "smooth/core/network/MbedTLSContext.h"
+#include "smooth/application/network/http/HTTPPacket.h"
+#include "smooth/application/network/http/regular/HTTPMethod.h"
+#include "smooth/application/network/http/regular/ResponseCodes.h"
 #include <cassert>
 #include "wifi_creds.h"
 

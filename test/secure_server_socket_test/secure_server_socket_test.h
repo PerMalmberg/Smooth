@@ -18,12 +18,12 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include <smooth/core/Application.h>
-#include <smooth/core/network/SecureSocket.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/network/Socket.h>
-#include <smooth/core/network/ServerSocket.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/network/SecureSocket.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/network/Socket.h"
+#include "smooth/core/network/ServerSocket.h"
 #include "StreamingProtocol.h"
 #include "StreamingClient.h"
 

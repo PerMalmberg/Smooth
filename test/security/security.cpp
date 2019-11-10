@@ -17,9 +17,9 @@ limitations under the License.
 
 #include "security.h"
 #include <iostream>
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/timer/ElapsedTime.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/timer/ElapsedTime.h"
 
 using namespace std::chrono;
 using namespace smooth::core;

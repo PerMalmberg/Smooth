@@ -17,9 +17,9 @@ limitations under the License.
 
 #include <algorithm>
 #include <functional>
-#include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/config_constants.h>
+#include "smooth/core/network/SocketDispatcher.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/config_constants.h"
 
 #ifndef ESP_PLATFORM
 

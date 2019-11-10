@@ -17,8 +17,8 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/util/CircularBuffer.h>
-#include <smooth/core/network/ISocket.h>
+#include "smooth/core/util/CircularBuffer.h"
+#include "smooth/core/network/ISocket.h"
 
 namespace smooth::core::network::event
 {

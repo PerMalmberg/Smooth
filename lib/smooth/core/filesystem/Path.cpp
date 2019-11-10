@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/filesystem/Path.h>
+#include "smooth/core/filesystem/Path.h"
 #include <algorithm>
 
 namespace smooth::core::filesystem

@@ -17,12 +17,12 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Task.h>
+#include "smooth/core/Task.h"
 #include <memory>
 #include "ITaskEventQueue.h"
 #include "IEventListener.h"
 #include "QueueNotification.h"
-#include <smooth/core/util/create_protected.h>
+#include "smooth/core/util/create_protected.h"
 
 namespace smooth::core::ipc
 {

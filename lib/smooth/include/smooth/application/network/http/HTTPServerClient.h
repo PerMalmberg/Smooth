@@ -20,11 +20,11 @@ limitations under the License.
 #include <iostream>
 #include <fstream>
 #include <deque>
-#include <smooth/core/network/ServerClient.h>
-#include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/regular/responses/StringResponse.h>
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
-#include <smooth/application/network/http/websocket/WebsocketServer.h>
+#include "smooth/core/network/ServerClient.h"
+#include "smooth/application/network/http/HTTPProtocol.h"
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
+#include "smooth/application/network/http/IConnectionTimeoutModifier.h"
+#include "smooth/application/network/http/websocket/WebsocketServer.h"
 #include "regular/IRequestHandler.h"
 #include "regular/MIMEParser.h"
 #include "URLEncoding.h"

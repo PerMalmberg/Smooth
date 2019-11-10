@@ -16,9 +16,9 @@ limitations under the License.
 */
 
 #include "mqtt.h"
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/task_priorities.h"
 
-#include <smooth/core/network/Wifi.h>
+#include "smooth/core/network/Wifi.h"
 #include "wifi_creds.h"
 
 using namespace smooth;
