@@ -18,11 +18,11 @@ limitations under the License.
 #pragma once
 
 #include <iostream>
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/io/InterruptInput.h>
-#include <smooth/core/ipc/ISRTaskEventQueue.h>
-#include <smooth/core/ipc/IEventListener.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/io/InterruptInput.h"
+#include "smooth/core/ipc/ISRTaskEventQueue.h"
+#include "smooth/core/ipc/IEventListener.h"
 
 namespace hw_interrupt_queue
 {

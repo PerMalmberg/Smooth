@@ -20,7 +20,7 @@ limitations under the License.
 #include "InterruptEvent.h"
 
 #include "Input.h"
-#include <smooth/core/ipc/IISRTaskEventQueue.h>
+#include "smooth/core/ipc/IISRTaskEventQueue.h"
 #include <memory>
 
 namespace smooth::core::io

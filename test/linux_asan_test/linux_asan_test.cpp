@@ -16,8 +16,8 @@ limitations under the License.
 */
 
 #include "linux_asan_test.h"
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
 
 using namespace smooth::core;
 

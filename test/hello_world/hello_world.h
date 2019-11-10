@@ -17,8 +17,8 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/task_priorities.h"
 #include <iostream>
 
 namespace hello_world

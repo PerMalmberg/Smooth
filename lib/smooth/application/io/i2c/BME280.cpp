@@ -17,9 +17,9 @@ limitations under the License.
 
 #include <vector>
 #include <sstream>
-#include <smooth/application/io/i2c/BME280.h>
-#include <smooth/core/util/FixedBuffer.h>
-#include <smooth/core/util/ByteSet.h>
+#include "smooth/application/io/i2c/BME280.h"
+#include "smooth/core/util/FixedBuffer.h"
+#include "smooth/core/util/ByteSet.h"
 
 namespace smooth::application::sensor
 {

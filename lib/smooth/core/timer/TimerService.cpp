@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/timer/TimerService.h>
-#include <smooth/core/timer/Timer.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/config_constants.h>
+#include "smooth/core/timer/TimerService.h"
+#include "smooth/core/timer/Timer.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/config_constants.h"
 
 using namespace smooth::core::logging;
 using namespace std::chrono;

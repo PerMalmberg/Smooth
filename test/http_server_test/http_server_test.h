@@ -19,16 +19,16 @@ limitations under the License.
 
 #include <functional>
 #include <memory>
-#include <smooth/core/Application.h>
-#include <smooth/application/network/http/HTTPServer.h>
-#include <smooth/core/network/ServerSocket.h>
-#include <smooth/core/network/SecureServerSocket.h>
-#include <smooth/application/network/http/HTTPServerClient.h>
-#include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/regular/ITemplateDataRetriever.h>
+#include "smooth/core/Application.h"
+#include "smooth/application/network/http/HTTPServer.h"
+#include "smooth/core/network/ServerSocket.h"
+#include "smooth/core/network/SecureServerSocket.h"
+#include "smooth/application/network/http/HTTPServerClient.h"
+#include "smooth/application/network/http/HTTPProtocol.h"
+#include "smooth/application/network/http/regular/ITemplateDataRetriever.h"
 
 #ifdef ESP_PLATFORM
-#include <smooth/core/filesystem/MMCSDCard.h>
+#include "smooth/core/filesystem/MMCSDCard.h"
 #endif
 
 namespace http_server_test

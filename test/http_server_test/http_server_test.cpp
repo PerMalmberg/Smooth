@@ -17,13 +17,13 @@ limitations under the License.
 
 #include "http_server_test.h"
 #include <memory>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/network/IPv4.h>
-#include <smooth/core/filesystem/filesystem.h>
-#include <smooth/core/filesystem/FSLock.h>
-#include <smooth/application/network/http/regular/responses/StringResponse.h>
-#include <smooth/application/network/http/regular/MIMEParser.h>
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/network/IPv4.h"
+#include "smooth/core/filesystem/filesystem.h"
+#include "smooth/core/filesystem/FSLock.h"
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
+#include "smooth/application/network/http/regular/MIMEParser.h"
+#include "smooth/core/SystemStatistics.h"
 #include "SendBlob.h"
 #include "WSEchoServer.h"
 #include "wifi_creds.h"

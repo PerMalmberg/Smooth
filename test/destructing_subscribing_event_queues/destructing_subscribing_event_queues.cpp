@@ -16,12 +16,12 @@ limitations under the License.
 */
 
 #include "destructing_subscribing_event_queues.h"
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/SubscribingTaskEventQueue.h"
+#include "smooth/core/ipc/Publisher.h"
+#include "smooth/core/logging/log.h"
 #include <random>
 
 using namespace smooth::core;

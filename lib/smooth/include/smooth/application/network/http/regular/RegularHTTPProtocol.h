@@ -18,9 +18,9 @@ limitations under the License.
 #pragma once
 
 #include <regex>
-#include <smooth/core/network/IPacketAssembly.h>
-#include <smooth/application/network/http/HTTPPacket.h>
-#include <smooth/application/network/http/IServerResponse.h>
+#include "smooth/core/network/IPacketAssembly.h"
+#include "smooth/application/network/http/HTTPPacket.h"
+#include "smooth/application/network/http/IServerResponse.h"
 #include "IUpgradeToWebsocket.h"
 
 namespace smooth::application::network::http::regular

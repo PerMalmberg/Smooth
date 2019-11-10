@@ -18,9 +18,9 @@ limitations under the License.
 #include "sntp.h"
 #include <chrono>
 #include <ctime>
-#include <smooth/core/Task.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/network/Wifi.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/network/Wifi.h"
 #include "wifi_creds.h"
 #include <iostream>
 

@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/network/MbedTLSContext.h>
+#include "smooth/core/network/MbedTLSContext.h"
 #include <mbedtls/error.h>
 #include <memory>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/logging/log.h"
 #include <cstring>
 
 #if defined(ESP_PLATFORM) && defined(CONFIG_MBEDTLS_DEBUG)

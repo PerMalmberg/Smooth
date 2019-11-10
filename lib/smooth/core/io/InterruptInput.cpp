@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/io/InterruptInput.h>
+#include "smooth/core/io/InterruptInput.h"
 #include <driver/gpio.h>
 
 namespace smooth::core::io

@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include <smooth/core/Application.h>
-#include <smooth/application/security/PasswordHash.h>
+#include "smooth/core/Application.h"
+#include "smooth/application/security/PasswordHash.h"
 
 namespace security
 {

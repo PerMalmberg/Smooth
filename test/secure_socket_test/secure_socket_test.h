@@ -18,15 +18,15 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include <smooth/core/Application.h>
-#include <smooth/core/network/SecureSocket.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/network/event/ConnectionStatusEvent.h>
-#include <smooth/core/network/Socket.h>
-#include <smooth/core/network/IPv4.h>
-#include <smooth/application/network/http/HTTPProtocol.h>
-#include <smooth/application/network/http/IResponseOperation.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/network/SecureSocket.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/network/event/ConnectionStatusEvent.h"
+#include "smooth/core/network/Socket.h"
+#include "smooth/core/network/IPv4.h"
+#include "smooth/application/network/http/HTTPProtocol.h"
+#include "smooth/application/network/http/IResponseOperation.h"
 
 namespace secure_socket_test
 {

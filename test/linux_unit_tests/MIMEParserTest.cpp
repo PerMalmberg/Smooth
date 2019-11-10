@@ -16,11 +16,11 @@ limitations under the License.
 */
 
 #include <catch2/catch.hpp>
-#include <smooth/application/network/http/regular/MIMEParser.h>
-#include <smooth/core/filesystem/Path.h>
-#include <smooth/core/filesystem/File.h>
-#include <smooth/application/hash/sha.h>
-#include <smooth/core/filesystem/Fileinfo.h>
+#include "smooth/application/network/http/regular/MIMEParser.h"
+#include "smooth/core/filesystem/Path.h"
+#include "smooth/core/filesystem/File.h"
+#include "smooth/application/hash/sha.h"
+#include "smooth/core/filesystem/Fileinfo.h"
 
 using namespace smooth::core::filesystem;
 using namespace smooth::application::network::http;

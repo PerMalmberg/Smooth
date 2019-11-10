@@ -19,7 +19,7 @@ limitations under the License.
 
 #include <memory>
 #include "smooth/application/network/http/IResponseOperation.h"
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include "smooth/application/network/http/IConnectionTimeoutModifier.h"
 #include "smooth/application/network/http/IServerResponse.h"
 
 namespace smooth::application::network::http::regular

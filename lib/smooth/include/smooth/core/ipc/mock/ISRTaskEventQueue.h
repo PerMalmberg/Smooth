@@ -17,8 +17,8 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Task.h>
-#include <smooth/core/util/create_protected.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/util/create_protected.h"
 
 namespace smooth::core::ipc
 {

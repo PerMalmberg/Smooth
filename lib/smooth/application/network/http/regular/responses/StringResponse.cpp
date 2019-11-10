@@ -17,11 +17,11 @@ limitations under the License.
 
 #include <utility>
 
-#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
 #include <algorithm>
-#include <smooth/core/logging/log.h>
-#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
-#include <smooth/application/network/http/http_utils.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/application/network/http/regular/HTTPHeaderDef.h"
+#include "smooth/application/network/http/http_utils.h"
 
 using namespace smooth::core::logging;
 

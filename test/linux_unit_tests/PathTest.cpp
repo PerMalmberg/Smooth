@@ -19,7 +19,7 @@ limitations under the License.
 #include <array>
 #include <unordered_map>
 
-#include <smooth/core/filesystem/Path.h>
+#include "smooth/core/filesystem/Path.h"
 
 using namespace smooth::core::filesystem;
 

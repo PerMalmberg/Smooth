@@ -20,8 +20,8 @@ limitations under the License.
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/network/IPv4.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/core/network/IPv4.h"
 
 using namespace smooth::core::logging;
 

@@ -17,7 +17,7 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/application/network/http/IResponseOperation.h>
+#include "smooth/application/network/http/IResponseOperation.h"
 
 namespace smooth::application::network::http::regular::responses
 {

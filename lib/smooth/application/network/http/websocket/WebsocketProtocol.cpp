@@ -15,12 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/network/http/websocket/WebsocketProtocol.h>
-#include <smooth/core/util/string_util.h>
-#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
-#include <smooth/application/network/http/regular/RegularHTTPProtocol.h>
-#include <smooth/application/network/http/regular/responses/ErrorResponse.h>
-#include <smooth/core/network/util.h>
+#include "smooth/application/network/http/websocket/WebsocketProtocol.h"
+#include "smooth/application/network/http/regular/RegularHTTPProtocol.h"
+#include "smooth/core/network/util.h"
 
 namespace smooth::application::network::http::websocket
 {

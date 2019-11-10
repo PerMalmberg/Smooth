@@ -19,12 +19,12 @@ limitations under the License.
 
 #include <bitset>
 #include <memory>
-#include <smooth/core/Task.h>
-#include <smooth/core/io/InterruptInputCB.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/ISRTaskEventQueue.h>
-#include <smooth/core/ipc/ITaskEventQueue.h>
-#include <smooth/core/timer/Timer.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/io/InterruptInputCB.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/ISRTaskEventQueue.h"
+#include "smooth/core/ipc/ITaskEventQueue.h"
+#include "smooth/core/timer/Timer.h"
 #include <esp_timer.h>
 #include "IWiegandSignal.h"
 

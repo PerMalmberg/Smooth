@@ -16,8 +16,8 @@ limitations under the License.
 */
 
 #include "SendBlob.h"
-#include <smooth/application/network/http/regular/ResponseCodes.h>
-#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
+#include "smooth/application/network/http/regular/ResponseCodes.h"
+#include "smooth/application/network/http/regular/HTTPHeaderDef.h"
 
 using namespace smooth::application::network::http;
 using namespace smooth::application::network::http::regular;

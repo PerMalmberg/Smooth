@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/timer/ElapsedTime.h>
+#include "smooth/core/timer/ElapsedTime.h"
 
 using namespace std::chrono;
 

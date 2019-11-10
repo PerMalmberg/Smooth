@@ -21,8 +21,8 @@ limitations under the License.
 #include <set>
 #include <regex>
 #include <string>
-#include <smooth/core/filesystem/Path.h>
-#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include "smooth/core/filesystem/Path.h"
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
 #include "ITemplateDataRetriever.h"
 
 namespace smooth::application::network::http::regular

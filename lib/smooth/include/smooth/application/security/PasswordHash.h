@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <tuple>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/logging/log.h"
 #include "sodium.h"
 
 using namespace smooth::core::logging;

@@ -25,13 +25,13 @@ limitations under the License.
 #include "ISocket.h"
 #include "IPv4.h"
 #include "IPv6.h"
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/network/event/ConnectionStatusEvent.h>
-#include <smooth/core/network/CommonSocket.h>
-#include <smooth/core/network/Socket.h>
-#include <smooth/core/util/create_protected.h>
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/core/network/SocketDispatcher.h"
+#include "smooth/core/network/event/ConnectionStatusEvent.h"
+#include "smooth/core/network/CommonSocket.h"
+#include "smooth/core/network/Socket.h"
+#include "smooth/core/util/create_protected.h"
 
 #ifndef ESP_PLATFORM
 

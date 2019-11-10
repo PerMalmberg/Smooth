@@ -16,12 +16,12 @@ limitations under the License.
 */
 
 #include "publish.h"
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/logging/log.h"
 #include <chrono>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/Application.h>
+#include "smooth/core/ipc/SubscribingTaskEventQueue.h"
+#include "smooth/core/ipc/Publisher.h"
+#include "smooth/core/Application.h"
 
 using namespace smooth;
 

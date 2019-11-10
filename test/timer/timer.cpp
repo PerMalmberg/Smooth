@@ -17,7 +17,7 @@ limitations under the License.
 
 #include "timer.h"
 
-#include <smooth/core/task_priorities.h>
+#include "smooth/core/task_priorities.h"
 
 using namespace smooth;
 using namespace smooth::core;

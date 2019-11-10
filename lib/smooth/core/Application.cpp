@@ -19,9 +19,9 @@ limitations under the License.
 #include <driver/gpio.h>
 #include <esp_event.h>
 
-#include <smooth/core/Application.h>
-#include <smooth/core/network/SocketDispatcher.h>
-#include <smooth/core/filesystem/FSLock.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/network/SocketDispatcher.h"
+#include "smooth/core/filesystem/FSLock.h"
 
 using namespace smooth::core::filesystem;
 using namespace smooth::core::logging;

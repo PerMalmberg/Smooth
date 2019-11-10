@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <memory>
-#include <smooth/core/Application.h>
-#include <smooth/core/filesystem/SDCard.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/filesystem/SDCard.h"
 
 namespace hw_sdcard_test
 {
