@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <smooth/application/display/ILI9341.h>
 #include <smooth/application/display/ILI9341_init_cmds.h>
+#include <smooth/core/util/DmaFixedBuffer.h>
 #include <cstring>
 #include <thread>
 #include <smooth/core/logging/log.h>
@@ -300,28 +301,31 @@ namespace smooth::application::display
     // the MSB bit of the first parameter read contains the dummy clock data bit.  We need to
     // shift out the dummy data bit and recovery the MSB bit from the extra byte added to the read.
     // NOTE: FOR READING PARAMS SCK must be 16MHz or less the datasheet recommends 10MHz.
-    bool ILI9341::read_params(uint8_t cmd, std::vector<uint8_t>& rxdata, uint32_t param_count)
+    bool ILI9341::read_params(uint8_t cmd, std::vector<uint8_t>& data, uint32_t param_count)
     {
         // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // if not you will get the following log in debug terminal: spi_master: Allocate RX buffer for DMA
-        alignas(4) std::array<uint8_t, 16> temp_data;
+        // so we will use DmaFixedBuffer
+        core::util::DmaFixedBuffer<uint8_t, 16> rxdata;
 
         bool res = false;
 
         if (param_count == 1)
         {
-            res = read(cmd, temp_data.data(), 1);
-            rxdata.push_back( temp_data.at(0));
+            res = read(cmd, rxdata.data(), 1);
+            data.push_back(rxdata[0]);
         }
         else if ((param_count > 1) & (param_count < 16))
         {
             // increment param_count by 1 so an additional byte is read and we get all the data
-            res = read(cmd, temp_data.data(), param_count + 1);
+            res = read(cmd, rxdata.data(), param_count + 1);
 
-            // get rid of dummy bit data at beginning of read
+            // Since we are using 4-line spi (full duplex) the sck clocks both data out
+            // and data in at the same time.  The first byte going out is the register we want
+            // to read and so the first byte received is garbage or dummy byte.  So we
+            // don't want to copy the dummy byte but copy only the real data
             for (size_t i = 0; i < param_count; i++)
             {
-                rxdata.push_back( static_cast<uint8_t>((temp_data.at(i) << 1) | (temp_data.at(i + 1) >> 7)));
+                data.push_back( static_cast<uint8_t>((rxdata[i] << 1) | (rxdata[i + 1] >> 7)));
             }
         }
         else
