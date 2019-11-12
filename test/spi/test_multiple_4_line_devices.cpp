@@ -13,12 +13,12 @@ limitations under the License.
 */
 
 /****************************************************************************************
- * Typical results from running program
+ * Typical results from running program on esp32-devkit v1
  *
  * W (74246) APP:: ============ APP TICK TICK  =============
  * I (74247) MemStat: Mem type |  8-bit free | Smallest block | Minimum free | 32-bit free | Smallest block | Minimum free
- * I (74253) MemStat: INTERNAL |      215836 |         113804 |       215456 |      273128 |         113804 |       272740
- * I (74265) MemStat:      DMA |      215836 |         113804 |       215456 |      215836 |         113804 |       215456
+ * I (74253) MemStat: INTERNAL |      215796 |         113804 |       215448 |      273088 |         113804 |       272732
+ * I (74265) MemStat:      DMA |      215796 |         113804 |       215448 |      215796 |         113804 |       215448
  * I (74276) MemStat:   SPIRAM |           0 |              0 |            0 |           0 |              0 |            0
  * I (74287) MemStat:
  * I (74290) MemStat:             Name |      Stack |  Min free stack |  Max used stack
