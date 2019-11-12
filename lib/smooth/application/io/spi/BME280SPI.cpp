@@ -14,9 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <smooth/application/io/spi/BME280SPI.h>
+
 #include <cstring>
 #include <smooth/core/logging/log.h>
+#include <smooth/application/io/spi/BME280SPI.h>
 
 using namespace smooth::core::logging;
 using namespace smooth::core;
@@ -78,14 +79,14 @@ namespace smooth::application::sensor
         return res;
     }
 
-    bool BME280SPI::write(std::vector<uint8_t>& txdata)
+    bool BME280SPI::write(const uint8_t* txdata, size_t length)
     {
         std::lock_guard<std::mutex> lock(get_guard());
         spi_transaction_t trans;
         std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
         trans.rx_buffer = NULL;
-        trans.length = 8 * txdata.size();
-        trans.tx_buffer = txdata.data();
+        trans.length = 8 * length;
+        trans.tx_buffer = const_cast<uint8_t*>(txdata);
 
         auto res = polling_write(trans);
 
@@ -94,45 +95,37 @@ namespace smooth::application::sensor
 
     uint8_t BME280SPI::read_id()
     {
-        std::array<uint8_t, 4> rxdata;
-
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // see esp-idf/components/driver/spi_master.c line 865
-        //static_assert(&rxdata % 4 == 0, "Error:c rxdata not 32 bit aligned ");
+        core::util::DmaFixedBuffer<uint8_t, 4> rxdata;
 
         auto res = read(BME280Core::ID_REG, rxdata.data(), 2);
 
-        return res ? rxdata.at(1) : 0;
+        return res ? rxdata[1] : 0;
     }
 
     bool BME280SPI::reset()
     {
-        std::vector<uint8_t> datagram;
+        core::util::DmaFixedBuffer<uint8_t, 4> txdata;
 
         // for spi write bit 7 of register address must be zero
         // modify 0xE0 to 0x60;
-        datagram.push_back( BME280Core::RESET_REG& 0x7F );
+        txdata[0] = BME280Core::RESET_REG& 0x7F;
 
         // magic number to the reset device
-        datagram.push_back( 0xB6 );
+        txdata[1] = 0xB6;
 
-        return write(datagram);
+        return write(txdata.data(), 2);
     }
 
     bool BME280SPI::read_status(bool& is_measuring, bool& updating_from_nvm)
     {
-        std::array<uint8_t, 4> rxdata;
-
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // see esp-idf/components/driver/spi_master.c line 865
-        //static_assert(&rxdata % 4 == 0, "Error: rxdata not 32 bit aligned ");
+        core::util::DmaFixedBuffer<uint8_t, 4> rxdata;
 
         auto res = read(BME280Core::STATUS_REG, rxdata.data(), 2);
 
         if (res)
         {
-            is_measuring = rxdata.at(1) & 0x4;
-            updating_from_nvm = rxdata.at(1) & 0x1;
+            is_measuring = rxdata[1] & 0x4;
+            updating_from_nvm = rxdata[1] & 0x1;
         }
 
         return res;
@@ -147,6 +140,7 @@ namespace smooth::application::sensor
                                      BME280Core::SpiInterface spi_interface)
     {
         std::vector<uint8_t> datagram;
+
         bme280_core.get_configure_sensor_datagram(datagram,
                                              mode,
                                              humidity,
@@ -156,12 +150,17 @@ namespace smooth::application::sensor
                                              filter_coeff,
                                              spi_interface);
 
-        // for spi write the bit 7 of register address must be zero
-        datagram.at(0) = datagram.at(0) & 0x7F;  // modify 0xF2 to 0x72
-        datagram.at(2) = datagram.at(2) & 0x7F;  // modify 0xF4 to 0x74
-        datagram.at(4) = datagram.at(4) & 0x7F;  // modify 0xF5 to 0x75
+        core::util::DmaFixedBuffer<uint8_t, 8> txdata;
 
-        return write(datagram);
+        // for spi write the bit 7 of register address must be zero
+        txdata[0] = datagram.at(0) & 0x7F;  // modify 0xF2 to 0x72
+        txdata[1] = datagram.at(1);         // keep data the same
+        txdata[2] = datagram.at(2) & 0x7F;  // modify 0xF4 to 0x74
+        txdata[3] = datagram.at(3);         // keep data the same
+        txdata[4] = datagram.at(4) & 0x7F;  // modify 0xF5 to 0x75
+        txdata[5] = datagram.at(5);         // keep data the same
+
+        return write(txdata.data(), 6);
     }
 
     bool BME280SPI::read_configuration(BME280Core::SensorMode& mode,
@@ -172,15 +171,9 @@ namespace smooth::application::sensor
                                        BME280Core::FilterCoeff& filter,
                                        BME280Core::SpiInterface& spi_interface)
     {
-        core::util::FixedBuffer<uint8_t, 4> ctrl_hum_data;
-        core::util::FixedBuffer<uint8_t, 4> ctrl_meas_data;
-        core::util::FixedBuffer<uint8_t, 4> config_data;
-
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // see esp-idf/components/driver/spi_master.c line 865
-        //static_assert(ctrl_hum_data % 4 == 0, "Error: ctrl_hum_data not 32 bit aligned");
-        //static_assert(ctrl_meas_data % 4 == 0, "Error: ctrl_meas_data not 32 bit aligned");
-        //static_assert(config_data % 4 == 0, "Error: config_data not 32 bit aligned");
+        core::util::DmaFixedBuffer<uint8_t, 4> ctrl_hum_data;
+        core::util::DmaFixedBuffer<uint8_t, 4> ctrl_meas_data;
+        core::util::DmaFixedBuffer<uint8_t, 4> config_data;
 
         auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2)
                    && read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2)
@@ -211,14 +204,8 @@ namespace smooth::application::sensor
     {
         if (!trimming_read)
         {
-            core::util::FixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
-            core::util::FixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
-
-            // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-            // see esp-idf/components/driver/spi_master.c line 865
-            //static_assert(calib00_calib25_data % 4 == 0, "Error: calib00_calib25_data not 32 bit aligned");
-            //static_assert(calib26_calib32_data % 4 == 0, "Error: calib26_calib32_data not 32 bit aligned");
-
+            core::util::DmaFixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
+            core::util::DmaFixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
             core::util::FixedBuffer<uint8_t, 32> calibration_data;
 
             trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27)
@@ -257,16 +244,8 @@ namespace smooth::application::sensor
 
     bool BME280SPI::read_measurements(float& humidity, float& pressure, float& temperature)
     {
-        core::util::FixedBuffer<uint8_t, 12> temp_data{};
-
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // see esp-idf/components/driver/spi_master.c line 865
-        //static_assert(temp_data % 4 == 0, "Error: "temp_data not 32 bit aligned");
-
-        core::util::FixedBuffer<uint8_t, 8> measurement_data;
-
         bool res = read_trimming_parameters()
-                   && read(BME280Core::PRESS_MSB_REG, temp_data.data(), 9);
+                   && read(BME280Core::PRESS_MSB_REG, rx_meas_data.data(), 9);
 
         if (res)
         {
@@ -276,7 +255,7 @@ namespace smooth::application::sensor
             // don't want to copy the dummy byte but copy actual data into measurement_data
             for (size_t i = 0; i < 8; i++)
             {
-                measurement_data[i] = temp_data[i + 1];
+                measurement_data[i] = rx_meas_data[i + 1];
             }
 
             bme280_core.get_measurements(measurement_data, humidity, pressure, temperature);
