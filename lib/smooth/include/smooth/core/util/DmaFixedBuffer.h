@@ -22,7 +22,7 @@ limitations under the License.
 
 namespace smooth::core::util
 {
-    template<typename T, size_t Size, uint32_t MallocCapType>
+    template<typename T, size_t Size>
     class DmaFixedBuffer
     {
         public:
@@ -31,9 +31,9 @@ namespace smooth::core::util
                 return sizeof(T) * Size;
             }
 
-            DmaFixedBuffer()
+            DmaFixedBuffer(uint32_t malloc_cap_type)
             {
-                buff = static_cast<T*>(heap_caps_malloc(Size, MallocCapType));
+                buff = static_cast<T*>(heap_caps_malloc(Size, malloc_cap_type));
 
                 // Inform user if problems with allocating heap for this DmaFixedBuffer
                 if (buff == nullptr)
