@@ -14,12 +14,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-// **************************** SPECIAL NOTE ***********************************************
-// This class was created with the goal of implementing the requirements for DMA as described
-// in ESP-IDF SPI Master API in section "Write and Read Phases".  This class should be useful
-// with periperals in the ESP32 chip that support hardware DMA; namely SPI and I2S.
-
 #pragma once
 
 #include <algorithm>
