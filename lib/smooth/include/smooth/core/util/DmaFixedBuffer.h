@@ -32,17 +32,13 @@ namespace smooth::core::util
     class DmaFixedBuffer
     {
         public:
-            constexpr size_t size() 
-            { 
-                return sizeof(T) * Size; 
+            constexpr size_t size()
+            {
+                return sizeof(T) * Size;
             }
 
             DmaFixedBuffer()
             {
-                 // Force the user to create DmaFixedBuffer in multiples of 4 bytes
-                static_assert(sizeof(T) * Size % 4 == 0,
-                              "DmaFixedBuffer must have a length of multiple of 32 bits, i.e. 4 bytes");
-
                 buff = static_cast<T*>(heap_caps_malloc(Size, MallocCapType));
 
                 // Inform user if problems with allocating heap for this DmaFixedBuffer
@@ -54,7 +50,7 @@ namespace smooth::core::util
                 // The user has no control were the compiler will place the DmaFixedBuffer at since we can't use
                 // alignas to force compiler to place DmaFixedBuffer on a 32 bit aligned address.  But it would
                 // be nice to inform user that DmaFixedBuffer address is not 32 bit aligned and that the efficiency
-                // of the program will suffer since extra coping will be required.  
+                // of the program will suffer since extra coping will be required.
                 if (reinterpret_cast<int>(&buff) % 4 != 0)
                 {
                     smooth::core::logging::Log::warning("DmaFixedBuffer:",
