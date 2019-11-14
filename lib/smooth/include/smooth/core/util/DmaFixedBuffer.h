@@ -28,26 +28,33 @@ limitations under the License.
 
 namespace smooth::core::util
 {
-    template<typename T, size_t Size>
+    template<typename T, size_t Size, uint32_t MallocCapType>
     class DmaFixedBuffer
     {
         public:
+            constexpr size_t size() 
+            { 
+                return sizeof(T) * Size; 
+            }
+
             DmaFixedBuffer()
             {
-                buff = static_cast<T*>(heap_caps_malloc(Size, MALLOC_CAP_DMA));
-
-                // Force the user to create DmaFixedBuffer in multiples of 4 bytes
+                 // Force the user to create DmaFixedBuffer in multiples of 4 bytes
                 static_assert(sizeof(T) * Size % 4 == 0,
                               "DmaFixedBuffer must have a length of multiple of 32 bits, i.e. 4 bytes");
 
+                buff = static_cast<T*>(heap_caps_malloc(Size, MallocCapType));
+
                 // Inform user if problems with allocating heap for this DmaFixedBuffer
-                if (buff == NULL)
+                if (buff == nullptr)
                 {
                     smooth::core::logging::Log::error("DmaFixedBuffer:", "Failed to allocate DmaFixedBuffer");
                 }
 
-                // Inform user that DmaFixedBuffer address is not 32 bit aligned.  Currently cannot use alignas
-                // specifier. The program will work but will be less efficient
+                // The user has no control were the compiler will place the DmaFixedBuffer at since we can't use
+                // alignas to force compiler to place DmaFixedBuffer on a 32 bit aligned address.  But it would
+                // be nice to inform user that DmaFixedBuffer address is not 32 bit aligned and that the efficiency
+                // of the program will suffer since extra coping will be required.  
                 if (reinterpret_cast<int>(&buff) % 4 != 0)
                 {
                     smooth::core::logging::Log::warning("DmaFixedBuffer:",
@@ -60,14 +67,8 @@ namespace smooth::core::util
                 heap_caps_free(buff);
             }
 
-            [[nodiscard]] size_t size()
-            {
-                return Size;
-            }
-
             T* data()
             {
-                //return &buff[0];
                 return buff;
             }
 
