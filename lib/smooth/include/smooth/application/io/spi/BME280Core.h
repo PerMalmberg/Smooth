@@ -182,12 +182,9 @@ namespace smooth::application::sensor
             void populate_trimming_registers(core::util::FixedBuffer<uint8_t, 32>& calibration_data);
 
         private:
-            // These calculation methods are based on those in the datasheet at
-            // https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf
-            // as of 2017-08-20. The revision of the code is 1.1 according to that document.
-            typedef int32_t BME280_S32_t;
-            typedef uint32_t BME280_U32_t;
-            typedef int64_t BME280_S64_t;
+            using BME280_S32_t = int32_t;
+            using BME280_U32_t = uint32_t;
+            using BME280_S64_t = int64_t;
 
             BME280_S32_t t_fine;
 
