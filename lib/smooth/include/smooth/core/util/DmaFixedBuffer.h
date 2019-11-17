@@ -31,32 +31,19 @@ namespace smooth::core::util
                 return sizeof(T) * Size;
             }
 
-            DmaFixedBuffer(uint32_t malloc_cap_type)
+            // Constructor
+            DmaFixedBuffer(const uint32_t malloc_cap_type)
             {
                 buff = static_cast<T*>(heap_caps_malloc(Size, malloc_cap_type));
-
-                // Inform user if problems with allocating heap for this DmaFixedBuffer
-                if (buff == nullptr)
-                {
-                    smooth::core::logging::Log::error("DmaFixedBuffer:", "Failed to allocate DmaFixedBuffer");
-                }
-
-                // The user has no control were the compiler will place the DmaFixedBuffer at since we can't use
-                // alignas to force compiler to place DmaFixedBuffer on a 32 bit aligned address.  But it would
-                // be nice to inform user that DmaFixedBuffer address is not 32 bit aligned and that the efficiency
-                // of the program will suffer since extra coping will be required.
-                if (reinterpret_cast<int>(&buff) % 4 != 0)
-                {
-                    smooth::core::logging::Log::warning("DmaFixedBuffer:",
-                                                        "Not 32 bit alligned, spi transaction efficiency will be reduced");
-                }
             }
 
+            // Destructor
             ~DmaFixedBuffer()
             {
                 heap_caps_free(buff);
             }
 
+            /// \return Returns pointer to first element in buffer
             T* data()
             {
                 return buff;
@@ -74,7 +61,7 @@ namespace smooth::core::util
                 return buff[std::max(static_cast<size_t>(0), std::min(size() - 1, index))];
             }
 
-        private:
+        protected:
             T* buff;
     };
 }
