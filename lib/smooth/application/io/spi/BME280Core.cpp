@@ -131,6 +131,10 @@ namespace smooth::application::sensor
         humidity = static_cast<float>(BME280_compensate_H_int32(hum) / 1024);
     }
 
+    // The following calculation methods are based on those in the datasheet at
+    // https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf
+    // as of 2017-08-20. The revision of the code is 1.1 according to that document.
+
     // Compensation formula for TEMPERATURE
     BME280Core::BME280_S32_t BME280Core::BME280_compensate_T_int32(BME280_S32_t adc_T)
     {
