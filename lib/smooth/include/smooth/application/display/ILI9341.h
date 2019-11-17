@@ -118,17 +118,17 @@ namespace smooth::application::display
 
             /// Read parameters
             /// \param cmd The command (address register)
-            /// \param rxdata The address of the container to hold the data
+            /// \param data The address of the container to hold the parameter data
             /// \param param_count The number of parameters to be read
             /// \return true on success, false on failure
-            bool read_params(uint8_t cmd, std::vector<uint8_t>& rxdata, uint32_t param_count);
+            bool read_params(uint8_t cmd, std::vector<uint8_t>& data, uint32_t param_count);
 
             /// Read
             /// \param cmd The command or register address to read
             /// \param rxdata The pointer to the first byte location of the receive data container
             /// \param length The number of bytes to raed
             /// \return true on success, false on failure
-            bool read(uint8_t cmd, const uint8_t* rxdata, size_t length);
+            bool read(uint8_t cmd, uint8_t* rxdata, size_t length);
 
         private:
             /// Pre Transmission Action
