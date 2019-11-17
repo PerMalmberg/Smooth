@@ -64,12 +64,12 @@ namespace smooth::application::sensor
         return res;
     }
 
-    bool BME280SPI::read(const uint8_t bme280_reg, const uint8_t* rxdata, size_t length)
+    bool BME280SPI::read(const uint8_t bme280_reg, uint8_t* rxdata, size_t length)
     {
         std::lock_guard<std::mutex> lock(get_guard());
         spi_transaction_t trans;
         std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
-        trans.rx_buffer = const_cast<uint8_t*>(rxdata);
+        trans.rx_buffer = rxdata;
         trans.rxlength = 8 * length;
         trans.length = 8 * length;
         trans.tx_buffer = &bme280_reg;
@@ -95,8 +95,6 @@ namespace smooth::application::sensor
 
     uint8_t BME280SPI::read_id()
     {
-        core::util::DmaFixedBuffer<uint8_t, 4> rxdata;
-
         auto res = read(BME280Core::ID_REG, rxdata.data(), 2);
 
         return res ? rxdata[1] : 0;
@@ -104,7 +102,7 @@ namespace smooth::application::sensor
 
     bool BME280SPI::reset()
     {
-        core::util::DmaFixedBuffer<uint8_t, 4> txdata;
+        SpiDmaFixedBuffer<uint8_t, 4> txdata;
 
         // for spi write bit 7 of register address must be zero
         // modify 0xE0 to 0x60;
@@ -118,8 +116,6 @@ namespace smooth::application::sensor
 
     bool BME280SPI::read_status(bool& is_measuring, bool& updating_from_nvm)
     {
-        core::util::DmaFixedBuffer<uint8_t, 4> rxdata;
-
         auto res = read(BME280Core::STATUS_REG, rxdata.data(), 2);
 
         if (res)
@@ -150,9 +146,10 @@ namespace smooth::application::sensor
                                              filter_coeff,
                                              spi_interface);
 
-        core::util::DmaFixedBuffer<uint8_t, 8> txdata;
+        // Since we chose to use DMA on this SPI Device use SpiDmaFixedBuffer for the tx_buffer in spi_transfer
+        SpiDmaFixedBuffer<uint8_t, 8> txdata;
 
-        // for spi write the bit 7 of register address must be zero
+        // for spi write the bit in position b7 of register address must be zero
         txdata[0] = datagram.at(0) & 0x7F;  // modify 0xF2 to 0x72
         txdata[1] = datagram.at(1);         // keep data the same
         txdata[2] = datagram.at(2) & 0x7F;  // modify 0xF4 to 0x74
@@ -171,9 +168,10 @@ namespace smooth::application::sensor
                                        BME280Core::FilterCoeff& filter,
                                        BME280Core::SpiInterface& spi_interface)
     {
-        core::util::DmaFixedBuffer<uint8_t, 4> ctrl_hum_data;
-        core::util::DmaFixedBuffer<uint8_t, 4> ctrl_meas_data;
-        core::util::DmaFixedBuffer<uint8_t, 4> config_data;
+        // Since we chose to use DMA on this SPI Device use SpiDmaFixedBuffer for the rx_buffer in spi_transfer
+        SpiDmaFixedBuffer<uint8_t, 4> ctrl_hum_data;
+        SpiDmaFixedBuffer<uint8_t, 4> ctrl_meas_data;
+        SpiDmaFixedBuffer<uint8_t, 4> config_data;
 
         auto res = read(BME280Core::CTRL_HUM_REG, ctrl_hum_data.data(), 2)
                    && read(BME280Core::CTRL_MEAS_REG, ctrl_meas_data.data(), 2)
@@ -204,8 +202,9 @@ namespace smooth::application::sensor
     {
         if (!trimming_read)
         {
-            core::util::DmaFixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
-            core::util::DmaFixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
+            // Since we chose to use DMA on this SPI Device use SpiDmaFixedBuffer for the rx_buffer in spi_transfer
+            SpiDmaFixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
+            SpiDmaFixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
             core::util::FixedBuffer<uint8_t, 32> calibration_data;
 
             trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27)
@@ -244,8 +243,10 @@ namespace smooth::application::sensor
 
     bool BME280SPI::read_measurements(float& humidity, float& pressure, float& temperature)
     {
+        smooth::core::util::FixedBuffer<uint8_t, 8> measurement_data;
+
         bool res = read_trimming_parameters()
-                   && read(BME280Core::PRESS_MSB_REG, rx_meas_data.data(), 9);
+                   && read(BME280Core::PRESS_MSB_REG, rx_measurement_data.data(), 9);
 
         if (res)
         {
@@ -255,7 +256,7 @@ namespace smooth::application::sensor
             // don't want to copy the dummy byte but copy actual data into measurement_data
             for (size_t i = 0; i < 8; i++)
             {
-                measurement_data[i] = rx_meas_data[i + 1];
+                measurement_data[i] = rx_measurement_data[i + 1];
             }
 
             bme280_core.get_measurements(measurement_data, humidity, pressure, temperature);
