@@ -22,6 +22,8 @@ limitations under the License.
 #include <thread>
 #include <smooth/core/logging/log.h>
 
+#include <smooth/core/io/spi/SpiDmaFixedBuffer.h>
+
 using namespace smooth::core::logging;
 using namespace smooth::core::io::spi;
 
@@ -183,7 +185,7 @@ namespace smooth::application::display
     }
 
     // To send a set of lines we have to send a command, 2 data bytes, another command,
-    // 2 more data bytes and another command before sending the line of data itself;
+    // 2 more data bytes and another command before sending the lines of data itself;
     // a total of 6 transactions. (We can't put all of this in just one transaction
     // because the D/C line needs to be toggled in the middle.)
     // This routine queues these commands up as interrupt transactions so they get
@@ -209,7 +211,7 @@ namespace smooth::application::display
 
             // In theory, it's better to initialize trans and data only once and hang
             // on to the initialized variables. We allocate them on the stack, so we
-            // ddon't need to re-init them each call.
+            // don't need to re-init them each call.
             for (uint8_t x = 0; x < 6; x++)
             {
                 //Zero out the transaction
@@ -275,7 +277,7 @@ namespace smooth::application::display
         return res;
     }
 
-    // Wita for queued transactions to finish
+    // Wait for queued transactions to finish
     bool ILI9341::wait_for_send_lines_to_finish()
     {
         bool res = true;
@@ -303,9 +305,7 @@ namespace smooth::application::display
     // NOTE: FOR READING PARAMS SCK must be 16MHz or less the datasheet recommends 10MHz.
     bool ILI9341::read_params(uint8_t cmd, std::vector<uint8_t>& data, uint32_t param_count)
     {
-        // The spi rx buffer need to be length of multiples of 32 bits to avoid heap corruption.
-        // so we will use DmaFixedBuffer
-        core::util::DmaFixedBuffer<uint8_t, 16> rxdata;
+        SpiDmaFixedBuffer<uint8_t, 16> rxdata;
 
         bool res = false;
 
@@ -314,7 +314,7 @@ namespace smooth::application::display
             res = read(cmd, rxdata.data(), 1);
             data.push_back(rxdata[0]);
         }
-        else if ((param_count > 1) & (param_count < 16))
+        else if (param_count > 1 && param_count < 16)
         {
             // increment param_count by 1 so an additional byte is read and we get all the data
             res = read(cmd, rxdata.data(), param_count + 1);
@@ -337,7 +337,7 @@ namespace smooth::application::display
     }
 
     // Read a register or a sequence of registers from the display
-    bool ILI9341::read(uint8_t cmd, const uint8_t* rxdata, size_t length)
+    bool ILI9341::read(uint8_t cmd, uint8_t* rxdata, size_t length)
     {
         // if length is 0 nothing to do and probably an error so return
         bool res = length > 0;
@@ -371,7 +371,7 @@ namespace smooth::application::display
             cs_posttrans_pin_states.at(0) = PIN_LOW;  // keep chip select low
 
             // configure read parameters transaction
-            trans.at(1).rx_buffer = const_cast<uint8_t*>(rxdata);
+            trans.at(1).rx_buffer = rxdata;
             trans.at(1).rxlength = 8 * length;
             trans.at(1).length = 8 * length;
             trans.at(1).tx_buffer = NULL;
