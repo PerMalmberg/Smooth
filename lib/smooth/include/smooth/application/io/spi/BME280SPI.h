@@ -30,7 +30,9 @@ limitations under the License.
 #include <smooth/core/io/spi/Master.h>
 #include <smooth/core/io/spi/SPIDevice.h>
 #include <smooth/application/io/spi/BME280Core.h>
-#include <smooth/core/util/DmaFixedBuffer.h>
+
+//#include <smooth/core/util/DmaFixedBuffer.h>
+#include <smooth/core/io/spi/SpiDmaFixedBuffer.h>
 
 namespace smooth::application::sensor
 {
@@ -110,7 +112,7 @@ namespace smooth::application::sensor
         private:
             bool write(const uint8_t* txdata, size_t length);
 
-            bool read(const uint8_t bme280_reg, const uint8_t* rxdata, size_t length);
+            bool read(const uint8_t bme280_reg, uint8_t* rxdata, size_t length);
 
             /// Read trimming parameters; will be used to calculated compensated measurements
             bool read_trimming_parameters();
@@ -118,7 +120,7 @@ namespace smooth::application::sensor
             gpio_num_t cs_pin;
             bool trimming_read{ false };
             smooth::application::sensor::BME280Core bme280_core{};
-            smooth::core::util::DmaFixedBuffer<uint8_t, 12> rx_meas_data;
-            smooth::core::util::FixedBuffer<uint8_t, 8> measurement_data;
+            smooth::core::io::spi::SpiDmaFixedBuffer<uint8_t, 4> rxdata;
+            smooth::core::io::spi::SpiDmaFixedBuffer<uint8_t, 12> rx_measurement_data;
     };
 }
