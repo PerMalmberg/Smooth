@@ -165,6 +165,7 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/io/i2c/Master.h
         ${smooth_inc_dir}/core/io/spi/Master.h
         ${smooth_inc_dir}/core/io/spi/SPIDevice.h
+        ${smooth_inc_dir}/core/io/spi/SpiDmaFixedBuffer.h
         ${smooth_inc_dir}/core/io/Input.h
         ${smooth_inc_dir}/core/io/Input.h
         ${smooth_inc_dir}/core/io/InterruptInput.h
@@ -175,5 +176,6 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/core/sntp/TimeSyncEvent.h
         ${smooth_inc_dir}/core/SystemStatistics.h
         )
+
 
 
