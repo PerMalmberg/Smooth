@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <algorithm>
 #include <heap/include/esp_heap_caps.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/logging/log.h"
 
 namespace smooth::core::util
 {
@@ -38,7 +38,7 @@ namespace smooth::core::util
             }
 
             // Destructor
-            ~DmaFixedBuffer()
+            virtual ~DmaFixedBuffer()
             {
                 heap_caps_free(buff);
             }
