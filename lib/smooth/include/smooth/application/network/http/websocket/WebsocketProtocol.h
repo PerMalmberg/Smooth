@@ -101,6 +101,7 @@ namespace smooth::application::network::http::websocket
                     uint16_t len_16;
                     uint64_t len_64;
                 }
+
                 ext_len{ 0 };
                 uint8_t mask_key[4];
             };
@@ -133,11 +134,11 @@ namespace smooth::application::network::http::websocket
 
             void set_message_properties(HTTPPacket& packet);
 
-            uint64_t get_initial_payload_length() const;
+            [[nodiscard]] uint64_t get_initial_payload_length() const;
 
-            int is_data_masked() const;
+            [[nodiscard]] int is_data_masked() const;
 
-            OpCode get_opcode() const;
+            [[nodiscard]] OpCode get_opcode() const;
 
             void update_received_payload(int length);
     };

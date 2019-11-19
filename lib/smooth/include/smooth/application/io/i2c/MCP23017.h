@@ -87,6 +87,7 @@ namespace smooth::application::io
                 B1_GPIOB = 0x19,
                 B1_OLATB = 0x1A,
             };
+
         public:
             enum Port
             {

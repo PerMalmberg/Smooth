@@ -107,6 +107,32 @@ namespace smooth::application::sensor
                 return res;
             }
 
+            struct TrimmingType
+            {
+                uint16_t dig_T1;
+                int16_t dig_T2;
+                int16_t dig_T3;
+
+                uint16_t dig_P1;
+                int16_t dig_P2;
+                int16_t dig_P3;
+                int16_t dig_P4;
+                int16_t dig_P5;
+                int16_t dig_P6;
+                int16_t dig_P7;
+                int16_t dig_P8;
+                int16_t dig_P9;
+
+                uint8_t dig_H1;
+                int16_t dig_H2;
+                uint8_t dig_H3;
+                int16_t dig_H4; // 0xE4 / 0xE5[3:0] | [11:4] / [3:0]
+                int16_t dig_H5; // 0xE5[7:4] / 0xE6 | [3:0] / [11:4]
+                int8_t dig_H6;
+            };
+
+            TrimmingType trimming{};
+
             bool read_trimming_parameters();
 
             bool trimming_read = false;
