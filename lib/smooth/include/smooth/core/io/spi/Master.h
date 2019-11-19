@@ -43,7 +43,7 @@ namespace smooth::core::io::spi
             /// \param host The host, either HSPI_HOST or HSPI_HOST.
             /// \param mosi Master Output, Slave Input, i.e. data pin for sending data to slave.
             /// \param miso Master Input, Slave Output, i.e. data pin for receiving data from slave.
-            /// \param clock Cock pin.
+            /// \param clock Clock pin.
             /// \param transfer_size Maximum transfer size, in bytes. Defaults to 4094 if 0.
             /// \param quadwp_io_num GPIO pin for WP (Write Protect) signal used in D2 4-bit communication modes
             /// \param quadhd_io_num GPIO pin for HD (HolD) used in D3 4-bit communication modes
