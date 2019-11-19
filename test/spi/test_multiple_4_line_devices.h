@@ -13,10 +13,10 @@ limitations under the License.
 */
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/application/display/ILI9341.h>
-#include <smooth/application/io/spi/BME280SPI.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/application/display/ILI9341.h"
+#include "smooth/application/io/spi/BME280SPI.h"
 
 namespace test_multiple_4_line_devices
 {

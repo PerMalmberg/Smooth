@@ -48,8 +48,8 @@ limitations under the License.
  ****************************************************************************************/
 #include <vector>
 #include "test_multiple_4_line_devices.h"
-#include <smooth/core/logging/log.h>
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/core/SystemStatistics.h"
 
 using namespace smooth::core;
 using namespace std::chrono;
@@ -59,7 +59,7 @@ using namespace smooth::application::sensor;
 
 namespace test_multiple_4_line_devices
 {
-    static const char TAG[] = "APP:";
+    static const char* TAG = "APP";
     static const uint8_t READ_ID_INFO = 0x04;
     static const uint8_t READ_DISPLAY_STATUS = 0x09;
     static const uint8_t READ_DISPLAY_PWR_MODE = 0x0A;
