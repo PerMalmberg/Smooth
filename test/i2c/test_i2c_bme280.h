@@ -13,22 +13,22 @@ limitations under the License.
 */
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/io/i2c/Master.h>
-#include <smooth/application/io/i2c/BME280.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/io/i2c/Master.h"
+#include "smooth/application/io/i2c/BME280.h"
 
 namespace test_i2c_bme280
 {
-    class App : public smooth::core::Application 
+    class App : public smooth::core::Application
     {
         public:
             App();
 
             void init() override;
 
-            void tick() override;        
-        
+            void tick() override;
+
             void print_thp_sensor_measurements();
 
             void print_thp_sensor_configuration();
@@ -40,6 +40,6 @@ namespace test_i2c_bme280
 
             smooth::core::io::i2c::Master i2c_master;
             std::unique_ptr<smooth::application::sensor::BME280> thp_sensor{};
-            bool bme280_initialized {false};
+            bool bme280_initialized{ false };
     };
 }

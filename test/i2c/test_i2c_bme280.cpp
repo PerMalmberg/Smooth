@@ -13,22 +13,17 @@ limitations under the License.
 */
 
 /****************************************************************************************
- * Typical results from running program
+ * Typical results from running program esp32-DevKit-v1
  *
  * W (74246) APP:: ============ APP TICK TICK  =============
  * I (74247) MemStat: Mem type |  8-bit free | Smallest block | Minimum free | 32-bit free | Smallest block | Minimum free
- * I (74253) MemStat: INTERNAL |      215836 |         113804 |       215456 |      273128 |         113804 |       272740
- * I (74265) MemStat:      DMA |      215836 |         113804 |       215456 |      215836 |         113804 |       215456
+ * I (74253) MemStat: INTERNAL |      216840 |         113804 |       216556 |      273556 |         113804 |       273264
+ * I (74265) MemStat:      DMA |      216840 |         113804 |       216556 |      216840 |         113804 |       216556
  * I (74276) MemStat:   SPIRAM |           0 |              0 |            0 |           0 |              0 |            0
  * I (74287) MemStat:
  * I (74290) MemStat:             Name |      Stack |  Min free stack |  Max used stack
- * I (74299) MemStat:         MainTask |      16384 |           12092 |            4292
- * I (74307) MemStat: SocketDispatcher |      20480 |           18380 |            2100
- * I (74315) APP:: ........................................
- * E (74322) APP:: cmd = 0x09  param [0] = 0xa4
- * E (74326) APP:: cmd = 0x09  param [1] = 0x53
- * E (74331) APP:: cmd = 0x09  param [2] = 0x04
- * E (74336) APP:: cmd = 0x09  param [3] = 0x00
+ * I (74299) MemStat:         MainTask |      16384 |           12084 |            4300
+ * I (74307) MemStat: SocketDispatcher |      20480 |           18388 |            2092
  * I (74341) APP:: ........................................
  * E (74348) APP:: BME280 Temperature  (degC)  = 22.4
  * E (74353) APP:: BME280 Humidity     (%RH)   = 37.0
@@ -43,13 +38,13 @@ limitations under the License.
  * E (74406) APP:: Filter configuration        = FC_OFF
  * E (74412) APP:: Spi Interface configuration = SPI_4_WIRE
  * I (74417) APP:: ........................................
- * E (74424) APP:: BME280 ID  = 0x60
- * I (74427) APP:: ........................................
  ****************************************************************************************/
 #include <vector>
 #include "test_i2c_bme280.h"
-#include <smooth/core/logging/log.h>
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/core/SystemStatistics.h"
+
+#include <stdint.h>
 
 using namespace smooth::core;
 using namespace std::chrono;
@@ -57,7 +52,7 @@ using namespace smooth::application::sensor;
 
 namespace test_i2c_bme280
 {
-    static const char TAG[] = "APP:";
+    static const char* TAG = "APP";
 
     App::App() : Application(APPLICATION_BASE_PRIO, seconds(3)),
             i2c_master(I2C_NUM_0,                       // I2C Port 0
