@@ -36,9 +36,9 @@ limitations under the License.
 
 #include <array>
 #include <vector>
-#include <smooth/core/io/Output.h>
-#include <smooth/core/io/spi/Master.h>
-#include <smooth/core/io/spi/SPIDevice.h>
+#include "smooth/core/io/Output.h"
+#include "smooth/core/io/spi/Master.h"
+#include "smooth/core/io/spi/SPIDevice.h"
 
 namespace smooth::application::display
 {
