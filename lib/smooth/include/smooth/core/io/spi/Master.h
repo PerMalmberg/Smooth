@@ -18,10 +18,10 @@ limitations under the License.
 
 #include <memory>
 #include <mutex>
-#include <driver/gpio.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
+#include <driver/gpio.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #pragma GCC diagnostic pop

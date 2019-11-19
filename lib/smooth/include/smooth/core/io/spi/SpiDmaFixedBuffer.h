@@ -16,8 +16,8 @@ limitations under the License.
 */
 #pragma once
 
-#include <smooth/core/util/DmaFixedBuffer.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/util/DmaFixedBuffer.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 
@@ -30,6 +30,9 @@ namespace smooth::core::io::spi
             static constexpr const char* TAG = "SpiDmaFixedBuffer";
 
             // Constructor derived class of DmaFixedBuffer
+            // Note: Since this buffer is created by DmaFixedBuffer and it is using heap_caps_malloc we do not need 
+            // to check the buffer address for to be on a 32 bit boundary. The C standard guarantees the result of
+            // heap_caps_malloc() is a 32-bit aligned pointer.
             SpiDmaFixedBuffer() : smooth::core::util::DmaFixedBuffer<T, Size>(MALLOC_CAP_DMA)
             {
                 // The SPI Master requires the DMA data to be length of multiples of 32 bits to avoid heap corruption.
@@ -51,24 +54,6 @@ namespace smooth::core::io::spi
                 }
 
                 return res;
-            }
-
-            /// Checks if buffer address is aligned on a 32 bit boundary
-            void is_buffer_address_32_bit_aligned()
-            {
-                if (reinterpret_cast<uint32_t>(&this->buff) % 4 != 0)
-                {
-                    Log::warning(TAG,
-                "spi dma buffer is not 32 bit alligned, spi transaction efficiency will be reduced");
-                }
-            }
-
-            /// Provide user a method to check if buffer is valid
-            /// \return Retuns true if buffer is valid false if something went wrong
-            bool is_valid()
-            {
-                is_buffer_address_32_bit_aligned();
-                return is_buffer_allocated();
             }
     };
 }
