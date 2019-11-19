@@ -187,8 +187,9 @@ namespace smooth::application::sensor
                 int16_t dig_H4; // 0xE4 / 0xE5[3:0] | [11:4] / [3:0]
                 int16_t dig_H5; // 0xE5[7:4] / 0xE6 | [3:0] / [11:4]
                 int8_t dig_H6;
-            }
-            trimming;
+            };
+
+            TrimmingType trimming{};
 
             bool read_trimming_parameters();
 
