@@ -14,13 +14,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 #pragma once
 
 #include <utility>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
-#include <smooth/application/io/spi/BME280Core.h>
-#include <smooth/core/util/FixedBuffer.h>
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
+#include "smooth/application/io/spi/BME280Core.h"
+#include "smooth/core/util/FixedBuffer.h"
 
 namespace smooth::application::sensor
 {
