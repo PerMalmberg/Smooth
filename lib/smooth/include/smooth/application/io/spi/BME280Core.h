@@ -17,7 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <vector>
-#include <smooth/core/util/FixedBuffer.h>
+#include "smooth/core/util/FixedBuffer.h"
 
 namespace smooth::application::sensor
 {

@@ -27,12 +27,10 @@ limitations under the License.
   ************************************************************************************/
 #pragma once
 
-#include <smooth/core/io/spi/Master.h>
-#include <smooth/core/io/spi/SPIDevice.h>
-#include <smooth/application/io/spi/BME280Core.h>
-
-//#include <smooth/core/util/DmaFixedBuffer.h>
-#include <smooth/core/io/spi/SpiDmaFixedBuffer.h>
+#include "smooth/core/io/spi/Master.h"
+#include "smooth/core/io/spi/SPIDevice.h"
+#include "smooth/application/io/spi/BME280Core.h"
+#include "smooth/core/io/spi/SpiDmaFixedBuffer.h"
 
 namespace smooth::application::sensor
 {
