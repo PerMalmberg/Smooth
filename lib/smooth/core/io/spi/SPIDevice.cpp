@@ -14,8 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <smooth/core/io/spi/SPIDevice.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/io/spi/SPIDevice.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 
@@ -65,6 +65,10 @@ namespace smooth::core::io::spi
     {
         if (dev != nullptr)
         {
+            // make sure no transactions are in flight
+            wait_for_transaction_to_finish();
+
+            // remove device from bus
             spi_bus_remove_device(dev);
         }
     }
