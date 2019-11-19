@@ -21,9 +21,9 @@ limitations under the License.
 #include <fstream>
 #include <cassert>
 #include <unistd.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/json/JsonFile.h>
-#include <smooth/core/filesystem/SPIFlash.h>
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/json/JsonFile.h"
+#include "smooth/core/filesystem/SPIFlash.h"
 
 using namespace smooth;
 using namespace smooth::core;

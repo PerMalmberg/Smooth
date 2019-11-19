@@ -19,10 +19,10 @@ limitations under the License.
 
 #include <stdint.h>
 #include <vector>
-#include <smooth/application/network/mqtt/Logging.h>
-#include <smooth/core/util/ByteSet.h>
-#include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
-#include <smooth/core/network/IPacketDisassembly.h>
+#include "smooth/application/network/mqtt/Logging.h"
+#include "smooth/core/util/ByteSet.h"
+#include "smooth/application/network/mqtt/MQTTProtocolDefinitions.h"
+#include "smooth/core/network/IPacketDisassembly.h"
 
 namespace smooth::application::network::mqtt::packet
 {

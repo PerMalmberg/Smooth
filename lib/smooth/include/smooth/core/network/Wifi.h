@@ -20,7 +20,7 @@ limitations under the License.
 #include <string>
 #include <array>
 #include <esp_wifi.h>
-#include <smooth/core/ipc/IEventListener.h>
+#include "smooth/core/ipc/IEventListener.h"
 
 namespace smooth::core::network
 {

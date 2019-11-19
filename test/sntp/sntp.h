@@ -17,12 +17,12 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <smooth/core/sntp/Sntp.h>
-#include <smooth/core/sntp/TimeSyncEvent.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/task_priorities.h"
+#include "smooth/core/sntp/Sntp.h"
+#include "smooth/core/sntp/TimeSyncEvent.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/SubscribingTaskEventQueue.h"
 
 namespace sntp
 {

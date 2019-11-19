@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <utility>
 #include "smooth/core/io/i2c/I2CMasterDevice.h"
-#include "smooth/application/io/spi/BME280Core.h"
+#include "smooth/application/io/spi/BME280Core.h
 #include "smooth/core/util/FixedBuffer.h"
 
 namespace smooth::application::sensor

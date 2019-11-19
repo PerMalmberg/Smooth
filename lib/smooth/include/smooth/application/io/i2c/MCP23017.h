@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <utility>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
-#include <smooth/core/util/FixedBuffer.h>
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
+#include "smooth/core/util/FixedBuffer.h"
 
 namespace smooth::application::io
 {

@@ -16,7 +16,7 @@ limitations under the License.
 */
 
 #include <catch2/catch.hpp>
-#include <smooth/core/filesystem/MountPoint.h>
+#include "smooth/core/filesystem/MountPoint.h"
 
 using namespace smooth::core::filesystem;
 

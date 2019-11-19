@@ -17,10 +17,10 @@ limitations under the License.
 
 #include <utility>
 #include <algorithm>
-#include <smooth/core/Task.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/core/ipc/Publisher.h"
+#include "smooth/core/SystemStatistics.h"
 
 #ifdef ESP_PLATFORM
 #include <esp_pthread.h>

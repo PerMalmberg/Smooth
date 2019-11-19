@@ -19,7 +19,7 @@ limitations under the License.
 
 #include <chrono>
 #include <string>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include "smooth/application/network/mqtt/packet/MQTTPacket.h"
 
 namespace smooth::application::network::mqtt::packet
 {

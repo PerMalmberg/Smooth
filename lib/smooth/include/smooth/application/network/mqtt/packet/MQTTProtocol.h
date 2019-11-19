@@ -18,12 +18,12 @@ limitations under the License.
 #pragma once
 
 #include <vector>
-#include <smooth/core/util/ByteSet.h>
-#include <smooth/core/network/IPacketAssembly.h>
-#include <smooth/core/network/IPacketDisassembly.h>
-#include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
-#include <smooth/application/network/mqtt/packet/PacketIdentifierFactory.h>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
+#include "smooth/core/util/ByteSet.h"
+#include "smooth/core/network/IPacketAssembly.h"
+#include "smooth/core/network/IPacketDisassembly.h"
+#include "smooth/application/network/mqtt/MQTTProtocolDefinitions.h"
+#include "smooth/application/network/mqtt/packet/PacketIdentifierFactory.h"
+#include "smooth/application/network/mqtt/packet/MQTTPacket.h"
 
 namespace smooth::application::network::mqtt::packet
 {

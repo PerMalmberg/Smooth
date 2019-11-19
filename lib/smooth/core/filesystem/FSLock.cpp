@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/filesystem/FSLock.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/filesystem/FSLock.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 

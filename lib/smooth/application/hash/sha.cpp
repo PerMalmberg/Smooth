@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/hash/sha.h>
+#include "smooth/application/hash/sha.h"
 #include <mbedtls/sha1.h>
 #include <mbedtls/sha256.h>
 

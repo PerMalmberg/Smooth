@@ -20,8 +20,8 @@ limitations under the License.
 
 #define EXPOSE_PRIVATE_PARTS_FOR_TEST
 
-#include <smooth/application/network/http/regular/TemplateProcessor.h>
-#include <smooth/application/network/http/regular/ITemplateDataRetriever.h>
+#include "smooth/application/network/http/regular/TemplateProcessor.h"
+#include "smooth/application/network/http/regular/ITemplateDataRetriever.h"
 
 using namespace smooth::application::network::http::regular;
 

@@ -24,8 +24,8 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <freertos/queue.h>
 #pragma GCC diagnostic pop
-#include <smooth/core/Task.h>
-#include <smooth/core/util/create_protected.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/util/create_protected.h"
 
 namespace smooth::core::ipc
 {

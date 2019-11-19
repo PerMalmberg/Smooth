@@ -16,7 +16,7 @@ limitations under the License.
 */
 
 #include "${selected_test_project}.h"
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/SystemStatistics.h"
 
 using namespace ${selected_test_project};
 

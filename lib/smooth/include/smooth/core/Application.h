@@ -20,11 +20,11 @@ limitations under the License.
 #include <vector>
 #include <chrono>
 #include <unordered_map>
-#include <smooth/core/ipc/Queue.h>
-#include <smooth/core/Task.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
-#include <smooth/core/network/Wifi.h>
+#include "smooth/core/ipc/Queue.h"
+#include "smooth/core/Task.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/ipc/SubscribingTaskEventQueue.h"
+#include "smooth/core/network/Wifi.h"
 
 namespace smooth::core
 {

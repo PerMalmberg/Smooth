@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <chrono>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
 
 namespace smooth::application::io
 {

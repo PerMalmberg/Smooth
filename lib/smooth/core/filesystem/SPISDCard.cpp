@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/filesystem/SDCard.h>
-#include <smooth/core/filesystem/SPISDCard.h>
+#include "smooth/core/filesystem/SDCard.h"
+#include "smooth/core/filesystem/SPISDCard.h"
 
 #include <driver/sdspi_host.h>
 

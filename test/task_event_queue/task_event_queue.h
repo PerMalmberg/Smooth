@@ -16,10 +16,10 @@ limitations under the License.
 */
 
 #pragma once
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/timer/ElapsedTime.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/Application.h>
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/timer/ElapsedTime.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/Application.h"
 
 namespace task_event_queue
 {

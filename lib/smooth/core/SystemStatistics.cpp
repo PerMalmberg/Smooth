@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/logging/log.h>
-#include <smooth/core/SystemStatistics.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/core/SystemStatistics.h"
 #include <fmt/core.h>
 
 #ifdef ESP_PLATFORM

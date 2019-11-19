@@ -16,7 +16,7 @@ limitations under the License.
 */
 
 #include <thread>
-#include <smooth/core/ipc/QueueNotification.h>
+#include "smooth/core/ipc/QueueNotification.h"
 #include <algorithm>
 
 namespace smooth::core::ipc

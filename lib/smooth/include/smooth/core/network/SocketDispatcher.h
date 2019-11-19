@@ -23,9 +23,9 @@ limitations under the License.
 #include <mutex>
 #include <unordered_map>
 #include <sys/socket.h>
-#include <smooth/core/Task.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/ipc/SubscribingTaskEventQueue.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/ipc/SubscribingTaskEventQueue.h"
 #include "ISocket.h"
 #include "NetworkStatus.h"
 #include "SocketOperation.h"

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/json/JsonFile.h>
+#include "smooth/core/json/JsonFile.h"
 #include <memory>
 #include <vector>
 

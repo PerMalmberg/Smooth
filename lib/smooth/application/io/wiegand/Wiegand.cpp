@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/io/wiegand/Wiegand.h>
+#include "smooth/application/io/wiegand/Wiegand.h"
 
 using namespace smooth::core::logging;
 using namespace smooth::core::timer;

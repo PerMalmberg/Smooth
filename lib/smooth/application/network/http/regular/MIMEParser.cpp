@@ -15,13 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/network/http/regular/MIMEParser.h>
+#include "smooth/application/network/http/regular/MIMEParser.h"
 #include <vector>
-#include <smooth/core/util/split.h>
-#include <smooth/core/util/string_util.h>
-#include <smooth/application/network/http/URLEncoding.h>
-#include <smooth/application/network/http/regular/HTTPMethod.h>
-#include <smooth/application/network/http/regular/HTTPHeaderDef.h>
+#include "smooth/core/util/split.h"
+#include "smooth/core/util/string_util.h"
+#include "smooth/application/network/http/URLEncoding.h"
+#include "smooth/application/network/http/regular/HTTPMethod.h"
+#include "smooth/application/network/http/regular/HTTPHeaderDef.h"
 
 using namespace smooth::core::util;
 using namespace smooth::core;

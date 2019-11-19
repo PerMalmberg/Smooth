@@ -15,12 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/network/http/HTTPPacket.h>
+#include "smooth/application/network/http/HTTPPacket.h"
 
 #include <string>
 #include <unordered_map>
 #include <algorithm>
-#include <smooth/application/network/http/http_utils.h>
+#include "smooth/application/network/http/http_utils.h"
 
 namespace smooth::application::network::http
 {

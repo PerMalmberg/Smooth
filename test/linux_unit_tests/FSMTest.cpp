@@ -16,7 +16,7 @@ limitations under the License.
 */
 
 #include <catch2/catch.hpp>
-#include <smooth/core/fsm/StaticFSM.h>
+#include "smooth/core/fsm/StaticFSM.h"
 
 using namespace smooth::core::fsm;
 

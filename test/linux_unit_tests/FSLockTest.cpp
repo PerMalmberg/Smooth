@@ -19,7 +19,7 @@ limitations under the License.
 #include <vector>
 #include <iostream>
 #include <catch2/catch.hpp>
-#include <smooth/core/filesystem/FSLock.h>
+#include "smooth/core/filesystem/FSLock.h"
 
 using namespace smooth::core::filesystem;
 
