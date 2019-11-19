@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <vector>
-#include <smooth/application/io/i2c/BME280.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/application/io/i2c/BME280.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core;
 using namespace smooth::core::logging;
