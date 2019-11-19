@@ -14,10 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 #include <cstring>
-#include <smooth/core/logging/log.h>
-#include <smooth/application/io/spi/BME280SPI.h>
+#include "smooth/core/logging/log.h"
+#include "smooth/application/io/spi/BME280SPI.h"
 
 using namespace smooth::core::logging;
 using namespace smooth::core;
