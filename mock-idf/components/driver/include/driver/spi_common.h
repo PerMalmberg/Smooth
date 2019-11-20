@@ -17,15 +17,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "esp_err.h"
-#include "esp32/rom/lldesc.h"
-#include "soc/spi_periph.h"
-#include "hal/spi_types.h"
-#include "sdkconfig.h"
+//#include "esp32/rom/lldesc.h"
+//#include "soc/spi_periph.h"
+//#include "hal/spi_types.h"
+//#include "sdkconfig.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+//#ifdef __cplusplus
+//extern "C"
+//{
+//#endif
 
 
 //Maximum amount of bytes that can be put in one DMA descriptor
@@ -334,7 +334,7 @@ int spicommon_irqdma_source_for_host(spi_host_device_t host);
 /**
  * Callback, to be called when a DMA engine reset is completed
 */
-typedef void(*dmaworkaround_cb_t)(void *arg);
+//typedef void(*dmaworkaround_cb_t)(void *arg);
 
 
 /**
@@ -394,6 +394,6 @@ typedef void(*dmaworkaround_cb_t)(void *arg);
 
 /** @endcond */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
