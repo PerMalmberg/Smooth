@@ -359,7 +359,7 @@ typedef void(*dmaworkaround_cb_t)(void *arg);
  *         case the callback will be called with the specified argument when the logic can execute
  *         a reset, after that reset.
  */
-bool spicommon_dmaworkaround_req_reset(int dmachan, dmaworkaround_cb_t cb, void *arg);
+//bool spicommon_dmaworkaround_req_reset(int dmachan, dmaworkaround_cb_t cb, void *arg);
 
 
 /**
@@ -369,7 +369,7 @@ bool spicommon_dmaworkaround_req_reset(int dmachan, dmaworkaround_cb_t cb, void 
  *
  * @return True when a DMA reset is requested but hasn't completed yet. False otherwise.
  */
-bool spicommon_dmaworkaround_reset_in_progress();
+//bool spicommon_dmaworkaround_reset_in_progress();
 
 
 /**
@@ -380,7 +380,7 @@ bool spicommon_dmaworkaround_reset_in_progress();
  *
  * @note This public API is deprecated.
  */
-void spicommon_dmaworkaround_idle(int dmachan);
+//void spicommon_dmaworkaround_idle(int dmachan);
 
 /**
  * @brief Mark a DMA channel as active.
@@ -390,7 +390,7 @@ void spicommon_dmaworkaround_idle(int dmachan);
  *
  * @note This public API is deprecated.
  */
-void spicommon_dmaworkaround_transfer_active(int dmachan);
+//void spicommon_dmaworkaround_transfer_active(int dmachan);
 
 /** @endcond */
 
