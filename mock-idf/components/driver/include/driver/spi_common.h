@@ -20,7 +20,7 @@
 //#include "esp32/rom/lldesc.h"
 //#include "soc/spi_periph.h"
 //#include "hal/spi_types.h"
-#include "sdkconfig.h"
+//#include "sdkconfig.h"
 
 #ifdef __cplusplus
 extern "C"
