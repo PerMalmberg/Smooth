@@ -22,10 +22,10 @@
 //#include "hal/spi_types.h"
 //#include "sdkconfig.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+//#ifdef __cplusplus
+//extern "C"
+//{
+//#endif
 
 
 //Maximum amount of bytes that can be put in one DMA descriptor
@@ -394,6 +394,6 @@ int spicommon_irqdma_source_for_host(spi_host_device_t host);
 
 /** @endcond */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
