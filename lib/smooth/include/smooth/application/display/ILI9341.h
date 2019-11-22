@@ -133,19 +133,17 @@ namespace smooth::application::display
         private:
             /// Pre Transmission Action
             /// The operations that need to be performed before the spi transaction is started
-            /// \param trans The current spi transaction
-            void pre_transmission_action(spi_transaction_t* trans) override
+            void pre_transmission_action() override
             {
-                dc_pin.set( dc_pretrans_pin_states.at(current_transaction));
-                cs_pin.set( cs_pretrans_pin_states.at(current_transaction));
+                dc_pin.set(dc_pretrans_pin_states.at(current_transaction));
+                cs_pin.set(cs_pretrans_pin_states.at(current_transaction));
             }
 
             /// Post Transmission Action
             /// The operations that need to be performed after the spi transaction has ended
-            /// \param trans The current spi transaction
-            void post_transmission_action(spi_transaction_t* trans) override
+            void post_transmission_action() override
             {
-                cs_pin.set( cs_posttrans_pin_states.at(current_transaction));
+                cs_pin.set(cs_posttrans_pin_states.at(current_transaction));
                 current_transaction++;
             }
 

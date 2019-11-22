@@ -17,7 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <algorithm>
-#include <heap/include/esp_heap_caps.h>
+#include <esp_heap_caps.h>
 #include "smooth/core/logging/log.h"
 
 namespace smooth::core::util

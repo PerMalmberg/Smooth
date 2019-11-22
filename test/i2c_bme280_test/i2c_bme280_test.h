@@ -18,7 +18,7 @@ limitations under the License.
 #include "smooth/core/io/i2c/Master.h"
 #include "smooth/application/io/i2c/BME280.h"
 
-namespace test_i2c_bme280
+namespace i2c_bme280_test
 {
     class App : public smooth::core::Application
     {

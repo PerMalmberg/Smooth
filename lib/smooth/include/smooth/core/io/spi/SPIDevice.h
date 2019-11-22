@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <mutex>
 #include <driver/gpio.h>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #include <driver/spi_common.h>
@@ -101,16 +100,14 @@ namespace smooth::core::io::spi
             bool wait_for_transaction_to_finish();
 
             /// Override this method to perform pre-transmission actions.
-            /// @warning This method is run in ISR context
-            /// \param trans The transmission data
-            virtual void pre_transmission_action(spi_transaction_t* trans)
+            /// @warning This method is runs in ISR context
+            virtual void pre_transmission_action()
             {
             }
 
             /// Override this method to perform post-transmission actions.
-            /// @warning This method is run in ISR context
-            /// \param trans The transmission data
-            virtual void post_transmission_action(spi_transaction_t* trans)
+            /// @warning This method is runs in ISR context
+            virtual void post_transmission_action()
             {
             }
 

@@ -18,7 +18,7 @@ limitations under the License.
 #include "smooth/application/display/ILI9341.h"
 #include "smooth/application/io/spi/BME280SPI.h"
 
-namespace test_multiple_4_line_devices
+namespace spi_4_line_devices_test
 {
     class App : public smooth::core::Application
     {

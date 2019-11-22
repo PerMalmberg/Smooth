@@ -31,7 +31,7 @@ namespace smooth::core::io::spi
 
             // Constructor derived class of DmaFixedBuffer
             // Note: Since this buffer is created by DmaFixedBuffer and it is using heap_caps_malloc we do not need
-            // to check the buffer address for to be on a 32 bit boundary. The C standard guarantees the result of
+            // to check the buffer address for being on a 32 bit boundary. The C standard guarantees the result of
             // heap_caps_malloc() is a 32-bit aligned pointer.
             SpiDmaFixedBuffer() : smooth::core::util::DmaFixedBuffer<T, Size>(MALLOC_CAP_DMA)
             {

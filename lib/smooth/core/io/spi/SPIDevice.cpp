@@ -160,7 +160,8 @@ namespace smooth::core::io::spi
 
         if (device != nullptr)
         {
-            device->pre_transmission_action(trans);
+            //device->pre_transmission_action(trans);
+            device->pre_transmission_action();
         }
     }
 
@@ -170,7 +171,8 @@ namespace smooth::core::io::spi
 
         if (device != nullptr)
         {
-            device->post_transmission_action(trans);
+            //device->post_transmission_action(trans);
+            device->post_transmission_action();
         }
     }
 }

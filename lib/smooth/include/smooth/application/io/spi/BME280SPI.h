@@ -108,8 +108,27 @@ namespace smooth::application::sensor
             bool read_measurements(float& humidity, float& pressure, float& temperature);
 
         private:
+            /// Pre Transmission Action
+            /// The operations that need to be performed before the spi transaction is started
+            void pre_transmission_action() override
+            {
+            }
+
+            /// Post Transmission Action
+            /// The operations that need to be performed after the spi transaction has ended
+            void post_transmission_action() override
+            {
+            }
+
+            /// Write
+            /// \param txdata A pointer to the first element of the transmit data
+            /// \param length The number of bytes in txdata
             bool write(const uint8_t* txdata, size_t length);
 
+            /// Read
+            /// \param bme280_reg The BME280 register we wnat to read
+            /// \param rxdata A pointer to container that will hold the receive data
+            /// \param length The number of bytes that will be read
             bool read(const uint8_t bme280_reg, uint8_t* rxdata, size_t length);
 
             /// Read trimming parameters; will be used to calculated compensated measurements

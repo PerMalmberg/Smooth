@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <memory>
 #include <mutex>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #include <driver/gpio.h>
@@ -53,8 +52,8 @@ namespace smooth::core::io::spi
                    gpio_num_t miso,
                    gpio_num_t clock,
                    int transfer_size = 0,
-                   gpio_num_t quadwp_io_num = static_cast<gpio_num_t>(-1),
-                   gpio_num_t quadhd_io_num = static_cast<gpio_num_t>(-1)
+                   gpio_num_t quadwp_io_num = GPIO_NUM_NC,
+                   gpio_num_t quadhd_io_num = GPIO_NUM_NC
                    );
 
             ~Master();
