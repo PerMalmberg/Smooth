@@ -211,7 +211,7 @@ namespace smooth::application::display
             std::for_each(trans.begin(), trans.end(), [&](auto& current)
                           {
                               //Zero out the transaction
-                              std::memset(&current, 0, sizeof(spi_transaction_t));
+                              std::memset(&current, 0, sizeof(current));
 
                               if ((x & 1) == 0)
                               {
@@ -349,7 +349,7 @@ namespace smooth::application::display
             std::for_each(trans.begin(), trans.end(), [](auto& t)
                           {
                               //Zero out the transaction
-                              std::memset(&t, 0, sizeof(spi_transaction_t));
+                              std::memset(&t, 0, sizeof(t));
                           });
 
             // reset current transaction counter
