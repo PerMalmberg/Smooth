@@ -21,7 +21,7 @@ limitations under the License.
 #include "smooth/core/task_priorities.h"
 #include <iostream>
 
-namespace hello_world
+namespace starter_example
 {
     class App : public smooth::core::Application
     {

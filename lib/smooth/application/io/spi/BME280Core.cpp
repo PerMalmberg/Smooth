@@ -21,11 +21,6 @@ using namespace smooth::core;
 
 namespace smooth::application::sensor
 {
-    // Constructor
-    BME280Core::BME280Core()
-    {
-    }
-
     // Get config_sensor datagram that contains register addresses and data that will be used to configure the BME280
     void BME280Core::get_configure_sensor_datagram(std::vector<uint8_t>& datagram,
                                                    SensorMode mode,
