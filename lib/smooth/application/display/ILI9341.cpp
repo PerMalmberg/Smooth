@@ -202,7 +202,7 @@ namespace smooth::application::display
             // stack; we need this memory even when this function is finished because
             // the SPI driver needs access to it even while we're already calculating
             // the next line.
-            static std::array<spi_transaction_t, 6> trans{};
+            static std::array<spi_transaction_t, line_transaction_length> trans{};
 
             // In theory, it's better to initialize trans and data only once and hang
             // on to the initialized variables. We allocate them on the stack, so we
@@ -221,9 +221,9 @@ namespace smooth::application::display
                                   current.length = 8;
 
                                   // setup pre and post states
-                                  dc_pretrans_pin_states.at(x) = PIN_LOW;
-                                  cs_pretrans_pin_states.at(x) = PIN_LOW;
-                                  cs_posttrans_pin_states.at(x) = PIN_HIGH;
+                                  dc_pretrans_pin_states[x] = PIN_LOW;
+                                  cs_pretrans_pin_states[x] = PIN_LOW;
+                                  cs_posttrans_pin_states[x] = PIN_HIGH;
                               }
                               else
                               {
@@ -233,9 +233,9 @@ namespace smooth::application::display
                                   current.length = 8 * 4;
 
                                   // setup pre and post states
-                                  dc_pretrans_pin_states.at(x) = PIN_HIGH;
-                                  cs_pretrans_pin_states.at(x) = PIN_LOW;
-                                  cs_posttrans_pin_states.at(x) = PIN_HIGH;
+                                  dc_pretrans_pin_states[x] = PIN_HIGH;
+                                  cs_pretrans_pin_states[x] = PIN_LOW;
+                                  cs_posttrans_pin_states[x] = PIN_HIGH;
                               }
 
                               current.flags = SPI_TRANS_USE_TXDATA;
@@ -243,26 +243,26 @@ namespace smooth::application::display
                           });
 
             // Column addresses
-            trans.at(0).tx_data[0] = 0x2A;
-            trans.at(1).tx_data[0] = static_cast<uint8_t>((x1 >> 8) & 0xFF);       // Start Col High
-            trans.at(1).tx_data[1] = static_cast<uint8_t>(x1 & 0xFF);              // Start Col Low
-            trans.at(1).tx_data[2] = static_cast<uint8_t>((x2 >> 8) & 0xFF);       // End Col High
-            trans.at(1).tx_data[3] = static_cast<uint8_t>(x2 & 0xFF);              // End Col Low
+            trans[0].tx_data[0] = 0x2A;
+            trans[1].tx_data[0] = static_cast<uint8_t>((x1 >> 8) & 0xFF);       // Start Col High
+            trans[1].tx_data[1] = static_cast<uint8_t>(x1 & 0xFF);              // Start Col Low
+            trans[1].tx_data[2] = static_cast<uint8_t>((x2 >> 8) & 0xFF);       // End Col High
+            trans[1].tx_data[3] = static_cast<uint8_t>(x2 & 0xFF);              // End Col Low
 
             // Page addresses
-            trans.at(2).tx_data[0] = 0x2B;
-            trans.at(3).tx_data[0] = static_cast<uint8_t>((y1 >> 8) & 0xFF);       // Start page high
-            trans.at(3).tx_data[1] = static_cast<uint8_t>(y1 & 0xFF);              // start page low
-            trans.at(3).tx_data[2] = static_cast<uint8_t>((y2 >> 8) & 0xFF);       // end page high
-            trans.at(3).tx_data[3] = static_cast<uint8_t>(y2 & 0xFF);              // end page low
+            trans[2].tx_data[0] = 0x2B;
+            trans[3].tx_data[0] = static_cast<uint8_t>((y1 >> 8) & 0xFF);       // Start page high
+            trans[3].tx_data[1] = static_cast<uint8_t>(y1 & 0xFF);              // start page low
+            trans[3].tx_data[2] = static_cast<uint8_t>((y2 >> 8) & 0xFF);       // end page high
+            trans[3].tx_data[3] = static_cast<uint8_t>(y2 & 0xFF);              // end page low
 
             // Ram Write
-            trans.at(4).tx_data[0] = 0x2C;                   // memory write
+            trans[4].tx_data[0] = 0x2C;                   // memory write
 
             // Data to send
-            trans.at(5).tx_buffer = data;
-            trans.at(5).length = length * 8;
-            trans.at(5).flags = 0;                           // clear flags
+            trans[5].tx_buffer = data;
+            trans[5].length = length * 8;
+            trans[5].flags = 0;                           // clear flags
 
             // Queue all transactions.
             std::for_each(trans.begin(), trans.end(), [&](auto& t)

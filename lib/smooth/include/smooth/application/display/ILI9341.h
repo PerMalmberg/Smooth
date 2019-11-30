@@ -152,7 +152,8 @@ namespace smooth::application::display
             smooth::core::io::Output dc_pin;
             smooth::core::io::Output cs_pin;
 
-            using PreTransPinState = std::array<bool, 6>;
+            static constexpr int line_transaction_length = 6;
+            using PreTransPinState = std::array<bool, line_transaction_length>;
             PreTransPinState dc_pretrans_pin_states{};
             PreTransPinState cs_pretrans_pin_states{};
             PreTransPinState cs_posttrans_pin_states{};
