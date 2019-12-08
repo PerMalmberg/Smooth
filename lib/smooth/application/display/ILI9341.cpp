@@ -204,9 +204,6 @@ namespace smooth::application::display
             // the next line.
             static std::array<spi_transaction_t, line_transaction_length> trans{};
 
-            // In theory, it's better to initialize trans and data only once and hang
-            // on to the initialized variables. We allocate them on the stack, so we
-            // don't need to re-init them each call.
             std::size_t x = 0;
             std::for_each(trans.begin(), trans.end(), [&](auto& current)
                           {
@@ -281,7 +278,7 @@ namespace smooth::application::display
 
         std::lock_guard<std::mutex> lock(get_guard());
 
-        for (uint8_t x = 0; x < 6; x++)
+        for (uint8_t x = 0; x < line_transaction_length; x++)
         {
             res &= wait_for_transaction_to_finish();
         }
