@@ -83,7 +83,7 @@ namespace smooth::application::sensor
         std::lock_guard<std::mutex> lock(get_guard());
         spi_transaction_t trans;
         std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
-        trans.rx_buffer = NULL;
+        trans.rx_buffer = nullptr;
         trans.length = 8 * length;
         trans.tx_buffer = const_cast<uint8_t*>(txdata);
 
@@ -134,7 +134,7 @@ namespace smooth::application::sensor
                                      BME280Core::FilterCoeff filter_coeff,
                                      BME280Core::SpiInterface spi_interface)
     {
-        std::vector<uint8_t> datagram;
+        std::vector<uint8_t> datagram{};
 
         bme280_core.get_configure_sensor_datagram(datagram,
                                              mode,
@@ -146,7 +146,7 @@ namespace smooth::application::sensor
                                              spi_interface);
 
         // Since we chose to use DMA on this SPI Device use SpiDmaFixedBuffer for the tx_buffer in spi_transfer
-        SpiDmaFixedBuffer<uint8_t, 8> txdata;
+        SpiDmaFixedBuffer<uint8_t, 8> txdata{};
 
         // for spi write the bit in position b7 of register address must be zero
         txdata[0] = datagram.at(0) & 0x7F;  // modify 0xF2 to 0x72
@@ -202,9 +202,9 @@ namespace smooth::application::sensor
         if (!trimming_read)
         {
             // Since we chose to use DMA on this SPI Device use SpiDmaFixedBuffer for the rx_buffer in spi_transfer
-            SpiDmaFixedBuffer<uint8_t, 32> calib00_calib25_data;    // 0x88-0xA1
-            SpiDmaFixedBuffer<uint8_t, 8> calib26_calib32_data;     // 0xE1-0xE7
-            core::util::FixedBuffer<uint8_t, 32> calibration_data;
+            SpiDmaFixedBuffer<uint8_t, 32> calib00_calib25_data{};    // 0x88-0xA1
+            SpiDmaFixedBuffer<uint8_t, 8> calib26_calib32_data{};     // 0xE1-0xE7
+            core::util::FixedBuffer<uint8_t, 32> calibration_data{};
 
             trimming_read = read(BME280Core::CALIB00_REG, calib00_calib25_data.data(), 27)
                             && read(BME280Core::CALIB26_REG, calib26_calib32_data.data(), 8);

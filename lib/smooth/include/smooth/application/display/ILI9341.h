@@ -109,7 +109,7 @@ namespace smooth::application::display
             /// \param data The pointer to the first byte in the data (color data)
             /// \param length The number of bytes in the data
             /// \return true on success, false on failure
-            bool send_lines(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t* data, size_t length);
+            bool send_lines(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const uint8_t* data, size_t length);
 
             /// Wait for send lines to finish;
             /// Waits for all SPI transactions in send lines to complete
@@ -152,9 +152,11 @@ namespace smooth::application::display
             smooth::core::io::Output dc_pin;
             smooth::core::io::Output cs_pin;
 
-            std::array<bool, 6> dc_pretrans_pin_states;
-            std::array<bool, 6> cs_pretrans_pin_states;
-            std::array<bool, 6> cs_posttrans_pin_states;
-            std::size_t current_transaction;
+            static constexpr int line_transaction_length = 6;
+            using PreTransPinState = std::array<bool, line_transaction_length>;
+            PreTransPinState dc_pretrans_pin_states{};
+            PreTransPinState cs_pretrans_pin_states{};
+            PreTransPinState cs_posttrans_pin_states{};
+            std::size_t current_transaction{};
     };
 }

@@ -122,7 +122,7 @@ namespace smooth::application::sensor
                                                                    "SPI_3_WIRE"
             };
 
-            BME280Core();
+            BME280Core() = default;
 
             /// Get a datagram that contains register addresses and data that will be used to configure the BME280
             /// \param datagram A vector that holds the configuration register addresses and data

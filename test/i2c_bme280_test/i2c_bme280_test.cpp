@@ -44,8 +44,6 @@ limitations under the License.
 #include "smooth/core/logging/log.h"
 #include "smooth/core/SystemStatistics.h"
 
-#include <stdint.h>
-
 using namespace smooth::core;
 using namespace std::chrono;
 using namespace smooth::application::sensor;
@@ -69,7 +67,7 @@ namespace i2c_bme280_test
         Application::init();
 
         bme280_initialized = init_BME280I2C();
-        Log::info(TAG, "BME280 intialization --- {}", bme280_initialized ? "Succeeded" : "Failed");
+        Log::info(TAG, "BME280 initialization --- {}", bme280_initialized ? "Succeeded" : "Failed");
     }
 
     void App::tick()
@@ -82,8 +80,6 @@ namespace i2c_bme280_test
         {
             print_thp_sensor_measurements();
             print_thp_sensor_configuration();
-
-            //print_thp_sensor_id();
         }
     }
 

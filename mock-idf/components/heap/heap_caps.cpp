@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "esp_heap_caps.h"
+#include <memory>
 
-
-void *heap_caps_malloc( size_t size, uint32_t caps )
+void *heap_caps_malloc( size_t size, uint32_t /*caps*/ )
 {
-    return NULL;
+    return malloc(size);
 }
 
-void heap_caps_free( void *ptr)
+void heap_caps_free(void* ptr)
 {
-    
+    free(ptr);
 }
 

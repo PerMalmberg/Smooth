@@ -15,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "hello_world.h"
+#include "starter_example.h"
 #include "smooth/core/Task.h"
 #include "smooth/core/task_priorities.h"
 #include "smooth/core/SystemStatistics.h"
 
 using namespace smooth::core;
 
-namespace hello_world
+namespace starter_example
 {
     class ATask : public smooth::core::Task
     {
