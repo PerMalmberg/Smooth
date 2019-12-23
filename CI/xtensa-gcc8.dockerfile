@@ -28,7 +28,9 @@ RUN	cd / \
 	&& git clone --recursive https://github.com/espressif/esp-idf.git
 	# Checkout desired branch
 RUN	cd /esp/esp-idf \
+    && echo "Checking out ${IDF_BRANCH}" \
 	&& git checkout ${IDF_BRANCH} \
+	&& git submodule update --init --checkout --recursive \
 	# Install IDF tools
 	&& cd /esp/esp-idf \ 
 	&& ./install.sh \
