@@ -9,4 +9,4 @@ Below is the list of individuals that have contributed to the project.
 |[KerryRJ](https://github.com/KerryRJ)|[PR#71](https://github.com/PerMalmberg/Smooth/pull/71)|
 |[jeremyjh](https://github.com/jeremyjh)|[PR#87](https://github.com/PerMalmberg/Smooth/pull/87)|
 |[COM8](https://github.com/COM8)|[PR#98](https://github.com/PerMalmberg/Smooth/pull/98)|
-|[enelson1001](https://github.com/enelson1001)|[PR#116](https://github.com/PerMalmberg/Smooth/pull/116)|
+|[enelson1001](https://github.com/enelson1001)|[PR#116](https://github.com/PerMalmberg/Smooth/pull/116), [PR#124](https://github.com/PerMalmberg/Smooth/pull/124)|
