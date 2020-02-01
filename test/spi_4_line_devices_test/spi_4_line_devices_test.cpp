@@ -48,6 +48,7 @@ limitations under the License.
  ****************************************************************************************/
 #include <vector>
 #include "spi_4_line_devices_test.h"
+#include "smooth/application/display/ILI9341.h"
 #include "smooth/core/logging/log.h"
 #include "smooth/core/SystemStatistics.h"
 
@@ -118,11 +119,10 @@ namespace spi_4_line_devices_test
 
     bool App::init_ILI9341()
     {
-        auto device = spi_master.create_device<ILI9341>(
+        auto device = spi_master.create_device<DisplaySpi>(
                         GPIO_NUM_14,            // chip select gpio pin
                         GPIO_NUM_27,            // data command gpio pin
                         GPIO_NUM_33,            // reset gpio pin
-                        GPIO_NUM_32,            // backlight gpio pin
                         0,                      // spi command_bits
                         0,                      // spi address_bits,
                         0,                      // bits_between_address_and_data_phase,
@@ -140,9 +140,8 @@ namespace spi_4_line_devices_test
 
         if (res)
         {
-            device->reset_display();
-            res &= device->send_init_cmds();
-            device->set_back_light(true);
+            device->hw_reset(true, 5, 150);
+            res &= device->send_init_cmds(ili9341_init_cmds_1.data(), ili9341_init_cmds_1.size());
             display = std::move(device);
         }
         else

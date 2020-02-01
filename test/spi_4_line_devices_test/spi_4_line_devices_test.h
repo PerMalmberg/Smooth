@@ -15,7 +15,7 @@ limitations under the License.
 
 #include "smooth/core/Application.h"
 #include "smooth/core/task_priorities.h"
-#include "smooth/application/display/ILI9341.h"
+#include "smooth/application/display/DisplaySpi.h"
 #include "smooth/application/io/spi/BME280SPI.h"
 
 namespace spi_4_line_devices_test
@@ -44,7 +44,7 @@ namespace spi_4_line_devices_test
 
             spi_host_device_t spi_host;
             smooth::core::io::spi::Master spi_master;
-            std::unique_ptr<smooth::application::display::ILI9341> display{};
+            std::unique_ptr<smooth::application::display::DisplaySpi> display{};
             std::unique_ptr<smooth::application::sensor::BME280SPI> thp_sensor{};
             bool ili9341_initialized{ false };
             bool bme280_initialized{ false };
