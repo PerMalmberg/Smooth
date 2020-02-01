@@ -23,7 +23,7 @@ namespace smooth::application::display
     {
         uint8_t cmd;
         uint8_t data[16];
-        uint8_t length;     //Num of bytes in data; bit 7 = delay when set; 
+        uint8_t length;     //Num of bytes in data; bit 7 = delay when set;
     } display_init_cmd_t;
 
     // Some display such as the ST7735x require offset for the start row and start column from the
@@ -35,5 +35,4 @@ namespace smooth::application::display
         uint16_t col_offset;
         uint16_t row_offset;
     } cgram_offset_t;
-
 }

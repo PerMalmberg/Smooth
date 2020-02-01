@@ -114,6 +114,8 @@ namespace smooth::application::display
     {
         bool res = send_cmd(static_cast<uint8_t>(LcdCmd::SWRESET));
         std::this_thread::sleep_for(std::chrono::milliseconds(delay_time));
+
+        return res;
     }
 
     // Send initialize sequence of commands and data to display

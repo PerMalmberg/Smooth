@@ -64,7 +64,7 @@ namespace smooth::application::display
             /// the pin is the non-active state (waiting for the chip to complete it's reset).
             void hw_reset(bool active_low, int active_time, int delay_time);
 
-            /// Software reset 
+            /// Software reset
             /// \param delay_time The amount of time in milliseconds to delay.  Some ammount
             /// of delay time is required before one can send a new command.
             /// \return true on success, false on failure
