@@ -69,22 +69,21 @@ namespace smooth::application::display
     // init commands for 7735R red or green tab, part 1 - 15 commands
     static const std::vector<display_init_cmd_t> init_cmds_R_part1 =
     { {
-        { LcdCmd::SWRESET, { 50 }, 0x80 },            // 1: SWRESET(0x01) - Software Reset with delay 50ms
-        { LcdCmd::SLPOUT, { 150 }, 0x80 },            // 2: SLPOUT(0x11) - Out of sleep mode, with delay 150ms
-        { LcdCmd::FRMCTR1, { 0x01, 0x2C, 0x2D }, 3 }, // 3: FRMCTR1(0xB1) - Normal Mode, Rate=fosc/(1X2+40)*(Line+2C+2D)
-        { LcdCmd::FRMCTR2, { 0x01, 0x2C, 0x2D }, 3 }, // 4: FRMCTR2(0xB2) - Idle Mode, Rate=fosc/(1X2+40)*(Line+2C+2D)
-        { LcdCmd::FRMCTR3, { 0x01, 0x2C, 0x2D, 0x01, 0x2C, 0x2D }, 6 }, // 5: FFRMCTR3(0xB3) - Partial Mode,
+        { LcdCmd::SLPOUT, { 150 }, 0x80 },            // 1: SLPOUT(0x11) - Out of sleep mode, with delay 150ms
+        { LcdCmd::FRMCTR1, { 0x01, 0x2C, 0x2D }, 3 }, // 2: FRMCTR1(0xB1) - Normal Mode, Rate=fosc/(1X2+40)*(Line+2C+2D)
+        { LcdCmd::FRMCTR2, { 0x01, 0x2C, 0x2D }, 3 }, // 3: FRMCTR2(0xB2) - Idle Mode, Rate=fosc/(1X2+40)*(Line+2C+2D)
+        { LcdCmd::FRMCTR3, { 0x01, 0x2C, 0x2D, 0x01, 0x2C, 0x2D }, 6 }, // 4: FFRMCTR3(0xB3) - Partial Mode,
                                                                         // Dot inv and Line inv
-        { LcdCmd::INVCTR, { 0x07 }, 1 },              // 6: INVCTR(0xB4) - No inversion
-        { LcdCmd::PWCTR1, { 0xA2, 0x02, 0x84 }, 3 },  // 7: PWCTR1(0xC0) - -4.6V, AUTO mode
-        { LcdCmd::PWCTR2, { 0xC5 }, 1 },              // 8: PWCTR2(0xC1) - VGH25=2.4V, VGSEL=-10, VGH=3*AVDD
-        { LcdCmd::PWCTR3, { 0x0A, 0x00 }, 2 },        // 9: PWCTR3(0xC2) - OpAmp current small, Boost freq
-        { LcdCmd::PWCTR4, { 0x8A, 0x2A }, 2 },        // 10: PWCTR4(0xC3) - BCLK/2, OpAmp current small, Medium low
-        { LcdCmd::PWCTR5, { 0x8A, 0xEE }, 2 },        // 11: PWCTR5(0xC4) -
-        { LcdCmd::VMCTR1, { 0x0E }, 1 },              // 12: VMCTR1(0xC5) - VCOM=-0.775v
-        { LcdCmd::INVOFF, { 0x00 }, 0 },              // 13: INVOFF(0x20) - Don't invert display
-        { LcdCmd::MADCTL, { 0xC8 }, 1 },              // 14: MADCTL(0x36) - 0xC8 = Landscape, 0x08 = portrait
-        { LcdCmd::PIXFMT, { 0x05, 10 }, 0x81 },       // 15: COLMOD(0x3A) - Color Mode - 16-bit color, delay 10ms
+        { LcdCmd::INVCTR, { 0x07 }, 1 },              // 5: INVCTR(0xB4) - No inversion
+        { LcdCmd::PWCTR1, { 0xA2, 0x02, 0x84 }, 3 },  // 6: PWCTR1(0xC0) - -4.6V, AUTO mode
+        { LcdCmd::PWCTR2, { 0xC5 }, 1 },              // 7: PWCTR2(0xC1) - VGH25=2.4V, VGSEL=-10, VGH=3*AVDD
+        { LcdCmd::PWCTR3, { 0x0A, 0x00 }, 2 },        // 8: PWCTR3(0xC2) - OpAmp current small, Boost freq
+        { LcdCmd::PWCTR4, { 0x8A, 0x2A }, 2 },        // 9: PWCTR4(0xC3) - BCLK/2, OpAmp current small, Medium low
+        { LcdCmd::PWCTR5, { 0x8A, 0xEE }, 2 },        // 10: PWCTR5(0xC4) -
+        { LcdCmd::VMCTR1, { 0x0E }, 1 },              // 11: VMCTR1(0xC5) - VCOM=-0.775v
+        { LcdCmd::INVOFF, { 0x00 }, 0 },              // 12: INVOFF(0x20) - Don't invert display
+        { LcdCmd::MADCTL, { 0xC8 }, 1 },              // 13: MADCTL(0x36) - 0xC8 = Landscape, 0x08 = portrait
+        { LcdCmd::PIXFMT, { 0x05, 10 }, 0x81 },       // 14: COLMOD(0x3A) - Color Mode - 16-bit color, delay 10ms
     } };
 
     // init commands for 7735R green tab only, part 2 - 2 commands

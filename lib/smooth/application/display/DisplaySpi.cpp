@@ -58,15 +58,17 @@ namespace smooth::application::display
                         use_pre_transaction_callback,
                         use_post_transaction_callback),
 
-              reset_pin(reset_pin, true, false, false),
-              dc_pin(data_command_pin, true, false, false),
-              cs_pin(chip_select_pin, true, false, false)
+              reset_pin(reset_pin, true, false, false),     // GPIO_MODE_OUTPUT, no pullup, no pulldown
+              dc_pin(data_command_pin, true, false, false), // GPIO_MODE_OUTPUT, no pullup, no pulldown
+              cs_pin(chip_select_pin, true, false, false)   // GPIO_MODE_OUTPUT, no pullup, no pulldown
     {
     }
 
     // Initialize the display
     bool DisplaySpi::init(spi_host_device_t host)
     {
+        reset_pin.set(PIN_HIGH);
+        cs_pin.set(PIN_HIGH);
         // spi_transaction will not control chip select
         return initialize(host, GPIO_NUM_NC);
     }
