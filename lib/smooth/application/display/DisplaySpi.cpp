@@ -69,6 +69,7 @@ namespace smooth::application::display
     {
         reset_pin.set(PIN_HIGH);
         cs_pin.set(PIN_HIGH);
+
         // spi_transaction will not control chip select
         return initialize(host, GPIO_NUM_NC);
     }
