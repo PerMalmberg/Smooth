@@ -33,14 +33,14 @@ limitations under the License.
   ************************************************************************************/
 #pragma once
 
-#include <vector>
+#include <array>
 #include "DisplayTypes.h"
 #include "DisplayCommands.h"
 
 namespace smooth::application::display
 {
     // init commands version 1 - 20 commands
-    static const std::vector<display_init_cmd_t> ili9341_init_cmds_1 =
+    static constexpr std::array<display_init_cmd_t, 20> ili9341_init_cmds_1 =
     { {
         { LcdCmd::POWERB, { 0x00, 0xC1, 0X30 }, 3 },              // 1: 0xCF - POWERB
         { LcdCmd::POWER_SEQ, { 0x64, 0x03, 0X12, 0X81 }, 4 },     // 2: 0xED - POWER_SEQ

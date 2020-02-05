@@ -87,36 +87,35 @@ namespace smooth::application::display
     // width and screen height for the rotation you have chosen in the lvconf.h file.
     bool DisplaySpi::set_madctl(uint8_t value, uint8_t madctl_reg)
     {
-        bool res = send_cmd(madctl_reg);
-        res &= send_data(&value, 1);
-
-        return res;
+        return send_cmd(madctl_reg) & send_data(&value, 1);
     }
 
-    // Hardware Reset
-    void DisplaySpi::hw_reset(bool active_low, int active_time, int delay_time)
+    // Hardware reset
+    void DisplaySpi::hw_reset(bool active_low,
+                              std::chrono::milliseconds active_time,
+                              std::chrono::milliseconds delay_time)
     {
         if (active_low)
         {
             reset_pin.set(PIN_LOW);     // force the display chip to reset
-            std::this_thread::sleep_for(std::chrono::milliseconds(active_time));
+            std::this_thread::sleep_for(active_time);
             reset_pin.set(PIN_HIGH);
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay_time));
+            std::this_thread::sleep_for(delay_time);
         }
         else
         {
             reset_pin.set(PIN_HIGH);    // force the display chip to reset
-            std::this_thread::sleep_for(std::chrono::milliseconds(active_time));
+            std::this_thread::sleep_for(active_time);
             reset_pin.set(PIN_LOW);
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay_time));
+            std::this_thread::sleep_for(delay_time);
         }
     }
 
-    // Software Reset
-    bool DisplaySpi::sw_reset(int delay_time)
+    // Software reset
+    bool DisplaySpi::sw_reset(std::chrono::milliseconds delay_time)
     {
         bool res = send_cmd(static_cast<uint8_t>(LcdCmd::SWRESET));
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay_time));
+        std::this_thread::sleep_for(delay_time);
 
         return res;
     }
@@ -126,7 +125,8 @@ namespace smooth::application::display
     {
         bool res = true;
 
-        for (size_t index = 0; index < length; index++)
+        // check res everytime thru loop
+        for (size_t index = 0; res && index < length; index++)
         {
             // send command
             res &= send_cmd(init_cmds[index].cmd);
@@ -146,7 +146,7 @@ namespace smooth::application::display
                 size_t delay_time = init_cmds[index].data[delay_data_length];
 
                 // check delay_data_length to see if there is data to send before delaying
-                if (delay_data_length != 0)
+                if (delay_data_length > 0)
                 {
                     res &= send_data(init_cmds[index].data, delay_data_length);
                 }
@@ -161,22 +161,17 @@ namespace smooth::application::display
     }
 
     // Send muliple commands to the display.
-    // Uses spi_device_polling_write, which waits until the transfer is complete.
     bool DisplaySpi::send_cmds(const uint8_t* cmds, size_t length)
     {
         // reset current transaction counter
         current_transaction = 0;
 
-        // setup pretrans data/command pin state
-        dc_pretrans_pin_states[0] = PIN_LOW;
-        cs_pretrans_pin_states[0] = PIN_LOW;
-        cs_posttrans_pin_states[0] = PIN_HIGH;
+        // setup pre and post control pin states
+        prepare_pins_for_cmd_transaction(0);
 
+        // create transaction
         std::lock_guard<std::mutex> lock(get_guard());
-        spi_transaction_t trans;
-        std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
-        trans.rx_buffer = nullptr;
-        trans.rxlength = 0;
+        spi_transaction_t trans{}; // zero out the transaction
         trans.length = length * 8;
         trans.tx_buffer = cmds;
 
@@ -184,66 +179,63 @@ namespace smooth::application::display
     }
 
     // Send a single command to the display.
-    // Uses spi_device_polling_write, which waits until the transfer is complete.
-    //
-    // Since command transactions are usually small, they are handled in polling
-    // mode for higher speed. The overhead of interrupt transactions is more than
-    // just waiting for the transaction to complete.
     bool DisplaySpi::send_cmd(const uint8_t cmd)
     {
         // reset current transaction counter
         current_transaction = 0;
 
         // setup pre and post control pin states
-        dc_pretrans_pin_states[0] = PIN_LOW;
-        cs_pretrans_pin_states[0] = PIN_LOW;
-        cs_posttrans_pin_states[0] = PIN_HIGH;
+        prepare_pins_for_cmd_transaction(0);
 
+        // create transaction
         std::lock_guard<std::mutex> lock(get_guard());
-        spi_transaction_t trans;
-        std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
-        trans.rx_buffer = nullptr;
-        trans.rxlength = 0;
+        spi_transaction_t trans{};  // zero out the transaction
         trans.length = 8;
         trans.tx_buffer = &cmd;
 
-        bool res = polling_write(trans);
-
-        return res;
+        return polling_write(trans);
     }
 
-    // Send data to the displayc.
-    // Uses spi_device_polling_write, which waits until the transfer is complete.
+    // Send data to the display
     bool DisplaySpi::send_data(const uint8_t* data, size_t length)
     {
         // reset current transaction counter
         current_transaction = 0;
 
         // setup pre and post control pin states
-        dc_pretrans_pin_states[0] = PIN_HIGH;
-        cs_pretrans_pin_states[0] = PIN_LOW;
-        cs_posttrans_pin_states[0] = PIN_HIGH;
+        prepare_pins_for_data_transaction(0);
 
+        // create transaction
         std::lock_guard<std::mutex> lock(get_guard());
-        spi_transaction_t trans;
-        std::memset(&trans, 0, sizeof(trans));  //Zero out the transaction
-        trans.rx_buffer = nullptr;
-        trans.rxlength = 0;
+        spi_transaction_t trans{};  // zero out the transaction
         trans.length = length * 8;
         trans.tx_buffer = data;
 
-        bool res = polling_write(trans);
+        return polling_write(trans);
+    }
 
-        return res;
+    // Prepare pins for command transaction
+    void DisplaySpi::prepare_pins_for_cmd_transaction(size_t trans_num)
+    {
+        dc_pretrans_pin_states[trans_num] = PIN_LOW;
+        cs_pretrans_pin_states[trans_num] = PIN_LOW;
+        cs_posttrans_pin_states[trans_num] = PIN_HIGH;
+    }
+
+    // Prepare pins for data transaction
+    void DisplaySpi::prepare_pins_for_data_transaction(size_t trans_num)
+    {
+        dc_pretrans_pin_states[trans_num] = PIN_HIGH;
+        cs_pretrans_pin_states[trans_num] = PIN_LOW;
+        cs_posttrans_pin_states[trans_num] = PIN_HIGH;
     }
 
     // To send a set of lines we have to send a command, 2 data bytes, another command,
     // 2 more data bytes and another command before sending the lines of data itself;
-    // a total of 6 transactions. (We can't put all of this in just one transaction
-    // because the D/C line needs to be toggled in the middle.)
+    // a total of 6 transactions. We can't put all of this in just one transaction
+    // because the D/C line needs to be toggled in the middle.
     // This routine queues these commands up as interrupt transactions so they get
-    // sent faster (compared to calling spi_device_transmit several times), and
-    // meanwhile the lines for next transactions can get calculated.
+    // sent faster (compared to calling spi_device_transmit several times)
     bool DisplaySpi::send_lines(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const uint8_t* data, size_t length)
     {
         // if length is 0 nothing to do and probably an error so return
@@ -256,70 +248,55 @@ namespace smooth::application::display
             // reset current transaction counter
             current_transaction = 0;
 
-            // Transaction descriptors. Declared static so they're not allocated on the
-            // stack; we need this memory even when this function is finished because
-            // the SPI driver needs access to it even while we're already calculating
-            // the next line.
+            // create transactions
             static std::array<spi_transaction_t, line_transaction_length> trans{};
 
             std::size_t x = 0;
             std::for_each(trans.begin(), trans.end(), [&](auto& current)
                           {
-                              //Zero out the transaction
+                              // zero out the transaction
                               std::memset(&current, 0, sizeof(current));
 
                               if ((x & 1) == 0)
                               {
-                                  // Even transfers are commands
-                                  current.rx_buffer = nullptr;
-                                  current.rxlength = 0;
+                                  // even transfers are commands
                                   current.length = 8;
-
-                                  // setup pre and post states
-                                  dc_pretrans_pin_states[x] = PIN_LOW;
-                                  cs_pretrans_pin_states[x] = PIN_LOW;
-                                  cs_posttrans_pin_states[x] = PIN_HIGH;
+                                  prepare_pins_for_cmd_transaction(x);
                               }
                               else
                               {
-                                  // Odd transfers are data
-                                  current.rx_buffer = nullptr;
-                                  current.rxlength = 0;
+                                  // odd transfers are data
                                   current.length = 8 * 4;
-
-                                  // setup pre and post states
-                                  dc_pretrans_pin_states[x] = PIN_HIGH;
-                                  cs_pretrans_pin_states[x] = PIN_LOW;
-                                  cs_posttrans_pin_states[x] = PIN_HIGH;
+                                  prepare_pins_for_data_transaction(x);
                               }
 
                               current.flags = SPI_TRANS_USE_TXDATA;
                               x++;
                           });
 
-            // Column addresses
+            // column addresses
             trans[0].tx_data[0] = 0x2A;                                         // CASET
             trans[1].tx_data[0] = static_cast<uint8_t>((x1 >> 8) & 0xFF);       // Start Col High
             trans[1].tx_data[1] = static_cast<uint8_t>(x1 & 0xFF);              // Start Col Low
             trans[1].tx_data[2] = static_cast<uint8_t>((x2 >> 8) & 0xFF);       // End Col High
             trans[1].tx_data[3] = static_cast<uint8_t>(x2 & 0xFF);              // End Col Low
 
-            // Page addresses
+            // page addresses
             trans[2].tx_data[0] = 0x2B;                                         // PASET
             trans[3].tx_data[0] = static_cast<uint8_t>((y1 >> 8) & 0xFF);       // Start page high
             trans[3].tx_data[1] = static_cast<uint8_t>(y1 & 0xFF);              // start page low
             trans[3].tx_data[2] = static_cast<uint8_t>((y2 >> 8) & 0xFF);       // end page high
             trans[3].tx_data[3] = static_cast<uint8_t>(y2 & 0xFF);              // end page low
 
-            // Ram Write
+            // ram Write
             trans[4].tx_data[0] = 0x2C;                   // RAMWR - RAM write
 
-            // Data to send
+            // data to send
             trans[5].tx_buffer = data;
             trans[5].length = length * 8;
             trans[5].flags = 0;                           // clear flags
 
-            // Queue all transactions.
+            // queue all transactions.
             std::for_each(trans.begin(), trans.end(), [&](auto& t)
                           {
                               res &= queue_transaction(t);
@@ -399,43 +376,33 @@ namespace smooth::application::display
             std::lock_guard<std::mutex> lock(get_guard());
 
             // create 2 spi transactions; one for command and one for reading parameters
-            std::array<spi_transaction_t, 2> trans{};
-
-            std::for_each(trans.begin(), trans.end(), [](auto& t)
-                          {
-                              //Zero out the transaction
-                              std::memset(&t, 0, sizeof(t));
-                          });
+            std::array<spi_transaction_t, 2> trans{}; // zero out the transaction
 
             // reset current transaction counter
             current_transaction = 0;
 
-            // configure command transaction
+            // create command transaction
             auto& cmd_trans = trans[0];
-            cmd_trans.rx_buffer = nullptr;
-            cmd_trans.rxlength = 0;
             cmd_trans.length = 8;
             cmd_trans.tx_data[0] = cmd;
             cmd_trans.flags = SPI_TRANS_USE_TXDATA;
 
             // setup pre and post control pin states
-            dc_pretrans_pin_states[0] = PIN_LOW;
-            cs_pretrans_pin_states[0] = PIN_LOW;
-            cs_posttrans_pin_states[0] = PIN_LOW;  // keep chip select low
+            prepare_pins_for_cmd_transaction(0);
 
-            // configure read parameters transaction
+            // for reading parameter(s) we need to keep post trans cs pin low
+            cs_posttrans_pin_states[0] = PIN_LOW;
+
+            // create read parameters transaction
             auto& read_params = trans[1];
             read_params.rx_buffer = rxdata;
             read_params.rxlength = 8 * length;
             read_params.length = 8 * length;
-            read_params.tx_buffer = nullptr;
 
             // setup pre and post control pin states
-            dc_pretrans_pin_states[1] = PIN_HIGH;
-            cs_pretrans_pin_states[1] = PIN_LOW;
-            cs_posttrans_pin_states[1] = PIN_HIGH;
+            prepare_pins_for_data_transaction(1);
 
-            // Queue the 2 transactions to be sent
+            // queue the 2 transactions to be sent
             std::for_each(trans.begin(), trans.end(), [&](auto& t)
                           {
                               res &= queue_transaction(t);

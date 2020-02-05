@@ -17,7 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <cstdint>
-#include <vector>
+#include <array>
 
 namespace smooth::application::display
 {
@@ -54,22 +54,22 @@ namespace smooth::application::display
     };
 
     // init commands version 1
-    static const std::vector<uint8_t> sh1107_init_cmds_1 =
+    static const std::array<uint8_t, 22> sh1107_init_cmds_1 =
     {
         SH1107Cmd::DisplayOff,                    // 1: 0xAE turn display off
         SH1107Cmd::DisplayStartLine, 0x00,        // 2,3: 0xDC set display start line to zero
         SH1107Cmd::ContrastControl, 0x2F,         // 4,5: 0x81 set display contrast
         SH1107Cmd::PageAddressMode,               // 6: 0x20 set memory addressing mode to page addressing
         SH1107Cmd::SegmentReMapNormal,            // 7: 0xA0 set segment re-map to non-rotated display
-        SH1107Cmd::CommonOutputScanDirPortrait,   // 0xC0 set com output scan direction to portrait
-        SH1107Cmd::MultiplexRation, 0x7F,         // 8,9: 0xA8 set multiplex ratio to 128
-        SH1107Cmd::DisplayOffset, 0x60,           // 10,11: 0xD3 set display offset to display start line COM96
-        SH1107Cmd::ClockDivideRatio, 0x51,        // 12,13: 0xD5 set div ratio=1, freq=fosc
-        SH1107Cmd::DischargePrecharge, 0x22,      // 14,15: 0xD9 set pre-charge= 2DCLKs, dis-charge=2DCLKs
-        SH1107Cmd::VcomDeselectLevel, 0x35,       // 16,17: 0xDB set VCOM deselect level = 0.770
-        SH1107Cmd::PageAddress0,                  // 18: 0xB0 set page address to load display RAM data
-        SH1107Cmd::NormalDisplay,                 // 19: 0xA4 set entire display off
-        SH1107Cmd::NormalDisplay,                 // 20: 0xA6 non-inverted display (normal display)
-        SH1107Cmd::DisplayOn,                     // 21: 0XAF turn display on
+        SH1107Cmd::CommonOutputScanDirPortrait,   // 8: 0xC0 set com output scan direction to portrait
+        SH1107Cmd::MultiplexRation, 0x7F,         // 9,10: 0xA8 set multiplex ratio to 128
+        SH1107Cmd::DisplayOffset, 0x60,           // 11,12: 0xD3 set display offset to display start line COM96
+        SH1107Cmd::ClockDivideRatio, 0x51,        // 13,14: 0xD5 set div ratio=1, freq=fosc
+        SH1107Cmd::DischargePrecharge, 0x22,      // 15,16: 0xD9 set pre-charge= 2DCLKs, dis-charge=2DCLKs
+        SH1107Cmd::VcomDeselectLevel, 0x35,       // 17,18: 0xDB set VCOM deselect level = 0.770
+        SH1107Cmd::PageAddress0,                  // 19: 0xB0 set page address to load display RAM data
+        SH1107Cmd::NormalDisplay,                 // 20: 0xA4 set entire display off
+        SH1107Cmd::NormalDisplay,                 // 21: 0xA6 non-inverted display (normal display)
+        SH1107Cmd::DisplayOn,                     // 22: 0XAF turn display on
     };
 }

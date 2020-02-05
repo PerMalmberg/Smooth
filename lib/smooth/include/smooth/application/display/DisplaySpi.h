@@ -62,19 +62,20 @@ namespace smooth::application::display
             /// \param active_time The amount of time in milliseconds the pin will be in the active state
             /// \param delay_time The amount of time in milliseconds after exiting the active state,
             /// the pin is the non-active state (waiting for the chip to complete it's reset).
-            void hw_reset(bool active_low, int active_time, int delay_time);
+            void hw_reset(bool active_low, std::chrono::milliseconds active_time, std::chrono::milliseconds delay_time);
 
             /// Software reset
             /// \param delay_time The amount of time in milliseconds to delay.  Some ammount
             /// of delay time is required before one can send a new command.
             /// \return true on success, false on failure
-            bool sw_reset(int delay_time);
+            bool sw_reset(std::chrono::milliseconds delay_time);
 
             /// Send init commands - write multiple init commands to display
             /// Send a sequence of commands and data to the display to perform intialization
             /// \param init_cmds The pointer to the first byte in init_cmds
             /// \param length The number of bytes in the init_cmds
             /// \return true on success, false on failure
+            //bool send_init_cmds(const display_init_cmd_t* init_cmds, size_t length);
             bool send_init_cmds(const display_init_cmd_t* init_cmds, size_t length);
 
             /// Send Commands - write multiple commands to display
@@ -125,6 +126,14 @@ namespace smooth::application::display
             bool read(uint8_t cmd, uint8_t* rxdata, size_t length);
 
         private:
+            /// Prepare pins for command transaction
+            /// \param trans_num The transaction number; 0-5
+            void prepare_pins_for_cmd_transaction(size_t trans_num);
+
+            /// Prepare pins for data transaction
+            /// \param trans_num The transaction number; 0-5
+            void prepare_pins_for_data_transaction(size_t trans_num);
+
             /// Pre Transmission Action
             /// The operations that need to be performed before the spi transaction is started
             void pre_transmission_action() override

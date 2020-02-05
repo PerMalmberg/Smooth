@@ -140,7 +140,7 @@ namespace spi_4_line_devices_test
 
         if (res)
         {
-            device->hw_reset(true, 5, 150);
+            device->hw_reset(true, milliseconds(5), milliseconds(150));
             res &= device->send_init_cmds(ili9341_init_cmds_1.data(), ili9341_init_cmds_1.size());
             display = std::move(device);
         }

@@ -16,7 +16,6 @@ limitations under the License.
 */
 #pragma once
 
-#include <vector>
 #include <array>
 #include "DisplayTypes.h"
 #include "DisplayCommands.h"
@@ -39,7 +38,7 @@ namespace smooth::application::display
     ************************************************************************************/
 
     // init commands for black tab - 17 commands
-    static const std::vector<display_init_cmd_t> init_cmds_7735B =
+    static constexpr std::array<display_init_cmd_t, 17> init_cmds_7735B =
     { {
         { LcdCmd::SLPOUT, { 150 }, 0x80 },            // 1: SLPOUT(0x11) - Out of sleep mode, with delay 150ms
         { LcdCmd::PIXFMT, { 05, 10 }, 0x81 },         // 2: PIXFMT(0x3A) - Set color mode: 16-bit color 5-6-5 color
@@ -66,8 +65,8 @@ namespace smooth::application::display
         { LcdCmd::DISPON, { 255 }, 0x80 }             // 17: DISPON(0x29) - Main Screen Turn ON - delay 500ms
     } };
 
-    // init commands for 7735R red or green tab, part 1 - 15 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_part1 =
+    // init commands for 7735R red or green tab, part 1 - 14 commands
+    static constexpr std::array<display_init_cmd_t, 14> init_cmds_R_part1 =
     { {
         { LcdCmd::SLPOUT, { 150 }, 0x80 },            // 1: SLPOUT(0x11) - Out of sleep mode, with delay 150ms
         { LcdCmd::FRMCTR1, { 0x01, 0x2C, 0x2D }, 3 }, // 2: FRMCTR1(0xB1) - Normal Mode, Rate=fosc/(1X2+40)*(Line+2C+2D)
@@ -87,35 +86,35 @@ namespace smooth::application::display
     } };
 
     // init commands for 7735R green tab only, part 2 - 2 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_grn_tab_part2 =
+    static constexpr std::array<display_init_cmd_t, 2> init_cmds_R_grn_tab_part2 =
     { {
         { LcdCmd::CASET, { 0x00, 0x02, 0x00, 0x81 }, 4 }, // 1: CASET(0x2A) - Column Address - Ystart=2, Yend=129
         { LcdCmd::RASET, { 0x00, 0x01, 0x00, 0xA0 }, 4 }, // 2: RASET(0x2B) - Row Address - Xstart=1, Xend=160
     } };
 
     // init commands for 7735R red tab only, part 2 - 2 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_red_tab_part2 =
+    static constexpr std::array<display_init_cmd_t, 2> init_cmds_R_red_tab_part2 =
     { {
         { LcdCmd::CASET, { 0x00, 0x00, 0x00, 0x7F }, 4 }, // 1: CASET(0x2A) - Column Address - Ystart=0, Yend=127
         { LcdCmd::RASET, { 0x00, 0x00, 0x00, 0x9F }, 4 }, // 2: RASET(0x2B) - Row Address - Xstart=0, Xend=159
     } };
 
     // init commands for 7735R green tab (1.44), part 2 - 2 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_grn_tab_144_part2 =
+    static constexpr std::array<display_init_cmd_t, 2> init_cmds_R_grn_tab_144_part2 =
     { {
         { LcdCmd::CASET, { 0x00, 0x00, 0x00, 0x7F }, 4 }, // 1: CASET(0x2A) - Column Address - Ystart=0, Yend=127
         { LcdCmd::RASET, { 0x00, 0x00, 0x00, 0x7F }, 4 }, // 2: RASET(0x2B) - Row Address - Xstart=0, Xend=127
     } };
 
     // init commands for 7735R green tab (mini 160x80), part 2 - 2 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_grn_tab_mini_160x80_part2 =
+    static constexpr std::array<display_init_cmd_t, 2> init_cmds_R_grn_tab_mini_160x80_part2 =
     { {
         { LcdCmd::CASET, { 0x00, 0x00, 0x00, 0x4F }, 4 }, // 1: CASET(0x2A) - Column Address - Ystart=0, Yend=79
         { LcdCmd::RASET, { 0x00, 0x00, 0x00, 0x9F }, 4 }, // 2: RASET(0x2B) - Row Address - Xstart=0, Xend=159
     } };
 
     // init commands for 7735R red or green tab, part 3 - 4 commands
-    static const std::vector<display_init_cmd_t> init_cmds_R_part3 =
+    static constexpr std::array<display_init_cmd_t, 4> init_cmds_R_part3 =
     { {
         { LcdCmd::GMCTRP1,
           { 0x02, 0x1c, 0x07, 0x12, 0x37, 0x32, 0x29, 0x2d, 0x29, 0x25, 0x2B, 0x39, 0x00, 0x01, 0x03, 0x10 },
