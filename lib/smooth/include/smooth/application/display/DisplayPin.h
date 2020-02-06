@@ -29,7 +29,7 @@ namespace smooth::application::display
                        bool pulldn,
                        bool active_high) : display_pin(pin, true, pullup, pulldn)
             {
-                active_high ? display_pin.set(true) : display_pin.set(false);
+                active_high ? display_pin.set(false) : display_pin.set(true);
             }
 
             /// Set output pin level

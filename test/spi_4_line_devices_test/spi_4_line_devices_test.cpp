@@ -139,7 +139,7 @@ namespace spi_4_line_devices_test
 
         if (res)
         {
-            device->add_reset_pin(std::make_unique<DisplayPin>(GPIO_NUM_33, false, false, true));
+            device->add_reset_pin(std::make_unique<DisplayPin>(GPIO_NUM_33, false, false, false));
             device->hw_reset(true, milliseconds(5), milliseconds(150));
             res &= device->send_init_cmds(ili9341_init_cmds_1.data(), ili9341_init_cmds_1.size());
             display = std::move(device);
