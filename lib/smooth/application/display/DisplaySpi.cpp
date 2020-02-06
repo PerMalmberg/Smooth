@@ -33,7 +33,6 @@ namespace smooth::application::display
     DisplaySpi::DisplaySpi(std::mutex& guard,
                            gpio_num_t chip_select_pin,
                            gpio_num_t data_command_pin,
-                           gpio_num_t reset_pin,
                            uint8_t spi_command_bits,
                            uint8_t spi_address_bits,
                            uint8_t bits_between_address_and_data_phase,
@@ -58,7 +57,6 @@ namespace smooth::application::display
                         use_pre_transaction_callback,
                         use_post_transaction_callback),
 
-              reset_pin(reset_pin, true, false, false),     // GPIO_MODE_OUTPUT, no pullup, no pulldown
               dc_pin(data_command_pin, true, false, false), // GPIO_MODE_OUTPUT, no pullup, no pulldown
               cs_pin(chip_select_pin, true, false, false)   // GPIO_MODE_OUTPUT, no pullup, no pulldown
     {
@@ -67,7 +65,7 @@ namespace smooth::application::display
     // Initialize the display
     bool DisplaySpi::init(spi_host_device_t host)
     {
-        reset_pin.set(PIN_HIGH);
+        // preset chip select pin high
         cs_pin.set(PIN_HIGH);
 
         // spi_transaction will not control chip select
@@ -95,19 +93,24 @@ namespace smooth::application::display
                               std::chrono::milliseconds active_time,
                               std::chrono::milliseconds delay_time)
     {
-        if (active_low)
+        auto search = display_pins.find("reset");
+
+        if (search != display_pins.end())
         {
-            reset_pin.set(PIN_LOW);     // force the display chip to reset
-            std::this_thread::sleep_for(active_time);
-            reset_pin.set(PIN_HIGH);
-            std::this_thread::sleep_for(delay_time);
-        }
-        else
-        {
-            reset_pin.set(PIN_HIGH);    // force the display chip to reset
-            std::this_thread::sleep_for(active_time);
-            reset_pin.set(PIN_LOW);
-            std::this_thread::sleep_for(delay_time);
+            if (active_low)
+            {
+                search->second->set_output_level(PIN_LOW); // force the display chip to reset
+                std::this_thread::sleep_for(active_time);
+                search->second->set_output_level(PIN_HIGH);
+                std::this_thread::sleep_for(delay_time);
+            }
+            else
+            {
+                search->second->set_output_level(PIN_HIGH); // force the display chip to reset
+                std::this_thread::sleep_for(active_time);
+                search->second->set_output_level(PIN_HIGH);
+                std::this_thread::sleep_for(delay_time);
+            }
         }
     }
 
@@ -416,5 +419,28 @@ namespace smooth::application::display
         }
 
         return res;
+    }
+
+    // Add reset pin
+    void DisplaySpi::add_reset_pin(std::unique_ptr<DisplayPin> reset_pin)
+    {
+        display_pins["reset"] = std::move(reset_pin);
+    }
+
+    // Add backlight pin
+    void DisplaySpi::add_backlight_pin(std::unique_ptr<DisplayPin> bk_light_pin)
+    {
+        display_pins["bklight"] = std::move(bk_light_pin);
+    }
+
+    // Set backlight pin level
+    void DisplaySpi::set_back_light(bool level)
+    {
+        auto search = display_pins.find("bklight");
+
+        if (search != display_pins.end())
+        {
+            search->second->set_output_level(level);
+        }
     }
 }

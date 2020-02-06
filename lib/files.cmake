@@ -95,6 +95,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/timer/TimerService.cpp
         ${smooth_dir}/core/util/string_util.cpp
 
+        ${smooth_inc_dir}/application/display/DisplayPin.h
         ${smooth_inc_dir}/application/display/DisplaySpi.h
         ${smooth_inc_dir}/application/display/DisplayTypes.h
         ${smooth_inc_dir}/application/display/DisplayCommands.h

@@ -122,7 +122,7 @@ namespace spi_4_line_devices_test
         auto device = spi_master.create_device<DisplaySpi>(
                         GPIO_NUM_14,            // chip select gpio pin
                         GPIO_NUM_27,            // data command gpio pin
-                        GPIO_NUM_33,            // reset gpio pin
+                        //GPIO_NUM_33,            // reset gpio pin
                         0,                      // spi command_bits
                         0,                      // spi address_bits,
                         0,                      // bits_between_address_and_data_phase,
@@ -140,6 +140,7 @@ namespace spi_4_line_devices_test
 
         if (res)
         {
+            device->add_reset_pin(std::make_unique<DisplayPin>(GPIO_NUM_33, false, false, true));
             device->hw_reset(true, milliseconds(5), milliseconds(150));
             res &= device->send_init_cmds(ili9341_init_cmds_1.data(), ili9341_init_cmds_1.size());
             display = std::move(device);

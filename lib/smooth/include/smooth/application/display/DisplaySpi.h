@@ -18,10 +18,12 @@ limitations under the License.
 
 #include <array>
 #include <vector>
+#include <unordered_map>
 #include "smooth/core/io/Output.h"
 #include "smooth/core/io/spi/Master.h"
 #include "smooth/core/io/spi/SPIDevice.h"
 #include "smooth/application/display/DisplayTypes.h"
+#include "smooth/application/display/DisplayPin.h"
 
 namespace smooth::application::display
 {
@@ -32,7 +34,6 @@ namespace smooth::application::display
             DisplaySpi(std::mutex& guard,
                        gpio_num_t chip_select_pin,
                        gpio_num_t data_command_pin,
-                       gpio_num_t reset_pin,
                        uint8_t spi_command_bits,
                        uint8_t spi_address_bits,
                        uint8_t bits_between_address_and_data_phase,
@@ -125,6 +126,19 @@ namespace smooth::application::display
             /// \return true on success, false on failure
             bool read(uint8_t cmd, uint8_t* rxdata, size_t length);
 
+            /// Add reset pin
+            /// \param reset_pin
+            void add_reset_pin(std::unique_ptr<DisplayPin> reset_pin);
+
+            /// add backlight pin
+            /// \param bk_light_pin
+            void add_backlight_pin(std::unique_ptr<DisplayPin> bk_light_pin);
+
+            /// Set backlight
+            /// Turn backlight either ON or OFF
+            /// \param level True = PIN_HIGH, false = PIN_LOW
+            void set_back_light(bool level);
+
         private:
             /// Prepare pins for command transaction
             /// \param trans_num The transaction number; 0-5
@@ -150,7 +164,6 @@ namespace smooth::application::display
                 current_transaction++;
             }
 
-            smooth::core::io::Output reset_pin;
             smooth::core::io::Output dc_pin;
             smooth::core::io::Output cs_pin;
 
@@ -160,5 +173,7 @@ namespace smooth::application::display
             PreTransPinState cs_pretrans_pin_states{};
             PreTransPinState cs_posttrans_pin_states{};
             std::size_t current_transaction{};
+
+            std::unordered_map<std::string, std::unique_ptr<DisplayPin>> display_pins;
     };
 }
