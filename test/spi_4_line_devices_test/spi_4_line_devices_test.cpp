@@ -122,7 +122,6 @@ namespace spi_4_line_devices_test
         auto device = spi_master.create_device<DisplaySpi>(
                         GPIO_NUM_14,            // chip select gpio pin
                         GPIO_NUM_27,            // data command gpio pin
-                        //GPIO_NUM_33,            // reset gpio pin
                         0,                      // spi command_bits
                         0,                      // spi address_bits,
                         0,                      // bits_between_address_and_data_phase,
