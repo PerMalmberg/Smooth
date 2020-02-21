@@ -93,22 +93,20 @@ namespace smooth::application::display
                               std::chrono::milliseconds active_time,
                               std::chrono::milliseconds delay_time)
     {
-        auto search = display_pins.find("reset");
-
-        if (search != display_pins.end())
+        if (reset_pin != nullptr)
         {
             if (active_low)
             {
-                search->second->set_output_level(PIN_LOW); // force the display chip to reset
+                reset_pin->set_output_level(PIN_LOW); // force the display chip to reset
                 std::this_thread::sleep_for(active_time);
-                search->second->set_output_level(PIN_HIGH);
+                reset_pin->set_output_level(PIN_HIGH);
                 std::this_thread::sleep_for(delay_time);
             }
             else
             {
-                search->second->set_output_level(PIN_HIGH); // force the display chip to reset
+                reset_pin->set_output_level(PIN_HIGH); // force the display chip to reset
                 std::this_thread::sleep_for(active_time);
-                search->second->set_output_level(PIN_HIGH);
+                reset_pin->set_output_level(PIN_HIGH);
                 std::this_thread::sleep_for(delay_time);
             }
         }
@@ -424,23 +422,21 @@ namespace smooth::application::display
     // Add reset pin
     void DisplaySpi::add_reset_pin(std::unique_ptr<DisplayPin> reset_pin)
     {
-        display_pins["reset"] = std::move(reset_pin);
+        reset_pin = std::move(reset_pin);
     }
 
     // Add backlight pin
     void DisplaySpi::add_backlight_pin(std::unique_ptr<DisplayPin> bk_light_pin)
     {
-        display_pins["bklight"] = std::move(bk_light_pin);
+        backlight_pin = std::move(bk_light_pin);
     }
 
     // Set backlight pin level
     void DisplaySpi::set_back_light(bool level)
     {
-        auto search = display_pins.find("bklight");
-
-        if (search != display_pins.end())
+        if (backlight_pin != nullptr)
         {
-            search->second->set_output_level(level);
+            backlight_pin->set_output_level(level);
         }
     }
 }

@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <array>
 #include <vector>
-#include <unordered_map>
 #include "smooth/core/io/Output.h"
 #include "smooth/core/io/spi/Master.h"
 #include "smooth/core/io/spi/SPIDevice.h"
@@ -166,6 +165,8 @@ namespace smooth::application::display
 
             smooth::core::io::Output dc_pin;
             smooth::core::io::Output cs_pin;
+            std::unique_ptr<DisplayPin> backlight_pin{ nullptr };
+            std::unique_ptr<DisplayPin> reset_pin{ nullptr };
 
             static constexpr int line_transaction_length = 6;
             using PreTransPinState = std::array<bool, line_transaction_length>;
@@ -173,7 +174,5 @@ namespace smooth::application::display
             PreTransPinState cs_pretrans_pin_states{};
             PreTransPinState cs_posttrans_pin_states{};
             std::size_t current_transaction{};
-
-            std::unordered_map<std::string, std::unique_ptr<DisplayPin>> display_pins;
     };
 }
