@@ -12,6 +12,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/application/io/i2c/MCP23017.cpp
         ${smooth_dir}/application/io/i2c/MCP23017.cpp
         ${smooth_dir}/application/io/i2c/DHT12.cpp
+        ${smooth_dir}/application/io/i2c/AxpPMU.cpp
         ${smooth_dir}/application/io/spi/BME280SPI.cpp
         ${smooth_dir}/application/io/spi/BME280Core.cpp
         ${smooth_dir}/application/io/wiegand/Wiegand.cpp
@@ -94,7 +95,6 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/timer/Timer.cpp
         ${smooth_dir}/core/timer/TimerService.cpp
         ${smooth_dir}/core/util/string_util.cpp
-
         ${smooth_inc_dir}/application/display/DisplayPin.h
         ${smooth_inc_dir}/application/display/DisplaySpi.h
         ${smooth_inc_dir}/application/display/DisplayTypes.h
@@ -102,12 +102,13 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/application/display/ILI9341.h
         ${smooth_inc_dir}/application/display/SH1107.h
         ${smooth_inc_dir}/application/display/ST7735.h
-
         ${smooth_inc_dir}/application/io/spi/BME280SPI.h
         ${smooth_inc_dir}/application/io/spi/BME280Core.h
         ${smooth_inc_dir}/application/io/i2c/ADS1115.h
         ${smooth_inc_dir}/application/io/i2c/MCP23017.h
         ${smooth_inc_dir}/application/io/i2c/DHT12.h
+        ${smooth_inc_dir}/application/io/i2c/AxpPMU.h
+        ${smooth_inc_dir}/application/io/i2c/AxpRegisters.h
         ${smooth_inc_dir}/application/network/http/HTTPProtocol.h
         ${smooth_inc_dir}/application/network/http/HTTPServer.h
         ${smooth_inc_dir}/application/network/http/HTTPServerClient.h
