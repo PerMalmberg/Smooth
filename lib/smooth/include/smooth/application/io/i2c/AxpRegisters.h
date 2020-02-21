@@ -25,7 +25,7 @@ namespace smooth::application::sensor
     {
         // Group 1 - Power Control
         Reg01H_Pwr_Chrg_Status = 0x00,
-        Reg02H_Usb_Vbus_Status  = 0x01,
+        Reg02H_Usb_Vbus_Status = 0x01,
         Reg12H_Power_Out_Ctrl = 0x12,
         Reg23H_Dcdc2_Volt_Set = 0x23,
         Reg25H_Dcdc2_Ldo3_Vrc = 0x25,
@@ -56,7 +56,7 @@ namespace smooth::application::sensor
         Reg87H_Adc_Irq_FE_Thld = 0x87,
         Reg8AH_Timer_Control = 0x8A,
         Reg8BH_Vbus_Detect_Srp = 0x8B,
-        Reg8FH_Ovr_Temp_Shutdn= 0x8F,
+        Reg8FH_Ovr_Temp_Shutdn = 0x8F,
 
         // Group 2 - GPIO Control
         Reg90H_Gpio0_Func_Set = 0x90,
@@ -99,7 +99,7 @@ namespace smooth::application::sensor
         Reg5EH_Intr_Temp_HI8 = 0x5E,
         Reg5FH_Intr_Temp_LO4 = 0x5F,
         Reg62H_Batt_Temp_HI8 = 0x62,
-        Reg63H_Batt_Temp_LO4= 0x63,
+        Reg63H_Batt_Temp_LO4 = 0x63,
         Reg64H_Gpio0_Volt_HI8 = 0x64,
         Reg65H_Gpio0_Volt_LO4 = 0x65,
         Reg66H_Gpio1_Volt_HI8 = 0x66,
@@ -139,5 +139,4 @@ namespace smooth::application::sensor
     };
 
     using axp_init_reg_t = AxpInitRegType;
-
 }

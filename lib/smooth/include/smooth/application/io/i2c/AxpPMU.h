@@ -99,7 +99,7 @@ namespace smooth::application::sensor
 
             /// Write init registers to AXP device - used to configure (initialize) the axp device
             /// Each product that uses an AXP device will probably require the axp device to be configured uniquely
-            /// uniquely per product requirements.  This function provide a fast and easy way to send registers 
+            /// uniquely per product requirements.  This function provide a fast and easy way to send registers
             /// with data to configure the axp device.  Typically axp_init_reg_t will be placed in a std::array
             /// container and pass the pointer to the first element and the arry size to this function.
             /// \param init_regs The pointer to the first byte in init_regs
