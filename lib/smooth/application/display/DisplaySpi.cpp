@@ -122,7 +122,7 @@ namespace smooth::application::display
     }
 
     // Send initialize sequence of commands and data to display
-    bool DisplaySpi::send_init_cmds(const display_init_cmd_t* init_cmds, size_t length)
+    bool DisplaySpi::send_init_cmds(const DisplayInitCmd* init_cmds, size_t length)
     {
         bool res = true;
 
