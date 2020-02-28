@@ -31,15 +31,12 @@ namespace smooth::application::sensor
     {
     }
 
-    // Class constants
-    //static const char* TAG = "AxpPMU";
-
     /////////////////////////////////////////////////////////////////////////////////
     // Core read and write functions
     /////////////////////////////////////////////////////////////////////////////////
 
     // Write a data byte to a register
-    bool AxpPMU::write_register(Register reg, uint8_t write_data)
+    bool AxpPMU::write_register(AxpRegister reg, uint8_t write_data)
     {
         std::vector<uint8_t> data{ static_cast<uint8_t>(reg) };
         data.push_back(write_data);
@@ -48,7 +45,7 @@ namespace smooth::application::sensor
     }
 
     // Read a byte from register
-    bool AxpPMU::read_register(Register reg, uint8_t& read_data)
+    bool AxpPMU::read_register(AxpRegister reg, uint8_t& read_data)
     {
         util::FixedBuffer<uint8_t, 1> rd_data;
         bool res = read(address, static_cast<uint8_t>(reg), rd_data);
@@ -58,7 +55,7 @@ namespace smooth::application::sensor
     }
 
     // Write (set/clear) a bit in a register
-    bool AxpPMU::write_register_bit(Register reg, bool bit, uint8_t bit_position)
+    bool AxpPMU::write_register_bit(AxpRegister reg, bool bit, uint8_t bit_position)
     {
         uint8_t read_data;
         bool res = read_register(reg, read_data)
@@ -69,7 +66,7 @@ namespace smooth::application::sensor
     }
 
     // Read register bit
-    bool AxpPMU::read_register_bit(Register reg, bool& bit, uint8_t bit_position)
+    bool AxpPMU::read_register_bit(AxpRegister reg, bool& bit, uint8_t bit_position)
     {
         uint8_t read_data;
         bool res = read_register(reg, read_data);
@@ -79,7 +76,7 @@ namespace smooth::application::sensor
     }
 
     // Write adjoining group of bits to register
-    bool AxpPMU::write_register_bits(Register reg, uint8_t mask, uint8_t left_shift_count, uint8_t write_data)
+    bool AxpPMU::write_register_bits(AxpRegister reg, uint8_t mask, uint8_t left_shift_count, uint8_t write_data)
     {
         uint8_t rd_data;
         bool res = read_register(reg, rd_data)
@@ -89,7 +86,7 @@ namespace smooth::application::sensor
     }
 
     // Write init_regs to initialize the axp device
-    bool AxpPMU::write_init_regs(const axp_init_reg_t* init_regs, size_t length)
+    bool AxpPMU::write_init_regs(const AxpInitReg* init_regs, size_t length)
     {
         bool res = true;
 
@@ -103,7 +100,7 @@ namespace smooth::application::sensor
     }
 
     // Read adjoining group of bits from register
-    bool AxpPMU::read_register_bits(Register reg, uint8_t mask, uint8_t right_shift_count, uint8_t& read_data)
+    bool AxpPMU::read_register_bits(AxpRegister reg, uint8_t mask, uint8_t right_shift_count, uint8_t& read_data)
     {
         uint8_t rd_data;
         bool res = read_register(reg, rd_data);
@@ -113,7 +110,7 @@ namespace smooth::application::sensor
     }
 
     // Read 12 bits
-    bool AxpPMU::read_12_bits(Register start_reg, uint16_t& data)
+    bool AxpPMU::read_12_bits(AxpRegister start_reg, uint16_t& data)
     {
         FixedBuffer<uint8_t, 2> rd_buf;
         bool res = read(address, static_cast<uint8_t>(start_reg), rd_buf);
@@ -123,7 +120,7 @@ namespace smooth::application::sensor
     }
 
     // Read 13 bits
-    bool AxpPMU::read_13_bits(Register start_reg, uint16_t& data)
+    bool AxpPMU::read_13_bits(AxpRegister start_reg, uint16_t& data)
     {
         FixedBuffer<uint8_t, 2> rd_buf;
         bool res = read(address, static_cast<uint8_t>(start_reg), rd_buf);
@@ -133,7 +130,7 @@ namespace smooth::application::sensor
     }
 
     // Read 24 bits
-    bool AxpPMU::read_24_bits(Register start_reg, uint32_t& data)
+    bool AxpPMU::read_24_bits(AxpRegister start_reg, uint32_t& data)
     {
         FixedBuffer<uint8_t, 3> rd_buf;
         bool res = read(address, static_cast<uint8_t>(start_reg), rd_buf);
@@ -143,7 +140,7 @@ namespace smooth::application::sensor
     }
 
     // Read 32 bits
-    bool AxpPMU::read_32_bits(Register start_reg, uint32_t& data)
+    bool AxpPMU::read_32_bits(AxpRegister start_reg, uint32_t& data)
     {
         FixedBuffer<uint8_t, 4> rd_buf;
         bool res = read(address, static_cast<uint8_t>(start_reg), rd_buf);
@@ -160,7 +157,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_acin_voltage(float& acin_voltage)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg56H_Acin_Volt_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg56H_Acin_Volt_HI8, step_count);
         acin_voltage = static_cast<float>(step_count * 0.0017);
 
         return res;
@@ -170,7 +167,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_acin_current(float& acin_current)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg58H_Acin_Curr_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg58H_Acin_Curr_HI8, step_count);
         acin_current = static_cast<float>(step_count * 0.625);
 
         return res;
@@ -180,7 +177,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_vbus_voltage(float& vbus_voltage)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg5AH_Vbus_Volt_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg5AH_Vbus_Volt_HI8, step_count);
         vbus_voltage = static_cast<float>(step_count * 0.0017);
 
         return res;
@@ -190,7 +187,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_vbus_current(float& vbus_current)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg5CH_Vbus_Curr_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg5CH_Vbus_Curr_HI8, step_count);
         vbus_current = static_cast<float>(step_count * 0.375);
 
         return res;
@@ -200,7 +197,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_axp_device_temperature(float& device_temp)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg5EH_Intr_Temp_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg5EH_Intr_Temp_HI8, step_count);
         device_temp = static_cast<float>(-144.7 + (step_count * 0.1));
 
         return res;
@@ -210,7 +207,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_ts_voltage(float& ts_voltage)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg62H_Batt_Temp_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg62H_Batt_Temp_HI8, step_count);
         ts_voltage = static_cast<float>(step_count * 0.0008);
 
         return res;
@@ -219,32 +216,32 @@ namespace smooth::application::sensor
     // Get GPIO0 voltage (when used as ADC) - range 0V to 2.0475V or 0.7V to 2.7475V
     bool AxpPMU::get_gpio0_voltage(float& gpio_voltage)
     {
-        return calc_gpio_input_voltage(Register::Reg64H_Gpio0_Volt_HI8, 0, gpio_voltage);
+        return calc_gpio_input_voltage(AxpRegister::Reg64H_Gpio0_Volt_HI8, 0, gpio_voltage);
     }
 
     // Get GPIO1 voltage (when used as ADC) - range 0V to 2.0475V or 0.7V to 2.7475V
     bool AxpPMU::get_gpio1_voltage(float& gpio_voltage)
     {
-        return calc_gpio_input_voltage(Register::Reg64H_Gpio0_Volt_HI8, 1, gpio_voltage);
+        return calc_gpio_input_voltage(AxpRegister::Reg64H_Gpio0_Volt_HI8, 1, gpio_voltage);
     }
 
     // Get GPIO2 voltage (when used as ADC)- range 0V to 2.0475V or 0.7V to 2.7475V
     bool AxpPMU::get_gpio2_voltage(float& gpio_voltage)
     {
-        return calc_gpio_input_voltage(Register::Reg64H_Gpio0_Volt_HI8, 2, gpio_voltage);
+        return calc_gpio_input_voltage(AxpRegister::Reg64H_Gpio0_Volt_HI8, 2, gpio_voltage);
     }
 
     // Get GPIO3 voltage (when used as ADC) - range 0V to 2.0475V or 0.7V to 2.7475V
     bool AxpPMU::get_gpio3_voltage(float& gpio_voltage)
     {
-        return calc_gpio_input_voltage(Register::Reg64H_Gpio0_Volt_HI8, 3, gpio_voltage);
+        return calc_gpio_input_voltage(AxpRegister::Reg64H_Gpio0_Volt_HI8, 3, gpio_voltage);
     }
 
     // Get battery power - in milliwatts
     bool AxpPMU::get_battery_power(float& mw_batt_power)
     {
         uint32_t power_count;
-        bool res = read_24_bits(Register::Reg70H_Batt_Power_HI8, power_count);
+        bool res = read_24_bits(AxpRegister::Reg70H_Batt_Power_HI8, power_count);
         mw_batt_power = static_cast<float>((power_count * 0.5 * 1.1) / 1000);
 
         return res;
@@ -254,7 +251,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_battery_voltage(float& batt_voltage)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg78H_Batt_Volt_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg78H_Batt_Volt_HI8, step_count);
         batt_voltage = static_cast<float>(step_count * 0.0011);
 
         return res;
@@ -264,7 +261,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_battery_charging_current(float& batt_chrg_current)
     {
         uint16_t step_count;
-        bool res = read_13_bits(Register::Reg7AH_Batt_Chrg_Curr_HI8, step_count);
+        bool res = read_13_bits(AxpRegister::Reg7AH_Batt_Chrg_Curr_HI8, step_count);
         batt_chrg_current = static_cast<float>(step_count * 0.5);
 
         return res;
@@ -274,7 +271,7 @@ namespace smooth::application::sensor
     bool AxpPMU::get_battery_discharging_current(float& batt_dischrg_current)
     {
         uint16_t step_count;
-        bool res = read_13_bits(Register::Reg7CH_Batt_DisChg_Curr_HI8, step_count);
+        bool res = read_13_bits(AxpRegister::Reg7CH_Batt_DisChg_Curr_HI8, step_count);
         batt_dischrg_current = static_cast<float>(step_count * 0.5);
 
         return res;
@@ -285,20 +282,20 @@ namespace smooth::application::sensor
     bool AxpPMU::get_aps_voltage(float& aps_voltage)
     {
         uint16_t step_count;
-        bool res = read_12_bits(Register::Reg7EH_Aps_Voltage_HI8, step_count);
+        bool res = read_12_bits(AxpRegister::Reg7EH_Aps_Voltage_HI8, step_count);
         aps_voltage = static_cast<float>(step_count * 0.0014);
 
         return res;
     }
 
     // Calculate GPIO input voltage (when used as ADC)
-    bool AxpPMU::calc_gpio_input_voltage(Register gpio_volt_adc_reg, uint8_t gpio_num, float& voltage)
+    bool AxpPMU::calc_gpio_input_voltage(AxpRegister gpio_volt_adc_reg, uint8_t gpio_num, float& voltage)
     {
         uint16_t step_count;
         bool is_range_0v7_to_2V7;
 
         bool res = read_12_bits(gpio_volt_adc_reg, step_count)
-                   & read_register_bit(Register::Reg85H_Adc_Input_Range, is_range_0v7_to_2V7, gpio_num);
+                   & read_register_bit(AxpRegister::Reg85H_Adc_Input_Range, is_range_0v7_to_2V7, gpio_num);
 
         if (is_range_0v7_to_2V7)
         {
@@ -323,11 +320,9 @@ namespace smooth::application::sensor
         uint32_t dischrg_coulomb;
         uint8_t adc_sample_rate;
 
-        //float rate;
-
-        bool res = read_32_bits(Register::RegB0H_Batt_Chrg_Coulomb3, chrg_coulomb)
-                   & read_32_bits(Register::RegB4H_Batt_DisChg_Coulomb3, dischrg_coulomb)
-                   & read_register_bits(Register::Reg84H_Adc_Sample_Rate, 0xC0, 6, adc_sample_rate);
+        bool res = read_32_bits(AxpRegister::RegB0H_Batt_Chrg_Coulomb3, chrg_coulomb)
+                   & read_32_bits(AxpRegister::RegB4H_Batt_DisChg_Coulomb3, dischrg_coulomb)
+                   & read_register_bits(AxpRegister::Reg84H_Adc_Sample_Rate, 0xC0, 6, adc_sample_rate);
 
         adc_sample_rate = static_cast<uint8_t>(25 * pow(2, adc_sample_rate));
         mah_batt_capacity =
@@ -339,12 +334,12 @@ namespace smooth::application::sensor
     // Clear coulomb counter
     bool AxpPMU::clear_coulomb_counter()
     {
-        return write_register_bit(Register::RegB8H_Coulomb_Counter_Ctrl, true, 5);
+        return write_register_bit(AxpRegister::RegB8H_Coulomb_Counter_Ctrl, true, 5);
     }
 
     // Suspend coulomb counter
     bool AxpPMU::suspend_coulomb_counter()
     {
-        return write_register_bit(Register::RegB8H_Coulomb_Counter_Ctrl, true, 6);
+        return write_register_bit(AxpRegister::RegB8H_Coulomb_Counter_Ctrl, true, 6);
     }
 }

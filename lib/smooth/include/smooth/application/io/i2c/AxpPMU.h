@@ -59,27 +59,27 @@ namespace smooth::application::sensor
             /// \param reg The register to write to
             /// \param data_byte The data byte to write to the register
             /// \return true on success, false on failure.
-            bool write_register(Register reg, uint8_t data_byte);
+            bool write_register(AxpRegister reg, uint8_t data_byte);
 
             /// Read a byte from register
             /// \param reg The register to read
             /// \param read_data Holds the data byte read
             /// \return true on success, false on failure.
-            bool read_register(Register reg, uint8_t& read_data);
+            bool read_register(AxpRegister reg, uint8_t& read_data);
 
             /// Write a register bit
             /// \param reg The register that will be written
             /// \param bit The bit value to write
             /// \param bit_postion The bit position of bit we want to write
             /// \return true on success, false on failure.
-            bool write_register_bit(Register reg, bool bit, uint8_t bit_position);
+            bool write_register_bit(AxpRegister reg, bool bit, uint8_t bit_position);
 
             /// Read a register bit
             /// \param reg The register that will be read
             /// \param bit Holds the value of the bit read
             /// \param bit_postion The bit position of bit we want to read
             /// \return true on success, false on failure.
-            bool read_register_bit(Register reg, bool& bit, uint8_t bit_position);
+            bool read_register_bit(AxpRegister reg, bool& bit, uint8_t bit_position);
 
             /// Read an adjoining group of bits from register
             /// \param reg The register to read
@@ -87,7 +87,7 @@ namespace smooth::application::sensor
             /// \param mask The bits we want to clear are set to 0, bits we want to stay the same are set to 1
             /// \param right_shift_count After masking the read_data will shifted right this number of bits
             /// \return true on success, false on failure.
-            bool read_register_bits(Register reg, uint8_t mask, uint8_t right_shift_count, uint8_t& read_data);
+            bool read_register_bits(AxpRegister reg, uint8_t mask, uint8_t right_shift_count, uint8_t& read_data);
 
             /// Write an adjoining group of bits to a register
             /// \param reg The register to write
@@ -95,7 +95,7 @@ namespace smooth::application::sensor
             /// \param mask The bits we want to clear are set to 0, bits we want to stay the same are set to 1
             /// \param left_shift_count After masking the read_data will shifted left this number of bits
             /// \return true on success, false on failure.
-            bool write_register_bits(Register reg, uint8_t mask, uint8_t left_shift_count, uint8_t write_data);
+            bool write_register_bits(AxpRegister reg, uint8_t mask, uint8_t left_shift_count, uint8_t write_data);
 
             /// Write init registers to AXP device - used to configure (initialize) the axp device
             /// Each product that uses an AXP device will probably require the axp device to be configured uniquely
@@ -105,31 +105,31 @@ namespace smooth::application::sensor
             /// \param init_regs The pointer to the first byte in init_regs
             /// \param length The number of axp_init_reg's
             /// \return true on success, false on failure.
-            bool write_init_regs(const axp_init_reg_t* init_regs, size_t length);
+            bool write_init_regs(const AxpInitReg* init_regs, size_t length);
 
             /// Read 12 bits
             /// \param start_reg The starting register to begin the read
             /// \param data The 12 bits are located in b11-b0; b15-b12 are 0
             /// \return true on success, false on failure.
-            bool read_12_bits(Register start_reg, uint16_t& data);
+            bool read_12_bits(AxpRegister start_reg, uint16_t& data);
 
             /// Read 13 bits
             /// \param start_reg The starting register to begin the read
             /// \param data The 13 bits are located in b12-b0; b15-b13 are 0
             /// \return true on success, false on failure.
-            bool read_13_bits(Register start_reg, uint16_t& data);
+            bool read_13_bits(AxpRegister start_reg, uint16_t& data);
 
             /// Read 24 bits
             /// \param start_reg The starting register to begin the read
             /// \param data The 24 bits are located in b23-b0; b31-b24 are 0
             /// \return true on success, false on failure.
-            bool read_24_bits(Register start_reg, uint32_t& data);
+            bool read_24_bits(AxpRegister start_reg, uint32_t& data);
 
             /// Read 32 bits
             /// \param start_reg The starting register to begin the read
             /// \param data The 32 bits
             /// \return true on success, false on failure.
-            bool read_32_bits(Register start_reg, uint32_t& data);
+            bool read_32_bits(AxpRegister start_reg, uint32_t& data);
 
             /////////////////////////////////////////////////////////////////////////////////
             // ADC data functions
@@ -234,6 +234,6 @@ namespace smooth::application::sensor
             /// \param gpio_num The GPIO number; 0-3
             /// \param voltage Holds the calculated voltage
             /// \return true on success, false on failure.
-            bool calc_gpio_input_voltage(Register gpio_volt_adc_reg, uint8_t gpio_num, float& voltage);
+            bool calc_gpio_input_voltage(AxpRegister gpio_volt_adc_reg, uint8_t gpio_num, float& voltage);
     };
 }

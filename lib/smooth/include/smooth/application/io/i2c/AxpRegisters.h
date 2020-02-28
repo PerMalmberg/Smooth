@@ -21,7 +21,7 @@ limitations under the License.
 
 namespace smooth::application::sensor
 {
-    enum class Register : uint8_t
+    enum class AxpRegister : uint8_t
     {
         // Group 1 - Power Control
         Reg01H_Pwr_Chrg_Status = 0x00,
@@ -129,14 +129,13 @@ namespace smooth::application::sensor
         RegB5H_Batt_DisChg_Coulomb2 = 0xB5,
         RegB6H_Batt_DisChg_Coulomb1 = 0xB6,
         RegB7H_Batt_DisChg_Coulomb0 = 0xB7,
-        RegB8H_Coulomb_Counter_Ctrl = 0xB8
+        RegB8H_Coulomb_Counter_Ctrl = 0xB8,
+        RegB9_Batt_Fuel_Guage = 0xB9
     };
 
-    struct AxpInitRegType
+    struct AxpInitReg
     {
-        Register reg;
+        AxpRegister reg;
         uint8_t data;
     };
-
-    using axp_init_reg_t = AxpInitRegType;
 }
