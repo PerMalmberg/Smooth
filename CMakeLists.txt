@@ -53,6 +53,7 @@ list(APPEND available_tests
         i2c_bme280_test
         spi_4_line_devices_test
         i2c_dht12_test
+        i2c_rtc8563_test
         )
 
 list(FIND available_tests ${selected_test_project} test_found)
