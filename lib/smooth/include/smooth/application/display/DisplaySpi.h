@@ -76,7 +76,7 @@ namespace smooth::application::display
             /// \param length The number of bytes in the init_cmds
             /// \return true on success, false on failure
             //bool send_init_cmds(const display_init_cmd_t* init_cmds, size_t length);
-            bool send_init_cmds(const display_init_cmd_t* init_cmds, size_t length);
+            bool send_init_cmds(const DisplayInitCmd* init_cmds, size_t length);
 
             /// Send Commands - write multiple commands to display
             /// \param cmds The pointer to the first byte in the cmds
@@ -165,8 +165,8 @@ namespace smooth::application::display
 
             smooth::core::io::Output dc_pin;
             smooth::core::io::Output cs_pin;
-            std::unique_ptr<DisplayPin> backlight_pin{ nullptr };
-            std::unique_ptr<DisplayPin> reset_pin{ nullptr };
+            std::unique_ptr<DisplayPin> backlight_pin{};
+            std::unique_ptr<DisplayPin> reset_pin{};
 
             static constexpr int line_transaction_length = 6;
             using PreTransPinState = std::array<bool, line_transaction_length>;

@@ -19,24 +19,20 @@ limitations under the License.
 namespace smooth::application::display
 {
     // display init command type structure
-    struct DisplayInitCmdType
+    struct DisplayInitCmd
     {
         uint8_t cmd;
         uint8_t data[16];
         uint8_t length;     //Num of bytes in data; bit 7 = delay when set;
     };
 
-    using display_init_cmd_t = DisplayInitCmdType;
-
     // Some display such as the ST7735x require offset for the start row and start column from the
     // normal positions of 0.  Different manufacturers may wire the TFT to map screen pixels to
     // different areas of the CGRAM and therefore there is a need to account for this with the
-    // struct CGRamOffsetType
-    struct CGRamOffsetType
+    // struct CGRamOffset
+    struct CGRamOffset
     {
         uint16_t col_offset;
         uint16_t row_offset;
     };
-
-    using cgram_offset_t = CGRamOffsetType;
 }
