@@ -1,18 +1,18 @@
 # How to use AxpPMU 
 This readme file explains how to use the AxpPMU.cpp associated files in a project. You can use the AxpPMU as a standalone class or you can inherit the class and override some functions and add additional functions.  The AxpPMU class was designed to allow the user easily manipulate a register or registers to configure the device. The following are some of the functions provided by the AxpPMU class.
-###Write a byte to a register
+### Write a byte to a register
 bool write_register(AxpRegister reg, uint8_t data_byte);
-###Read a byte from register
+### Read a byte from register
 bool read_register(AxpRegister reg, uint8_t& read_data);
-###Write a bit to a register
+### Write a bit to a register
 bool write_register_bit(AxpRegister reg, bool bit, uint8_t bit_position);
-###Read a bit from a register
+### Read a bit from a register
 bool read_register_bit(AxpRegister reg, bool& bit, uint8_t bit_position);
-###Write an adjoining group of bits to a register
+### Write an adjoining group of bits to a register
 bool write_register_bits(AxpRegister reg, uint8_t mask, uint8_t left_shift_count, uint8_t write_data);
-###Read an adjoining group of bits from a register
+### Read an adjoining group of bits from a register
 bool read_register_bits(AxpRegister reg, uint8_t mask, uint8_t right_shift_count, uint8_t& read_data);
-###Write initialization registers to configure the chip
+### Write initialization registers to configure the chip
 bool write_init_regs(const AxpInitReg* init_regs, size_t length);
 
 
