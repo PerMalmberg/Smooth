@@ -61,9 +61,14 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
       - BME280
     - Displays
       - ILI9341
+      - ST7735
+      - SH1107
   - I2C
     - BME280
     - MCP23017
+    - DHT12
+    - AxpPMU
+    - PCF8563
   - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 - Filesystem helpers
 

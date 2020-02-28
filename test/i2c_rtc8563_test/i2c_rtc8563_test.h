@@ -15,10 +15,10 @@ limitations under the License.
 
 #include "smooth/core/Application.h"
 #include "smooth/core/task_priorities.h"
-#include "smooth/application/display/DisplaySpi.h"
-#include "smooth/application/io/spi/BME280SPI.h"
+#include "smooth/core/io/i2c/Master.h"
+#include "smooth/application/io/i2c/PCF8563.h"
 
-namespace spi_4_line_devices_test
+namespace i2c_rtc8563_test
 {
     class App : public smooth::core::Application
     {
@@ -29,24 +29,24 @@ namespace spi_4_line_devices_test
 
             void tick() override;
 
-            void print_display_parameters(const uint8_t cmd, uint8_t param_count);
+            void set_time();
 
-            void print_thp_sensor_measurements();
+            void get_time();
 
-            void print_thp_sensor_configuration();
+            void set_alarm();
 
-            void print_thp_sensor_id();
+            void get_alarm();
+
+            bool is_alarm_active();
+
+            void clear_alarm_active();
 
         private:
-            bool init_ILI9341();
+            void init_i2c_rtc8563();
 
-            bool init_BME280SPI();
-
-            spi_host_device_t spi_host;
-            smooth::core::io::spi::Master spi_master;
-            std::unique_ptr<smooth::application::display::DisplaySpi> display{};
-            std::unique_ptr<smooth::application::sensor::BME280SPI> thp_sensor{};
-            bool ili9341_initialized{ false };
-            bool bme280_initialized{ false };
+            smooth::core::io::i2c::Master i2c0_master;
+            std::unique_ptr<smooth::application::sensor::PCF8563> rtc8563{};
+            bool rtc8563_initialized{ false };
+            int alarm_active_count{ 0 };
     };
 }

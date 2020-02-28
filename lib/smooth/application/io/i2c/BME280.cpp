@@ -23,7 +23,7 @@ using namespace smooth::core::logging;
 
 namespace smooth::application::sensor
 {
-    static const char* TAG = "BME280SPI";
+    static const char* TAG = "BME280I2C";
 
     BME280::BME280(i2c_port_t port, uint8_t address, std::mutex& guard)
             : I2CMasterDevice(port, address, guard)
