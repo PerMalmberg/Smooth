@@ -24,7 +24,7 @@ using namespace smooth::application::network::http::regular::responses;
 
 namespace http_server_test2
 {
-    http_server_test::SendBlob::SendBlob(std::size_t amount)
+    http_server_test2::SendBlob::SendBlob(std::size_t amount)
             : StringResponse(ResponseCode::OK), amount_to_send(amount)
     {
         headers[CONTENT_LENGTH] = std::to_string(amount_to_send);
