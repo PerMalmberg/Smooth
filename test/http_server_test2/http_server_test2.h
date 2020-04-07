@@ -30,7 +30,7 @@
 #include <smooth/core/filesystem/MMCSDCard.h>
 #endif
 
-namespace http_server_test
+namespace http_server_test2
 {
     class DataRetriever
             : public smooth::application::network::http::ITemplateDataRetriever

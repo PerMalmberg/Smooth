@@ -42,16 +42,10 @@ using namespace smooth::core::logging;
 using namespace smooth::application::network::http;
 using namespace smooth::application::network::http::responses;
 
-using namespace http_server_test;
-extern "C" {
-    void app_main() {
-        App app;
-        app.start();
-    }
-}
+using namespace http_server_test2;
 
 
-namespace http_server_test
+namespace http_server_test2
 {
     const char* private_key_data =
             "-----BEGIN RSA PRIVATE KEY-----\n"
