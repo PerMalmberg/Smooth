@@ -39,6 +39,7 @@ list(APPEND available_tests
         server_socket_test
         secure_server_socket_test
         http_server_test
+        http_server_test2
         destructing_event_queues
         destructing_subscribing_event_queues
         security
