@@ -24,7 +24,7 @@ using namespace smooth::application::network::http::websocket::responses;
 using namespace smooth::application::network::http::websocket;
 using namespace smooth::core::ipc;
 
-namespace http_server_test
+namespace http_server_test2
 {
     using namespace smooth::core::timer;
     using namespace std::chrono;

@@ -18,7 +18,7 @@
 
 #include <smooth/application/network/http/regular/responses/StringResponse.h>
 
-namespace http_server_test
+namespace http_server_test2
 {
     class SendBlob
             : public smooth::application::network::http::regular::responses::StringResponse

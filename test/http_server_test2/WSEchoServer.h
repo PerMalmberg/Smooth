@@ -21,7 +21,7 @@ limitations under the License.
 #include "smooth/core/timer/Timer.h"
 #include "smooth/core/ipc/TaskEventQueue.h"
 
-namespace http_server_test
+namespace http_server_test2
 {
     class WSEchoServer
         : public smooth::application::network::http::websocket::WebsocketServer,

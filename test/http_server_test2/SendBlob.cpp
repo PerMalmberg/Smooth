@@ -22,7 +22,7 @@ using namespace smooth::application::network::http;
 using namespace smooth::application::network::http::regular;
 using namespace smooth::application::network::http::regular::responses;
 
-namespace http_server_test
+namespace http_server_test2
 {
     http_server_test::SendBlob::SendBlob(std::size_t amount)
             : StringResponse(ResponseCode::OK), amount_to_send(amount)
