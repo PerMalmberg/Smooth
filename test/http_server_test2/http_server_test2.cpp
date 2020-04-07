@@ -304,7 +304,7 @@ namespace http_server_test2
                 if(file_start)
                 {
                     path = uploads / actual_file_name;
-                    Log::info("form_data", "File name: {}", path.str());
+                    Log::info("form_data", "name: {}; File name: {}", name, path.str());
                     create_directory(path.parent());
                     // Log::info("form_data", "directory created");
                     if (FileInfo{ path }.exists())
@@ -320,7 +320,7 @@ namespace http_server_test2
 
                 auto len = std::distance(begin, end);
                 Log::info("form_data", "chunk to write: {},", static_cast<int>(len));
-                to_save.write((char*)&*begin, static_cast<int>(len));
+                to_save.write(static_cast<char*>&*begin, static_cast<int>(len));
                 // to_save << (&*begin, static_cast<int>(len));
 
                 if(file_close)
@@ -348,7 +348,7 @@ namespace http_server_test2
             };
 
             // Pass content to mime parser with callbacks to handle the data.
-            mime.myparse(content.data(), content.size(), form_data, url_encoded_data, (uint16_t) 4096);
+            mime.myparse(content.data(), content.size(), form_data, url_encoded_data, static_cast<uint16_t> ( 4096));
         };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
