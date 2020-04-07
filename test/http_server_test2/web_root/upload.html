@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<form action="/upload" method="post" enctype="multipart/form-data">
+    Select file to upload:
+    <input id="file_to_upload" name="file_to_upload" type="file" multiple><br/>
+    Select second file to upload:
+    <input id="second_file_to_upload" name="second_file_to_upload" type="file">
+    <input name="submit" type="submit" value="Upload file">
+</form>
+
+<form action="/upload" method="post">
+    <textarea name="edit_box" id="free_text" cols="120" rows="20" wrap="soft"></textarea>
+    <input name="submit" type="submit" value="Send text">
+</form>
+
+</body>
+</html>

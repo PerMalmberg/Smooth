@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head title="Websocket tests">
+    <title>Websocket tests</title>
+    <script lang="javascript">
+        let socket = null;
+
+        window.addEventListener('beforeunload', function () {
+            if (socket != null) {
+                socket.close();
+            }
+        });
+
+        function connect() {
+            if (socket == null) {
+                let url = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/echo";
+                socket = new WebSocket(url);
+
+                // Connection opened
+                socket.addEventListener('open', function (event) {
+                    console.log("Connected!");
+                    document.getElementById("status").innerText = "Connected";
+                });
+
+                socket.addEventListener('close', function (event) {
+                    console.log("Disconnected: " + event.reason);
+                    document.getElementById("status").innerText = "Disconnected";
+                    socket = null;
+                });
+
+                // Listen for messages
+                socket.addEventListener('message', function (event) {
+                    var json = JSON.parse(event.data);
+                    document.getElementById("data").value = json["data"];
+                    document.getElementById("id").value = json["message_id"];
+                    document.getElementById("length").value = json["length"];
+
+
+                    document.getElementById("total_count").innerText = parseInt(document.getElementById("total_count").innerText) + parseInt(json["length"]);
+                });
+            }
+        }
+
+        function disconnect() {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+
+        function send_length(length) {
+            document.getElementById("to_send").value = length;
+            send();
+        }
+
+        function send() {
+            document.getElementById("total_count").innerText = "0";
+            var block_size = parseInt(document.getElementById("block_size").value);
+
+            var remaining = parseInt(document.getElementById("to_send").value);
+
+            console.log("Sending " + remaining + " bytes");
+
+            let id = 0;
+            let i = 0;
+
+            let msg = {};
+
+            let characters = "abcdefghijklmonpqrstuvwxyz1234567890";
+
+            while (remaining > block_size) {
+                msg["message_id"] = id;
+                msg["data"] = "";
+                for(i = 0; i < block_size; ++i) {
+                    msg["data"] += characters.charAt(i%characters.length);
+                }
+                msg["length"] = block_size;
+
+                socket.send(JSON.stringify(msg));
+
+                remaining -= block_size;
+                ++id;
+            }
+
+            if (remaining > 0) {
+                msg["message_id"] = id;
+                if(msg["data"] === undefined) {
+                    msg["data"] = "";
+                }
+                for(; i < remaining; ++i) {
+                    msg["data"] += characters.charAt(i%characters.length);
+                }
+                msg["length"] = remaining;
+                socket.send(JSON.stringify(msg));
+            }
+        }
+
+        function reset_total() {
+            document.getElementById("total_count").innerText = "0";
+        }
+
+        function cont_send() {
+
+            const interval = 50000;
+
+            if(document.getElementById("continuous").checked)
+            {
+                let f = function() {
+                    if(document.getElementById("continuous").checked) {
+                        send();
+                        setTimeout(f, interval);
+                    }
+                };
+
+                setTimeout(f, interval);
+            }
+        }
+
+    </script>
+    </head>
+    <body>
+        <button onclick="connect();">Connect</button>
+        <button onclick="disconnect();">Disconnect</button>
+        <button onclick="send_length(125);">Send 125</button>
+        <button onclick="send_length(65535);">Send 65k</button>
+        <button onclick="send_length(80*1024);">Send 80k</button>
+        <button onclick="send_length(1024*1024);">Send 1M</button>
+        <button onclick="send_length(1024*1024*10);">Send 10M</button>
+        <button onclick="send_length(1024*1024*100);">Send 100M</button>
+        <br/>
+        <div id="status">Disconnected</div>
+        <br/>
+        <br/>
+        Block size:<input type="text" id="block_size" value="4096"/>
+        <br/>
+        Amount to send: <input type="text" id="to_send" value="65535"/>
+        <button onclick="send();">Send</button>
+        <label for="continuous">Continuous</label><input type="checkbox" id="continuous" onchange="cont_send();"/>
+        <br/>
+        Total count:
+        <div id="total_count">0</div>
+        <br/>
+        <br/>
+        <label for="id">ID</label><textarea id="id"></textarea>
+        <label for="length">Length</label><textarea id="length"></textarea>
+        <label for="data">Data</label><textarea id="data"></textarea>
+    </body>
+</html>
+

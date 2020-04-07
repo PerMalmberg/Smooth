@@ -35,6 +35,12 @@ namespace smooth::application::network::http::regular
                                                          const std::string& actual_file_name,
                                                          const BoundaryIterator& begin,
                                                          const BoundaryIterator& end)>;
+            using myFormDataCallback = std::function<void (const std::string& field_name,
+                                                           const std::string& actual_file_name,
+                                                           const BoundaryIterator& begin,
+                                                           const BoundaryIterator& end,
+                                                           const bool first_part,
+                                                           const bool last_part)>;
             using URLEncodedDataCallback = std::function<void (std::unordered_map<std::string, std::string>& data)>;
 
             bool detect_mode(const std::string& content_type, std::size_t content_length);
@@ -49,8 +55,12 @@ namespace smooth::application::network::http::regular
 
             void parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
                        const URLEncodedDataCallback& url_data);
+            void myparse(const uint8_t *p, std::size_t length,
+                         const myFormDataCallback &content_callback,
+                         const URLEncodedDataCallback &url_data,
+                         const uint16_t chunksize);
 
-        private:
+          private:
             enum class Mode
             {
                 None,
@@ -58,9 +68,13 @@ namespace smooth::application::network::http::regular
                 FormURLEncoded
             };
 
+            auto find_boundary() const;
+            auto find_end_boundary() const;
+            auto find_start_boundary() const;
             auto find_boundaries() const;
 
             BoundaryIterator get_end_of_boundary(BoundaryIterator begin);
+            BoundaryIterator my_get_end_of_boundary(BoundaryIterator begin);
 
             void
             parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
@@ -75,6 +89,7 @@ namespace smooth::application::network::http::regular
                        std::unordered_map<std::string, std::string>>
             consume_headers(BoundaryIterator begin, BoundaryIterator end) const;
 
+            std::vector<uint8_t> bound{};
             std::vector<uint8_t> boundary{};
             std::vector<uint8_t> end_boundary{};
             std::vector<uint8_t> data{};
