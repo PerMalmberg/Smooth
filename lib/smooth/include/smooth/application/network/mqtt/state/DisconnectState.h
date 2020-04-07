@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include "ConnectedState.h"
-#include <smooth/core/timer/ElapsedTime.h>
+#include "smooth/core/timer/ElapsedTime.h"
 
 namespace smooth::application::network::mqtt::state
 {

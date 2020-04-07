@@ -19,9 +19,9 @@ limitations under the License.
 #include <thread>
 #include <cmath>
 #include <unordered_map>
-#include <smooth/application/io/i2c/ADS1115.h>
-#include <smooth/core/util/ByteSet.h>
-#include <smooth/core/util/FixedBuffer.h>
+#include "smooth/application/io/i2c/ADS1115.h"
+#include "smooth/core/util/ByteSet.h"
+#include "smooth/core/util/FixedBuffer.h"
 
 using namespace std::chrono;
 

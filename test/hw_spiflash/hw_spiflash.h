@@ -17,9 +17,9 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/filesystem/SPIFlash.h>
-#include <smooth/core/timer/ElapsedTime.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/filesystem/SPIFlash.h"
+#include "smooth/core/timer/ElapsedTime.h"
 
 namespace hw_spiflash
 {

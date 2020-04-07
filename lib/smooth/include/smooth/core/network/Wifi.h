@@ -20,7 +20,7 @@ limitations under the License.
 #include <string>
 #include <array>
 #include <esp_wifi.h>
-#include <smooth/core/ipc/IEventListener.h>
+#include "smooth/core/ipc/IEventListener.h"
 
 namespace smooth::core::network
 {
@@ -76,7 +76,7 @@ namespace smooth::core::network
 
             [[nodiscard]] static bool get_local_mac_address(std::array<uint8_t, 6>& m);
 
-            [[nodiscard]] static ip4_addr_t get_local_ip();
+            [[nodiscard]] static uint32_t get_local_ip();
 
             /// Start providing an access point
             /// \param max_conn maximum number of clients to connect to this AP

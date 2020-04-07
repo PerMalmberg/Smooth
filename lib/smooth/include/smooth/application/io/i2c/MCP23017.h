@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <utility>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
-#include <smooth/core/util/FixedBuffer.h>
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
+#include "smooth/core/util/FixedBuffer.h"
 
 namespace smooth::application::io
 {
@@ -87,6 +87,7 @@ namespace smooth::application::io
                 B1_GPIOB = 0x19,
                 B1_OLATB = 0x1A,
             };
+
         public:
             enum Port
             {

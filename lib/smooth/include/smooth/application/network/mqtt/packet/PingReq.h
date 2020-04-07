@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <chrono>
-#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
+#include "smooth/application/network/mqtt/packet/MQTTProtocol.h"
 
 namespace smooth::application::network::mqtt::packet
 {

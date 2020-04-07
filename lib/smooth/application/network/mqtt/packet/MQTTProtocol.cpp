@@ -17,11 +17,11 @@ limitations under the License.
 
 #include <bitset>
 #include <algorithm>
-#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
-#include <smooth/application/network/mqtt/Logging.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
-#include <smooth/config_constants.h>
+#include "smooth/application/network/mqtt/packet/MQTTProtocol.h"
+#include "smooth/application/network/mqtt/Logging.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/application/network/mqtt/packet/IPacketReceiver.h"
+#include "smooth/config_constants.h"
 
 #ifdef ESP_PLATFORM
 

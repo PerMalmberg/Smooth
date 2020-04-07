@@ -17,14 +17,14 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/application/network/mqtt/MqttClient.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/application/network/mqtt/MqttClient.h"
 #include <random>
 
 #ifdef ESP_PLATFORM
-#include <smooth/core/io/Output.h>
+#include "smooth/core/io/Output.h"
 #endif
 
 namespace mqtt

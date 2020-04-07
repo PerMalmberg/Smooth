@@ -26,11 +26,11 @@ limitations under the License.
 
 #include <thread>
 
-#include <smooth/core/ipc/ITaskEventQueue.h>
-#include <smooth/core/ipc/IPolledTaskQueue.h>
-#include <smooth/core/ipc/QueueNotification.h>
-#include <smooth/core/ipc/Queue.h>
-#include <smooth/core/timer/ElapsedTime.h>
+#include "smooth/core/ipc/ITaskEventQueue.h"
+#include "smooth/core/ipc/IPolledTaskQueue.h"
+#include "smooth/core/ipc/QueueNotification.h"
+#include "smooth/core/ipc/Queue.h"
+#include "smooth/core/timer/ElapsedTime.h"
 #include <atomic>
 
 #ifdef ESP_PLATFORM

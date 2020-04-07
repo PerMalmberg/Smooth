@@ -17,8 +17,8 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 #include <cstdint>
-#include <smooth/application/hash/sha.h>
-#include <smooth/application/hash/base64.h>
+#include "smooth/application/hash/sha.h"
+#include "smooth/application/hash/base64.h"
 
 using namespace smooth::application::hash;
 

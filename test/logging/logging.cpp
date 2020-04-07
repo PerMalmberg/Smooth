@@ -19,7 +19,7 @@ limitations under the License.
 #include <vector>
 
 #include "logging.h"
-#include <smooth/core/logging/log.h>
+#include "smooth/core/logging/log.h"
 
 using namespace std;
 using namespace smooth::core::logging;

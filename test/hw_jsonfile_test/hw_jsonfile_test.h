@@ -17,7 +17,7 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
+#include "smooth/core/Application.h"
 
 namespace hw_jsonfile_test
 {

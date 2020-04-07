@@ -46,6 +46,7 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
 - Input
 - Input with interrupt to event translation
 - I2C Master Device class
+- SPI Master Device class
 - Flash and SDCard initialization.
 
 ### Application level
@@ -54,9 +55,21 @@ Smooth is developed on a Linux machine so how well it compiles using the Windows
   - Simple templates 
   - Websocket support
 - MQTT Client
-- Sensor BME280
-- 16 channel I/O expander MCP23017
-- RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
+- Device support
+  - SPI
+    - Sensors
+      - BME280
+    - Displays
+      - ILI9341
+      - ST7735
+      - SH1107
+  - I2C
+    - BME280
+    - MCP23017
+    - DHT12
+    - AxpPMU
+    - PCF8563
+  - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 - Filesystem helpers
 
 

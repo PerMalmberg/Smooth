@@ -16,9 +16,9 @@ limitations under the License.
 */
 
 #include <catch2/catch.hpp>
-#include <smooth/core/json/JsonFile.h>
-#include <smooth/core/filesystem/MountPoint.h>
-#include <smooth/core/util/json_util.h>
+#include "smooth/core/json/JsonFile.h"
+#include "smooth/core/filesystem/MountPoint.h"
+#include "smooth/core/util/json_util.h"
 
 using namespace std;
 using namespace smooth::core::filesystem;

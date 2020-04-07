@@ -17,17 +17,17 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/fsm/StaticFSM.h>
-#include <smooth/core/timer/TimerExpiredEvent.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/core/network/event/DataAvailableEvent.h>
-#include <smooth/core/network/event/ConnectionStatusEvent.h>
-#include <smooth/core/network/event/TransmitBufferEmptyEvent.h>
-#include <smooth/application/network/mqtt/packet/MQTTProtocol.h>
-#include <smooth/application/network/mqtt/IMqttClient.h>
-#include <smooth/application/network/mqtt/packet/PacketDecoder.h>
-#include <smooth/application/network/mqtt/Logging.h>
+#include "smooth/core/fsm/StaticFSM.h"
+#include "smooth/core/timer/TimerExpiredEvent.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/core/network/event/DataAvailableEvent.h"
+#include "smooth/core/network/event/ConnectionStatusEvent.h"
+#include "smooth/core/network/event/TransmitBufferEmptyEvent.h"
+#include "smooth/application/network/mqtt/packet/MQTTProtocol.h"
+#include "smooth/application/network/mqtt/IMqttClient.h"
+#include "smooth/application/network/mqtt/packet/PacketDecoder.h"
+#include "smooth/application/network/mqtt/Logging.h"
 #include "MqttFsmConstants.h"
 
 using namespace smooth::core::logging;

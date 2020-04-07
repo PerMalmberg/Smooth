@@ -25,7 +25,7 @@ limitations under the License.
 #include <driver/i2c.h>
 #pragma GCC diagnostic pop
 #include <driver/gpio.h>
-#include <smooth/core/util/FixedBufferBase.h>
+#include "smooth/core/util/FixedBufferBase.h"
 
 namespace smooth::core::io::i2c
 {

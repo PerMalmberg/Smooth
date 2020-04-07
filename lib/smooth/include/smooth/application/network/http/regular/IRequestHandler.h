@@ -21,7 +21,7 @@ limitations under the License.
 #include <memory>
 #include "RequestHandlerSignature.h"
 #include "smooth/application/network/http/IServerResponse.h"
-#include <smooth/application/network/http/IConnectionTimeoutModifier.h>
+#include "smooth/application/network/http/IConnectionTimeoutModifier.h"
 
 namespace smooth::application::network::http::regular
 {

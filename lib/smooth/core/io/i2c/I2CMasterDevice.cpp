@@ -17,10 +17,10 @@ limitations under the License.
 
 #include <algorithm>
 #include <sstream>
-#include <smooth/core/Task.h>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
-#include <smooth/core/io/i2c/I2CCommandLink.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/Task.h"
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
+#include "smooth/core/io/i2c/I2CCommandLink.h"
+#include "smooth/core/logging/log.h"
 #include "esp_intr_alloc.h"
 
 using namespace smooth::core::logging;

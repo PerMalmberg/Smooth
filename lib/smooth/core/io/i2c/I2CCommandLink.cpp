@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/io/i2c/I2CCommandLink.h>
-#include <smooth/core/io/i2c/I2CMasterDevice.h>
+#include "smooth/core/io/i2c/I2CCommandLink.h"
+#include "smooth/core/io/i2c/I2CMasterDevice.h"
 
 namespace smooth::core::io::i2c
 {

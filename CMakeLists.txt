@@ -21,14 +21,14 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # Select the test project to build
-set(selected_test_project hello_world)
+set(selected_test_project starter_example)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
 set(SMOOTH_ASAN_OPTIMIZATION_LEVEL 1)
 
 list(APPEND available_tests
-        hello_world
+        starter_example
         access_point
         logging
         mqtt
@@ -50,6 +50,10 @@ list(APPEND available_tests
         linux_asan_test
         linux_unit_tests
         hw_wrover_kit_blinky
+        i2c_bme280_test
+        spi_4_line_devices_test
+        i2c_dht12_test
+        i2c_rtc8563_test
         )
 
 list(FIND available_tests ${selected_test_project} test_found)

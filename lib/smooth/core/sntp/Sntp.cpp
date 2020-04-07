@@ -15,13 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/sntp/Sntp.h>
+#include "smooth/core/sntp/Sntp.h"
 
 #include <esp_sntp.h>
 #include <ctime>
 #include <utility>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/sntp/TimeSyncEvent.h>
+#include "smooth/core/ipc/Publisher.h"
+#include "smooth/core/sntp/TimeSyncEvent.h"
 
 namespace smooth::core::sntp
 {

@@ -18,8 +18,8 @@ limitations under the License.
 #pragma once
 
 #include <array>
-#include <smooth/core/network/IPacketDisassembly.h>
-#include <smooth/core/network/IPacketAssembly.h>
+#include "smooth/core/network/IPacketDisassembly.h"
+#include "smooth/core/network/IPacketAssembly.h"
 #include "StreamPacket.h"
 
 namespace secure_server_socket_test

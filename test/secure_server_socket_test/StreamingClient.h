@@ -17,13 +17,13 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/network/ServerClient.h>
+#include "smooth/core/network/ServerClient.h"
 #include <chrono>
 #include "StreamingProtocol.h"
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/network/BufferContainer.h>
-#include <smooth/core/network/event/DataAvailableEvent.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/network/BufferContainer.h"
+#include "smooth/core/network/event/DataAvailableEvent.h"
+#include "smooth/core/logging/log.h"
 
 namespace secure_server_socket_test
 {

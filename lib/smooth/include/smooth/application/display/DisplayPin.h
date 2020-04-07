@@ -14,22 +14,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/task_priorities.h>
-#include <iostream>
+#include "smooth/core/io/Output.h"
 
-namespace hello_world
+namespace smooth::application::display
 {
-    class App : public smooth::core::Application
+    class DisplayPin
     {
         public:
-            App();
+            /// Constructor
+            DisplayPin(gpio_num_t pin,
+                       bool pullup,
+                       bool pulldn,
+                       bool active_high) : display_pin(pin, true, pullup, pulldn)
+            {
+                active_high ? display_pin.set(false) : display_pin.set(true);
+            }
 
-            void init() override;
+            /// Set output pin level
+            void set_output_level(bool level)
+            {
+                display_pin.set(level);
+            }
 
-            void tick() override;
+        private:
+            smooth::core::io::Output display_pin;
     };
 }

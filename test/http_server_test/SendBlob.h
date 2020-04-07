@@ -17,7 +17,7 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/application/network/http/regular/responses/StringResponse.h>
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
 
 namespace http_server_test
 {

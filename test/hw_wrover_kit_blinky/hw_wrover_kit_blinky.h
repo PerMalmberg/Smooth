@@ -17,11 +17,11 @@ limitations under the License.
 
 #pragma once
 
-#include <smooth/core/Application.h>
-#include <smooth/core/ipc/IEventListener.h>
-#include <smooth/core/ipc/TaskEventQueue.h>
-#include <smooth/core/timer/Timer.h>
-#include <smooth/core/io/Output.h>
+#include "smooth/core/Application.h"
+#include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/timer/Timer.h"
+#include "smooth/core/io/Output.h"
 
 namespace hw_wrover_kit_blinky
 {

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/network/mqtt/MQTTProtocolDefinitions.h>
+#include "smooth/application/network/mqtt/MQTTProtocolDefinitions.h"
 
 namespace smooth::application::network::mqtt
 {

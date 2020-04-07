@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/network/IPv6.h>
+#include "smooth/core/network/IPv6.h"
 #include <arpa/inet.h>
 
 namespace smooth::core::network

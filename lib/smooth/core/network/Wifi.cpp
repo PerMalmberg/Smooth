@@ -15,15 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/core/network/Wifi.h>
+#include "smooth/core/network/Wifi.h"
 #include <cstring>
 #include <sstream>
 #include <esp_wifi_types.h>
 #include <tcpip_adapter.h>
-#include <smooth/core/network/NetworkStatus.h>
-#include <smooth/core/ipc/Publisher.h>
-#include <smooth/core/util/copy_min_to_buffer.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/network/NetworkStatus.h"
+#include "smooth/core/ipc/Publisher.h"
+#include "smooth/core/util/copy_min_to_buffer.h"
+#include "smooth/core/logging/log.h"
 #include <esp_event.h>
 
 #ifdef ESP_PLATFORM
@@ -250,9 +250,9 @@ namespace smooth::core::network
 
     // attention: access to this function might have a threading issue.
     // It should be called from the main thread only!
-    ip4_addr_t Wifi::get_local_ip()
+    uint32_t Wifi::get_local_ip()
     {
-        return ip;
+        return ip.addr;
     }
 
     void Wifi::start_softap(uint8_t max_conn)

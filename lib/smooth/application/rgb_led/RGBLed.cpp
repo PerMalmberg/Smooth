@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <smooth/application/rgb_led/RGBLed.h>
-#include <smooth/core/util/ByteSet.h>
+#include "smooth/application/rgb_led/RGBLed.h"
+#include "smooth/core/util/ByteSet.h"
 #include <cstring>
 #include <driver/periph_ctrl.h>
 

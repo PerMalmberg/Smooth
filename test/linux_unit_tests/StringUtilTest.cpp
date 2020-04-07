@@ -17,7 +17,7 @@ limitations under the License.
 
 #include <catch2/catch.hpp>
 
-#include <smooth/core/util/string_util.h>
+#include "smooth/core/util/string_util.h"
 
 using namespace smooth::core::string_util;
 

@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <cstdlib>
-#include <smooth/core/logging/log.h>
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 

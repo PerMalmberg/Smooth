@@ -16,10 +16,10 @@ limitations under the License.
 */
 
 #include <sstream>
-#include <smooth/application/network/mqtt/packet/MQTTPacket.h>
-#include <smooth/core/logging/log.h>
-#include <smooth/application/network/mqtt/packet/IPacketReceiver.h>
-#include <smooth/core/logging/log.h>
+#include "smooth/application/network/mqtt/packet/MQTTPacket.h"
+#include "smooth/core/logging/log.h"
+#include "smooth/application/network/mqtt/packet/IPacketReceiver.h"
+#include "smooth/core/logging/log.h"
 
 using namespace smooth::core::logging;
 
