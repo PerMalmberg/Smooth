@@ -55,12 +55,13 @@ namespace smooth::application::network::http::regular
 
             void parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
                        const URLEncodedDataCallback& url_data);
-            void myparse(const uint8_t *p, std::size_t length,
-                         const myFormDataCallback &content_callback,
-                         const URLEncodedDataCallback &url_data,
+
+            void myparse(const uint8_t* p, std::size_t length,
+                         const myFormDataCallback& content_callback,
+                         const URLEncodedDataCallback& url_data,
                          const uint16_t chunksize);
 
-          private:
+        private:
             enum class Mode
             {
                 None,
@@ -69,11 +70,15 @@ namespace smooth::application::network::http::regular
             };
 
             auto find_boundary() const;
+
             auto find_end_boundary() const;
+
             auto find_start_boundary() const;
+
             auto find_boundaries() const;
 
             BoundaryIterator get_end_of_boundary(BoundaryIterator begin);
+
             BoundaryIterator my_get_end_of_boundary(BoundaryIterator begin);
 
             void

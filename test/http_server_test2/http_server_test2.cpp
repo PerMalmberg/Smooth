@@ -320,7 +320,7 @@ namespace http_server_test2
 
                 auto len = std::distance(begin, end);
                 Log::info("form_data", "chunk to write: {},", static_cast<int>(len));
-                to_save.write(static_cast<char*>&*begin, static_cast<int>(len));
+                to_save.write(static_cast<char*>(&*begin), static_cast<int>(len));
                 // to_save << (&*begin, static_cast<int>(len));
 
                 if(file_close)

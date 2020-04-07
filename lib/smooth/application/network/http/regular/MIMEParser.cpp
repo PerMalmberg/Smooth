@@ -86,32 +86,38 @@ namespace smooth::application::network::http::regular
 
     auto MIMEParser::find_boundary() const
     {
-      BoundaryIterator p = data.cend();
-      if (data.size() > bound.size()+2) 
-      {
-        p = std::search(data.cbegin(), data.cend(), bound.cbegin(), bound.cend());
-      }
-      return p;
+        BoundaryIterator p = data.cend();
+
+        if (data.size() > bound.size() + 2)
+        {
+            p = std::search(data.cbegin(), data.cend(), bound.cbegin(), bound.cend());
+        }
+
+        return p;
     }
 
     auto MIMEParser::find_start_boundary() const
     {
-      BoundaryIterator p = data.cend();
-      if (data.size() > boundary.size()*2) 
-      {
-        p = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
-      }
-      return p;
+        BoundaryIterator p = data.cend();
+
+        if (data.size() > boundary.size() * 2)
+        {
+            p = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
+        }
+
+        return p;
     }
 
     auto MIMEParser::find_end_boundary() const
     {
-      BoundaryIterator p = data.cend();
-      if (data.size() >= end_boundary.size()) 
-      {
-        p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
-      }
-      return p;
+        BoundaryIterator p = data.cend();
+
+        if (data.size() >= end_boundary.size())
+        {
+            p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
+        }
+
+        return p;
     }
 
     auto MIMEParser::find_boundaries() const
@@ -145,7 +151,7 @@ namespace smooth::application::network::http::regular
     }
 
     void MIMEParser::myparse(const uint8_t* p, std::size_t length, const myFormDataCallback& content_callback,
-                           const URLEncodedDataCallback& url_data, const uint16_t chunksize)
+                             const URLEncodedDataCallback& url_data, const uint16_t chunksize)
     {
         static enum class Status
         {
@@ -153,7 +159,8 @@ namespace smooth::application::network::http::regular
             Headers,
             Data,
             End
-        } status = Status::Begin;
+        }
+        status = Status::Begin;
         static std::string id{};
         static std::string filename{};
         BoundaryIterator begin{};
@@ -166,78 +173,96 @@ namespace smooth::application::network::http::regular
         {
             data.emplace_back(p[i]);
         }
+
         // data.reserve(data.size()+length+1);
         // std::copy(&p[0], &p[length], data.end());
         // Log::info("MIMEParser::myparse", "length={}; data.size()={}", length, data.size());
 
         if (mode == Mode::FormData)
         {
-            while(!end_of_transmission && !get_more_data)
+            while (!end_of_transmission && !get_more_data)
             {
-                if(status == Status::Begin)
+                if (status == Status::Begin)
                 {
                     begin = find_boundary();
-                    if(begin != data.cend())  // begin boundary found
+
+                    if (begin != data.cend())  // begin boundary found
                     {
                         status = Status::Headers;
                         data.erase(data.begin(), my_get_end_of_boundary(begin) + 2);  // "+2": also delete trailing crlf
                         //Log::info("MIMEParser::myparse", "Begin Boundary found!");
-                    } else
+                    }
+                    else
+                    {
                         get_more_data = true;
+                    }
                 }
-                else if(status == Status::Headers)
+                else if (status == Status::Headers)
                 {
                     auto p = std::search(data.cbegin(), data.cend(), crlf_double.cbegin(), crlf_double.cend());
-                    if(p != data.cend())  // end of headers found
+
+                    if (p != data.cend())  // end of headers found
                     {
                         auto [new_start_of_content, headers,
-                                content_disposition] = consume_headers(data.cbegin(), p + 4);
+                              content_disposition] = consume_headers(data.cbegin(), p + 4);
                         id = content_disposition["name"];
                         filename = content_disposition["filename"];
+
                         // Log::info("dispo", "name: {}; filename: {}", content_disposition["name"],
                         //         content_disposition["filename"]);
                         data.erase(data.begin(), p + 4);  // also erase 2x crlf
                         status = Status::Data;
                         first_part = true;
-                    } else
+                    }
+                    else
                     {
                         get_more_data = true;
                     }
                 }
-                else if(status == Status::Data)
+                else if (status == Status::Data)
                 {
                     auto b = std::search(data.cbegin(), data.cend(), bound.cbegin(), bound.cend());
-                    if((data.size() > chunksize + end_boundary.size()) || (b != data.cend()))  // got something to write
+
+                    if ((data.size() > chunksize + end_boundary.size()) || (b != data.cend()))  // got something to
+                                                                                                // write
                     {
-                        while(std::distance(data.cbegin(), b-2) > chunksize)
+                        while (std::distance(data.cbegin(), b - 2) > chunksize)
                         {
                             content_callback(id, filename, data.cbegin(), data.cbegin() + chunksize, first_part, false);
                             data.erase(data.begin(), data.begin() + chunksize);
                             first_part = false;
                             b = std::search(data.cbegin(), data.cend(), bound.cbegin(), bound.cend());
                         }
-                        if(b != data.cend())
+
+                        if (b != data.cend())
                         {
-                            content_callback(id, filename, data.cbegin(), b-2, first_part, true);  // first_b-2 to avoid additional crlf in file end
+                            content_callback(id, filename, data.cbegin(), b - 2, first_part, true);  // first_b-2 to
+                                                                                                     // avoid additional
+                                                                                                     // crlf in file end
                             // std::vector<uint8_t>::iterator e;
                             // std::advance (e, std::distance<std::vector<uint8_t>::const_iterator>(e, b ) );
                             // Log::info("end of file",".");
                             // log_data(data.begin(), e);
                             // Log::info("the end",".");
                             status = Status::Headers;
-                            data.erase(data.begin(), b-2);
+                            data.erase(data.begin(), b - 2);
                             first_part = false;
-                            if(std::distance<std::vector<uint8_t>::const_iterator>(data.begin(), find_end_boundary()) < 5)
+
+                            if (std::distance<std::vector<uint8_t>::const_iterator>(data.begin(),
+                            find_end_boundary()) < 5)
                             {
                                 end_of_transmission = true;
                                 data.clear();
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         get_more_data = true;
                     }
                 }
             }  // while(!end_of_transmission)
+
             end_of_transmission = false;
         }
         else if (mode == Mode::FormURLEncoded)
@@ -294,8 +319,6 @@ namespace smooth::application::network::http::regular
             }
         }
     }
-
-
 
     void MIMEParser::parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
                            const URLEncodedDataCallback& url_data)
@@ -487,6 +510,7 @@ namespace smooth::application::network::http::regular
                     }
                 }
             }
+
             parse_content_disposition(headers, content_disp);
         }
 
