@@ -32,7 +32,7 @@ namespace http_server_test2
     }
 
     ResponseStatus
-    http_server_test::SendBlob::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
+    http_server_test2::SendBlob::get_data(std::size_t max_amount, std::vector<uint8_t>& target)
     {
         auto res = ResponseStatus::NoData;
 

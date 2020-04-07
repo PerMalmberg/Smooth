@@ -37,7 +37,7 @@ namespace http_server_test2
         timer->start();
     }
 
-    void http_server_test::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text,
+    void http_server_test2::WSEchoServer::data_received(bool first_part, bool last_part, bool is_text,
                                                        const std::vector<uint8_t>& data)
     {
         response.reply(std::make_unique<WSResponse>(data, is_text, first_part, last_part), false);
