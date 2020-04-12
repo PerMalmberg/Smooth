@@ -29,6 +29,7 @@ RUN apt update \
 		make \
 		libz-dev \
 		libffi-dev \
+	&& rm -rf /var/lib/apt/lists/* \
 	&& ln -s /usr/bin/gcc-8 /usr/bin/gcc \
 	&& ln -s /usr/bin/g++-8 /usr/bin/g++ \
 	&& wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.sh \
