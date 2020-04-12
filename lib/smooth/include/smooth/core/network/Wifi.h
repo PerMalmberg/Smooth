@@ -19,7 +19,11 @@ limitations under the License.
 
 #include <string>
 #include <array>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_wifi.h>
+#pragma GCC diagnostic pop
 #include "smooth/core/ipc/IEventListener.h"
 
 namespace smooth::core::network

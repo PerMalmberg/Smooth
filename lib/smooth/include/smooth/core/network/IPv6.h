@@ -17,7 +17,12 @@ limitations under the License.
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <netinet/in.h>
+#pragma GCC diagnostic pop
+
 #include "InetAddress.h"
 
 namespace smooth::core::network

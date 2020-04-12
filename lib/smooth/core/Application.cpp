@@ -15,9 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <nvs_flash.h>
 #include <driver/gpio.h>
 #include <esp_event.h>
+#pragma GCC diagnostic pop
 
 #include "smooth/core/Application.h"
 #include "smooth/core/network/SocketDispatcher.h"
