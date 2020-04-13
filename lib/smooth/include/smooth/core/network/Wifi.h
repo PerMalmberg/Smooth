@@ -89,6 +89,8 @@ namespace smooth::core::network
         private:
             void connect() const;
 
+            void close_if();
+
             static void publish_status(bool connected, bool ip_changed);
 
             bool auto_connect_to_ap = false;
@@ -97,6 +99,10 @@ namespace smooth::core::network
             std::string ssid{};
 
             std::string password{};
-            static ip4_addr_t ip;
+            static struct esp_ip4_addr ip;
+
+            esp_netif_t* interface{nullptr};
+            esp_event_handler_instance_t instance_wifi_event{};
+            esp_event_handler_instance_t instance_ip_event{};
     };
 }
