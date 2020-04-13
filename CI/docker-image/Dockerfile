@@ -93,4 +93,9 @@ ENV IDF_CCACHE_ENABLE=1
 # ENTRYPOINT [ "/entrypoint.sh" ]
 RUN echo ". $IDF_PATH/export.sh" >> ~/.bashrc
 
+# Set locale so that "idf-py menuconfig" can be run.
+echo 'export LC_ALL="C.UTF-8"'  >> ~/.bashrc
+echo 'export LC_CTYPE="C.UTF-8"'  >> ~/.bashrc
+
+
 CMD [ "/bin/bash" ]
