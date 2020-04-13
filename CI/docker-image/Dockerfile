@@ -50,10 +50,9 @@ RUN wget https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz \
 	&& cd .. \
 	&& rm -rf Python-3.8.2 \
 	&& rm -rf Python-3.8.2.tar \
-	&& pip3 install --upgrade pip virtenv setuptools click serial cryptography future pyparsing pyelftools \
 	&& ln -s /usr/local/bin/python3 /usr/local/bin/python
-# Get ESP-IDF
 
+# ESP-IDF
 RUN cd / \
 	&& mkdir esp \
 	&& cd esp \
@@ -69,10 +68,29 @@ RUN cd / \
 	# Remove dist files
 	&& rm -rf /esp/tools/dist/
 
+# As we're not using a virtenv, install Python packages needed for IDF globaly
+RUN pip3 install --upgrade -r ${IDF_PATH}/requirements.txt
+
+# Setup paths for IDF (these are taken from the output of ${IDF_PATH}/export.sh)
+ENV PATH=${PATH}:"${IDF_PATH}/components/esptool_py/esptool"
+ENV PATH=${PATH}:"${IDF_PATH}/components/espcoredump"
+ENV PATH=${PATH}:"${IDF_PATH}/components/partition_table"
+ENV PATH=${PATH}:"${IDF_PATH}/components/app_update"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/bin"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/tools/xtensa-esp32s2-elf/esp-2020r1-8.2.0/xtensa-esp32s2-elf/bin"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/tools/openocd-esp32/v0.10.0-esp32-20200406/openocd-esp32/bin"
+ENV PATH=${PATH}:"${IDF_TOOLS_PATH}/python_env/idf4.2_py3.8_env/bin"
+ENV PATH=${PATH}:"${IDF_PATH}/tools"
+
 ENV IDF_CCACHE_ENABLE=1
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod u+x /entrypoint.sh
+# Since VSCode's Remote-Container extension at this time can't do COPY-commands (runs in the wrong directory)
+# we add the source-command to the .bashrc file instead.
+# COPY entrypoint.sh /entrypoint.sh
+# RUN chmod u+x /entrypoint.sh
+# ENTRYPOINT [ "/entrypoint.sh" ]
+RUN echo ". $IDF_PATH/export.sh" >> ~/.bashrc
 
-ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "/bin/bash" ]
