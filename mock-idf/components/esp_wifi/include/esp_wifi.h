@@ -2,6 +2,8 @@
 
 #include <esp_event_legacy.h>
 #include <esp_err.h>
+#include <esp_netif_types.h>
+#include <esp_wifi_default.h>
 
 typedef struct
 {
