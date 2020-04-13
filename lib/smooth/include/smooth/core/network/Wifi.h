@@ -101,7 +101,7 @@ namespace smooth::core::network
             std::string password{};
             static struct esp_ip4_addr ip;
 
-            esp_netif_t* interface{nullptr};
+            esp_netif_t* interface{ nullptr };
             esp_event_handler_instance_t instance_wifi_event{};
             esp_event_handler_instance_t instance_ip_event{};
     };

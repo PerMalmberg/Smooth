@@ -25,7 +25,6 @@ limitations under the License.
 #include <driver/gpio.h>
 #pragma GCC diagnostic pop
 
-
 namespace smooth::core::io::i2c
 {
     class Master

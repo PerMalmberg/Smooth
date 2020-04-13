@@ -27,7 +27,6 @@ limitations under the License.
 #include <esp_vfs.h>
 #pragma GCC diagnostic pop
 
-
 namespace smooth::core::filesystem
 {
     class SDCard

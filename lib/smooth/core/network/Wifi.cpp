@@ -42,8 +42,17 @@ namespace smooth::core::network
     Wifi::Wifi()
     {
         esp_netif_init();
-        esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this, &instance_wifi_event);
-        esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID, &Wifi::wifi_event_callback, this, &instance_ip_event);
+        esp_event_handler_instance_register(WIFI_EVENT,
+                                           ESP_EVENT_ANY_ID,
+                                           &Wifi::wifi_event_callback,
+                                           this,
+                                           &instance_wifi_event);
+
+        esp_event_handler_instance_register(IP_EVENT,
+                                           ESP_EVENT_ANY_ID,
+                                           &Wifi::wifi_event_callback,
+                                           this,
+                                           &instance_ip_event);
     }
 
     Wifi::~Wifi()
