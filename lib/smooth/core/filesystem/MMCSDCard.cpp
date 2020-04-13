@@ -40,7 +40,7 @@ namespace smooth::core::filesystem
 
     bool MMCSDCard::init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count)
     {
-        host = SDMMC_HOST_DEFAULT();
+        host = (sdmmc_host_t)SDMMC_HOST_DEFAULT();
 
         // host.max_freq_khz = SDMMC_FREQ_HIGHSPEED()
 
