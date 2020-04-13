@@ -19,8 +19,11 @@ limitations under the License.
 
 #include <memory>
 #include <mutex>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <driver/i2c.h>
 #include <driver/gpio.h>
+#pragma GCC diagnostic pop
 
 namespace smooth::core::io::i2c
 {

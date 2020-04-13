@@ -22,6 +22,7 @@
 
 #include "esp_event_base.h"
 #include "esp_event_legacy.h"
+#include "default_event_loop.h"
 
 /// Configuration for creating event loops
 typedef struct {

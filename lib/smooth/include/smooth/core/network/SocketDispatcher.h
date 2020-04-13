@@ -22,7 +22,10 @@ limitations under the License.
 #include <vector>
 #include <mutex>
 #include <unordered_map>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sys/socket.h>
+#pragma GCC diagnostic pop
 #include "smooth/core/Task.h"
 #include "smooth/core/ipc/TaskEventQueue.h"
 #include "smooth/core/ipc/SubscribingTaskEventQueue.h"

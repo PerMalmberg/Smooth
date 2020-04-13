@@ -17,7 +17,10 @@ limitations under the License.
 
 #include <cstdint>
 #include <sys/types.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sys/socket.h>
+#pragma GCC diagnostic pop
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "smooth/core/logging/log.h"

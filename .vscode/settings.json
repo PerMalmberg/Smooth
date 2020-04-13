@@ -1,0 +1,8 @@
+{
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "cmake.saveBeforeBuild": true,
+    "cmake.parallelJobs": 4,
+    "cmake.configureSettings": {
+        "ESP_PLATFORM": 1
+    }
+}

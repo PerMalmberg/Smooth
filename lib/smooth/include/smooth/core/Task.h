@@ -34,8 +34,10 @@ limitations under the License.
 #include <atomic>
 
 #ifdef ESP_PLATFORM
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#pragma GCC diagnostic pop
 #include <sdkconfig.h>
 
 #if CONFIG_FREERTOS_HZ < 1000

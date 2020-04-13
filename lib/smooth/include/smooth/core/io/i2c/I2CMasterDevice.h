@@ -22,6 +22,7 @@ limitations under the License.
 #include <mutex>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <driver/i2c.h>
 #pragma GCC diagnostic pop
 #include <driver/gpio.h>
