@@ -301,6 +301,7 @@ namespace http_server_test
                     const bool file_start,
                     const bool file_close)  
             {
+                (void) name;
                 Path path{};
                 static std::ofstream to_save;
                 if(file_start)
@@ -352,7 +353,7 @@ namespace http_server_test
             };
 
             // Pass content to mime parser with callbacks to handle the data.
-            mime.parse(content.data(), content.size(), form_data, url_encoded_data, (uint16_t) 4096);
+            mime.parse(content.data(), content.size(), form_data, url_encoded_data, static_cast<uint16_t> ( 4096));
         };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
