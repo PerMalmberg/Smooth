@@ -25,6 +25,10 @@ limitations under the License.
 
 namespace smooth::application::network::http::regular
 {
+
+    static const uint8_t LEN_OF_CRLF = 2;
+    const std::vector<uint8_t> equal{ '=' };
+
     class MIMEParser
     {
         public:
@@ -32,10 +36,6 @@ namespace smooth::application::network::http::regular
             using BoundaryIterator = MimeData::const_iterator;
             using Boundaries = std::vector<BoundaryIterator>;
             using FormDataCallback = std::function<void (const std::string& field_name,
-                                                         const std::string& actual_file_name,
-                                                         const BoundaryIterator& begin,
-                                                         const BoundaryIterator& end)>;
-            using myFormDataCallback = std::function<void (const std::string& field_name,
                                                            const std::string& actual_file_name,
                                                            const BoundaryIterator& begin,
                                                            const BoundaryIterator& end,
@@ -48,18 +48,15 @@ namespace smooth::application::network::http::regular
             void reset() noexcept;
 
             void parse(const std::vector<uint8_t>& p, const FormDataCallback& content_callback,
-                       const URLEncodedDataCallback& url_data)
+                       const URLEncodedDataCallback& url_data, const uint16_t chunksize)
             {
-                parse(p.data(), p.size(), content_callback, url_data);
+                parse(p.data(), p.size(), content_callback, url_data, chunksize);
             }
 
-            void parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
-                       const URLEncodedDataCallback& url_data);
-
-            void myparse(const uint8_t* p, std::size_t length,
-                         const myFormDataCallback& content_callback,
-                         const URLEncodedDataCallback& url_data,
-                         const uint16_t chunksize);
+            void parse(const uint8_t* p, std::size_t length,
+                        const FormDataCallback& content_callback,
+                        const URLEncodedDataCallback& url_data,
+                        const uint16_t chunksize);
 
         private:
             enum class Mode
@@ -73,19 +70,7 @@ namespace smooth::application::network::http::regular
 
             auto find_end_boundary() const;
 
-            auto find_start_boundary() const;
-
-            auto find_boundaries() const;
-
             BoundaryIterator get_end_of_boundary(BoundaryIterator begin);
-
-            BoundaryIterator my_get_end_of_boundary(BoundaryIterator begin);
-
-            void
-            parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                          const FormDataCallback& content_callback) const;
-
-            void adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data, Boundaries& found_boundaries) const;
 
             bool is_crlf(BoundaryIterator start) const;
 
@@ -94,7 +79,10 @@ namespace smooth::application::network::http::regular
                        std::unordered_map<std::string, std::string>>
             consume_headers(BoundaryIterator begin, BoundaryIterator end) const;
 
-            std::vector<uint8_t> bound{};
+            std::string id{};
+            std::string filename{};
+            bool first_part{false};
+            bool end_of_transmission{false};
             std::vector<uint8_t> boundary{};
             std::vector<uint8_t> end_boundary{};
             std::vector<uint8_t> data{};

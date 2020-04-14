@@ -40,6 +40,15 @@ using namespace smooth::application::network::http::responses;
 
 namespace http_server_test
 {
+
+    extern "C" {
+        void app_main() {
+            App app;
+            app.start();
+        }
+    }
+
+
     const char* private_key_data =
         "-----BEGIN RSA PRIVATE KEY-----\n"
         "MIIEowIBAAKCAQEAwIzeeGHJmTsFu1moTY65YPU0EKj9+QQ8Co+eozEPdyD+Yhes\n"
@@ -148,7 +157,7 @@ namespace http_server_test
 
     void App::tick()
     {
-        smooth::core::SystemStatistics::instance().dump();
+        // smooth::core::SystemStatistics::instance().dump();
     }
 
     void App::init()
@@ -163,13 +172,14 @@ namespace http_server_test
         Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
-        wifi.set_auto_connect(true);
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
-        wifi.connect_to_ap();
+        wifi.set_auto_connect(true);
+        wifi.start_softap(2);
+        // wifi.connect_to_ap();
 
 #ifdef ESP_PLATFORM
         Path web_root(SDCardMount::instance().mount_point() / "web_root");
-        Path uploads{ SDCardMount::instance().mount_point() / "uploads" };
+        Path uploads{ SDCardMount::instance().mount_point() / "upload" };
 
         // Setup SD Card as per WROOVER Kit 3.x
         sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4,
@@ -179,7 +189,7 @@ namespace http_server_test
 #else
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";
-        Path uploads{ test_path.parent() / "uploads" };
+        Path uploads{ test_path.parent() / "upload" };
 #endif
 
         auto template_data_retriever = std::make_shared<DataRetriever>();
@@ -220,112 +230,130 @@ namespace http_server_test
                              password);
 
         auto blob = [](
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime) {
-                        (void)timeout_modifier;
-                        (void)url;
-                        (void)first_part;
-                        (void)headers;
-                        (void)content;
-                        (void)mime;
+                IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
+                const std::string& url,
+                bool first_part,
+                bool last_part,
+                const std::unordered_map<std::string, std::string>& headers,
+                const std::unordered_map<std::string, std::string>& request_parameters,
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) 
+        {
+            (void)timeout_modifier;
+            (void)url;
+            (void)first_part;
+            (void)headers;
+            (void)content;
+            (void)mime;
 
-                        if (last_part)
-                        {
-                            std::size_t size = 0;
+            if (last_part)
+            {
+                std::size_t size = 0;
 
-                            try
-                            {
-                                size = std::stoul(request_parameters.at("size"));
-                            }
-                            catch (...)
-                            {
-                            }
+                try
+                {
+                    size = std::stoul(request_parameters.at("size"));
+                }
+                catch (...)
+                {
+                }
 
-                            if (size == 0)
-                            {
-                                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::
-                                                                                           Expectation_Failed,
-                                                                               "Request parameter 'size' must be > 0"),
-                                   false);
-                            }
-                            else
-                            {
-                                response.reply(std::make_unique<SendBlob>(size), false);
-                            }
-                        }
-                    };
+                if (size == 0)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(
+                        ResponseCode::Expectation_Failed,
+                        "Request parameter 'size' must be > 0"),
+                        false);
+                }
+                else
+                {
+                    response.reply(std::make_unique<SendBlob>(size), false);
+                }
+            }
+        };
 
         auto upload = [web_root, uploads](
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime) {
-                          (void)timeout_modifier;
-                          (void)headers;
-                          (void)request_parameters;
-                          (void)url;
+                IServerResponse& response,
+                IConnectionTimeoutModifier& timeout_modifier,
+                const std::string& url,
+                bool first_part,
+                bool last_part,
+                const std::unordered_map<std::string, std::string>& headers,
+                const std::unordered_map<std::string, std::string>& request_parameters,
+                const std::vector<uint8_t>& content,
+                MIMEParser& mime) 
+        {
+            (void)timeout_modifier;
+            (void)request_parameters;
+            (void)url;
 
-                          if (first_part)
-                          {
-                              // Prepare mime parser to receive data
-                              mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
-                          }
+            if (first_part)
+            {
+                // Prepare mime parser to receive data
+                mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
+            }
 
-                          auto form_data = [uploads, &last_part, &response](const std::string& name,
-                                                                            const std::string& actual_file_name,
-                                                                            const MIMEParser::BoundaryIterator& begin,
-                                                                            const MIMEParser::BoundaryIterator& end) {
-                                               // Store the file in web_root/uploads
-                                               Path path{ uploads / ("[" + name + "]" + actual_file_name) };
-                                               create_directory(path.parent());
-                                               File to_save{ path };
+            auto form_data = [uploads, &last_part, &response](const std::string& name,
+                    const std::string& actual_file_name,
+                    const MIMEParser::BoundaryIterator& begin,
+                    const MIMEParser::BoundaryIterator& end,
+                    const bool file_start,
+                    const bool file_close)  
+            {
+                Path path{};
+                static std::ofstream to_save;
+                if(file_start)
+                {
+                    // Store the file in web_root/uploads
+                    path = uploads / actual_file_name;
+                    Log::info("form_data", "File name: {}", path.str());
+                    create_directory(path.parent());
+                    if (FileInfo{ path }.exists())
+                    {
+                        Log::info("form_data", "File exists");
+                        remove(path);
+                    }
+                    Log::info("form_data", "before open");
+                    to_save.open(path.str(), std::ios::out | std::ios::app | std::ios::binary) ;
+                    Log::info("form_data", "File opened");
+                }
 
-                                               if (FileInfo{ path }.exists())
-                                               {
-                                                   remove(path);
-                                               }
+                auto len = std::distance(begin, end);
+                Log::info("form_data", "chunk to write: {},", static_cast<int>(len));
+                to_save.write((char*)&*begin, static_cast<int>(len));
+                Log::info("form_data", "data written");
 
-                                               auto len = std::distance(begin, end);
-                                               to_save.write(&*begin, static_cast<int>(len));
+                if(file_close)
+                {
+                    to_save.close();
+                    Log::info("form_data", "file close");
+                }
 
-                                               if (last_part)
-                                               {
-                                                   response.reply(std::make_unique<responses::StringResponse>(
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(
+                        ResponseCode::OK, "File(s) have been stored to " +
+                        uploads.str()), false);
+                }
+            };
+
+            auto url_encoded_data =
+                    [&response, &last_part](std::unordered_map<std::string, std::string>& data) 
+            {
+                if (last_part)
+                {
+                    response.reply(std::make_unique<responses::StringResponse>(
                     ResponseCode::OK,
-                                                                               "File have been stored in "
-                                                                                                                                                                                            +
-                    uploads.str()), false);
-                                               }
-                                           };
-
-                          auto url_encoded_data =
-                              [&response, &last_part](std::unordered_map<std::string, std::string>& data) {
-                                  if (last_part)
-                                  {
-                                      response.reply(std::make_unique<responses::StringResponse>(
-                    ResponseCode::OK,
-                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)"
-                                                                                                                                                                                                                                                      +
+                    R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)" +
                     data["edit_box"] + "</textarea>"),
-                                   false);
-                                  }
-                              };
+                    false);
+                }
+            };
 
-                          // Pass content to mime parser with callbacks to handle the data.
-                          mime.parse(content, form_data, url_encoded_data);
-                      };
+            // Pass content to mime parser with callbacks to handle the data.
+            mime.parse(content.data(), content.size(), form_data, url_encoded_data, (uint16_t) 4096);
+        };
 
         secure_server->on(HTTPMethod::GET, "/api/blob", blob);
         secure_server->on(HTTPMethod::POST, "/upload", upload);
