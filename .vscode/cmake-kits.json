@@ -1,0 +1,10 @@
+[
+    {
+    "name": "xtensa-gcc-8",
+    "compilers": {
+      "C": "xtensa-esp32-elf-gcc",
+      "CXX": "xtensa-esp32-elf-g++",
+      "toolchainfile": "/esp/esp-idf/tools/cmake/toolchain-esp32.cmake"
+    }
+  }
+]

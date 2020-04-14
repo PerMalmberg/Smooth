@@ -17,16 +17,14 @@ limitations under the License.
 
 #pragma once
 
-#include <esp_vfs.h>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include <esp_vfs.h>
 #include <esp_vfs_fat.h>
-
+#include <esp_system.h>
 #pragma GCC diagnostic pop
 
-#include <esp_system.h>
 #include <string>
 #include "MountPoint.h"
 

@@ -16,8 +16,11 @@ limitations under the License.
 */
 
 #include "smooth/core/sntp/Sntp.h"
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_sntp.h>
+#pragma GCC diagnostic pop
 #include <ctime>
 #include <utility>
 #include "smooth/core/ipc/Publisher.h"

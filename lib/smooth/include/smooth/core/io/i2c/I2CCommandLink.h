@@ -17,7 +17,10 @@ limitations under the License.
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <driver/i2c.h>
+#pragma GCC diagnostic pop
 
 namespace smooth::core::io::i2c
 {

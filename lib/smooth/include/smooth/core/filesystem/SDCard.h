@@ -18,16 +18,14 @@ limitations under the License.
 #pragma once
 
 #include "MountPoint.h"
-#include <sdmmc_cmd.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
-
-#pragma GCC diagnostic pop
-
 #include <esp_vfs.h>
+#pragma GCC diagnostic pop
 
 namespace smooth::core::filesystem
 {

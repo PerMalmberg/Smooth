@@ -39,7 +39,7 @@ namespace smooth::core::filesystem
 
     bool SPISDCard::init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count)
     {
-        host = SDSPI_HOST_DEFAULT();
+        host = (sdmmc_host_t)SDSPI_HOST_DEFAULT();
         sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
 
         slot_config.gpio_miso = miso;

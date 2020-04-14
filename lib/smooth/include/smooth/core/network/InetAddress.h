@@ -17,7 +17,10 @@ limitations under the License.
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <sys/socket.h>
+#pragma GCC diagnostic pop
 #include <string>
 #include <cstring>
 

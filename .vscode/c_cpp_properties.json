@@ -1,0 +1,45 @@
+{
+    "configurations": [
+        {
+            "name": "xtensa",
+            "includePath": [
+                "/workspaces/Smooth/lib/smooth/include/**",
+                "/esp/esp-idf/components/**",
+                "/esp/tools/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/esp/tools/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [                
+            ],
+            "browse": {
+                "path": [
+                    "/esp/esp-idf",
+                    "/workspaces/Smooth/lib/smooth/include"
+                ]
+            }
+        },
+        {
+            "name": "host",
+            "includePath": [
+                "/workspaces/Smooth/lib/smooth/include/**",
+                "/esp/esp-idf/components/**",
+                "/esp/tools/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [
+            ],
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/workspaces/Smooth/lib/smooth/include/**"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}
