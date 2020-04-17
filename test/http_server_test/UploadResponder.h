@@ -42,11 +42,7 @@ namespace http_server_test
             const smooth::core::filesystem::Path uploads{ smooth::core::filesystem::SDCardMount::instance().mount_point()
                                                           / "uploads" };
 #else
-
-            const smooth::core::filesystem::Path test_path(__FILE__);
-
-            const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";
-            const smooth::core::filesystem::Path uploads{ test_path.parent() / "uploads" };
+            const smooth::core::filesystem::Path uploads = { smooth::core::filesystem::Path{__FILE__}.parent() / "uploads" };
 #endif
     };
 }
