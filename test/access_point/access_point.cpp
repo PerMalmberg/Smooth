@@ -111,8 +111,7 @@ namespace access_point
     void App::tick()
     {
         smooth::core::SystemStatistics::instance().dump();
-    }        // As there's no actual index file in this example, use a response handler instead when calling requesting
-             // "/".
+    }
 
     void App::init()
     {
