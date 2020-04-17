@@ -42,6 +42,8 @@ limitations under the License.
 #include "smooth/application/network/http/regular/TemplateProcessor.h"
 #include "smooth/application/hash/sha.h"
 #include "regular/RequestHandlerSignature.h"
+#include "regular/IHTTPRequestHandler.h"
+#include "regular/WebSocketUpgradeDetector.h"
 #include "HTTPServerConfig.h"
 
 namespace smooth::application::network::http
@@ -90,14 +92,20 @@ namespace smooth::application::network::http
                 server->start(std::move(bind_to));
             }
 
+            /// Configure a request handler to handle a specific HTTP verb and path.
+            /// Responders may be used for multiple URLS and/or methods, but must not be shared
+            /// between different instances of an HTTP server since there is no guarantee in
+            /// what order the data arrives to the handler. (If a handler is state-less, then this
+            /// limitation does not apply.)
             void on(HTTPMethod method, const std::string& url,
-                    const RequestHandlerSignature& handler);
+                    const std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>& handler);
 
             template<typename WServerType>
             void enable_websocket_on(const std::string& url);
 
         private:
-            using HandlerByURL = std::unordered_map<std::string, RequestHandlerSignature>;
+            using HandlerByURL = std::unordered_map<std::string,
+                                                    std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
@@ -110,17 +118,6 @@ namespace smooth::application::network::http
                         MIMEParser& mime,
                         bool fist_part,
                         bool last_part) override;
-
-            template<typename WSServerType>
-            void websocket_upgrade_detector(IServerResponse& response,
-                                            IConnectionTimeoutModifier& timeout_modifier,
-                                            const std::string& url,
-                                            bool first_part,
-                                            bool last_part,
-                                            const std::unordered_map<std::string, std::string>& headers,
-                                            const std::unordered_map<std::string, std::string>& request_parameters,
-                                            const std::vector<uint8_t>& content,
-                                            MIMEParser& mime);
 
             smooth::core::filesystem::Path find_index(const smooth::core::filesystem::Path& search_path) const;
 
@@ -153,7 +150,7 @@ namespace smooth::application::network::http
     template<typename ServerType>
     void HTTPServer<ServerType>::on(HTTPMethod method,
                                     const std::string& url,
-                                    const RequestHandlerSignature& handler)
+                                    const std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>& handler)
     {
         handlers[method][url] = handler;
     }
@@ -168,7 +165,7 @@ namespace smooth::application::network::http
         const std::unordered_map<std::string, std::string>& request_parameters,
         const std::vector<uint8_t>& data,
         MIMEParser& mime,
-        bool fist_part,
+        bool first_part,
         bool last_part)
     {
         using namespace smooth::core::logging;
@@ -188,15 +185,27 @@ namespace smooth::application::network::http
             }
             else
             {
-                (*response_handler).second(response,
-                                           timeout_modifier,
-                                           requested_url,
-                                           fist_part,
-                                           last_part,
-                                           request_headers,
-                                           request_parameters,
-                                           data,
-                                           mime);
+                auto handler = (*response_handler).second;
+
+                if (first_part)
+                {
+                    handler->start_of_request();
+                }
+
+                handler->request(response,
+                                timeout_modifier,
+                                requested_url,
+                                first_part,
+                                last_part,
+                                request_headers,
+                                request_parameters,
+                                data,
+                                mime);
+
+                if (last_part)
+                {
+                    handler->end_of_request();
+                }
             }
         }
         else
@@ -325,96 +334,9 @@ namespace smooth::application::network::http
     template<typename WSServerType>
     void HTTPServer<ServerType>::enable_websocket_on(const std::string& url)
     {
-        auto f = [&](IServerResponse& response,
-                     IConnectionTimeoutModifier& timeout_modifier,
-                     const std::string& url, bool first_part,
-                     bool last_part,
-                     const std::unordered_map<std::string, std::string>& headers,
-                     const std::unordered_map<std::string, std::string>& request_parameters,
-                     const std::vector<uint8_t>& content, MIMEParser& mime) {
-                     websocket_upgrade_detector<WSServerType>(response,
-                                                     timeout_modifier,
-                                                     url,
-                                                     first_part,
-                                                     last_part,
-                                                     headers,
-                                                     request_parameters,
-                                                     content,
-                                                     mime);
-                 };
+        auto detector = std::make_shared<regular::WebSocketUpgradeDetector<WSServerType>>();
 
-        on(HTTPMethod::GET, url, f);
-    }
-
-    template<typename ServerType>
-    template<typename WSServerType>
-    void HTTPServer<ServerType>::websocket_upgrade_detector(IServerResponse& response,
-                                                            IConnectionTimeoutModifier& timeout_modifier,
-                                                            const std::string& url,
-                                                            bool first_part,
-                                                            bool last_part,
-                                                            const std::unordered_map<std::string, std::string>& headers,
-                                                            const std::unordered_map<std::string,
-                                                                                     std::string>& request_parameters,
-                                                            const std::vector<uint8_t>& content,
-                                                            MIMEParser& mime)
-    {
-        (void)response;
-        (void)url;
-        (void)first_part;
-        (void)request_parameters;
-        (void)content;
-        (void)mime;
-
-        if (last_part)
-        {
-            auto did_upgrade = false;
-
-            try
-            {
-                const auto& upgrade = headers.at(UPGRADE);
-                const auto& connection = headers.at(CONNECTION);
-                const auto version = headers.at(SEC_WEBSOCKET_VERSION);
-
-                if (string_util::iequals(upgrade, "websocket")
-                    && string_util::icontains(connection, "upgrade")
-                    && string_util::equals(version, "13"))
-                {
-                    const auto& key = headers.at(SEC_WEBSOCKET_KEY);
-                    const char* websocket_key_constant = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-                    const auto concat = string_util::trim(key) + websocket_key_constant;
-                    auto hash = hash::sha1(reinterpret_cast<const uint8_t*>(concat.data()), concat.length());
-
-                    auto reply_key = hash::base64::encode(reinterpret_cast<const uint8_t*>(hash.data()), hash.size());
-
-                    auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(
-                            ResponseCode::SwitchingProtocols);
-
-                    res->add_header(UPGRADE, "websocket");
-                    res->add_header(CONNECTION, "upgrade");
-                    res->add_header(SEC_WEBSOCKET_ACCEPT, reply_key);
-                    response.reply(std::move(res), false);
-                    did_upgrade = true;
-
-                    // Remove socket receive timeouts
-                    timeout_modifier.set_receive_timeout(std::chrono::milliseconds{ 0 });
-
-                    // Finally change protocols.
-                    response.upgrade_to_websocket<WSServerType>();
-                }
-            }
-            catch (std::exception& ex)
-            {
-                Log::warning(tag, "Websocket upgrade request failed: {}", ex.what());
-            }
-
-            if (!did_upgrade)
-            {
-                auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(ResponseCode::Bad_Request);
-                response.reply(std::move(res), false);
-            }
-        }
+        on(HTTPMethod::GET, url, detector);
     }
 
     using Client = smooth::application::network::http::HTTPServerClient;

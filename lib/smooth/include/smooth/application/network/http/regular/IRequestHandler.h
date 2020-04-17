@@ -18,7 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <unordered_map>
-#include <memory>
+#include <string>
 #include "RequestHandlerSignature.h"
 #include "smooth/application/network/http/IServerResponse.h"
 #include "smooth/application/network/http/IConnectionTimeoutModifier.h"
