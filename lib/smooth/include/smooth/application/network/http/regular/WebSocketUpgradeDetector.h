@@ -18,12 +18,12 @@ limitations under the License.
 #pragma once
 
 #include <string>
-#include "smooth/application/network/http/regular/IHTTPRequestHandler.h"
+#include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 
 namespace smooth::application::network::http::regular
 {
     template<typename WSServerType>
-    class WebSocketUpgradeDetector : public IHTTPRequestHandler
+    class WebSocketUpgradeDetector : public HTTPRequestHandler
     {
         public:
             void request(IServerResponse& response,

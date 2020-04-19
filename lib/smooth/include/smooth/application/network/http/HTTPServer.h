@@ -42,7 +42,7 @@ limitations under the License.
 #include "smooth/application/network/http/regular/TemplateProcessor.h"
 #include "smooth/application/hash/sha.h"
 #include "regular/RequestHandlerSignature.h"
-#include "regular/IHTTPRequestHandler.h"
+#include "regular/HTTPRequestHandler.h"
 #include "regular/WebSocketUpgradeDetector.h"
 #include "HTTPServerConfig.h"
 
@@ -98,14 +98,14 @@ namespace smooth::application::network::http
             /// what order the data arrives to the handler. (If a handler is state-less, then this
             /// limitation does not apply.)
             void on(HTTPMethod method, const std::string& url,
-                    const std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>& handler);
+                    const std::shared_ptr<smooth::application::network::http::regular::HTTPRequestHandler>& handler);
 
             template<typename WServerType>
             void enable_websocket_on(const std::string& url);
 
         private:
             using HandlerByURL = std::unordered_map<std::string,
-                                                    std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>>;
+                                                    std::shared_ptr<smooth::application::network::http::regular::HTTPRequestHandler>>;
             using HandlerByMethod = std::unordered_map<HTTPMethod, HandlerByURL>;
 
             void handle(HTTPMethod method,
@@ -149,7 +149,7 @@ namespace smooth::application::network::http
     template<typename ServerType>
     void HTTPServer<ServerType>::on(HTTPMethod method,
                                     const std::string& url,
-                                    const std::shared_ptr<smooth::application::network::http::regular::IHTTPRequestHandler>& handler)
+                                    const std::shared_ptr<smooth::application::network::http::regular::HTTPRequestHandler>& handler)
     {
         handlers[method][url] = handler;
     }
@@ -187,6 +187,9 @@ namespace smooth::application::network::http
 
                 if (first_part)
                 {
+                    // Call order is important.
+                    handler->update_call_params(first_part, last_part, response, request_headers, request_parameters);
+                    handler->prepare_mime();
                     handler->start_of_request();
                 }
 

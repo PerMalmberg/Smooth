@@ -18,13 +18,13 @@ limitations under the License.
 #pragma once
 
 #include "SendBlob.h"
-#include "smooth/application/network/http/regular/IHTTPRequestHandler.h"
+#include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 #include "smooth/core/filesystem/MountPoint.h"
 #include "smooth/core/filesystem/File.h"
 
 namespace http_server_test
 {
-    class UploadResponder : public smooth::application::network::http::regular::IHTTPRequestHandler
+    class UploadResponder : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
             void request(smooth::application::network::http::IServerResponse& response,
@@ -35,6 +35,14 @@ namespace http_server_test
                          const std::unordered_map<std::string, std::string>& headers,
                          const std::unordered_map<std::string, std::string>& request_parameters,
                          const std::vector<uint8_t>& content) override;
+
+            void form_data(
+                            const std::string& field_name,
+                            const std::string& actual_file_name,
+                            const smooth::application::network::http::regular::BoundaryIterator& begin,
+                            const smooth::application::network::http::regular::BoundaryIterator& end) override;
+
+            void url_encoded(std::unordered_map<std::string, std::string>& data) override;
 
         protected:
 #ifdef ESP_PLATFORM

@@ -112,8 +112,7 @@ namespace smooth::application::network::http::regular
         return b;
     }
 
-    void MIMEParser::parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
-                           const URLEncodedDataCallback& url_data)
+    void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data)
     {
         for (std::size_t i = 0; i < length; ++i)
         {
@@ -134,7 +133,7 @@ namespace smooth::application::network::http::regular
                 auto end_of_content = bounds.front();
                 last_consumed = end_of_content;
 
-                parse_content(start_of_content, end_of_content, content_callback);
+                parse_content(start_of_content, end_of_content, form_data);
             }
 
             // Erase already consumed data
@@ -193,12 +192,12 @@ namespace smooth::application::network::http::regular
                 }
 
                 // Perform the callback to the response handler with the parsed and decoded data.
-                url_data(form_url_encoded_data);
+                url_data.url_encoded(form_url_encoded_data);
             }
         }
     }
 
-    MIMEParser::BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
+    BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
     {
         // Adjust for CRLF at beginning of boundary pattern
         auto offset = is_crlf(begin) ? 2 : 0;
@@ -207,13 +206,13 @@ namespace smooth::application::network::http::regular
     }
 
     void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                                   const FormDataCallback& cb) const
+                                   IFormData& form_data) const
     {
         // If the first data isn't a CRLF, then there are one or more Content-headers for this data.
         if (is_crlf(start_of_content))
         {
             // All content is considered text/plain
-            cb("", "", start_of_content, end_of_content);
+            form_data.form_data("", "", start_of_content, end_of_content);
         }
         else
         {
@@ -224,15 +223,15 @@ namespace smooth::application::network::http::regular
 
             if (start_of_content != end_of_content)
             {
-                cb(content_dispositon["name"], content_dispositon["filename"], start_of_content, end_of_content);
+                form_data.form_data(content_dispositon["name"], content_dispositon["filename"], start_of_content, end_of_content);
             }
 
             (void)headers;
         }
     }
 
-    void MIMEParser::adjust_boundary_beginning_for_crlf(MIMEParser::BoundaryIterator start_of_data,
-                                                        MIMEParser::Boundaries& found_boundaries) const
+    void MIMEParser::adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data,
+                                                        Boundaries& found_boundaries) const
     {
         for (auto& current : found_boundaries)
         {
@@ -250,16 +249,16 @@ namespace smooth::application::network::http::regular
         }
     }
 
-    bool MIMEParser::is_crlf(MIMEParser::BoundaryIterator start) const
+    bool MIMEParser::is_crlf(BoundaryIterator start) const
     {
         return *start == '\r' && *(start + 1) == '\n';
     }
 
-    std::tuple<MIMEParser::BoundaryIterator,
+    std::tuple<BoundaryIterator,
                std::unordered_map<std::string, std::string>,
                std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
-        MIMEParser::BoundaryIterator begin,
-        MIMEParser::BoundaryIterator end) const
+               BoundaryIterator begin,
+               BoundaryIterator end) const
     {
         std::unordered_map<std::string, std::string> headers{};
         std::unordered_map<std::string, std::string> content_disp{};

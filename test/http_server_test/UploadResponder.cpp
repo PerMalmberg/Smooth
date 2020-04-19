@@ -9,6 +9,8 @@ namespace http_server_test
     using namespace smooth::application::network::http::regular;
     using namespace smooth::core::filesystem;
 
+    /// This request handler assumed it is being used only to handle either form or URL encoded data in a POST.
+    /// As such, it forwards all data to the MIMEParser.
     void UploadResponder::request(IServerResponse& response,
                                   IConnectionTimeoutModifier& timeout_modifier,
                                   const std::string& url,
@@ -23,51 +25,47 @@ namespace http_server_test
         (void)request_parameters;
         (void)url;
 
-        if (first_part)
+        // Pass content to mime parser with callbacks to handle the data.
+        mime.parse(content, *this, *this);
+    }
+
+    void UploadResponder::form_data(
+                            const std::string& field_name,
+                            const std::string& actual_file_name,
+                            const smooth::application::network::http::regular::BoundaryIterator& begin,
+                            const smooth::application::network::http::regular::BoundaryIterator& end)
+    {
+        // Store the file in web_root/uploads
+        Path path{ uploads / ("[" + field_name + "]" + actual_file_name) };
+        create_directory(path.parent());
+        File to_save{ path };
+
+        if (FileInfo{ path }.exists())
         {
-            // Prepare mime parser to receive data
-            // QQQ mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
+            remove(path);
         }
 
-        auto form_data = [this, &last_part, &response](const std::string& name,
-                                                       const std::string& actual_file_name,
-                                                       const MIMEParser::BoundaryIterator& begin,
-                                                       const MIMEParser::BoundaryIterator& end)
-                         {
-                             // Store the file in web_root/uploads
-                             Path path{ uploads / ("[" + name + "]" + actual_file_name) };
-                             create_directory(path.parent());
-                             File to_save{ path };
+        auto len = std::distance(begin, end);
+        to_save.write(&*begin, static_cast<int>(len));
 
-                             if (FileInfo{ path }.exists())
-                             {
-                                 remove(path);
-                             }
+        if (request_params.last_part)
+        {
+            request_params.response->reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+                                                    "File have been stored in "
+                                                    + uploads.str()), false);
+        }
+    }
 
-                             auto len = std::distance(begin, end);
-                             to_save.write(&*begin, static_cast<int>(len));
 
-                             if (last_part)
-                             {
-                                 response.reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                                           "File have been stored in "
-                                                                           + uploads.str()), false);
-                             }
-                         };
-
-        auto url_encoded_data =
-            [&response, &last_part](std::unordered_map<std::string, std::string>& data)
-            {
-                if (last_part)
-                {
-                    response.reply(std::make_unique<responses::StringResponse>( ResponseCode::OK,
+    void UploadResponder::url_encoded(std::unordered_map<std::string, std::string>& data)
+    {
+        if (request_params.last_part)
+        {
+            request_params.response->reply(
+                std::make_unique<responses::StringResponse>( ResponseCode::OK,
                 R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)"
-                    + data["edit_box"] + "</textarea>"),
-                    false);
-                }
-            };
-
-        // Pass content to mime parser with callbacks to handle the data.
-        // QQQ mime.parse(content, form_data, url_encoded_data);
+                + data["edit_box"] + "</textarea>"),
+                false);
+        }
     }
 }

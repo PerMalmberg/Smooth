@@ -18,11 +18,11 @@ limitations under the License.
 #pragma once
 
 #include "SendBlob.h"
-#include "smooth/application/network/http/regular/IHTTPRequestHandler.h"
+#include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 
 namespace http_server_test
 {
-    class BlobResponder : public smooth::application::network::http::regular::IHTTPRequestHandler
+    class BlobResponder : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
             void request(smooth::application::network::http::IServerResponse& response,

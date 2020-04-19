@@ -25,7 +25,7 @@ limitations under the License.
 #include "smooth/core/filesystem/filesystem.h"
 #include "smooth/core/filesystem/FSLock.h"
 #include "smooth/application/network/http/regular/responses/StringResponse.h"
-#include "smooth/application/network/http/regular/IHTTPRequestHandler.h"
+#include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 #include "smooth/core/SystemStatistics.h"
 
 #include "wifi_creds.h"
@@ -42,9 +42,9 @@ using namespace smooth::application::network::http::responses;
 
 namespace access_point
 {
-    // This response handler simply output a static web page, see http_server_test
+    // This request handler simply output a static web page, see http_server_test
     // on how to set up a web server with actual index files etc..
-    class HelloWorldResponse : public smooth::application::network::http::regular::IHTTPRequestHandler
+    class HelloWorldResponse : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
             constexpr static const char* tag = "HelloWorld";
@@ -56,8 +56,7 @@ namespace access_point
                          bool last_part,
                          const std::unordered_map<std::string, std::string>& /*headers*/,
                          const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-                         const std::vector<uint8_t>& /*content*/,
-                         MIMEParser& /*mime*/)
+                         const std::vector<uint8_t>& /*content*/)
             {
                 constexpr const char* mac_format = "Local MAC: {:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}";
                 constexpr const char* ip_format = "Access Point IP: {}.{}.{}.{}";

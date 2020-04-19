@@ -25,30 +25,45 @@ limitations under the License.
 
 namespace smooth::application::network::http::regular
 {
-    class MIMEParser
+    using MimeData = std::vector<uint8_t>;
+    using BoundaryIterator = MimeData::const_iterator;
+    using Boundaries = std::vector<BoundaryIterator>;
+
+    class IFormData
     {
         public:
-            using MimeData = std::vector<uint8_t>;
-            using BoundaryIterator = MimeData::const_iterator;
-            using Boundaries = std::vector<BoundaryIterator>;
-            using FormDataCallback = std::function<void (const std::string& field_name,
-                                                         const std::string& actual_file_name,
-                                                         const BoundaryIterator& begin,
-                                                         const BoundaryIterator& end)>;
-            using URLEncodedDataCallback = std::function<void (std::unordered_map<std::string, std::string>& data)>;
+            virtual ~IFormData() = default;
 
+            virtual void form_data(const std::string& field_name,
+                            const std::string& actual_file_name,
+                            const BoundaryIterator& begin,
+                            const BoundaryIterator& end) = 0;
+    };
+
+    class IURLEncodedData
+    {
+        public:
+            virtual ~IURLEncodedData() = default;
+
+            virtual void url_encoded(std::unordered_map<std::string, std::string>& data) = 0;
+    };
+
+    class MIMEParser
+    {        
+        public:
+
+            
             bool detect_mode(const std::string& content_type, std::size_t content_length);
 
             void reset() noexcept;
 
-            void parse(const std::vector<uint8_t>& p, const FormDataCallback& content_callback,
-                       const URLEncodedDataCallback& url_data)
+            void parse(const std::vector<uint8_t>& p, IFormData& form_data,
+                       IURLEncodedData& url_data)
             {
-                parse(p.data(), p.size(), content_callback, url_data);
+                parse(p.data(), p.size(), form_data, url_data);
             }
 
-            void parse(const uint8_t* p, std::size_t length, const FormDataCallback& content_callback,
-                       const URLEncodedDataCallback& url_data);
+            void parse(const uint8_t* p, std::size_t length, IFormData& content_callback, IURLEncodedData& url_data);
 
         private:
             enum class Mode
@@ -64,7 +79,7 @@ namespace smooth::application::network::http::regular
 
             void
             parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                          const FormDataCallback& content_callback) const;
+                          IFormData& content_callback) const;
 
             void adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data, Boundaries& found_boundaries) const;
 

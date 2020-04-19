@@ -4,6 +4,7 @@
             "name": "xtensa",
             "includePath": [
                 "/workspaces/Smooth/lib/smooth/include/**",
+                "/workspaces/Smooth/externals/**",
                 "/esp/esp-idf/components/**",
                 "/esp/tools/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
             ],
@@ -24,6 +25,7 @@
             "name": "host",
             "includePath": [
                 "/workspaces/Smooth/lib/smooth/include/**",
+                "/workspaces/Smooth/externals/**",
                 "/esp/esp-idf/components/**",
                 "/esp/tools/tools/xtensa-esp32-elf/esp-2020r1-8.2.0/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
             ],

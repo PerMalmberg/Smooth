@@ -22,16 +22,15 @@ limitations under the License.
 #include <unordered_map>
 #include "smooth/application/network/http/IServerResponse.h"
 #include "smooth/application/network/http/IConnectionTimeoutModifier.h"
+#include "smooth/application/network/http/regular/MIMEParser.h"
 
 namespace smooth::application::network::http::regular
 {
-    class MIMEParser;
-
     /// Base class interface for all HTTP request handlers
-    class IHTTPRequestHandler
-    {
+    class HTTPRequestHandler : public IFormData, public IURLEncodedData
+    {   
         public:
-            virtual ~IHTTPRequestHandler() = default;
+            virtual ~HTTPRequestHandler() = default;
 
             /// Called for each part of the incoming data in the current request
             virtual void request(IServerResponse& response,
@@ -47,5 +46,32 @@ namespace smooth::application::network::http::regular
             virtual void start_of_request() {} // Called before the first call to request().
 
             virtual void end_of_request() {} // Called after the last call to request().
+
+            /// Called multiple times while the MIMEParser is decoding form data
+            virtual void form_data(const std::string& field_name,
+                            const std::string& actual_file_name,
+                            const BoundaryIterator& begin,
+                            const BoundaryIterator& end) override {};
+
+            /// Called multiple times while the the MIMEParser is decoding URL encoded data
+            virtual void url_encoded(std::unordered_map<std::string, std::string>& data) override {};
+
+            void prepare_mime();
+            void update_call_params(bool first_part, bool last_part, IServerResponse& response, const std::unordered_map<std::string, std::string>& headers, const std::unordered_map<std::string, std::string>& request_parameters);
+
+        protected:
+            MIMEParser mime{};
+            
+            /// This structure holds parameters for the current request.
+            // Never store variables gotten from this struct for re-use,
+            // always get retrieve them from this struct when needed.
+            struct RequestParams
+            {
+                bool first_part;
+                bool last_part;
+                IServerResponse* response{};
+                const std::unordered_map<std::string, std::string>* headers;
+                const std::unordered_map<std::string, std::string>* request_parameters;
+            } request_params;
     };
 }
