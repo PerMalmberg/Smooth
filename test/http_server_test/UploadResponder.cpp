@@ -11,18 +11,11 @@ namespace http_server_test
 
     /// This request handler assumed it is being used only to handle either form or URL encoded data in a POST.
     /// As such, it forwards all data to the MIMEParser.
-    void UploadResponder::request(IServerResponse& response,
-                                  IConnectionTimeoutModifier& timeout_modifier,
+    void UploadResponder::request(IConnectionTimeoutModifier& timeout_modifier,
                                   const std::string& url,
-                                  bool first_part,
-                                  bool last_part,
-                                  const std::unordered_map<std::string, std::string>& headers,
-                                  const std::unordered_map<std::string, std::string>& request_parameters,
                                   const std::vector<uint8_t>& content)
     {
         (void)timeout_modifier;
-        (void)headers;
-        (void)request_parameters;
         (void)url;
 
         // Pass content to mime parser with callbacks to handle the data.

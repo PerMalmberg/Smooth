@@ -26,27 +26,20 @@ namespace smooth::application::network::http::regular
     class WebSocketUpgradeDetector : public HTTPRequestHandler
     {
         public:
-            void request(IServerResponse& response,
-                         IConnectionTimeoutModifier& timeout_modifier,
+            void request(IConnectionTimeoutModifier& timeout_modifier,
                          const std::string& url,
-                         bool first_part,
-                         bool last_part,
-                         const std::unordered_map<std::string, std::string>& headers,
-                         const std::unordered_map<std::string, std::string>& request_parameters,
                          const std::vector<uint8_t>& content)
             {
-                (void)response;
                 (void)url;
-                (void)first_part;
-                (void)request_parameters;
                 (void)content;
 
-                if (last_part)
+                if (request_params.last_part)
                 {
                     auto did_upgrade = false;
 
                     try
                     {
+                        auto& headers = *(request_params.headers);
                         const auto& upgrade = headers.at(UPGRADE);
                         const auto& connection = headers.at(CONNECTION);
                         const auto version = headers.at(SEC_WEBSOCKET_VERSION);
@@ -71,14 +64,14 @@ namespace smooth::application::network::http::regular
                             res->add_header(UPGRADE, "websocket");
                             res->add_header(CONNECTION, "upgrade");
                             res->add_header(SEC_WEBSOCKET_ACCEPT, reply_key);
-                            response.reply(std::move(res), false);
+                            request_params.response->reply(std::move(res), false);
                             did_upgrade = true;
 
                             // Remove socket receive timeouts
                             timeout_modifier.set_receive_timeout(std::chrono::milliseconds{ 0 });
 
                             // Finally change protocols.
-                            response.upgrade_to_websocket<WSServerType>();
+                            request_params.response->upgrade_to_websocket<WSServerType>();
                         }
                     }
                     catch (std::exception& ex)
@@ -89,7 +82,7 @@ namespace smooth::application::network::http::regular
                     if (!did_upgrade)
                     {
                         auto res = std::make_unique<regular::responses::HeaderOnlyResponse>(ResponseCode::Bad_Request);
-                        response.reply(std::move(res), false);
+                        request_params.response->reply(std::move(res), false);
                     }
                 }
             }

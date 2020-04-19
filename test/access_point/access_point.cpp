@@ -49,13 +49,8 @@ namespace access_point
         public:
             constexpr static const char* tag = "HelloWorld";
 
-            void request(IServerResponse& response,
-                         IConnectionTimeoutModifier& /*timeout_modifier*/,
+            void request(IConnectionTimeoutModifier& /*timeout_modifier*/,
                          const std::string& /*url*/,
-                         bool /*first_part*/,
-                         bool last_part,
-                         const std::unordered_map<std::string, std::string>& /*headers*/,
-                         const std::unordered_map<std::string, std::string>& /*request_parameters*/,
                          const std::vector<uint8_t>& /*content*/)
             {
                 constexpr const char* mac_format = "Local MAC: {:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}";
@@ -87,14 +82,14 @@ namespace access_point
                     Log::error(tag, "Local IP unavailable");
                 }
 
-                if (last_part)
+                if (request_params.last_part)
                 {
                     auto s = fmt::format(
                         "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>"
                         "{}<br>{}</BODY></HTML>",
                         ip_str, mac_str);
 
-                    response.reply(std::make_unique<responses::StringResponse>(
+                    request_params.response->reply(std::make_unique<responses::StringResponse>(
                                 ResponseCode::OK,
                                 s),
                                 false);

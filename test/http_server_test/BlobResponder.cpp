@@ -6,28 +6,21 @@ namespace http_server_test
     using namespace smooth::application::network::http;
     using namespace smooth::application::network::http::regular;
 
-    void BlobResponder::request(IServerResponse& response,
-                                IConnectionTimeoutModifier& timeout_modifier,
+    void BlobResponder::request(IConnectionTimeoutModifier& timeout_modifier,
                                 const std::string& url,
-                                bool first_part,
-                                bool last_part,
-                                const std::unordered_map<std::string, std::string>& headers,
-                                const std::unordered_map<std::string, std::string>& request_parameters,
                                 const std::vector<uint8_t>& content)
     {
         (void)timeout_modifier;
         (void)url;
-        (void)first_part;
-        (void)headers;
         (void)content;
 
-        if (last_part)
+        if (request_params.last_part)
         {
             std::size_t size = 0;
 
             try
             {
-                size = std::stoul(request_parameters.at("size"));
+                size = std::stoul(request_params.request_parameters->at("size"));
             }
             catch (...)
             {
@@ -35,13 +28,14 @@ namespace http_server_test
 
             if (size == 0)
             {
-                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::Expectation_Failed,
+                request_params.response->reply(std::make_unique<responses::StringResponse>(ResponseCode::
+                                                                                           Expectation_Failed,
                                                                 "Request parameter 'size' must be > 0"),
                                                                 false);
             }
             else
             {
-                response.reply(std::make_unique<SendBlob>(size), false);
+                request_params.response->reply(std::make_unique<SendBlob>(size), false);
             }
         }
     }

@@ -25,13 +25,8 @@ namespace http_server_test
     class BlobResponder : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
-            void request(smooth::application::network::http::IServerResponse& response,
-                         smooth::application::network::http::IConnectionTimeoutModifier& timeout_modifier,
+            void request(smooth::application::network::http::IConnectionTimeoutModifier& timeout_modifier,
                          const std::string& url,
-                         bool first_part,
-                         bool last_part,
-                         const std::unordered_map<std::string, std::string>& headers,
-                         const std::unordered_map<std::string, std::string>& request_parameters,
                          const std::vector<uint8_t>& content) override;
     };
 }

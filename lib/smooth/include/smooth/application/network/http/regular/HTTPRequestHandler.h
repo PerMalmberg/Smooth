@@ -33,13 +33,8 @@ namespace smooth::application::network::http::regular
             virtual ~HTTPRequestHandler() = default;
 
             /// Called for each part of the incoming data in the current request
-            virtual void request(IServerResponse& response,
-                                 IConnectionTimeoutModifier& timeout_modifier,
+            virtual void request(IConnectionTimeoutModifier& timeout_modifier,
                                  const std::string& url,
-                                 bool first_part, // True on the first call
-                                 bool last_part, // True on the last call
-                                 const std::unordered_map<std::string, std::string>& headers,
-                                 const std::unordered_map<std::string, std::string>& request_parameters,
                                  const std::vector<uint8_t>& content) = 0;
 
             // Convenience methods for setting up the handler.
@@ -48,21 +43,21 @@ namespace smooth::application::network::http::regular
             virtual void end_of_request() {} // Called after the last call to request().
 
             /// Called multiple times while the MIMEParser is decoding form data
-            virtual void form_data(const std::string& field_name,
-                                   const std::string& actual_file_name,
-                                   const BoundaryIterator& begin,
-                                   const BoundaryIterator& end) override {}
+            virtual void form_data(const std::string& /*field_name*/,
+                                   const std::string& /*actual_file_name*/,
+                                   const BoundaryIterator& /*begin*/,
+                                   const BoundaryIterator& /*end*/) override {}
 
             /// Called multiple times while the the MIMEParser is decoding URL encoded data
-            virtual void url_encoded(std::unordered_map<std::string, std::string>& data) override {}
+            virtual void url_encoded(std::unordered_map<std::string, std::string>& /*data*/) override {}
 
             void prepare_mime();
 
-            void update_call_params(bool first_part,
-                                    bool last_part,
-                                    IServerResponse& response,
-                                    const std::unordered_map<std::string, std::string>& headers,
-                                    const std::unordered_map<std::string, std::string>& request_parameters);
+            void update_call_params(bool /*first_part*/,
+                                    bool /*last_part*/,
+                                    IServerResponse& /*response*/,
+                                    const std::unordered_map<std::string, std::string>& /*headers*/,
+                                    const std::unordered_map<std::string, std::string>& /*request_parameters*/);
 
         protected:
             MIMEParser mime{};
