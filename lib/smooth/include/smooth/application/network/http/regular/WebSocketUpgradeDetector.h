@@ -33,15 +33,13 @@ namespace smooth::application::network::http::regular
                          bool last_part,
                          const std::unordered_map<std::string, std::string>& headers,
                          const std::unordered_map<std::string, std::string>& request_parameters,
-                         const std::vector<uint8_t>& content,
-                         MIMEParser& mime)
+                         const std::vector<uint8_t>& content)
             {
                 (void)response;
                 (void)url;
                 (void)first_part;
                 (void)request_parameters;
                 (void)content;
-                (void)mime;
 
                 if (last_part)
                 {

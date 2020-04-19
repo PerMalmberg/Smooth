@@ -32,7 +32,6 @@ namespace http_server_test
                          bool last_part,
                          const std::unordered_map<std::string, std::string>& headers,
                          const std::unordered_map<std::string, std::string>& request_parameters,
-                         const std::vector<uint8_t>& content,
-                         smooth::application::network::http::regular::MIMEParser& mime) override;
+                         const std::vector<uint8_t>& content) override;
     };
 }

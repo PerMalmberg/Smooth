@@ -16,8 +16,7 @@ namespace http_server_test
                                   bool last_part,
                                   const std::unordered_map<std::string, std::string>& headers,
                                   const std::unordered_map<std::string, std::string>& request_parameters,
-                                  const std::vector<uint8_t>& content,
-                                  MIMEParser& mime)
+                                  const std::vector<uint8_t>& content)
     {
         (void)timeout_modifier;
         (void)headers;
@@ -27,7 +26,7 @@ namespace http_server_test
         if (first_part)
         {
             // Prepare mime parser to receive data
-            mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
+            // QQQ mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
         }
 
         auto form_data = [this, &last_part, &response](const std::string& name,
@@ -69,6 +68,6 @@ namespace http_server_test
             };
 
         // Pass content to mime parser with callbacks to handle the data.
-        mime.parse(content, form_data, url_encoded_data);
+        // QQQ mime.parse(content, form_data, url_encoded_data);
     }
 }

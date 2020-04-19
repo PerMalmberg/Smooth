@@ -41,8 +41,7 @@ namespace smooth::application::network::http::regular
                                  bool last_part, // True on the last call
                                  const std::unordered_map<std::string, std::string>& headers,
                                  const std::unordered_map<std::string, std::string>& request_parameters,
-                                 const std::vector<uint8_t>& content,
-                                 MIMEParser& mime) = 0;
+                                 const std::vector<uint8_t>& content) = 0;
 
             // Convenience methods for setting up the handler.
             virtual void start_of_request() {} // Called before the first call to request().
