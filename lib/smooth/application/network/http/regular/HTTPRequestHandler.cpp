@@ -3,7 +3,6 @@
 
 namespace smooth::application::network::http::regular
 {
-
     void HTTPRequestHandler::prepare_mime()
     {
         mime.reset();
