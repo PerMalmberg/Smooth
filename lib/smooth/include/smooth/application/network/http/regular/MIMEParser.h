@@ -35,9 +35,9 @@ namespace smooth::application::network::http::regular
             virtual ~IFormData() = default;
 
             virtual void form_data(const std::string& field_name,
-                            const std::string& actual_file_name,
-                            const BoundaryIterator& begin,
-                            const BoundaryIterator& end) = 0;
+                                   const std::string& actual_file_name,
+                                   const BoundaryIterator& begin,
+                                   const BoundaryIterator& end) = 0;
     };
 
     class IURLEncodedData
@@ -49,10 +49,8 @@ namespace smooth::application::network::http::regular
     };
 
     class MIMEParser
-    {        
+    {
         public:
-
-            
             bool detect_mode(const std::string& content_type, std::size_t content_length);
 
             void reset() noexcept;

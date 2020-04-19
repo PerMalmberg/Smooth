@@ -30,10 +30,10 @@ namespace http_server_test
     }
 
     void UploadResponder::form_data(
-                            const std::string& field_name,
-                            const std::string& actual_file_name,
-                            const smooth::application::network::http::regular::BoundaryIterator& begin,
-                            const smooth::application::network::http::regular::BoundaryIterator& end)
+        const std::string& field_name,
+        const std::string& actual_file_name,
+        const smooth::application::network::http::regular::BoundaryIterator& begin,
+        const smooth::application::network::http::regular::BoundaryIterator& end)
     {
         // Store the file in web_root/uploads
         Path path{ uploads / ("[" + field_name + "]" + actual_file_name) };
@@ -55,7 +55,6 @@ namespace http_server_test
                                                     + uploads.str()), false);
         }
     }
-
 
     void UploadResponder::url_encoded(std::unordered_map<std::string, std::string>& data)
     {

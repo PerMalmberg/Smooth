@@ -28,6 +28,7 @@ using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
+
     void MIMEParser::reset() noexcept
     {
         boundary.clear();
@@ -223,7 +224,10 @@ namespace smooth::application::network::http::regular
 
             if (start_of_content != end_of_content)
             {
-                form_data.form_data(content_dispositon["name"], content_dispositon["filename"], start_of_content, end_of_content);
+                form_data.form_data(content_dispositon["name"],
+                                    content_dispositon["filename"],
+                                    start_of_content,
+                                    end_of_content);
             }
 
             (void)headers;
@@ -257,8 +261,8 @@ namespace smooth::application::network::http::regular
     std::tuple<BoundaryIterator,
                std::unordered_map<std::string, std::string>,
                std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
-               BoundaryIterator begin,
-               BoundaryIterator end) const
+                BoundaryIterator begin,
+                BoundaryIterator end) const
     {
         std::unordered_map<std::string, std::string> headers{};
         std::unordered_map<std::string, std::string> content_disp{};
