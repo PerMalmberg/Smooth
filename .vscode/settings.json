@@ -64,6 +64,13 @@
         "cinttypes": "cpp",
         "variant": "cpp",
         "format": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "strstream": "cpp",
+        "codecvt": "cpp",
+        "csignal": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp",
+        "future": "cpp",
+        "iomanip": "cpp"
     }
 }

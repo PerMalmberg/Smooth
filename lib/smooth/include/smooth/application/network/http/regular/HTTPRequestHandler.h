@@ -27,12 +27,17 @@ limitations under the License.
 namespace smooth::application::network::http::regular
 {
     /// Base class interface for all HTTP request handlers
+    /// This class is tightly coupled with HTTPServer::handle() and the
+    /// call order in that method. When inheriting from this class,
+    /// The HTTPServer ensures that your inheriting class is served all
+    /// the data it needs before calling request().
     class HTTPRequestHandler : public IFormData, public IURLEncodedData
     {
         public:
             virtual ~HTTPRequestHandler() = default;
 
             /// Called for each part of the incoming data in the current request
+            // See protected methods for reading request-specific data/information.
             virtual void request(IConnectionTimeoutModifier& timeout_modifier,
                                  const std::string& url,
                                  const std::vector<uint8_t>& content) = 0;
@@ -53,27 +58,45 @@ namespace smooth::application::network::http::regular
 
             void prepare_mime();
 
-            void update_call_params(bool /*first_part*/,
-                                    bool /*last_part*/,
+            void update_call_params(bool first_part,
+                                    bool last_part,
                                     IServerResponse& /*response*/,
-                                    const std::unordered_map<std::string, std::string>& /*headers*/,
-                                    const std::unordered_map<std::string, std::string>& /*request_parameters*/);
+                                    const std::unordered_map<std::string, std::string>& headers,
+                                    const std::unordered_map<std::string, std::string>& request_parameters);
 
         protected:
             MIMEParser mime{};
 
-            /// This structure holds parameters for the current request.
-            // Never store variables gotten from this struct for re-use,
-            // always get retrieve them from this struct when needed.
+            /// Returns true during the first call to request()
+            bool is_first() const { return request_params.first_part; }
+
+            /// Returns true during the last call to request()
+            bool is_last() const { return request_params.last_part; }
+
+            /// Returns the response used to communicate to the client.
+            IServerResponse& response() const { return *request_params.response; }
+
+            /// Returns the headers for the current request
+            const std::unordered_map<std::string, std::string>& headers() const { return *request_params.headers; }
+
+            /// Returns the request parameters (page?a=1&b=2 etc.) for the currect request
+            const std::unordered_map<std::string, std::string>& request_parameters() const
+            {
+                return *request_params.request_parameters;
+            }
+
+        private:
+            /// This structure holds parameters for the current request,
+            /// to be accessed via above methods.
             struct RequestParams
             {
                 bool first_part;
                 bool last_part;
                 IServerResponse* response{};
-                const std::unordered_map<std::string, std::string>* headers;
-                const std::unordered_map<std::string, std::string>* request_parameters;
-            }
+                const std::unordered_map<std::string, std::string>* headers{ nullptr };
+                const std::unordered_map<std::string, std::string>* request_parameters{ nullptr };
+            };
 
-            request_params;
+            RequestParams request_params{};
     };
 }

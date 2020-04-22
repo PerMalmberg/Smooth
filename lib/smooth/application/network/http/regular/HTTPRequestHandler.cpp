@@ -10,8 +10,8 @@ namespace smooth::application::network::http::regular
         // In case the expected headers don't exist, catch any exceptions.
         try
         {
-            mime.detect_mode(request_params.headers->at(CONTENT_TYPE),
-                            std::stoul(request_params.headers->at(CONTENT_LENGTH)));
+            mime.detect_mode(headers().at(CONTENT_TYPE),
+                            std::stoul(headers().at(CONTENT_LENGTH)));
         }
         catch (...)
         {

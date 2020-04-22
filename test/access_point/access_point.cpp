@@ -82,14 +82,14 @@ namespace access_point
                     Log::error(tag, "Local IP unavailable");
                 }
 
-                if (request_params.last_part)
+                if (is_last())
                 {
                     auto s = fmt::format(
                         "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>"
                         "{}<br>{}</BODY></HTML>",
                         ip_str, mac_str);
 
-                    request_params.response->reply(std::make_unique<responses::StringResponse>(
+                    response().reply(std::make_unique<responses::StringResponse>(
                                 ResponseCode::OK,
                                 s),
                                 false);

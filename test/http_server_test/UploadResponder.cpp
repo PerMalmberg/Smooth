@@ -41,9 +41,9 @@ namespace http_server_test
         auto len = std::distance(begin, end);
         to_save.write(&*begin, static_cast<int>(len));
 
-        if (request_params.last_part)
+        if (is_last())
         {
-            request_params.response->reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
+            response().reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                                                     "File have been stored in "
                                                     + uploads.str()), false);
         }
@@ -51,9 +51,9 @@ namespace http_server_test
 
     void UploadResponder::url_encoded(std::unordered_map<std::string, std::string>& data)
     {
-        if (request_params.last_part)
+        if (is_last())
         {
-            request_params.response->reply(
+            response().reply(
                 std::make_unique<responses::StringResponse>( ResponseCode::OK,
                 R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)"
                 + data["edit_box"] + "</textarea>"),

@@ -187,7 +187,8 @@ namespace smooth::application::network::http
 
                 if (first_part)
                 {
-                    // Call order is important.
+                    // Call order is important - must update call params before calling the rest of the methods in the
+                    // inheriting class.
                     handler->update_call_params(first_part, last_part, response, request_headers, request_parameters);
                     handler->prepare_mime();
                     handler->start_of_request();

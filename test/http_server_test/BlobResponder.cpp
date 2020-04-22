@@ -14,13 +14,13 @@ namespace http_server_test
         (void)url;
         (void)content;
 
-        if (request_params.last_part)
+        if (is_last())
         {
             std::size_t size = 0;
 
             try
             {
-                size = std::stoul(request_params.request_parameters->at("size"));
+                size = std::stoul(request_parameters().at("size"));
             }
             catch (...)
             {
@@ -28,14 +28,14 @@ namespace http_server_test
 
             if (size == 0)
             {
-                request_params.response->reply(std::make_unique<responses::StringResponse>(ResponseCode::
-                                                                                           Expectation_Failed,
+                response().reply(std::make_unique<responses::StringResponse>(ResponseCode::
+                                                                             Expectation_Failed,
                                                                 "Request parameter 'size' must be > 0"),
                                                                 false);
             }
             else
             {
-                request_params.response->reply(std::make_unique<SendBlob>(size), false);
+                response().reply(std::make_unique<SendBlob>(size), false);
             }
         }
     }
