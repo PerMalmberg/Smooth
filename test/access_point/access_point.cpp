@@ -25,7 +25,7 @@ limitations under the License.
 #include "smooth/core/filesystem/filesystem.h"
 #include "smooth/core/filesystem/FSLock.h"
 #include "smooth/application/network/http/regular/responses/StringResponse.h"
-#include "smooth/application/network/http/regular/MIMEParser.h"
+#include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 #include "smooth/core/SystemStatistics.h"
 
 #include "wifi_creds.h"
@@ -42,6 +42,61 @@ using namespace smooth::application::network::http::responses;
 
 namespace access_point
 {
+    // This request handler simply output a static web page, see http_server_test
+    // on how to set up a web server with actual index files etc..
+    class HelloWorldResponse : public smooth::application::network::http::regular::HTTPRequestHandler
+    {
+        public:
+            constexpr static const char* tag = "HelloWorld";
+
+            void request(IConnectionTimeoutModifier& /*timeout_modifier*/,
+                         const std::string& /*url*/,
+                         const std::vector<uint8_t>& /*content*/)
+            {
+                constexpr const char* mac_format = "Local MAC: {:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}";
+                constexpr const char* ip_format = "Access Point IP: {}.{}.{}.{}";
+                std::string mac_str{};
+                std::string ip_str{};
+
+                std::array<uint8_t, 6> mac{};
+
+                if (Wifi::get_local_mac_address(mac))
+                {
+                    mac_str = fmt::format(mac_format, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                    Log::info(tag, mac_str);
+                }
+                else
+                {
+                    Log::error(tag, "Could not get local MAC");
+                }
+
+                auto ip = Wifi::get_local_ip();
+
+                if (ip)
+                {
+                    ip_str = fmt::format(ip_format, ip >> 24, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF, ip & 0xFF);
+                    Log::info(tag, ip_str);
+                }
+                else
+                {
+                    Log::error(tag, "Local IP unavailable");
+                }
+
+                if (is_last())
+                {
+                    auto s = fmt::format(
+                        "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>"
+                        "{}<br>{}</BODY></HTML>",
+                        ip_str, mac_str);
+
+                    response().reply(std::make_unique<responses::StringResponse>(
+                                ResponseCode::OK,
+                                s),
+                                false);
+                }
+            }
+    };
+
     App::App()
             : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(5000))
     {
@@ -54,7 +109,6 @@ namespace access_point
 
     void App::init()
     {
-        constexpr const char* tag = "App::Init";
         std::stringstream ss;
 
         const int max_client_count = 6;
@@ -62,7 +116,7 @@ namespace access_point
 
         Application::init();
 
-        Log::info(tag, "Starting wifi...");
+        Log::info("App::init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();
         wifi.set_host_name("Smooth-ESP");
         wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
@@ -83,62 +137,6 @@ namespace access_point
 
         insecure_server->start(max_client_count, listen_backlog, std::make_shared<IPv4>("0.0.0.0", 8080));
 
-        constexpr const char* mac_format = "Local MAC: {:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}";
-        constexpr const char* ip_format = "Access Point IP: {}.{}.{}.{}";
-        std::string mac_str{};
-        std::string ip_str{};
-
-        std::array<uint8_t, 6> mac{};
-
-        if (Wifi::get_local_mac_address(mac))
-        {
-            mac_str = fmt::format(mac_format, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-            Log::info(tag, mac_str);
-        }
-        else
-        {
-            Log::error(tag, "Could not get local MAC");
-        }
-
-        auto ip = Wifi::get_local_ip();
-
-        if (ip)
-        {
-            ip_str = fmt::format(ip_format, ip >> 24, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF, ip & 0xFF);
-            Log::info(tag, ip_str);
-        }
-        else
-        {
-            Log::error(tag, "Local IP unavailable");
-        }
-
-        auto hello_world = [ip_str, mac_str](
-            IServerResponse& response,
-            IConnectionTimeoutModifier& /*timeout_modifier*/,
-            const std::string& /*url*/,
-            bool /*first_part*/,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& /*headers*/,
-            const std::unordered_map<std::string, std::string>& /*request_parameters*/,
-            const std::vector<uint8_t>& /*content*/,
-            MIMEParser& /*mime*/)
-                           {
-                               if (last_part)
-                               {
-                                   auto s = fmt::format(
-                                           "<HTML><HEAD><TITLE>Hello World!</TITLE></HEAD><BODY><H1>Hello World!</H1>"
-                                           "{}<br>{}</BODY></HTML>",
-                                            ip_str, mac_str);
-
-                                   response.reply(std::make_unique<responses::StringResponse>(
-                                                  ResponseCode::OK,
-                                                  s),
-                                                  false);
-                               }
-                           };
-
-        // As there's no actual index file in this example, use a response handles instead when calling requesting "/".
-        // See http_server_test to see how a web server with actual files is set up.
-        insecure_server->on(HTTPMethod::GET, "/", hello_world);
+        insecure_server->on(HTTPMethod::GET, "/", std::make_shared<HelloWorldResponse>());
     }
 }

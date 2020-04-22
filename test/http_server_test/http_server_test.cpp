@@ -24,9 +24,10 @@ limitations under the License.
 #include "smooth/application/network/http/regular/responses/StringResponse.h"
 #include "smooth/application/network/http/regular/MIMEParser.h"
 #include "smooth/core/SystemStatistics.h"
-#include "SendBlob.h"
 #include "WSEchoServer.h"
 #include "wifi_creds.h"
+#include "BlobResponder.h"
+#include "UploadResponder.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -169,7 +170,6 @@ namespace http_server_test
 
 #ifdef ESP_PLATFORM
         Path web_root(SDCardMount::instance().mount_point() / "web_root");
-        Path uploads{ SDCardMount::instance().mount_point() / "uploads" };
 
         // Setup SD Card as per WROOVER Kit 3.x
         sd_card = std::make_unique<smooth::core::filesystem::MMCSDCard>(GPIO_NUM_15, GPIO_NUM_2, GPIO_NUM_4,
@@ -179,7 +179,6 @@ namespace http_server_test
 #else
         const smooth::core::filesystem::Path test_path(__FILE__);
         const smooth::core::filesystem::Path web_root = test_path.parent() / "web_root";
-        Path uploads{ test_path.parent() / "uploads" };
 #endif
 
         auto template_data_retriever = std::make_shared<DataRetriever>();
@@ -219,120 +218,17 @@ namespace http_server_test
                              private_key,
                              password);
 
-        auto blob = [](
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime) {
-                        (void)timeout_modifier;
-                        (void)url;
-                        (void)first_part;
-                        (void)headers;
-                        (void)content;
-                        (void)mime;
+        // Different request handler are created for each of the two servers. Although the
+        // server are running on the same thread, a handler might not be state-less so
+        // if requests are received on both servers at the same time, there is no guarantee
+        // in which order the data is processed between the two handlers.
 
-                        if (last_part)
-                        {
-                            std::size_t size = 0;
-
-                            try
-                            {
-                                size = std::stoul(request_parameters.at("size"));
-                            }
-                            catch (...)
-                            {
-                            }
-
-                            if (size == 0)
-                            {
-                                response.reply(std::make_unique<responses::StringResponse>(ResponseCode::
-                                                                                           Expectation_Failed,
-                                                                               "Request parameter 'size' must be > 0"),
-                                   false);
-                            }
-                            else
-                            {
-                                response.reply(std::make_unique<SendBlob>(size), false);
-                            }
-                        }
-                    };
-
-        auto upload = [web_root, uploads](
-            IServerResponse& response,
-            IConnectionTimeoutModifier& timeout_modifier,
-            const std::string& url,
-            bool first_part,
-            bool last_part,
-            const std::unordered_map<std::string, std::string>& headers,
-            const std::unordered_map<std::string, std::string>& request_parameters,
-            const std::vector<uint8_t>& content,
-            MIMEParser& mime) {
-                          (void)timeout_modifier;
-                          (void)headers;
-                          (void)request_parameters;
-                          (void)url;
-
-                          if (first_part)
-                          {
-                              // Prepare mime parser to receive data
-                              mime.detect_mode(headers.at(CONTENT_TYPE), std::stoul(headers.at(CONTENT_LENGTH)));
-                          }
-
-                          auto form_data = [uploads, &last_part, &response](const std::string& name,
-                                                                            const std::string& actual_file_name,
-                                                                            const MIMEParser::BoundaryIterator& begin,
-                                                                            const MIMEParser::BoundaryIterator& end) {
-                                               // Store the file in web_root/uploads
-                                               Path path{ uploads / ("[" + name + "]" + actual_file_name) };
-                                               create_directory(path.parent());
-                                               File to_save{ path };
-
-                                               if (FileInfo{ path }.exists())
-                                               {
-                                                   remove(path);
-                                               }
-
-                                               auto len = std::distance(begin, end);
-                                               to_save.write(&*begin, static_cast<int>(len));
-
-                                               if (last_part)
-                                               {
-                                                   response.reply(std::make_unique<responses::StringResponse>(
-                    ResponseCode::OK,
-                                                                               "File have been stored in "
-                                                                                                                                                                                            +
-                    uploads.str()), false);
-                                               }
-                                           };
-
-                          auto url_encoded_data =
-                              [&response, &last_part](std::unordered_map<std::string, std::string>& data) {
-                                  if (last_part)
-                                  {
-                                      response.reply(std::make_unique<responses::StringResponse>(
-                    ResponseCode::OK,
-                                                                               R"(You entered this text:<br/> <textarea readonly cols="120" rows="20" wrap="soft">)"
-                                                                                                                                                                                                                                                      +
-                    data["edit_box"] + "</textarea>"),
-                                   false);
-                                  }
-                              };
-
-                          // Pass content to mime parser with callbacks to handle the data.
-                          mime.parse(content, form_data, url_encoded_data);
-                      };
-
-        secure_server->on(HTTPMethod::GET, "/api/blob", blob);
-        secure_server->on(HTTPMethod::POST, "/upload", upload);
+        secure_server->on(HTTPMethod::GET, "/api/blob", std::make_shared<BlobResponder>());
+        secure_server->on(HTTPMethod::POST, "/upload", std::make_shared<UploadResponder>());
         secure_server->enable_websocket_on<WSEchoServer>("/echo");
 
-        insecure_server->on(HTTPMethod::GET, "/api/blob", blob);
-        insecure_server->on(HTTPMethod::POST, "/upload", upload);
+        insecure_server->on(HTTPMethod::GET, "/api/blob", std::make_shared<BlobResponder>());
+        insecure_server->on(HTTPMethod::POST, "/upload", std::make_shared<UploadResponder>());
         insecure_server->enable_websocket_on<WSEchoServer>("/echo");
     }
 }

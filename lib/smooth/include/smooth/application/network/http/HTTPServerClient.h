@@ -26,7 +26,6 @@ limitations under the License.
 #include "smooth/application/network/http/IConnectionTimeoutModifier.h"
 #include "smooth/application/network/http/websocket/WebsocketServer.h"
 #include "regular/IRequestHandler.h"
-#include "regular/MIMEParser.h"
 #include "URLEncoding.h"
 #include "IServerResponse.h"
 #include "IResponseOperation.h"
@@ -133,7 +132,6 @@ namespace smooth::application::network::http
             URLEncoding encoding{};
             std::deque<std::unique_ptr<IResponseOperation>> operations{};
             std::unique_ptr<IResponseOperation> current_operation{};
-            MIMEParser mime{};
             const std::size_t max_enqueued_responses;
 
             void set_keep_alive();

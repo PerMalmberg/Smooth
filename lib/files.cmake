@@ -22,6 +22,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/application/network/http/http_utils.cpp
         ${smooth_dir}/application/network/http/regular/HTTPHeaderDef.cpp
         ${smooth_dir}/application/network/http/regular/HTTPPacket.cpp
+        ${smooth_dir}/application/network/http/regular/HTTPRequestHandler.cpp
         ${smooth_dir}/application/network/http/regular/MIMEParser.cpp
         ${smooth_dir}/application/network/http/regular/RegularHTTPProtocol.cpp
         ${smooth_dir}/application/network/http/regular/responses/ErrorResponse.cpp
