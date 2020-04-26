@@ -16,8 +16,8 @@ limitations under the License.
 */
 #include <cstring>
 #include <thread>
-#include "smooth/application/display/DisplaySpi.h"
-#include "smooth/application/display/DisplayCommands.h"
+#include "smooth/application/display/LCDSpi.h"
+#include "smooth/application/display/LCDSpiCommands.h"
 #include "smooth/core/io/spi/SpiDmaFixedBuffer.h"
 #include "smooth/core/logging/log.h"
 
@@ -26,24 +26,24 @@ using namespace smooth::core::io::spi;
 
 namespace smooth::application::display
 {
-    static const char* TAG = "DisplaySpi";
+    static const char* TAG = "LCDSpi";
     static const bool PIN_HIGH = true;
     static const bool PIN_LOW = false;
 
-    DisplaySpi::DisplaySpi(std::mutex& guard,
-                           gpio_num_t chip_select_pin,
-                           gpio_num_t data_command_pin,
-                           uint8_t spi_command_bits,
-                           uint8_t spi_address_bits,
-                           uint8_t bits_between_address_and_data_phase,
-                           uint8_t spi_mode,
-                           uint8_t spi_positive_duty_cycle,
-                           uint8_t spi_cs_ena_posttrans,
-                           int spi_clock_speed_hz,
-                           uint32_t spi_device_flags,
-                           int spi_queue_size,
-                           bool use_pre_transaction_callback,
-                           bool use_post_transaction_callback)
+    LCDSpi::LCDSpi(std::mutex& guard,
+                   gpio_num_t chip_select_pin,
+                   gpio_num_t data_command_pin,
+                   uint8_t spi_command_bits,
+                   uint8_t spi_address_bits,
+                   uint8_t bits_between_address_and_data_phase,
+                   uint8_t spi_mode,
+                   uint8_t spi_positive_duty_cycle,
+                   uint8_t spi_cs_ena_posttrans,
+                   int spi_clock_speed_hz,
+                   uint32_t spi_device_flags,
+                   int spi_queue_size,
+                   bool use_pre_transaction_callback,
+                   bool use_post_transaction_callback)
             : SPIDevice(guard,
                         spi_command_bits,
                         spi_address_bits,
@@ -63,7 +63,7 @@ namespace smooth::application::display
     }
 
     // Initialize the display
-    bool DisplaySpi::init(spi_host_device_t host)
+    bool LCDSpi::init(spi_host_device_t host)
     {
         // preset chip select pin high
         cs_pin.set(PIN_HIGH);
@@ -83,15 +83,15 @@ namespace smooth::application::display
     // screen_rotation_constant that is used in switch statement.
     // If you are using LittlevGL then you need to set the appropriate screen
     // width and screen height for the rotation you have chosen in the lvconf.h file.
-    bool DisplaySpi::set_madctl(uint8_t value, uint8_t madctl_reg)
+    bool LCDSpi::set_madctl(uint8_t value, uint8_t madctl_reg)
     {
         return send_cmd(madctl_reg) & send_data(&value, 1);
     }
 
     // Hardware reset
-    void DisplaySpi::hw_reset(bool active_low,
-                              std::chrono::milliseconds active_time,
-                              std::chrono::milliseconds delay_time)
+    void LCDSpi::hw_reset(bool active_low,
+                          std::chrono::milliseconds active_time,
+                          std::chrono::milliseconds delay_time)
     {
         if (reset_pin != nullptr)
         {
@@ -113,7 +113,7 @@ namespace smooth::application::display
     }
 
     // Software reset
-    bool DisplaySpi::sw_reset(std::chrono::milliseconds delay_time)
+    bool LCDSpi::sw_reset(std::chrono::milliseconds delay_time)
     {
         bool res = send_cmd(static_cast<uint8_t>(LcdCmd::SWRESET));
         std::this_thread::sleep_for(delay_time);
@@ -122,7 +122,7 @@ namespace smooth::application::display
     }
 
     // Send initialize sequence of commands and data to display
-    bool DisplaySpi::send_init_cmds(const DisplayInitCmd* init_cmds, size_t length)
+    bool LCDSpi::send_init_cmds(const DisplayInitCmd* init_cmds, size_t length)
     {
         bool res = true;
 
@@ -162,7 +162,7 @@ namespace smooth::application::display
     }
 
     // Send muliple commands to the display.
-    bool DisplaySpi::send_cmds(const uint8_t* cmds, size_t length)
+    bool LCDSpi::send_cmds(const uint8_t* cmds, size_t length)
     {
         // reset current transaction counter
         current_transaction = 0;
@@ -180,7 +180,7 @@ namespace smooth::application::display
     }
 
     // Send a single command to the display.
-    bool DisplaySpi::send_cmd(const uint8_t cmd)
+    bool LCDSpi::send_cmd(const uint8_t cmd)
     {
         // reset current transaction counter
         current_transaction = 0;
@@ -198,7 +198,7 @@ namespace smooth::application::display
     }
 
     // Send data to the display
-    bool DisplaySpi::send_data(const uint8_t* data, size_t length)
+    bool LCDSpi::send_data(const uint8_t* data, size_t length)
     {
         // reset current transaction counter
         current_transaction = 0;
@@ -216,7 +216,7 @@ namespace smooth::application::display
     }
 
     // Prepare pins for command transaction
-    void DisplaySpi::prepare_pins_for_cmd_transaction(size_t trans_num)
+    void LCDSpi::prepare_pins_for_cmd_transaction(size_t trans_num)
     {
         dc_pretrans_pin_states[trans_num] = PIN_LOW;
         cs_pretrans_pin_states[trans_num] = PIN_LOW;
@@ -224,7 +224,7 @@ namespace smooth::application::display
     }
 
     // Prepare pins for data transaction
-    void DisplaySpi::prepare_pins_for_data_transaction(size_t trans_num)
+    void LCDSpi::prepare_pins_for_data_transaction(size_t trans_num)
     {
         dc_pretrans_pin_states[trans_num] = PIN_HIGH;
         cs_pretrans_pin_states[trans_num] = PIN_LOW;
@@ -237,7 +237,7 @@ namespace smooth::application::display
     // because the D/C line needs to be toggled in the middle.
     // This routine queues these commands up as interrupt transactions so they get
     // sent faster (compared to calling spi_device_transmit several times)
-    bool DisplaySpi::send_lines(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const uint8_t* data, size_t length)
+    bool LCDSpi::send_lines(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const uint8_t* data, size_t length)
     {
         // if length is 0 nothing to do and probably an error so return
         bool res = length > 0;
@@ -308,7 +308,7 @@ namespace smooth::application::display
     }
 
     // Wait for queued transactions to finish
-    bool DisplaySpi::wait_for_send_lines_to_finish()
+    bool LCDSpi::wait_for_send_lines_to_finish()
     {
         bool res = true;
 
@@ -333,7 +333,7 @@ namespace smooth::application::display
     // the MSB bit of the first parameter read contains the dummy clock data bit.  We need to
     // shift out the dummy data bit and recovery the MSB bit from the extra byte added to the read.
     // NOTE: FOR READING PARAMS SCK must be 16MHz or less the datasheet recommends 10MHz.
-    bool DisplaySpi::read_params(uint8_t cmd, std::vector<uint8_t>& data, uint32_t param_count)
+    bool LCDSpi::read_params(uint8_t cmd, std::vector<uint8_t>& data, uint32_t param_count)
     {
         SpiDmaFixedBuffer<uint8_t, 16> rxdata;
 
@@ -367,7 +367,7 @@ namespace smooth::application::display
     }
 
     // Read a register or a sequence of registers from the display
-    bool DisplaySpi::read(uint8_t cmd, uint8_t* rxdata, size_t length)
+    bool LCDSpi::read(uint8_t cmd, uint8_t* rxdata, size_t length)
     {
         // if length is 0 nothing to do and probably an error so return
         bool res = length > 0;
@@ -420,19 +420,19 @@ namespace smooth::application::display
     }
 
     // Add reset pin
-    void DisplaySpi::add_reset_pin(std::unique_ptr<DisplayPin> reset_pin)
+    void LCDSpi::add_reset_pin(std::unique_ptr<DisplayPin> reset_pin)
     {
         reset_pin = std::move(reset_pin);
     }
 
     // Add backlight pin
-    void DisplaySpi::add_backlight_pin(std::unique_ptr<DisplayPin> bk_light_pin)
+    void LCDSpi::add_backlight_pin(std::unique_ptr<DisplayPin> bk_light_pin)
     {
         backlight_pin = std::move(bk_light_pin);
     }
 
     // Set backlight pin level
-    void DisplaySpi::set_back_light(bool level)
+    void LCDSpi::set_back_light(bool level)
     {
         if (backlight_pin != nullptr)
         {

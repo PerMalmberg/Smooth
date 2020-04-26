@@ -18,7 +18,7 @@ limitations under the License.
 /************************************************************************************
    SPECIAL NOTES                SPECIAL NOTES                          SPECIAL NOTES
 
-   NOTE 1: The DisplaySpi is written to work with jumpers on the ILI9341 set to
+   NOTE 1: The LCDSpi is written to work with jumpers on the ILI9341 set to
    the following: IM0=0, IM1=1, IM2=1, IM3=1.  This jumper setting configures
    the ILI9341 to operates as a 4-wire 8-bit data serial interface II see
    page 26 and 38 of datasheet for more details.
@@ -29,13 +29,13 @@ limitations under the License.
    NOTE 3: Most applications will not need the ability to read regsiters and are
    only writing to the display.  In this case MISO can be set to GPIO_NUM_NC.  Also
    the spi clock speed can be increased to either 26MHz or 40MHz.  The 2 displays I
-   tested with DisplaySpi operated at 40MHz with no problem.
+   tested with LCDSpi operated at 40MHz with no problem.
   ************************************************************************************/
 #pragma once
 
 #include <array>
 #include "DisplayTypes.h"
-#include "DisplayCommands.h"
+#include "LCDSpiCommands.h"
 
 namespace smooth::application::display
 {
