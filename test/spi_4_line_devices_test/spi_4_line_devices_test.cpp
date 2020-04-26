@@ -119,7 +119,7 @@ namespace spi_4_line_devices_test
 
     bool App::init_ILI9341()
     {
-        auto device = spi_master.create_device<DisplaySpi>(
+        auto device = spi_master.create_device<LCDSpi>(
                         GPIO_NUM_14,            // chip select gpio pin
                         GPIO_NUM_27,            // data command gpio pin
                         0,                      // spi command_bits

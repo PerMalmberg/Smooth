@@ -26,24 +26,24 @@ limitations under the License.
 
 namespace smooth::application::display
 {
-    class DisplaySpi : public core::io::spi::SPIDevice
+    class LCDSpi : public core::io::spi::SPIDevice
     {
         public:
             /// The constructor
-            DisplaySpi(std::mutex& guard,
-                       gpio_num_t chip_select_pin,
-                       gpio_num_t data_command_pin,
-                       uint8_t spi_command_bits,
-                       uint8_t spi_address_bits,
-                       uint8_t bits_between_address_and_data_phase,
-                       uint8_t spi_mode,
-                       uint8_t spi_positive_duty_cycle,
-                       uint8_t spi_cs_ena_posttrans,
-                       int spi_clock_speed_hz,
-                       uint32_t spi_device_flags,
-                       int spi_queue_size,
-                       bool use_pre_transaction_callback,
-                       bool use_post_transaction_callback);
+            LCDSpi(std::mutex& guard,
+                   gpio_num_t chip_select_pin,
+                   gpio_num_t data_command_pin,
+                   uint8_t spi_command_bits,
+                   uint8_t spi_address_bits,
+                   uint8_t bits_between_address_and_data_phase,
+                   uint8_t spi_mode,
+                   uint8_t spi_positive_duty_cycle,
+                   uint8_t spi_cs_ena_posttrans,
+                   int spi_clock_speed_hz,
+                   uint32_t spi_device_flags,
+                   int spi_queue_size,
+                   bool use_pre_transaction_callback,
+                   bool use_post_transaction_callback);
 
             /// Initialize the display
             /// \param host The SPI host either VSPI or HSPI

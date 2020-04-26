@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <array>
 #include "DisplayTypes.h"
-#include "DisplayCommands.h"
+#include "LCDSpiCommands.h"
 
 namespace smooth::application::display
 {
