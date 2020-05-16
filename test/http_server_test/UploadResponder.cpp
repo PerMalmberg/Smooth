@@ -19,33 +19,54 @@ namespace http_server_test
         (void)url;
 
         // Pass content to mime parser with callbacks to handle the data.
-        mime.parse(content, *this, *this);
+        mime.parse(content, *this, *this, static_cast<uint16_t> ( 4096));
     }
 
     void UploadResponder::form_data(
         const std::string& field_name,
         const std::string& actual_file_name,
         const smooth::application::network::http::regular::BoundaryIterator& begin,
-        const smooth::application::network::http::regular::BoundaryIterator& end)
+        const smooth::application::network::http::regular::BoundaryIterator& end,
+        const bool file_start,
+        const bool file_close)
     {
-        // Store the file in web_root/uploads
-        Path path{ uploads / ("[" + field_name + "]" + actual_file_name) };
-        create_directory(path.parent());
-        File to_save{ path };
-
-        if (FileInfo{ path }.exists())
+        // Path path{};
+        if(field_name == "file_to_upload" || field_name == "second_file_to_upload")
         {
-            remove(path);
-        }
+            if(file_start)
+            {
+                // Store the file in web_root/uploads
+                path = uploads / actual_file_name;
+                // Log::info("form_data", "File name: {}", path.str());
+                create_directory(path.parent());
+                if (FileInfo{ path }.exists())
+                {
+                    // Log::info("form_data", "File exists");
+                    remove(path);
+                }
+                // Log::info("form_data", "before open");
+                to_save.open(path.str(), std::ios::out | std::ios::app | std::ios::binary) ;
+                Log::info("form_data", "File opened");
+            }
 
-        auto len = std::distance(begin, end);
-        to_save.write(&*begin, static_cast<int>(len));
+            auto len = std::distance(begin, end);
+            // Log::info("form_data", "chunk to write: {},", static_cast<int>(len));
+            to_save.write(reinterpret_cast<const char*>(&*begin), static_cast<int>(len));
+            // Log::info("form_data", "data written");
 
-        if (is_last())
-        {
-            response().reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
-                                                    "File have been stored in "
-                                                    + uploads.str()), false);
+            if(file_close)
+            {
+                to_save.close();
+                Log::info("form_data", "file close: {}", path.str() );
+            }
+
+            if (is_last() && file_close)
+            {
+                Log::info("form_data", "send reply");
+                response().reply(std::make_unique<responses::StringResponse>(
+                    ResponseCode::OK, "File(s) have been stored to " +
+                    uploads.str()), false);
+            }
         }
     }
 

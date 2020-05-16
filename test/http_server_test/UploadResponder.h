@@ -21,9 +21,12 @@ limitations under the License.
 #include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 #include "smooth/core/filesystem/MountPoint.h"
 #include "smooth/core/filesystem/File.h"
+#include "smooth/core/filesystem/filesystem.h"
 
 namespace http_server_test
 {
+    using namespace smooth::core::filesystem;
+
     class UploadResponder : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
@@ -35,11 +38,16 @@ namespace http_server_test
                 const std::string& field_name,
                 const std::string& actual_file_name,
                 const smooth::application::network::http::regular::BoundaryIterator& begin,
-                const smooth::application::network::http::regular::BoundaryIterator& end) override;
+                const smooth::application::network::http::regular::BoundaryIterator& end,
+                const bool file_start, const bool file_close) override;
 
             void url_encoded(std::unordered_map<std::string, std::string>& data) override;
 
         protected:
+            std::ofstream to_save;
+            Path path{};
+
+
 #ifdef ESP_PLATFORM
             const smooth::core::filesystem::Path uploads{ smooth::core::filesystem::SDCardMount::instance().mount_point()
                                                           / "uploads" };

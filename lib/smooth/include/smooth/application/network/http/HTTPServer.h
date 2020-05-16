@@ -194,9 +194,7 @@ namespace smooth::application::network::http
                     handler->start_of_request();
                 }
 
-                handler->request(timeout_modifier,
-                                requested_url,
-                                data);
+                handler->request(timeout_modifier, requested_url, data);
 
                 if (last_part)
                 {
