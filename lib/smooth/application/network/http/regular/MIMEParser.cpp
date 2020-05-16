@@ -31,7 +31,6 @@ using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
-
     void MIMEParser::reset() noexcept
     {
         boundary.clear();
@@ -117,6 +116,7 @@ namespace smooth::application::network::http::regular
             Data,
             End
         }
+
         status = Status::Begin;
 
         BoundaryIterator begin{};
