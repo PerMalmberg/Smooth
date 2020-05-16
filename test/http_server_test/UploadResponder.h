@@ -47,7 +47,6 @@ namespace http_server_test
             std::ofstream to_save;
             Path path{};
 
-
 #ifdef ESP_PLATFORM
             const smooth::core::filesystem::Path uploads{ smooth::core::filesystem::SDCardMount::instance().mount_point()
                                                           / "uploads" };
