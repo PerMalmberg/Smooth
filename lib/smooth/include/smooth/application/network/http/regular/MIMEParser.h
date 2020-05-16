@@ -60,11 +60,11 @@ namespace smooth::application::network::http::regular
             using BoundaryIterator = MimeData::const_iterator;
             using Boundaries = std::vector<BoundaryIterator>;
             using FormDataCallback = std::function<void (const std::string& field_name,
-                                                           const std::string& actual_file_name,
-                                                           const BoundaryIterator& begin,
-                                                           const BoundaryIterator& end,
-                                                           const bool first_part,
-                                                           const bool last_part)>;
+                                                         const std::string& actual_file_name,
+                                                         const BoundaryIterator& begin,
+                                                         const BoundaryIterator& end,
+                                                         const bool first_part,
+                                                         const bool last_part)>;
             using URLEncodedDataCallback = std::function<void (std::unordered_map<std::string, std::string>& data)>;
 
             bool detect_mode(const std::string& content_type, std::size_t content_length);
@@ -78,9 +78,9 @@ namespace smooth::application::network::http::regular
             }
 
             void parse(const uint8_t* p, std::size_t length,
-                        IFormData& form_data,
-                        IURLEncodedData& url_data,
-                        const uint16_t chunksize);
+                       IFormData& form_data,
+                       IURLEncodedData& url_data,
+                       const uint16_t chunksize);
 
         private:
             enum class Mode
@@ -105,8 +105,8 @@ namespace smooth::application::network::http::regular
 
             std::string id{};
             std::string filename{};
-            bool first_part{false};
-            bool end_of_transmission{false};
+            bool first_part{ false };
+            bool end_of_transmission{ false };
             std::vector<uint8_t> boundary{};
             std::vector<uint8_t> end_boundary{};
             std::vector<uint8_t> data{};

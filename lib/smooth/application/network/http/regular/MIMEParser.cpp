@@ -31,6 +31,7 @@ using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
+
     void MIMEParser::reset() noexcept
     {
         boundary.clear();
@@ -41,7 +42,6 @@ namespace smooth::application::network::http::regular
         mode = Mode::None;
         end_of_transmission = false;
     }
-
 
     bool MIMEParser::detect_mode(const std::string& content_type, std::size_t content_length)
     {
@@ -83,7 +83,6 @@ namespace smooth::application::network::http::regular
         return mode != Mode::None;
     }
 
-
     auto MIMEParser::find_boundary() const
     {
         BoundaryIterator p = data.cend();
@@ -95,7 +94,6 @@ namespace smooth::application::network::http::regular
 
         return p;
     }
-
 
     auto MIMEParser::find_end_boundary() const
     {
@@ -109,9 +107,8 @@ namespace smooth::application::network::http::regular
         return p;
     }
 
-
     void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data,
-                             const uint16_t chunksize)
+                           const uint16_t chunksize)
     {
         static enum class Status
         {
@@ -119,7 +116,8 @@ namespace smooth::application::network::http::regular
             Headers,
             Data,
             End
-        } status = Status::Begin;
+        }
+        status = Status::Begin;
 
         BoundaryIterator begin{};
         BoundaryIterator end{};
@@ -145,7 +143,8 @@ namespace smooth::application::network::http::regular
                     if (begin != data.cend())  // begin boundary found
                     {
                         status = Status::Headers;
-                        data.erase(data.begin(), get_end_of_boundary(begin) + LEN_OF_CRLF);  // "+2": also delete trailing crlf
+                        data.erase(data.begin(), get_end_of_boundary(begin) + LEN_OF_CRLF);  // "+2": also delete
+                                                                                             // trailing crlf
                         //Log::info("MIMEParser::myparse", "Begin Boundary found!");
                     }
                     else
@@ -160,10 +159,10 @@ namespace smooth::application::network::http::regular
                     if (p != data.cend())  // end of headers found
                     {
                         auto [new_start_of_content, headers,
-                              content_disposition] = consume_headers(data.cbegin(), p + 2*LEN_OF_CRLF);
+                              content_disposition] = consume_headers(data.cbegin(), p + 2 * LEN_OF_CRLF);
                         id = content_disposition["name"];
                         filename = content_disposition["filename"];
-                        data.erase(data.begin(), p + 2*LEN_OF_CRLF);  // also erase 2x crlf
+                        data.erase(data.begin(), p + 2 * LEN_OF_CRLF);  // also erase 2x crlf
                         status = Status::Data;
                         first_part = true;
                     }
@@ -181,7 +180,12 @@ namespace smooth::application::network::http::regular
                     {
                         while (std::distance(data.cbegin(), b - LEN_OF_CRLF) > chunksize)
                         {
-                            form_data.form_data(id, filename, data.cbegin(), data.cbegin() + chunksize, first_part, false);
+                            form_data.form_data(id,
+                            filename,
+                            data.cbegin(),
+                            data.cbegin() + chunksize,
+                            first_part,
+                            false);
                             data.erase(data.begin(), data.begin() + chunksize);
                             first_part = false;
                             b = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
@@ -189,15 +193,16 @@ namespace smooth::application::network::http::regular
 
                         if (b != data.cend())
                         {
-                            form_data.form_data(id, filename, data.cbegin(), b - LEN_OF_CRLF, first_part, true);  // first_b-2 to
-                                                                                                     // avoid additional
-                                                                                                     // crlf in file end
+                            form_data.form_data(id, filename, data.cbegin(), b - LEN_OF_CRLF, first_part, true);  // first_b-2
+                                                                                                                  // to
+                            // avoid additional
+                            // crlf in file end
                             status = Status::Headers;
                             data.erase(data.begin(), b - LEN_OF_CRLF);
                             first_part = false;
 
                             if (std::distance<std::vector<uint8_t>::const_iterator>(data.begin(),
-                            find_end_boundary()) <= 2*LEN_OF_CRLF)
+                            find_end_boundary()) <= 2 * LEN_OF_CRLF)
                             {
                                 end_of_transmission = true;
                                 data.clear();
@@ -268,7 +273,6 @@ namespace smooth::application::network::http::regular
         }
     }
 
-
     BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
     {
         // Adjust for CRLF at beginning of boundary pattern
@@ -277,15 +281,14 @@ namespace smooth::application::network::http::regular
         return begin + static_cast<Boundaries::difference_type>(boundary.size()) + offset;
     }
 
-
     bool MIMEParser::is_crlf(MIMEParser::BoundaryIterator start) const
     {
         return *start == '\r' && *(start + 1) == '\n';
     }
 
     std::tuple<MIMEParser::BoundaryIterator,
-        std::unordered_map<std::string, std::string>,
-        std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
+               std::unordered_map<std::string, std::string>,
+               std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
         MIMEParser::BoundaryIterator begin,
         MIMEParser::BoundaryIterator end) const
     {
