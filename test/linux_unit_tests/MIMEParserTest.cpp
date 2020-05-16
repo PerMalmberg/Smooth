@@ -39,7 +39,9 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                 void form_data(const std::string& name,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& begin,
-                               const BoundaryIterator& end)
+                               const BoundaryIterator& end,
+                               const bool file_start,
+                               const bool file_close)
                 {
                     constexpr auto text_txt =
                         std::array<uint8_t, 32>{ 0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
