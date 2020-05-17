@@ -43,6 +43,8 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                                const bool file_start,
                                const bool file_close)
                 {
+                    void file_start;
+                    void file_close;
                     constexpr auto text_txt =
                         std::array<uint8_t, 32>{ 0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
                                                  0xe3, 0xb1, 0x4c, 0x36, 0x1d, 0xc2, 0xa9, 0x3a,
@@ -102,7 +104,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt,  static_cast<uint16_t> ( 4096));
                 }
 
                 REQUIRE(fdt.count == 3);
@@ -192,7 +194,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt,  static_cast<uint16_t> ( 4096));
                 }
 
                 REQUIRE(fdt.count == 3);
