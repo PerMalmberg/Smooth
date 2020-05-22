@@ -256,7 +256,7 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt, static_cast<uint16_t> (4096));
                 }
 
                 REQUIRE(udt.received.at("free_text") == "test text");
