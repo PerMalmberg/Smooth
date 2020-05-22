@@ -69,7 +69,8 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                         REQUIRE(hash == text2_txt);
                     }
                 }
-                    int count = 0;
+
+                int count = 0;
         };
 
         class URLDataTester : public IURLEncodedData
