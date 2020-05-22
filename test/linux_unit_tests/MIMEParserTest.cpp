@@ -124,7 +124,9 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                 void form_data(const std::string& name,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& begin,
-                               const BoundaryIterator& end)
+                               const BoundaryIterator& end,
+                               const bool /*file_start*/,
+                               const bool /*file_close*/)
                 {
                     constexpr auto accept_png =
                         std::array<uint8_t, 32>{ 0x0a, 0x73, 0x3b, 0x99, 0xfc, 0xd0, 0x3c, 0x5e,
