@@ -216,7 +216,9 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
                 void form_data(const std::string& /*name*/,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& /*begin*/,
-                               const BoundaryIterator& /*end*/)
+                               const BoundaryIterator& /*end*/,
+                               const bool /*file_start*/,
+                               const bool /*file_close*/)
                 {
                 }
         };
