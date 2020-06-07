@@ -43,6 +43,8 @@ namespace http_server_test
 
             void url_encoded(std::unordered_map<std::string, std::string>& data) override;
 
+            void end_of_request() override;
+
         protected:
             std::ofstream to_save;
             Path path{};
