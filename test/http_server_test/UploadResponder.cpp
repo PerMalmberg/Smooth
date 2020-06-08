@@ -22,14 +22,6 @@ namespace http_server_test
         mime.parse(content, *this, *this, static_cast<uint16_t> (4096));
     }
 
-    void UploadResponder::end_of_request()
-    {
-        Log::info("form_data", "send reply");
-        response().reply(std::make_unique<responses::StringResponse>(
-            ResponseCode::OK, "File(s) have been stored to "
-                                                                           + uploads.str()), false);
-    }
-
     void UploadResponder::form_data(
         const std::string& field_name,
         const std::string& actual_file_name,
@@ -71,6 +63,14 @@ namespace http_server_test
             {
                 to_save.close();
                 Log::info("form_data", "file close: {}", path.str());
+            }
+
+            if (is_last() && file_close)
+            {
+                Log::info("form_data", "send reply");
+                response().reply(std::make_unique<responses::StringResponse>(
+                    ResponseCode::OK, "File(s) have been stored to "
+                                                                                           + uploads.str()), false);
             }
         }
     }
