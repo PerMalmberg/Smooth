@@ -30,7 +30,6 @@ namespace http_server_test
         const bool file_start,
         const bool file_close)
     {
-        // Path path{};
         if (field_name == "file_to_upload" || field_name == "second_file_to_upload")
         {
             if (file_start)
@@ -65,9 +64,8 @@ namespace http_server_test
                 Log::info("form_data", "file close: {}", path.str());
             }
 
-            if (is_last() && file_close)
+            if (is_last())
             {
-                Log::info("form_data", "send reply");
                 response().reply(std::make_unique<responses::StringResponse>(
                     ResponseCode::OK, "File(s) have been stored to "
                                                                                            + uploads.str()), false);
