@@ -19,7 +19,7 @@ namespace http_files_upload_test
     void UploadResponder::start_of_request()
     {
         Log::info("start of request", "alloc");
-        pState = (crypto_generichash_blake2b_state*)sodium_malloc(crypto_generichash_statebytes());
+        pState = static_cast<crypto_generichash_blake2b_state*> (sodium_malloc(crypto_generichash_statebytes()));
         hashes.clear();
     }
 
@@ -64,14 +64,15 @@ namespace http_files_upload_test
             }
 
             auto len = std::distance(begin, end);
-            crypto_generichash_update(pState, reinterpret_cast<const unsigned char*>(&*begin), static_cast<int>(len));
+            crypto_generichash_update(pState, reinterpret_cast<const unsigned char*>(&*begin),
+            static_cast<long long unsigned int>(len));
 
             if (file_close)
             {
                 crypto_generichash_final(pState, hash, sizeof hash);
                 std::ostringstream ss;
 
-                for (int i = 0; i < sizeof hash; i++)
+                for (long unsigned int i = 0; i < sizeof hash; i++)
                 {
                     ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
                 }
