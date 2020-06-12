@@ -56,7 +56,7 @@ namespace http_files_upload_test
             std::ofstream to_save;
             Path path{};
             unsigned char hash[crypto_generichash_BYTES];
-            const unsigned char* pKey = (const unsigned char*)"my16characterKey";
+            // const unsigned char* pKey = (const unsigned char*)"my16characterKey";
             crypto_generichash_blake2b_state* pState;
             json hashes;
 
