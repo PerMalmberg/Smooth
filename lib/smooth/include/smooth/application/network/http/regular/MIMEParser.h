@@ -90,6 +90,17 @@ namespace smooth::application::network::http::regular
                 FormURLEncoded
             };
 
+            Mode mode{ Mode::None };
+
+            enum class Status
+            {
+                Begin,
+                Headers,
+                Data
+            };
+
+            Status status{ Status::Begin };
+
             auto find_boundary() const;
 
             auto find_end_boundary() const;
@@ -115,7 +126,6 @@ namespace smooth::application::network::http::regular
             const std::regex url_encoded_pattern{ R"!(application\/x-www-form-urlencoded)!" };
             const std::vector<uint8_t> crlf{ '\r', '\n' };
             const std::vector<uint8_t> crlf_double{ '\r', '\n', '\r', '\n' };
-            Mode mode{ Mode::None };
             std::size_t expected_content_length{ 0 };
 
             void parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,

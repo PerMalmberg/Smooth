@@ -31,6 +31,7 @@ using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
+
     void MIMEParser::reset() noexcept
     {
         boundary.clear();
@@ -39,6 +40,7 @@ namespace smooth::application::network::http::regular
         data.clear();
         expected_content_length = 0;
         mode = Mode::None;
+        status = Status::Begin;
         end_of_transmission = false;
     }
 
@@ -109,16 +111,6 @@ namespace smooth::application::network::http::regular
     void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data,
                            const uint16_t chunksize)
     {
-        static enum class Status
-        {
-            Begin,
-            Headers,
-            Data,
-            End
-        }
-
-        status = Status::Begin;
-
         BoundaryIterator begin{};
         BoundaryIterator end{};
         bool get_more_data = false;
