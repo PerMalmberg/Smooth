@@ -31,7 +31,6 @@ using namespace smooth::core;
 
 namespace smooth::application::network::http::regular
 {
-
     void MIMEParser::reset() noexcept
     {
         boundary.clear();
