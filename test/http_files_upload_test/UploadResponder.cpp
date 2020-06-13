@@ -25,13 +25,10 @@ namespace http_files_upload_test
 
     /// This request handler assumed it is being used only to handle either form or URL encoded data in a POST.
     /// As such, it forwards all data to the MIMEParser.
-    void UploadResponder::request(IConnectionTimeoutModifier& timeout_modifier,
-                                  const std::string& url,
+    void UploadResponder::request(IConnectionTimeoutModifier& /*timeout_modifier*/,
+                                  const std::string& /*url*/,
                                   const std::vector<uint8_t>& content)
     {
-        (void)timeout_modifier;
-        (void)url;
-
         // Pass content to mime parser with callbacks to handle the data.
         mime.parse(content, *this, *this, static_cast<uint16_t> (4096));
     }
@@ -42,8 +39,8 @@ namespace http_files_upload_test
         response().reply(std::make_unique<responses::StringResponse>(ResponseCode::OK,
                             hashes_json, false), false);
 
-        // Log::info("end_of_request", "hashes: {}", hashes_json);
-        free(pState);
+        Log::info("end_of_request", "hashes: {}", hashes_json);
+        sodium_free(pState);
     }
 
     void UploadResponder::form_data(
@@ -60,7 +57,7 @@ namespace http_files_upload_test
             {
                 crypto_generichash_init(pState, NULL, 0, sizeof hash);
 
-                // Log::info("form_data", "File name: {}", actual_file_name);
+                Log::info("form_data", "File name: {}", actual_file_name);
             }
 
             auto len = std::distance(begin, end);
@@ -77,8 +74,7 @@ namespace http_files_upload_test
                     ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
                 }
 
-                // std::string result = ss.str();
-                // Log::info("form_data", "hash:{}", result);
+                Log::info("form_data", "hash:{}", ss.str());
                 hashes[actual_file_name] = ss.str();
             }
         }

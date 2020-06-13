@@ -17,6 +17,7 @@ limitations under the License.
 
 #include "http_files_upload_test.h"
 #include <memory>
+#include <sodium.h>
 #include "smooth/core/task_priorities.h"
 #include "smooth/core/network/IPv4.h"
 #include "smooth/core/filesystem/filesystem.h"
@@ -162,6 +163,11 @@ namespace http_files_upload_test
         const int listen_backlog = 6;
 
         Application::init();
+
+        if (sodium_init() < 0)
+        {
+            Log::error("App::Init", "Could not initialize libsodium.");
+        }
 
         Log::info("App::Init", "Starting wifi...");
         network::Wifi& wifi = get_wifi();

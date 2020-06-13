@@ -90,6 +90,13 @@ namespace smooth::application::network::http::regular
                 FormURLEncoded
             };
 
+            enum class ParseStatus
+            {
+                Begin,
+                Headers,
+                Data
+            };
+
             auto find_boundary() const;
 
             auto find_end_boundary() const;
@@ -117,6 +124,7 @@ namespace smooth::application::network::http::regular
             const std::vector<uint8_t> crlf_double{ '\r', '\n', '\r', '\n' };
             Mode mode{ Mode::None };
             std::size_t expected_content_length{ 0 };
+            ParseStatus parse_status{ ParseStatus::Begin };
 
             void parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
                                            std::unordered_map<std::string, std::string>& content_disposition) const;

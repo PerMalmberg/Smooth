@@ -6,10 +6,10 @@
 	// Sets the run context to one level up instead of the .devcontainer folder.
 	"context": "..",
 
-	// "image": "permalmberg/smooth:latest",
+	"image": "permalmberg/smooth:latest",
 
 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-	"dockerFile": "../CI/docker-image/Dockerfile",
+	//"dockerFile": "../CI/docker-image/Dockerfile",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": { 
@@ -27,7 +27,8 @@
 
 	// Uncomment when using a ptrace-based debugger like C++, Go, and Rust
 	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
-	"runArgs": [ "--device=/dev/ttyUSB1" ]
+	//"runArgs": [ "--device=/dev/ttyUSB1" ]
+	"runArgs": [ "-p", "8080:8080/tcp", "-p", "8443:8443/tcp" ]
 
 	// Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-in-docker.
 	// "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],

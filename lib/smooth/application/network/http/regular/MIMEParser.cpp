@@ -40,6 +40,7 @@ namespace smooth::application::network::http::regular
         expected_content_length = 0;
         mode = Mode::None;
         end_of_transmission = false;
+        parse_status = ParseStatus::Begin;
     }
 
     bool MIMEParser::detect_mode(const std::string& content_type, std::size_t content_length)
@@ -109,16 +110,6 @@ namespace smooth::application::network::http::regular
     void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data,
                            const uint16_t chunksize)
     {
-        static enum class Status
-        {
-            Begin,
-            Headers,
-            Data,
-            End
-        }
-
-        status = Status::Begin;
-
         BoundaryIterator begin{};
         BoundaryIterator end{};
         bool get_more_data = false;
@@ -136,23 +127,23 @@ namespace smooth::application::network::http::regular
         {
             while (!end_of_transmission && !get_more_data)
             {
-                if (status == Status::Begin)
+                if (parse_status == ParseStatus::Begin)
                 {
                     begin = find_boundary();
 
                     if (begin != data.cend())  // begin boundary found
                     {
-                        status = Status::Headers;
-                        data.erase(data.begin(), get_end_of_boundary(begin) + LEN_OF_CRLF);  // "+2": also delete
-                                                                                             // trailing crlf
-                        //Log::info("MIMEParser::myparse", "Begin Boundary found!");
+                        parse_status = ParseStatus::Headers;
+
+                        // "+LEN_OF_CRLF": also delete trailing crlf
+                        data.erase(data.begin(), get_end_of_boundary(begin) + LEN_OF_CRLF);
                     }
                     else
                     {
                         get_more_data = true;
                     }
                 }
-                else if (status == Status::Headers)
+                else if (parse_status == ParseStatus::Headers)
                 {
                     auto p = std::search(data.cbegin(), data.cend(), crlf_double.cbegin(), crlf_double.cend());
 
@@ -162,8 +153,10 @@ namespace smooth::application::network::http::regular
                               content_disposition] = consume_headers(data.cbegin(), p + 2 * LEN_OF_CRLF);
                         id = content_disposition["name"];
                         filename = content_disposition["filename"];
-                        data.erase(data.begin(), p + 2 * LEN_OF_CRLF);  // also erase 2x crlf
-                        status = Status::Data;
+
+                        // Delete two CRLF
+                        data.erase(data.begin(), p + 2 * LEN_OF_CRLF);
+                        parse_status = ParseStatus::Data;
                         first_part = true;
                     }
                     else
@@ -171,7 +164,7 @@ namespace smooth::application::network::http::regular
                         get_more_data = true;
                     }
                 }
-                else if (status == Status::Data)
+                else if (parse_status == ParseStatus::Data)
                 {
                     auto b = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
 
@@ -197,7 +190,7 @@ namespace smooth::application::network::http::regular
                                                                                                                   // to
                             // avoid additional
                             // crlf in file end
-                            status = Status::Headers;
+                            parse_status = ParseStatus::Headers;
                             data.erase(data.begin(), b - LEN_OF_CRLF);
                             first_part = false;
 
