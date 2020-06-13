@@ -194,8 +194,7 @@ namespace smooth::application::network::http::regular
                             data.erase(data.begin(), b - LEN_OF_CRLF);
                             first_part = false;
 
-                            if (std::distance<std::vector<uint8_t>::const_iterator>(data.begin(),
-                            find_end_boundary()) <= 2 * LEN_OF_CRLF)
+                            if (std::distance(data.cbegin(), find_end_boundary()) <= 2 * LEN_OF_CRLF)
                             {
                                 end_of_transmission = true;
                                 data.clear();
