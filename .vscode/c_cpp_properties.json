@@ -34,6 +34,7 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "defines": [
+                "ESP_PLATFORM=0"
             ],
             "browse": {
                 "path": [

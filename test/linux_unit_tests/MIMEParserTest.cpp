@@ -39,7 +39,9 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                 void form_data(const std::string& name,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& begin,
-                               const BoundaryIterator& end)
+                               const BoundaryIterator& end,
+                               const bool /*file_start*/,
+                               const bool /*file_close*/)
                 {
                     constexpr auto text_txt =
                         std::array<uint8_t, 32>{ 0x7b, 0x6f, 0x8a, 0x3d, 0x64, 0xdf, 0x0d, 0x8a,
@@ -100,7 +102,7 @@ SCENARIO("MIMEParser - multipart/form-data - Text files")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt, static_cast<uint16_t> (4096));
                 }
 
                 REQUIRE(fdt.count == 3);
@@ -122,7 +124,9 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                 void form_data(const std::string& name,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& begin,
-                               const BoundaryIterator& end)
+                               const BoundaryIterator& end,
+                               const bool /*file_start*/,
+                               const bool /*file_close*/)
                 {
                     constexpr auto accept_png =
                         std::array<uint8_t, 32>{ 0x0a, 0x73, 0x3b, 0x99, 0xfc, 0xd0, 0x3c, 0x5e,
@@ -190,7 +194,7 @@ SCENARIO("MIMEParser - multipart/form-data - Binary files")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt, static_cast<uint16_t> (4096));
                 }
 
                 REQUIRE(fdt.count == 3);
@@ -212,7 +216,9 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
                 void form_data(const std::string& /*name*/,
                                const std::string& /*actual_file_name*/,
                                const BoundaryIterator& /*begin*/,
-                               const BoundaryIterator& /*end*/)
+                               const BoundaryIterator& /*end*/,
+                               const bool /*file_start*/,
+                               const bool /*file_close*/)
                 {
                 }
         };
@@ -250,7 +256,7 @@ SCENARIO("MIMEParser - application/x-www-form-urlencoded")
                 // to make sure we can handle such split data.
                 for (const auto& c : data)
                 {
-                    mime.parse(&c, 1, fdt, udt);
+                    mime.parse(&c, 1, fdt, udt, static_cast<uint16_t> (4096));
                 }
 
                 REQUIRE(udt.received.at("free_text") == "test text");

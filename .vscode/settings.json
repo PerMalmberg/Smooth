@@ -3,7 +3,7 @@
     "cmake.saveBeforeBuild": true,
     "cmake.parallelJobs": 4,
     "cmake.configureSettings": {
-        "ESP_PLATFORM": 1
+        "ESP_PLATFORM": 0
     },
     "files.associations": {
         "typeinfo": "cpp",
@@ -72,5 +72,6 @@
         "unordered_set": "cpp",
         "future": "cpp",
         "iomanip": "cpp"
-    }
+    },
+    "python.pythonPath": "/usr/local/bin/python"
 }

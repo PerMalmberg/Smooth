@@ -37,7 +37,9 @@ namespace smooth::application::network::http::regular
             virtual void form_data(const std::string& field_name,
                                    const std::string& actual_file_name,
                                    const BoundaryIterator& begin,
-                                   const BoundaryIterator& end) = 0;
+                                   const BoundaryIterator& end,
+                                   const bool file_start,
+                                   const bool file_close) = 0;
     };
 
     class IURLEncodedData
@@ -48,20 +50,37 @@ namespace smooth::application::network::http::regular
             virtual void url_encoded(std::unordered_map<std::string, std::string>& data) = 0;
     };
 
+    static const uint8_t LEN_OF_CRLF = 2;
+    const std::vector<uint8_t> equal{ '=' };
+
     class MIMEParser
     {
         public:
+            using MimeData = std::vector<uint8_t>;
+            using BoundaryIterator = MimeData::const_iterator;
+            using Boundaries = std::vector<BoundaryIterator>;
+            using FormDataCallback = std::function<void (const std::string& field_name,
+                                                         const std::string& actual_file_name,
+                                                         const BoundaryIterator& begin,
+                                                         const BoundaryIterator& end,
+                                                         const bool first_part,
+                                                         const bool last_part)>;
+            using URLEncodedDataCallback = std::function<void (std::unordered_map<std::string, std::string>& data)>;
+
             bool detect_mode(const std::string& content_type, std::size_t content_length);
 
             void reset() noexcept;
 
             void parse(const std::vector<uint8_t>& p, IFormData& form_data,
-                       IURLEncodedData& url_data)
+                       IURLEncodedData& url_data, const uint16_t chunksize)
             {
-                parse(p.data(), p.size(), form_data, url_data);
+                parse(p.data(), p.size(), form_data, url_data, chunksize);
             }
 
-            void parse(const uint8_t* p, std::size_t length, IFormData& content_callback, IURLEncodedData& url_data);
+            void parse(const uint8_t* p, std::size_t length,
+                       IFormData& form_data,
+                       IURLEncodedData& url_data,
+                       const uint16_t chunksize);
 
         private:
             enum class Mode
@@ -71,15 +90,18 @@ namespace smooth::application::network::http::regular
                 FormURLEncoded
             };
 
-            auto find_boundaries() const;
+            enum class ParseStatus
+            {
+                Begin,
+                Headers,
+                Data
+            };
+
+            auto find_boundary() const;
+
+            auto find_end_boundary() const;
 
             BoundaryIterator get_end_of_boundary(BoundaryIterator begin);
-
-            void
-            parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                          IFormData& content_callback) const;
-
-            void adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data, Boundaries& found_boundaries) const;
 
             bool is_crlf(BoundaryIterator start) const;
 
@@ -88,6 +110,10 @@ namespace smooth::application::network::http::regular
                        std::unordered_map<std::string, std::string>>
             consume_headers(BoundaryIterator begin, BoundaryIterator end) const;
 
+            std::string id{};
+            std::string filename{};
+            bool first_part{ false };
+            bool end_of_transmission{ false };
             std::vector<uint8_t> boundary{};
             std::vector<uint8_t> end_boundary{};
             std::vector<uint8_t> data{};
@@ -98,6 +124,7 @@ namespace smooth::application::network::http::regular
             const std::vector<uint8_t> crlf_double{ '\r', '\n', '\r', '\n' };
             Mode mode{ Mode::None };
             std::size_t expected_content_length{ 0 };
+            ParseStatus parse_status{ ParseStatus::Begin };
 
             void parse_content_disposition(const std::unordered_map<std::string, std::string>& headers,
                                            std::unordered_map<std::string, std::string>& content_disposition) const;

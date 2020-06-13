@@ -23,6 +23,9 @@ limitations under the License.
 #include "smooth/application/network/http/regular/HTTPMethod.h"
 #include "smooth/application/network/http/regular/HTTPHeaderDef.h"
 
+#include "smooth/core/logging/log.h"
+
+using namespace smooth::core::logging;
 using namespace smooth::core::util;
 using namespace smooth::core;
 
@@ -36,6 +39,8 @@ namespace smooth::application::network::http::regular
         data.clear();
         expected_content_length = 0;
         mode = Mode::None;
+        end_of_transmission = false;
+        parse_status = ParseStatus::Begin;
     }
 
     bool MIMEParser::detect_mode(const std::string& content_type, std::size_t content_length)
@@ -58,11 +63,7 @@ namespace smooth::application::network::http::regular
             boundary = { b.begin(), b.end() };
             boundary.insert(boundary.begin(), '-');
             boundary.insert(boundary.begin(), '-');
-
             end_boundary = boundary;
-
-            boundary.emplace_back('\r');
-            boundary.emplace_back('\n');
 
             // The ending boundary is the same as the normal one, but suffixed by "--\r\n" instead of just \r\n
             end_boundary.emplace_back('-');
@@ -82,65 +83,132 @@ namespace smooth::application::network::http::regular
         return mode != Mode::None;
     }
 
-    auto MIMEParser::find_boundaries() const
+    auto MIMEParser::find_boundary() const
     {
-        Boundaries b{};
+        BoundaryIterator p = data.cend();
 
-        // Don't search until there are actually enough data
-        if (data.size() > boundary.size() * 2)
+        if (data.size() > boundary.size() + LEN_OF_CRLF)
         {
-            auto p = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
-
-            while (p != data.cend())
-            {
-                b.emplace_back(p);
-                p = std::search(p + 1, data.cend(), boundary.cbegin(), boundary.cend());
-            }
-
-            // Also find the end boundary
-            p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
-
-            if (p != data.end())
-            {
-                b.emplace_back(p);
-            }
-
-            // Adjust for possible preceding CRLF, as the CRLF is considered part of the boundary.
-            adjust_boundary_beginning_for_crlf(data.begin(), b);
+            p = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
         }
 
-        return b;
+        return p;
     }
 
-    void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data)
+    auto MIMEParser::find_end_boundary() const
     {
+        BoundaryIterator p = data.cend();
+
+        if (data.size() >= end_boundary.size())
+        {
+            p = std::search(data.cbegin(), data.cend(), end_boundary.cbegin(), end_boundary.cend());
+        }
+
+        return p;
+    }
+
+    void MIMEParser::parse(const uint8_t* p, std::size_t length, IFormData& form_data, IURLEncodedData& url_data,
+                           const uint16_t chunksize)
+    {
+        BoundaryIterator begin{};
+        BoundaryIterator end{};
+        bool get_more_data = false;
+
         for (std::size_t i = 0; i < length; ++i)
         {
             data.emplace_back(p[i]);
         }
 
+        // data.reserve(data.size()+length+1);
+        // std::copy(&p[0], &p[length], data.end());
+        // Log::info("MIMEParser::myparse", "length={}; data.size()={}", length, data.size());
+
         if (mode == Mode::FormData)
         {
-            auto bounds = find_boundaries();
-
-            auto last_consumed = data.cend();
-
-            // Each content block is contained between two boundaries
-            while (!bounds.empty() && bounds.size() >= 2)
+            while (!end_of_transmission && !get_more_data)
             {
-                auto start_of_content = get_end_of_boundary(bounds.front());
-                bounds.erase(bounds.cbegin());
-                auto end_of_content = bounds.front();
-                last_consumed = end_of_content;
+                if (parse_status == ParseStatus::Begin)
+                {
+                    begin = find_boundary();
 
-                parse_content(start_of_content, end_of_content, form_data);
-            }
+                    if (begin != data.cend())  // begin boundary found
+                    {
+                        parse_status = ParseStatus::Headers;
 
-            // Erase already consumed data
-            if (last_consumed != data.cend())
-            {
-                data.erase(data.begin(), last_consumed);
-            }
+                        // "+LEN_OF_CRLF": also delete trailing crlf
+                        data.erase(data.begin(), get_end_of_boundary(begin) + LEN_OF_CRLF);
+                    }
+                    else
+                    {
+                        get_more_data = true;
+                    }
+                }
+                else if (parse_status == ParseStatus::Headers)
+                {
+                    auto p = std::search(data.cbegin(), data.cend(), crlf_double.cbegin(), crlf_double.cend());
+
+                    if (p != data.cend())  // end of headers found
+                    {
+                        auto [new_start_of_content, headers,
+                              content_disposition] = consume_headers(data.cbegin(), p + 2 * LEN_OF_CRLF);
+                        id = content_disposition["name"];
+                        filename = content_disposition["filename"];
+
+                        // Delete two CRLF
+                        data.erase(data.begin(), p + 2 * LEN_OF_CRLF);
+                        parse_status = ParseStatus::Data;
+                        first_part = true;
+                    }
+                    else
+                    {
+                        get_more_data = true;
+                    }
+                }
+                else if (parse_status == ParseStatus::Data)
+                {
+                    auto b = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
+
+                    if ((data.size() > chunksize + end_boundary.size()) || (b != data.cend()))  // got something to
+                                                                                                // write
+                    {
+                        while (std::distance(data.cbegin(), b - LEN_OF_CRLF) > chunksize)
+                        {
+                            form_data.form_data(id,
+                            filename,
+                            data.cbegin(),
+                            data.cbegin() + chunksize,
+                            first_part,
+                            false);
+                            data.erase(data.begin(), data.begin() + chunksize);
+                            first_part = false;
+                            b = std::search(data.cbegin(), data.cend(), boundary.cbegin(), boundary.cend());
+                        }
+
+                        if (b != data.cend())
+                        {
+                            form_data.form_data(id, filename, data.cbegin(), b - LEN_OF_CRLF, first_part, true);  // first_b-2
+                                                                                                                  // to
+                            // avoid additional
+                            // crlf in file end
+                            parse_status = ParseStatus::Headers;
+                            data.erase(data.begin(), b - LEN_OF_CRLF);
+                            first_part = false;
+
+                            if (std::distance(data.cbegin(), find_end_boundary()) <= 2 * LEN_OF_CRLF)
+                            {
+                                end_of_transmission = true;
+                                data.clear();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        get_more_data = true;
+                    }
+                }
+            }  // while(!end_of_transmission && !get_more_data)
+
+            end_of_transmission = false;
         }
         else if (mode == Mode::FormURLEncoded)
         {
@@ -200,68 +268,21 @@ namespace smooth::application::network::http::regular
     BoundaryIterator MIMEParser::get_end_of_boundary(BoundaryIterator begin)
     {
         // Adjust for CRLF at beginning of boundary pattern
-        auto offset = is_crlf(begin) ? 2 : 0;
+        auto offset = is_crlf(begin) ? LEN_OF_CRLF : 0;
 
         return begin + static_cast<Boundaries::difference_type>(boundary.size()) + offset;
     }
 
-    void MIMEParser::parse_content(BoundaryIterator start_of_content, BoundaryIterator end_of_content,
-                                   IFormData& form_data) const
-    {
-        // If the first data isn't a CRLF, then there are one or more Content-headers for this data.
-        if (is_crlf(start_of_content))
-        {
-            // All content is considered text/plain
-            form_data.form_data("", "", start_of_content, end_of_content);
-        }
-        else
-        {
-            auto [new_start_of_content, headers,
-                  content_dispositon] = consume_headers(start_of_content, end_of_content);
-
-            start_of_content = new_start_of_content;
-
-            if (start_of_content != end_of_content)
-            {
-                form_data.form_data(content_dispositon["name"],
-                                    content_dispositon["filename"],
-                                    start_of_content,
-                                    end_of_content);
-            }
-
-            (void)headers;
-        }
-    }
-
-    void MIMEParser::adjust_boundary_beginning_for_crlf(BoundaryIterator start_of_data,
-                                                        Boundaries& found_boundaries) const
-    {
-        for (auto& current : found_boundaries)
-        {
-            auto distance = static_cast<long>(std::distance(start_of_data, current));
-            auto offset = static_cast<long>(crlf.size());
-
-            if (distance > offset)
-            {
-                // Check if the boundary has a preceding CRLF
-                if (is_crlf(start_of_data + distance - offset))
-                {
-                    current = start_of_data + distance - offset;
-                }
-            }
-        }
-    }
-
-    bool MIMEParser::is_crlf(BoundaryIterator start) const
+    bool MIMEParser::is_crlf(MIMEParser::BoundaryIterator start) const
     {
         return *start == '\r' && *(start + 1) == '\n';
     }
 
-    std::tuple<BoundaryIterator,
+    std::tuple<MIMEParser::BoundaryIterator,
                std::unordered_map<std::string, std::string>,
                std::unordered_map<std::string, std::string>> MIMEParser::consume_headers(
-        BoundaryIterator begin,
-        BoundaryIterator end) const
+        MIMEParser::BoundaryIterator begin,
+        MIMEParser::BoundaryIterator end) const
     {
         std::unordered_map<std::string, std::string> headers{};
         std::unordered_map<std::string, std::string> content_disp{};
@@ -295,9 +316,9 @@ namespace smooth::application::network::http::regular
                         headers[string_util::to_lower_copy({ s.begin(), colon })] = { colon + 2, s.end() };
                     }
                 }
-
-                parse_content_disposition(headers, content_disp);
             }
+
+            parse_content_disposition(headers, content_disp);
         }
 
         return std::make_tuple(start_of_actual_content, std::move(headers), std::move(content_disp));

@@ -51,7 +51,9 @@ namespace smooth::application::network::http::regular
             virtual void form_data(const std::string& /*field_name*/,
                                    const std::string& /*actual_file_name*/,
                                    const BoundaryIterator& /*begin*/,
-                                   const BoundaryIterator& /*end*/) override {}
+                                   const BoundaryIterator& /*end*/,
+                                   const bool /*file_start*/,
+                                   const bool /*file_close*/) override {}
 
             /// Called multiple times while the the MIMEParser is decoding URL encoded data
             virtual void url_encoded(std::unordered_map<std::string, std::string>& /*data*/) override {}

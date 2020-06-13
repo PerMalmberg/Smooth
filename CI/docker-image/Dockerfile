@@ -25,6 +25,7 @@ RUN apt update \
 		libmbedtls-dev \
 		gcc-8 \
 		g++-8 \
+		gdb \
 		libssl-dev \
 		make \
 		libz-dev \
@@ -50,7 +51,9 @@ RUN wget https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz \
 	&& cd .. \
 	&& rm -rf Python-3.8.2 \
 	&& rm -rf Python-3.8.2.tar \
-	&& ln -s /usr/local/bin/python3 /usr/local/bin/python
+	&& ln -s /usr/local/bin/python3 /usr/local/bin/python \
+	&& pip3 install --upgrade pip \
+	&& pip3 install pylint requests
 
 # ESP-IDF
 RUN cd / \
@@ -96,5 +99,9 @@ RUN echo ". $IDF_PATH/export.sh" >> ~/.bashrc
 # Set locale so that "idf-py menuconfig" can be run.
 RUN echo 'export LC_ALL="C.UTF-8"'  >> ~/.bashrc && echo 'export LC_CTYPE="C.UTF-8"'  >> ~/.bashrc
 
+EXPOSE 80
+EXPOSE 8080
+EXPOSE 443
+EXPOSE 8443
 
 CMD [ "/bin/bash" ]

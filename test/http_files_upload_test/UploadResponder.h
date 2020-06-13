@@ -17,22 +17,31 @@ limitations under the License.
 
 #pragma once
 
-#include "SendBlob.h"
+#include "sodium.h"
+#include "nlohmann/json.hpp"
+
+// #include "SendBlob.h"
 #include "smooth/application/network/http/regular/HTTPRequestHandler.h"
 #include "smooth/core/filesystem/MountPoint.h"
 #include "smooth/core/filesystem/File.h"
 #include "smooth/core/filesystem/filesystem.h"
+#include "smooth/application/network/http/regular/responses/StringResponse.h"
 
-namespace http_server_test
+namespace http_files_upload_test
 {
     using namespace smooth::core::filesystem;
+    using json = nlohmann::json;
 
     class UploadResponder : public smooth::application::network::http::regular::HTTPRequestHandler
     {
         public:
+            void start_of_request() override;
+
             void request(smooth::application::network::http::IConnectionTimeoutModifier& timeout_modifier,
                          const std::string& url,
                          const std::vector<uint8_t>& content) override;
+
+            void end_of_request() override;
 
             void form_data(
                 const std::string& field_name,
@@ -46,6 +55,11 @@ namespace http_server_test
         protected:
             std::ofstream to_save;
             Path path{};
+            unsigned char hash[crypto_generichash_BYTES];
+
+            // const unsigned char* pKey = (const unsigned char*)"my16characterKey";
+            crypto_generichash_blake2b_state* pState;
+            json hashes;
 
 #ifdef ESP_PLATFORM
             const smooth::core::filesystem::Path uploads{ smooth::core::filesystem::SDCardMount::instance().mount_point()
