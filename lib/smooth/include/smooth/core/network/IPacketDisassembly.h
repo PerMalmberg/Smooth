@@ -17,6 +17,8 @@ limitations under the License.
 
 #pragma once
 
+#include <cstdint>
+
 namespace smooth::core::network
 {
     /// Interface for packets that can be disassembled into a series of bytes
