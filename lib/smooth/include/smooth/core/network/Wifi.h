@@ -17,92 +17,73 @@ limitations under the License.
 
 #pragma once
 
-#include <string>
-#include <array>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_wifi.h>
 #pragma GCC diagnostic pop
-#include "smooth/core/ipc/IEventListener.h"
+// #include "smooth/core/ipc/IEventListener.h"
+#include "smooth/core/network/NetworkInterface.h"
 
-namespace smooth::core::network
-{
-    /// Wifi management class
-    class Wifi
+namespace smooth::core::network {
+/// Wifi management class
+class Wifi : public NetworkInterface {
+public:
+    Wifi(std::string name = "WiFi");
+
+    Wifi(const Wifi&) = delete;
+
+    Wifi(Wifi&&) = delete;
+
+    Wifi& operator=(const Wifi&) = delete;
+
+    Wifi& operator=(Wifi&&) = delete;
+
+    ~Wifi();
+
+    /// Sets the credentials for the Wifi network
+    /// \param wifi_ssid The SSID
+    /// \param wifi_password The password
+    void set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password);
+
+    /// Enables, disables auto reconnect on loss of Wifi connection.
+    /// \param auto_connect
+    void set_auto_connect(bool auto_connect);
+
+    /// Initiates the connection to the AP.
+    void connect_to_ap();
+
+    /// Returns a value indicating of currently connected to the access point.
+    /// \return
+    [[nodiscard]] bool is_connected_to_ap() const;
+
+    /// Returns a value indicating if the required settings are set.
+    /// \return true or false.
+    [[nodiscard]] bool is_configured() const
     {
-        public:
-            Wifi();
+        return ssid.length() > 0 && password.length() > 0;
+    }
 
-            Wifi(const Wifi&) = delete;
+    static void wifi_event_callback(void* event_handler_arg,
+                                    esp_event_base_t event_base,
+                                    int32_t event_id,
+                                    void* event_data);
 
-            Wifi(Wifi&&) = delete;
+    /// Start providing an access point
+    /// \param max_conn maximum number of clients to connect to this AP
+    void start_softap(uint8_t max_conn = 1);
 
-            Wifi& operator=(const Wifi&) = delete;
+private:
+    void connect() const;
 
-            Wifi& operator=(Wifi&&) = delete;
+    static void publish_status(bool connected, bool ip_changed);
 
-            ~Wifi();
+    bool auto_connect_to_ap = false;
+    std::string ssid{};
+    std::string password{};
 
-            /// Sets the hostname
-            /// \param name The name
-            void set_host_name(const std::string& name);
-
-            /// Sets the credentials for the Wifi network
-            /// \param wifi_ssid The SSID
-            /// \param wifi_password The password
-            void set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password);
-
-            /// Enables, disables auto reconnect on loss of Wifi connection.
-            /// \param auto_connect
-            void set_auto_connect(bool auto_connect);
-
-            /// Initiates the connection to the AP.
-            void connect_to_ap();
-
-            /// Returns a value indicating of currently connected to the access point.
-            /// \return
-            [[nodiscard]] bool is_connected_to_ap() const;
-
-            /// Returns a value indicating if the required settings are set.
-            /// \return true or false.
-            [[nodiscard]] bool is_configured() const
-            {
-                return host_name.length() > 0 && ssid.length() > 0 && password.length() > 0;
-            }
-
-            static void wifi_event_callback(void* event_handler_arg,
-                                            esp_event_base_t event_base,
-                                            int32_t event_id,
-                                            void* event_data);
-
-            [[nodiscard]] static std::string get_mac_address();
-
-            [[nodiscard]] static bool get_local_mac_address(std::array<uint8_t, 6>& m);
-
-            [[nodiscard]] static uint32_t get_local_ip();
-
-            /// Start providing an access point
-            /// \param max_conn maximum number of clients to connect to this AP
-            void start_softap(uint8_t max_conn = 1);
-
-        private:
-            void connect() const;
-
-            void close_if();
-
-            static void publish_status(bool connected, bool ip_changed);
-
-            bool auto_connect_to_ap = false;
-            bool connected_to_ap = false;
-            std::string host_name = "Smooth-Wifi";
-            std::string ssid{};
-
-            std::string password{};
-            static struct esp_ip4_addr ip;
-
-            esp_netif_t* interface{ nullptr };
-            esp_event_handler_instance_t instance_wifi_event{};
-            esp_event_handler_instance_t instance_ip_event{};
-    };
+    esp_netif_t* interface{nullptr};
+    esp_event_handler_instance_t instance_wifi_event{};
+    esp_event_handler_instance_t instance_ip_event{};
+};
 }

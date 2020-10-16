@@ -85,9 +85,11 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/json/JsonFile.cpp
         ${smooth_dir}/core/logging/log.cpp
         ${smooth_dir}/core/network/CommonSocket.cpp
+        ${smooth_dir}/core/network/Ethernet.cpp
         ${smooth_dir}/core/network/IPv4.cpp
         ${smooth_dir}/core/network/IPv6.cpp
         ${smooth_dir}/core/network/MbedTLSContext.cpp
+        ${smooth_dir}/core/network/NetworkInterface.cpp
         ${smooth_dir}/core/network/SocketDispatcher.cpp
         ${smooth_dir}/core/network/Wifi.cpp
         ${smooth_dir}/core/sntp/Sntp.cpp
