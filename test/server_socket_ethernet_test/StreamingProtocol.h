@@ -23,48 +23,49 @@ limitations under the License.
 #include <array>
 
 namespace server_socket_ethernet_test {
-class StreamingProtocol
-    : public smooth::core::network::IPacketAssembly<StreamingProtocol, StreamPacket> {
-public:
-    using packet_type = StreamPacket;
-
-    int get_wanted_amount(StreamPacket& /*packet*/) override
+    class StreamingProtocol
+        : public smooth::core::network::IPacketAssembly<StreamingProtocol, StreamPacket>
     {
-        return 1;
-    }
+        public:
+            using packet_type = StreamPacket;
 
-    void data_received(StreamPacket& /*packet*/, int /*length*/) override
-    {
-        complete = true;
-    }
+            int get_wanted_amount(StreamPacket& /*packet*/) override
+            {
+                return 1;
+            }
 
-    uint8_t* get_write_pos(StreamPacket& packet) override
-    {
-        return packet.data().data();
-    }
+            void data_received(StreamPacket& /*packet*/, int /*length*/) override
+            {
+                complete = true;
+            }
 
-    bool is_complete(StreamPacket& /*packet*/) const override
-    {
-        return complete;
-    }
+            uint8_t* get_write_pos(StreamPacket& packet) override
+            {
+                return packet.data().data();
+            }
 
-    bool is_error() override
-    {
-        // Can't fail when there really is no actual protocol.
-        return false;
-    }
+            bool is_complete(StreamPacket& /*packet*/) const override
+            {
+                return complete;
+            }
 
-    void packet_consumed() override
-    {
-        complete = false;
-    }
+            bool is_error() override
+            {
+                // Can't fail when there really is no actual protocol.
+                return false;
+            }
 
-    void reset() override
-    {
-        packet_consumed();
-    }
+            void packet_consumed() override
+            {
+                complete = false;
+            }
 
-private:
-    bool complete{false};
-};
+            void reset() override
+            {
+                packet_consumed();
+            }
+
+        private:
+            bool complete{ false };
+    };
 }

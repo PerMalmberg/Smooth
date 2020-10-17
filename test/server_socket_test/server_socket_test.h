@@ -28,16 +28,17 @@ limitations under the License.
 #include <functional>
 
 namespace server_socket_test {
-class App
-    : public smooth::core::Application {
-public:
-    App();
+    class App
+        : public smooth::core::Application
+    {
+        public:
+            App();
 
-    void init() override;
+            void init() override;
 
-private:
-    std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
-                                                        StreamingProtocol, void>>
-        server{};
-};
+        private:
+            std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
+                                                                StreamingProtocol, void>>
+            server{};
+    };
 }

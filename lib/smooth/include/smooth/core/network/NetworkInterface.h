@@ -25,41 +25,42 @@ limitations under the License.
 #include <string>
 
 namespace smooth::core::network {
+    class NetworkInterface
+    {
+        public:
+            NetworkInterface(std::string&& name);
 
-class NetworkInterface {
-public:
-    NetworkInterface(std::string&& name);
+            NetworkInterface(const NetworkInterface&) = delete;
 
-    NetworkInterface(const NetworkInterface&) = delete;
+            NetworkInterface(NetworkInterface&&) = delete;
 
-    NetworkInterface(NetworkInterface&&) = delete;
+            NetworkInterface& operator=(const NetworkInterface&) = delete;
 
-    NetworkInterface& operator=(const NetworkInterface&) = delete;
+            NetworkInterface& operator=(NetworkInterface&&) = delete;
 
-    NetworkInterface& operator=(NetworkInterface&&) = delete;
+            virtual ~NetworkInterface();
 
-    virtual ~NetworkInterface();
+            void set_host_name(const std::string& name);
 
-    void set_host_name(const std::string& name);
+            [[nodiscard]] bool is_connected() const;
 
-    [[nodiscard]] bool is_connected() const;
+            [[nodiscard]] std::string get_mac_address() const;
 
-    [[nodiscard]] std::string get_mac_address() const;
+            [[nodiscard]] uint32_t get_local_ip() const;
 
-    [[nodiscard]] uint32_t get_local_ip() const;
+            bool get_local_mac_address(std::array<uint8_t, 6>& m) const;
 
-    bool get_local_mac_address(std::array<uint8_t, 6>& m) const;
+        protected:
+            void apply_host_name();
 
-protected:
-    void apply_host_name();
+            esp_ip4_addr ip = { 0 };
+            bool connected = false;
+            esp_netif_t* interface{ nullptr };
+            static uint8_t interface_count;
+            std::string interface_name;
 
-    esp_ip4_addr ip = {0};
-    bool connected = false;
-    esp_netif_t* interface{nullptr};
-    static uint8_t interface_count;
-    std::string interface_name;
-    // esp_netif_set_hostname only copies a const char* pointer, so we need to keep this allocated here
-    // max 32 characters
-    char host_name[33] = "";
-};
+            // esp_netif_set_hostname only copies a const char* pointer, so we need to keep this allocated here
+            // max 32 characters
+            char host_name[33] = "";
+    };
 }

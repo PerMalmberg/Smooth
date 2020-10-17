@@ -33,36 +33,35 @@ using namespace smooth::core::network::event;
 using namespace smooth::core::logging;
 
 namespace server_socket_ethernet_test {
-App::App()
-    : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
-{
-}
+    App::App()
+            : Application(smooth::core::APPLICATION_BASE_PRIO, std::chrono::milliseconds(1000))
+    {
+    }
 
-void
-App::init()
-{
-    Application::init();
+    void App::init()
+    {
+        Application::init();
 
-    // connects to both ethernet and wifi
-    // which each have a unique host name
+        // connects to both ethernet and wifi
+        // which each have a unique host name
 
-    Log::info("App::Init", "Starting Ethernet...");
-    ethernet.set_host_name("smooth_wired");
-    ethernet.start();
+        Log::info("App::Init", "Starting Ethernet...");
+        ethernet.set_host_name("smooth_wired");
+        ethernet.start();
 
-    Log::info("App::Init", "Starting wifi...");
-    network::Wifi& wifi = get_wifi();
-    wifi.set_host_name("smooth_wifi");
-    wifi.set_auto_connect(true);
-    wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
-    wifi.connect_to_ap();
+        Log::info("App::Init", "Starting wifi...");
+        network::Wifi& wifi = get_wifi();
+        wifi.set_host_name("smooth_wifi");
+        wifi.set_auto_connect(true);
+        wifi.set_ap_credentials(WIFI_SSID, WIFI_PASSWORD);
+        wifi.connect_to_ap();
 
-    // The server creates StreamingClients which are self-sufficient and never seen by the main
-    // application (unless the implementor adds such bindings).
-    server = ServerSocket<StreamingClient, StreamingProtocol, void>::create(*this, 5, 5);
-    server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
+        // The server creates StreamingClients which are self-sufficient and never seen by the main
+        // application (unless the implementor adds such bindings).
+        server = ServerSocket<StreamingClient, StreamingProtocol, void>::create(*this, 5, 5);
+        server->start(std::make_shared<IPv4>("0.0.0.0", 8080));
 
-    // Point your browser to http://localhost:8080 and watch the output.
-    // Or, if you're on linux, do "echo ` date` | nc localhost 8080 -w1"
-}
+        // Point your browser to http://localhost:8080 and watch the output.
+        // Or, if you're on linux, do "echo ` date` | nc localhost 8080 -w1"
+    }
 }

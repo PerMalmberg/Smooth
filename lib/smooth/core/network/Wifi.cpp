@@ -35,127 +35,128 @@ using namespace smooth::core::util;
 using namespace smooth::core;
 
 namespace smooth::core::network {
-Wifi::Wifi(std::string&& name)
-    : NetworkInterface(std::move(name))
-{
-    esp_event_handler_instance_register(WIFI_EVENT,
+    Wifi::Wifi(std::string&& name)
+            : NetworkInterface(std::move(name))
+    {
+        esp_event_handler_instance_register(WIFI_EVENT,
                                         ESP_EVENT_ANY_ID,
                                         &Wifi::wifi_event_callback,
                                         this,
                                         &instance_wifi_event);
 
-    esp_event_handler_instance_register(IP_EVENT,
+        esp_event_handler_instance_register(IP_EVENT,
                                         ESP_EVENT_ANY_ID,
                                         &Wifi::wifi_event_callback,
                                         this,
                                         &instance_ip_event);
-}
+    }
 
-Wifi::~Wifi()
-{
-    esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, instance_ip_event);
-    esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_wifi_event);
-    esp_wifi_disconnect();
-    esp_wifi_stop();
-    esp_wifi_deinit();
-}
+    Wifi::~Wifi()
+    {
+        esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, instance_ip_event);
+        esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_wifi_event);
+        esp_wifi_disconnect();
+        esp_wifi_stop();
+        esp_wifi_deinit();
+    }
 
-void
-Wifi::set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password)
-{
-    this->ssid = wifi_ssid;
-    this->password = wifi_password;
-}
+    void Wifi::set_ap_credentials(const std::string& wifi_ssid, const std::string& wifi_password)
+    {
+        this->ssid = wifi_ssid;
+        this->password = wifi_password;
+    }
 
-void
-Wifi::set_auto_connect(bool auto_connect)
-{
-    auto_connect_to_ap = auto_connect;
-}
+    void Wifi::set_auto_connect(bool auto_connect)
+    {
+        auto_connect_to_ap = auto_connect;
+    }
 
-void
-Wifi::connect_to_ap()
-{
-    // Prepare to connect to the provided SSID and password
-    wifi_init_config_t init = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&init);
-    esp_wifi_set_mode(WIFI_MODE_STA);
+    void Wifi::connect_to_ap()
+    {
+        // Prepare to connect to the provided SSID and password
+        wifi_init_config_t init = WIFI_INIT_CONFIG_DEFAULT();
+        esp_wifi_init(&init);
+        esp_wifi_set_mode(WIFI_MODE_STA);
 
-    wifi_config_t config;
-    memset(&config, 0, sizeof(config));
-    copy_min_to_buffer(ssid.begin(), ssid.length(), config.sta.ssid);
-    copy_min_to_buffer(password.begin(), password.length(), config.sta.password);
+        wifi_config_t config;
+        memset(&config, 0, sizeof(config));
+        copy_min_to_buffer(ssid.begin(), ssid.length(), config.sta.ssid);
+        copy_min_to_buffer(password.begin(), password.length(), config.sta.password);
 
-    config.sta.bssid_set = false;
+        config.sta.bssid_set = false;
 
-    // Store Wifi settings in RAM - it is the applications responsibility to store settings.
-    esp_wifi_set_storage(WIFI_STORAGE_RAM);
-    esp_wifi_set_config(WIFI_IF_STA, &config);
+        // Store Wifi settings in RAM - it is the applications responsibility to store settings.
+        esp_wifi_set_storage(WIFI_STORAGE_RAM);
+        esp_wifi_set_config(WIFI_IF_STA, &config);
 
-    close_if();
-    interface = esp_netif_create_default_wifi_sta();
-    apply_host_name();
-    connect();
-}
+        close_if();
+        interface = esp_netif_create_default_wifi_sta();
+        apply_host_name();
+        connect();
+    }
 
-void
-Wifi::connect() const
-{
+    void Wifi::connect() const
+    {
 #ifdef ESP_PLATFORM
-    esp_wifi_start();
-    esp_wifi_connect();
+        esp_wifi_start();
+        esp_wifi_connect();
 #else
 
-    // Assume network is available when running under POSIX system.
-    publish_status(true, true);
+        // Assume network is available when running under POSIX system.
+        publish_status(true, true);
 #endif
-}
+    }
 
-bool
-Wifi::is_connected_to_ap() const
-{
-    return connected;
-}
+    bool Wifi::is_connected_to_ap() const
+    {
+        return connected;
+    }
 
-void
-Wifi::wifi_event_callback(void* event_handler_arg,
-                          esp_event_base_t event_base,
-                          int32_t event_id,
-                          void* event_data)
-{
-    // Note: be very careful with what you do in this method - it runs under the event task
-    // (sys_evt) with a very small default stack.
-    Wifi* wifi = reinterpret_cast<Wifi*>(event_handler_arg);
+    void Wifi::wifi_event_callback(void* event_handler_arg,
+                                   esp_event_base_t event_base,
+                                   int32_t event_id,
+                                   void* event_data)
+    {
+        // Note: be very careful with what you do in this method - it runs under the event task
+        // (sys_evt) with a very small default stack.
+        Wifi* wifi = reinterpret_cast<Wifi*>(event_handler_arg);
 
-    if (event_base == WIFI_EVENT) {
-        switch (event_id) {
-        case WIFI_EVENT_STA_START:
-            break;
-        case WIFI_EVENT_STA_CONNECTED:
-            wifi->connected = true;
-            break;
-        case WIFI_EVENT_STA_DISCONNECTED:
-            wifi->ip.addr = 0;
-            wifi->connected = false;
-            publish_status(wifi->connected, true);
-
-            if (wifi->auto_connect_to_ap) {
-                esp_wifi_stop();
-                wifi->connect();
+        if (event_base == WIFI_EVENT)
+        {
+            switch (event_id) {
+            case WIFI_EVENT_STA_START: {
             }
             break;
-        case WIFI_EVENT_AP_START:
-            wifi->ip.addr = 0xC0A80401; // 192.168.4.1
-            publish_status(true, true);
+            case WIFI_EVENT_STA_CONNECTED: {
+                wifi->connected = true;
+            }
             break;
-        case WIFI_EVENT_AP_STOP:
-            wifi->ip.addr = 0;
-            Log::info("SoftAP", "AP stopped");
-            publish_status(false, true);
+            case WIFI_EVENT_STA_DISCONNECTED: {
+                wifi->ip.addr = 0;
+                wifi->connected = false;
+                publish_status(wifi->connected, true);
+
+                if (wifi->auto_connect_to_ap)
+                {
+                    esp_wifi_stop();
+                    wifi->connect();
+                }
+            }
             break;
-        case WIFI_EVENT_AP_STACONNECTED: {
-            auto data = reinterpret_cast<wifi_event_ap_staconnected_t*>(event_data);
-            Log::info("SoftAP", "Station connected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
+            case WIFI_EVENT_AP_START: {
+                wifi->ip.addr = 0xC0A80401; // 192.168.4.1
+                publish_status(true, true);
+            }
+            break;
+            case WIFI_EVENT_AP_STOP: {
+                wifi->ip.addr = 0;
+                Log::info("SoftAP", "AP stopped");
+                publish_status(false, true);
+            }
+            break;
+            case WIFI_EVENT_AP_STACONNECTED: {
+                auto data = reinterpret_cast<wifi_event_ap_staconnected_t*>(event_data);
+                Log::info("SoftAP", "Station connected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
                       data->mac[0],
                       data->mac[1],
                       data->mac[2],
@@ -163,11 +164,12 @@ Wifi::wifi_event_callback(void* event_handler_arg,
                       data->mac[4],
                       data->mac[5],
                       data->aid);
-        } break;
-        case WIFI_EVENT_AP_STADISCONNECTED: {
-            auto data = reinterpret_cast<wifi_event_ap_stadisconnected_t*>(event_data);
+            }
+            break;
+            case WIFI_EVENT_AP_STADISCONNECTED: {
+                auto data = reinterpret_cast<wifi_event_ap_stadisconnected_t*>(event_data);
 
-            Log::info("SoftAP", "Station disconnected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
+                Log::info("SoftAP", "Station disconnected. MAC: {}:{}:{}:{}:{}:{} join, AID={}",
                       data->mac[0],
                       data->mac[1],
                       data->mac[2],
@@ -175,69 +177,74 @@ Wifi::wifi_event_callback(void* event_handler_arg,
                       data->mac[4],
                       data->mac[5],
                       data->aid);
-
-        } break;
+            }
+            break;
+            }
         }
-    } else if (event_base == IP_EVENT) {
-        if (event_id == IP_EVENT_STA_GOT_IP
-            || event_id == IP_EVENT_GOT_IP6
-            || event_id == IP_EVENT_ETH_GOT_IP) {
-            auto ip_changed = event_id == IP_EVENT_STA_GOT_IP ? reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed : true;
-            publish_status(true, ip_changed);
-            wifi->ip.addr = reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_info.ip.addr;
-        } else if (event_id == IP_EVENT_STA_LOST_IP) {
-            wifi->ip.addr = 0;
-            publish_status(false, true);
+        else if (event_base == IP_EVENT)
+        {
+            if (event_id == IP_EVENT_STA_GOT_IP
+                || event_id == IP_EVENT_GOT_IP6
+                || event_id == IP_EVENT_ETH_GOT_IP)
+            {
+                auto ip_changed = event_id ==
+                                  IP_EVENT_STA_GOT_IP ? reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed :
+                                  true;
+                publish_status(true, ip_changed);
+                wifi->ip.addr = reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_info.ip.addr;
+            }
+            else if (event_id == IP_EVENT_STA_LOST_IP)
+            {
+                wifi->ip.addr = 0;
+                publish_status(false, true);
+            }
         }
     }
-}
 
-void
-Wifi::close_if()
-{
-    if (interface) {
-        esp_netif_destroy(interface);
-        interface = nullptr;
+    void Wifi::close_if()
+    {
+        if (interface)
+        {
+            esp_netif_destroy(interface);
+            interface = nullptr;
+        }
     }
-}
 
-void
-Wifi::start_softap(uint8_t max_conn)
-{
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&cfg);
+    void Wifi::start_softap(uint8_t max_conn)
+    {
+        wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+        esp_wifi_init(&cfg);
 
-    wifi_config_t config{};
+        wifi_config_t config{};
 
-    copy_min_to_buffer(ssid.begin(), ssid.length(), config.ap.ssid);
-    copy_min_to_buffer(password.begin(), password.length(), config.ap.password);
+        copy_min_to_buffer(ssid.begin(), ssid.length(), config.ap.ssid);
+        copy_min_to_buffer(password.begin(), password.length(), config.ap.password);
 
-    config.ap.max_connection = max_conn;
-    config.ap.authmode = password.empty() ? WIFI_AUTH_OPEN : WIFI_AUTH_WPA_WPA2_PSK;
+        config.ap.max_connection = max_conn;
+        config.ap.authmode = password.empty() ? WIFI_AUTH_OPEN : WIFI_AUTH_WPA_WPA2_PSK;
 
-    close_if();
-    interface = esp_netif_create_default_wifi_ap();
+        close_if();
+        interface = esp_netif_create_default_wifi_ap();
 
-    esp_wifi_set_mode(WIFI_MODE_AP);
-    esp_wifi_set_config(ESP_IF_WIFI_AP, &config);
-    esp_wifi_start();
+        esp_wifi_set_mode(WIFI_MODE_AP);
+        esp_wifi_set_config(ESP_IF_WIFI_AP, &config);
+        esp_wifi_start();
 
-    Log::info("SoftAP", "SSID: {}; Auth {}", ssid, (password.empty() ? "Open" : "WPA2/PSK"));
+        Log::info("SoftAP", "SSID: {}; Auth {}", ssid, (password.empty() ? "Open" : "WPA2/PSK"));
 
 #ifndef ESP_PLATFORM
 
-    // Assume network is available when running under POSIX system.
-    publish_status(true, true);
+        // Assume network is available when running under POSIX system.
+        publish_status(true, true);
 #endif
-}
+    }
 
-void
-Wifi::publish_status(bool connected, bool ip_changed)
-{
-    network::NetworkStatus status(connected
+    void Wifi::publish_status(bool connected, bool ip_changed)
+    {
+        network::NetworkStatus status(connected
                                       ? network::NetworkEvent::GOT_IP
                                       : network::NetworkEvent::DISCONNECTED,
-                                  ip_changed);
-    core::ipc::Publisher<network::NetworkStatus>::publish(status);
-}
+                                      ip_changed);
+        core::ipc::Publisher<network::NetworkStatus>::publish(status);
+    }
 }

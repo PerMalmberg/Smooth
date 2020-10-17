@@ -28,38 +28,39 @@ limitations under the License.
 #include "smooth/core/network/NetworkInterface.h"
 
 namespace smooth::core::network {
+    class Ethernet : public NetworkInterface
+    {
+        public:
+            Ethernet(std::string&& string = "Ethernet");
 
-class Ethernet : public NetworkInterface {
-public:
-    Ethernet(std::string&& string = "Ethernet");
+            Ethernet(const Ethernet&) = delete;
 
-    Ethernet(const Ethernet&) = delete;
+            Ethernet(Ethernet&&) = delete;
 
-    Ethernet(Ethernet&&) = delete;
+            Ethernet& operator=(const Ethernet&) = delete;
 
-    Ethernet& operator=(const Ethernet&) = delete;
+            Ethernet& operator=(Ethernet&&) = delete;
 
-    Ethernet& operator=(Ethernet&&) = delete;
+            ~Ethernet();
 
-    ~Ethernet();
+            void start();
 
-    void start();
+            [[nodiscard]] bool is_connected() const;
 
-    [[nodiscard]] bool is_connected() const;
+            static void eth_event_callback(void* event_handler_arg,
+                                           esp_event_base_t event_base,
+                                           int32_t event_id,
+                                           void* event_data);
 
-    static void eth_event_callback(void* event_handler_arg,
-                                   esp_event_base_t event_base,
-                                   int32_t event_id,
-                                   void* event_data);
+        private:
+            void connect() const;
 
-private:
-    void connect() const;
-    static void publish_status(bool connected, bool ip_changed);
+            static void publish_status(bool connected, bool ip_changed);
 
-    esp_event_handler_instance_t instance_eth_event{};
-    esp_event_handler_instance_t instance_ip_event{};
-    esp_eth_mac_t* mac{nullptr};
-    esp_eth_phy_t* phy{nullptr};
-    esp_eth_handle_t eth_handle{nullptr};
-};
+            esp_event_handler_instance_t instance_eth_event{};
+            esp_event_handler_instance_t instance_ip_event{};
+            esp_eth_mac_t* mac{ nullptr };
+            esp_eth_phy_t* phy{ nullptr };
+            esp_eth_handle_t eth_handle{ nullptr };
+    };
 }
