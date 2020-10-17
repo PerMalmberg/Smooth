@@ -20,9 +20,9 @@ config SMOOTH_MAX_MQTT_MESSAGE_SIZE
     default 512
     help
         MQTT allows messages sizes up to 268435455 bytes in its remaning lengths field which is obviously
-	too much data to hold in memory on an embedded device. Any incoming message with a remaining length
-	larger than the set value will be 'swallowed' by the Smooth MQTT protocol implementation and never
-	seen by the application.
+	    too much data to hold in memory on an embedded device. Any incoming message with a remaining length
+	    larger than the set value will be 'swallowed' by the Smooth MQTT protocol implementation and never
+	    seen by the application.
 
 config SMOOTH_MAX_MQTT_OUTGOING_MESSAGES
     int "Maximum number of queued outgoing messages"
@@ -39,13 +39,13 @@ choice
 config SMOOTH_MQTT_LOG_LEVEL_NONE
     bool "None"
 config SMOOTH_MQTT_LOG_LEVEL_ERROR
-   bool "Error"
+    bool "Error"
 config SMOOTH_MQTT_LOG_LEVEL_WARN
-   bool "Warning"
+    bool "Warning"
 config SMOOTH_MQTT_LOG_LEVEL_INFO
-   bool "Info"
+    bool "Info"
 config SMOOTH_MQTT_LOG_LEVEL_DEBUG
-   bool "Debug"
+    bool "Debug"
 config SMOOTH_MQTT_LOG_LEVEL_VERBOSE
     bool "Verbose"
 endchoice
@@ -58,4 +58,148 @@ config SMOOTH_MQTT_LOGGING_LEVEL
     default 3 if SMOOTH_MQTT_LOG_LEVEL_INFO
     default 4 if SMOOTH_MQTT_LOG_LEVEL_DEBUG
     default 5 if SMOOTH_MQTT_LOG_LEVEL_VERBOSE
+
+
+menu "Ethernet"
+    choice SMOOTH_USE_ETHERNET
+        prompt "Ethernet Type"
+        default SMOOTH_USE_INTERNAL_ETHERNET if IDF_TARGET_ESP32
+        default SMOOTH_USE_DM9051 if !IDF_TARGET_ESP32
+        help
+            Select which kind of Ethernet will be used in the example.
+
+        config SMOOTH_USE_INTERNAL_ETHERNET
+            depends on IDF_TARGET_ESP32
+            select ETH_USE_ESP32_EMAC
+            bool "Internal EMAC"
+            help
+                Select internal Ethernet MAC controller.
+
+        config SMOOTH_USE_DM9051
+            bool "DM9051 Module"
+            select ETH_USE_SPI_ETHERNET
+            select ETH_SPI_ETHERNET_DM9051
+            help
+                Select external SPI-Ethernet module (DM9051).
+
+    endchoice
+
+    if SMOOTH_USE_INTERNAL_ETHERNET
+        choice SMOOTH_ETH_PHY_MODEL
+            prompt "Ethernet PHY Device"
+            default SMOOTH_ETH_PHY_IP101
+            help
+                Select the Ethernet PHY device to use.
+
+            config SMOOTH_ETH_PHY_IP101
+                bool "IP101"
+                help
+                    IP101 is a single port 10/100 MII/RMII/TP/Fiber Fast Ethernet Transceiver.
+                    Goto http://www.icplus.com.tw/pp-IP101G.html for more information about it.
+
+            config SMOOTH_ETH_PHY_RTL8201
+                bool "RTL8201/SR8201"
+                help
+                    RTL8201F/SR8201F is a single port 10/100Mb Ethernet Transceiver with auto MDIX.
+                    Goto http://www.corechip-sz.com/productsview.asp?id=22 for more information about it.
+
+            config SMOOTH_ETH_PHY_LAN8720
+                bool "LAN8720"
+                help
+                    LAN8720A is a small footprint RMII 10/100 Ethernet Transceiver with HP Auto-MDIX Support.
+                    Goto https://www.microchip.com/LAN8720A for more information about it.
+            
+            config SMOOTH_ETH_PHY_LAN8742
+                bool "LAN8742"
+                help
+                    LAN87242A is a small footprint RMII 10/100 Ethernet Transceiver with HP Auto-MDIX Support.
+                    Goto https://www.microchip.com/LAN8742A for more information about it.
+
+            config SMOOTH_ETH_PHY_DP83848
+                bool "DP83848"
+                help
+                    DP83848 is a single port 10/100Mb/s Ethernet Physical Layer Transceiver.
+                    Goto http://www.ti.com/product/DP83848J for more information about it.
+        endchoice
+
+        config SMOOTH_ETH_MDC_GPIO
+            int "SMI MDC GPIO number"
+            default 23
+            help
+                Set the GPIO number used by SMI MDC.
+
+        config SMOOTH_ETH_MDIO_GPIO
+            int "SMI MDIO GPIO number"
+            default 18
+            help
+                Set the GPIO number used by SMI MDIO.
+    endif
+
+    if SMOOTH_USE_DM9051
+        config SMOOTH_DM9051_SPI_HOST
+            int "SPI Host Number"
+            range 0 2
+            default 1
+            help
+                Set the SPI host used to communicate with the SPI Ethernet Controller.
+
+        config SMOOTH_DM9051_SCLK_GPIO
+            int "SPI SCLK GPIO number"
+            range 0 33
+            default 19
+            help
+                Set the GPIO number used by SPI SCLK.
+
+        config SMOOTH_DM9051_MOSI_GPIO
+            int "SPI MOSI GPIO number"
+            range 0 33
+            default 23
+            help
+                Set the GPIO number used by SPI MOSI.
+
+        config SMOOTH_DM9051_MISO_GPIO
+            int "SPI MISO GPIO number"
+            range 0 33
+            default 25
+            help
+                Set the GPIO number used by SPI MISO.
+
+        config SMOOTH_DM9051_CS_GPIO
+            int "SPI CS GPIO number"
+            range 0 33
+            default 22
+            help
+                Set the GPIO number used by SPI CS.
+
+        config SMOOTH_DM9051_SPI_CLOCK_MHZ
+            int "SPI clock speed (MHz)"
+            range 5 80
+            default 20
+            help
+                Set the clock speed (MHz) of SPI interface.
+
+        config SMOOTH_DM9051_INT_GPIO
+            int "Interrupt GPIO number"
+            default 4
+            help
+                Set the GPIO number used by DM9051 interrupt.
+    endif
+
+    config SMOOTH_ETH_PHY_RST_GPIO
+        int "PHY Reset GPIO number"
+        default 5
+        help
+            Set the GPIO number used to reset PHY chip.
+            Set to -1 to disable PHY chip hardware reset.
+
+    config SMOOTH_ETH_PHY_ADDR
+        int "PHY Address"
+        range 0 31 if SMOOTH_USE_INTERNAL_ETHERNET
+        range 1 1 if !SMOOTH_USE_INTERNAL_ETHERNET
+        default 0 if SMOOTH_USE_INTERNAL_ETHERNET
+        default 1 if !SMOOTH_USE_INTERNAL_ETHERNET
+        help
+            Set PHY address according your board schematic.
+endmenu
+    
 endmenu

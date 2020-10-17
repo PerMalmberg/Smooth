@@ -22,14 +22,13 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_wifi.h>
 #pragma GCC diagnostic pop
-// #include "smooth/core/ipc/IEventListener.h"
 #include "smooth/core/network/NetworkInterface.h"
 
 namespace smooth::core::network {
 /// Wifi management class
 class Wifi : public NetworkInterface {
 public:
-    Wifi(std::string name = "WiFi");
+    Wifi(std::string&& name = "WiFi");
 
     Wifi(const Wifi&) = delete;
 
@@ -75,6 +74,7 @@ public:
 
 private:
     void connect() const;
+    void close_if();
 
     static void publish_status(bool connected, bool ip_changed);
 

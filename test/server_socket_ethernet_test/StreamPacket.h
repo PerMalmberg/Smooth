@@ -16,28 +16,38 @@ limitations under the License.
 */
 
 #pragma once
+#include "smooth/core/network/IPacketDisassembly.h"
+#include <array>
 
-#include "StreamingClient.h"
-#include "StreamingProtocol.h"
-#include "smooth/core/Application.h"
-#include "smooth/core/ipc/IEventListener.h"
-#include "smooth/core/ipc/TaskEventQueue.h"
-#include "smooth/core/network/SecureSocket.h"
-#include "smooth/core/network/ServerSocket.h"
-#include "smooth/core/network/Socket.h"
-#include <functional>
-
-namespace server_socket_test {
-class App
-    : public smooth::core::Application {
+class StreamPacket
+    : public smooth::core::network::IPacketDisassembly {
 public:
-    App();
+    StreamPacket() = default;
 
-    void init() override;
+    StreamPacket(const StreamPacket&) = default;
+
+    StreamPacket& operator=(const StreamPacket&) = default;
+
+    explicit StreamPacket(char c)
+    {
+        buff[0] = static_cast<unsigned char>(c);
+    }
+
+    int get_send_length() override
+    {
+        return static_cast<int>(buff.size());
+    }
+
+    const uint8_t* get_data() override
+    {
+        return buff.data();
+    }
+
+    std::array<uint8_t, 1>& data()
+    {
+        return buff;
+    }
 
 private:
-    std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
-                                                        StreamingProtocol, void>>
-        server{};
+    std::array<uint8_t, 1> buff{};
 };
-}

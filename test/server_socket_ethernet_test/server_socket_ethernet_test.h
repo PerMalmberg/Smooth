@@ -22,12 +22,13 @@ limitations under the License.
 #include "smooth/core/Application.h"
 #include "smooth/core/ipc/IEventListener.h"
 #include "smooth/core/ipc/TaskEventQueue.h"
+#include "smooth/core/network/Ethernet.h"
 #include "smooth/core/network/SecureSocket.h"
 #include "smooth/core/network/ServerSocket.h"
 #include "smooth/core/network/Socket.h"
 #include <functional>
 
-namespace server_socket_test {
+namespace server_socket_ethernet_test {
 class App
     : public smooth::core::Application {
 public:
@@ -39,5 +40,7 @@ private:
     std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
                                                         StreamingProtocol, void>>
         server{};
+
+    smooth::core::network::Ethernet ethernet;
 };
 }

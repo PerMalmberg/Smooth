@@ -17,27 +17,5 @@ limitations under the License.
 
 #pragma once
 
-#include "StreamingClient.h"
-#include "StreamingProtocol.h"
-#include "smooth/core/Application.h"
-#include "smooth/core/ipc/IEventListener.h"
-#include "smooth/core/ipc/TaskEventQueue.h"
-#include "smooth/core/network/SecureSocket.h"
-#include "smooth/core/network/ServerSocket.h"
-#include "smooth/core/network/Socket.h"
-#include <functional>
-
-namespace server_socket_test {
-class App
-    : public smooth::core::Application {
-public:
-    App();
-
-    void init() override;
-
-private:
-    std::shared_ptr<smooth::core::network::ServerSocket<StreamingClient,
-                                                        StreamingProtocol, void>>
-        server{};
-};
-}
+#define WIFI_SSID "Your SSID"
+#define WIFI_PASSWORD "Your password"

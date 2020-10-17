@@ -40,48 +40,13 @@ using namespace smooth::core;
 
 namespace smooth::core::network {
 
-Ethernet::Ethernet(std::string name)
+Ethernet::Ethernet(std::string&& name)
     : NetworkInterface(std::move(name))
 {
-}
-
-Ethernet::~Ethernet()
-{
-    deinit();
-}
-
-bool
-Ethernet::init()
-{
-    esp_err_t err = do_init();
-    if (err != ESP_OK) {
-        Log::error(interface_name, "init", esp_err_to_name(err));
-        return false;
-    }
-    return true;
-}
-
-void
-Ethernet::deinit()
-{
-    esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, instance_ip_event);
-    esp_event_handler_instance_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, instance_eth_event);
-    if (eth_handle) {
-        esp_eth_stop(eth_handle);
-    }
-}
-
-esp_err_t
-Ethernet::do_init()
-{
-    esp_err_t err = ESP_OK;
-
     esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
     interface = esp_netif_new(&cfg);
-    err = esp_eth_set_default_handlers(interface);
-    if (err != ESP_OK) {
-        return err;
-    }
+    esp_eth_set_default_handlers(interface);
+
     esp_event_handler_instance_register(ETH_EVENT,
                                         ESP_EVENT_ANY_ID,
                                         &Ethernet::eth_event_callback,
@@ -96,37 +61,38 @@ Ethernet::do_init()
 
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
-
-    phy_config.phy_addr = CONFIG_EXAMPLE_ETH_PHY_ADDR;
-    phy_config.reset_gpio_num = CONFIG_EXAMPLE_ETH_PHY_RST_GPIO;
-#if CONFIG_EXAMPLE_USE_INTERNAL_ETHERNET
-    mac_config.smi_mdc_gpio_num = CONFIG_EXAMPLE_ETH_MDC_GPIO;
-    mac_config.smi_mdio_gpio_num = CONFIG_EXAMPLE_ETH_MDIO_GPIO;
+    phy_config.phy_addr = CONFIG_SMOOTH_ETH_PHY_ADDR;
+    phy_config.reset_gpio_num = CONFIG_SMOOTH_ETH_PHY_RST_GPIO;
+#if CONFIG_SMOOTH_USE_INTERNAL_ETHERNET
+    mac_config.smi_mdc_gpio_num = CONFIG_SMOOTH_ETH_MDC_GPIO;
+    mac_config.smi_mdio_gpio_num = CONFIG_SMOOTH_ETH_MDIO_GPIO;
     mac = esp_eth_mac_new_esp32(&mac_config);
-#if CONFIG_EXAMPLE_ETH_PHY_IP101
+#if CONFIG_SMOOTH_ETH_PHY_IP101
     phy = esp_eth_phy_new_ip101(&phy_config);
-#elif CONFIG_EXAMPLE_ETH_PHY_RTL8201
+#elif CONFIG_SMOOTH_ETH_PHY_RTL8201
     phy = esp_eth_phy_new_rtl8201(&phy_config);
-#elif CONFIG_EXAMPLE_ETH_PHY_LAN8720
+#elif CONFIG_SMOOTH_ETH_PHY_LAN8720
     phy = esp_eth_phy_new_lan8720(&phy_config);
-#elif CONFIG_EXAMPLE_ETH_PHY_LAN8742
+#elif CONFIG_SMOOTH_ETH_PHY_LAN8742
     phy = esp_eth_phy_new_lan8742(&phy_config);
-#elif CONFIG_EXAMPLE_ETH_PHY_DP83848
+#elif CONFIG_SMOOTH_ETH_PHY_DP83848
     phy = esp_eth_phy_new_dp83848(&phy_config);
-#elif CONFIG_EXAMPLE_ETH_PHY_KSZ8041
+#elif CONFIG_SMOOTH_ETH_PHY_KSZ8041
     phy = esp_eth_phy_new_ksz8041(&phy_config);
+#else
+#error CONFIG_SMOOTH_ETH_PHY_type not set
 #endif
-#elif CONFIG_EXAMPLE_USE_DM9051
+#elif CONFIG_SMOOTH_USE_DM9051
     gpio_install_isr_service(0);
     spi_device_handle_t spi_handle = NULL;
     spi_bus_config_t buscfg = {
-        .miso_io_num = CONFIG_EXAMPLE_DM9051_MISO_GPIO,
-        .mosi_io_num = CONFIG_EXAMPLE_DM9051_MOSI_GPIO,
-        .sclk_io_num = CONFIG_EXAMPLE_DM9051_SCLK_GPIO,
+        .miso_io_num = CONFIG_SMOOTH_DM9051_MISO_GPIO,
+        .mosi_io_num = CONFIG_SMOOTH_DM9051_MOSI_GPIO,
+        .sclk_io_num = CONFIG_SMOOTH_DM9051_SCLK_GPIO,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
     };
-    err = spi_bus_initialize(CONFIG_EXAMPLE_DM9051_SPI_HOST, &buscfg, 1);
+    spi_bus_initialize(CONFIG_SMOOTH_DM9051_SPI_HOST, &buscfg, 1);
     if (err != ESP_OK) {
         return err;
     }
@@ -134,36 +100,47 @@ Ethernet::do_init()
         .command_bits = 1,
         .address_bits = 7,
         .mode = 0,
-        .clock_speed_hz = CONFIG_EXAMPLE_DM9051_SPI_CLOCK_MHZ * 1000 * 1000,
-        .spics_io_num = CONFIG_EXAMPLE_DM9051_CS_GPIO,
+        .clock_speed_hz = CONFIG_SMOOTH_DM9051_SPI_CLOCK_MHZ * 1000 * 1000,
+        .spics_io_num = CONFIG_SMOOTH_DM9051_CS_GPIO,
         .queue_size = 20};
-    err = spi_bus_add_device(CONFIG_EXAMPLE_DM9051_SPI_HOST, &devcfg, &spi_handle);
+    spi_bus_add_device(CONFIG_SMOOTH_DM9051_SPI_HOST, &devcfg, &spi_handle);
     if (err != ESP_OK) {
         return err;
     }
     /* dm9051 ethernet driver is based on spi driver */
     eth_dm9051_config_t dm9051_config = ETH_DM9051_DEFAULT_CONFIG(spi_handle);
-    dm9051_config.int_gpio_num = CONFIG_EXAMPLE_DM9051_INT_GPIO;
+    dm9051_config.int_gpio_num = CONFIG_SMOOTH_DM9051_INT_GPIO;
     mac = esp_eth_mac_new_dm9051(&dm9051_config, &mac_config);
     phy = esp_eth_phy_new_dm9051(&phy_config);
+#else
+#error CONFIG_SMOOTH_USE_INTERNAL_ETHERNET or CONFIG_SMOOTH_USE_DM9051 should be set
 #endif
     esp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);
-    err = esp_eth_driver_install(&config, &eth_handle);
-    if (err != ESP_OK) {
-        return err;
+    esp_eth_driver_install(&config, &eth_handle);
+}
+
+Ethernet::~Ethernet()
+{
+    esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, instance_ip_event);
+    esp_event_handler_instance_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, instance_eth_event);
+    if (eth_handle) {
+        esp_eth_stop(eth_handle);
     }
-    /* attach Ethernet driver to TCP/IP stack */
-    err = esp_netif_attach(interface, esp_eth_new_netif_glue(eth_handle));
-    if (err != ESP_OK) {
-        return err;
-    }
-    /* start Ethernet driver state machine */
-    err = esp_eth_start(eth_handle);
-    if (err != ESP_OK) {
-        return err;
+}
+
+void
+Ethernet::start()
+{
+    apply_host_name();
+    auto err = esp_netif_attach(interface, esp_eth_new_netif_glue(eth_handle));
+    if (err == ESP_OK) {
+        /* start Ethernet driver state machine */
+        err = esp_eth_start(eth_handle);
     }
 
-    return err;
+    if (err != ESP_OK) {
+        Log::error(interface_name, "start", esp_err_to_name(err));
+    }
 }
 
 bool

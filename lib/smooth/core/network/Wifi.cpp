@@ -35,7 +35,7 @@ using namespace smooth::core::util;
 using namespace smooth::core;
 
 namespace smooth::core::network {
-Wifi::Wifi(std::string name)
+Wifi::Wifi(std::string&& name)
     : NetworkInterface(std::move(name))
 {
     esp_event_handler_instance_register(WIFI_EVENT,
@@ -94,7 +94,7 @@ Wifi::connect_to_ap()
 
     close_if();
     interface = esp_netif_create_default_wifi_sta();
-
+    apply_host_name();
     connect();
 }
 
@@ -189,6 +189,15 @@ Wifi::wifi_event_callback(void* event_handler_arg,
             wifi->ip.addr = 0;
             publish_status(false, true);
         }
+    }
+}
+
+void
+Wifi::close_if()
+{
+    if (interface) {
+        esp_netif_destroy(interface);
+        interface = nullptr;
     }
 }
 

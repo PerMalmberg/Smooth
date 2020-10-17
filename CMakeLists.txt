@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # Select the test project to build
-set(selected_test_project starter_example)
+set(selected_test_project server_socket_ethernet_test)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
@@ -38,6 +38,7 @@ list(APPEND available_tests
         timer
         secure_socket_test
         server_socket_test
+        server_socket_ethernet_test
         secure_server_socket_test
         http_server_test
         http_files_upload_test

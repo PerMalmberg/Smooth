@@ -28,10 +28,10 @@ limitations under the License.
 #include "smooth/core/network/NetworkInterface.h"
 
 namespace smooth::core::network {
-/// Ethernet management class
+
 class Ethernet : public NetworkInterface {
 public:
-    Ethernet(std::string name = "Ethernet");
+    Ethernet(std::string&& string = "Ethernet");
 
     Ethernet(const Ethernet&) = delete;
 
@@ -43,13 +43,8 @@ public:
 
     ~Ethernet();
 
-    /// Calls do_init and logs errors that occur
-    /// \return true on sucess
-    bool init();
-    void deinit();
+    void start();
 
-    /// Returns a value indicating of currently connected to the access point.
-    /// \return
     [[nodiscard]] bool is_connected() const;
 
     static void eth_event_callback(void* event_handler_arg,
@@ -59,16 +54,10 @@ public:
 
 private:
     void connect() const;
-
-    esp_err_t do_init();
-
-    void close_if();
-
     static void publish_status(bool connected, bool ip_changed);
 
     esp_event_handler_instance_t instance_eth_event{};
     esp_event_handler_instance_t instance_ip_event{};
-    esp_netif_t* interface{nullptr};
     esp_eth_mac_t* mac{nullptr};
     esp_eth_phy_t* phy{nullptr};
     esp_eth_handle_t eth_handle{nullptr};

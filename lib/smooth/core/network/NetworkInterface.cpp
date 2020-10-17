@@ -7,7 +7,7 @@ using namespace smooth::core::logging;
 namespace smooth::core::network {
 uint8_t NetworkInterface::interface_count = 0;
 
-NetworkInterface::NetworkInterface(std::string name)
+NetworkInterface::NetworkInterface(std::string&& name)
     : interface_name(name)
 {
     if (interface_count == 0) {
@@ -27,15 +27,17 @@ NetworkInterface::~NetworkInterface()
 void
 NetworkInterface::set_host_name(const std::string& name)
 {
-    esp_netif_set_hostname(interface, name.c_str());
+    // this only sets the host name string.
+    // before network interface is started in subclass, it should call apply_host_name
+    auto copied = name.copy(host_name, 32);
+    host_name[copied] = 0; // null terminate
 }
 
 void
-NetworkInterface::close_if()
+NetworkInterface::apply_host_name()
 {
     if (interface) {
-        esp_netif_destroy(interface);
-        interface = nullptr;
+        esp_netif_set_hostname(interface, host_name);
     }
 }
 
