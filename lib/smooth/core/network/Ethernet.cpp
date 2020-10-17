@@ -25,6 +25,7 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_eth.h>
+#include <esp_eth_netif_glue.h>
 #include <esp_event.h>
 #include <esp_netif.h>
 #pragma GCC diagnostic pop
@@ -78,6 +79,8 @@ namespace smooth::core::network {
         phy = esp_eth_phy_new_dp83848(&phy_config);
 #elif CONFIG_SMOOTH_ETH_PHY_KSZ8041
         phy = esp_eth_phy_new_ksz8041(&phy_config);
+#elif CONFIG_SMOOTH_ETH_PHY_MOCK
+        phy = esp_eth_phy_new_mock(&phy_config);
 #else
 #error CONFIG_SMOOTH_ETH_PHY_type not set
 #endif

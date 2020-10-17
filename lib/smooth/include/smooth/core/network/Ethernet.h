@@ -23,6 +23,7 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_eth.h>
+#include <esp_event_base.h>
 #pragma GCC diagnostic pop
 #include "smooth/core/ipc/IEventListener.h"
 #include "smooth/core/network/NetworkInterface.h"

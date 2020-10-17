@@ -1,5 +1,7 @@
 #include "smooth/core/network/NetworkInterface.h"
 #include "smooth/core/logging/log.h"
+#include <esp_err.h>
+#include <esp_netif.h>
 #include <sstream>
 
 using namespace smooth::core::logging;
