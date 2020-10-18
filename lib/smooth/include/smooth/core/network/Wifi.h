@@ -88,4 +88,7 @@ namespace smooth::core::network {
             esp_event_handler_instance_t instance_wifi_event{};
             esp_event_handler_instance_t instance_ip_event{};
     };
+
+    Wifi&
+    get_wifi();
 }

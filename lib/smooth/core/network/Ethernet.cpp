@@ -67,7 +67,9 @@ namespace smooth::core::network {
         mac_config.smi_mdc_gpio_num = CONFIG_SMOOTH_ETH_MDC_GPIO;
         mac_config.smi_mdio_gpio_num = CONFIG_SMOOTH_ETH_MDIO_GPIO;
         mac = esp_eth_mac_new_esp32(&mac_config);
-#if CONFIG_SMOOTH_ETH_PHY_IP101
+#if CONFIG_SMOOTH_ETH_PHY_MOCK
+        phy = esp_eth_phy_new_mock(&phy_config);
+#elif CONFIG_SMOOTH_ETH_PHY_IP101
         phy = esp_eth_phy_new_ip101(&phy_config);
 #elif CONFIG_SMOOTH_ETH_PHY_RTL8201
         phy = esp_eth_phy_new_rtl8201(&phy_config);
@@ -79,8 +81,6 @@ namespace smooth::core::network {
         phy = esp_eth_phy_new_dp83848(&phy_config);
 #elif CONFIG_SMOOTH_ETH_PHY_KSZ8041
         phy = esp_eth_phy_new_ksz8041(&phy_config);
-#elif CONFIG_SMOOTH_ETH_PHY_MOCK
-        phy = esp_eth_phy_new_mock(&phy_config);
 #else
 #error CONFIG_SMOOTH_ETH_PHY_type not set
 #endif

@@ -60,7 +60,7 @@ namespace access_point
 
                 std::array<uint8_t, 6> mac{};
 
-                if (Wifi::get_local_mac_address(mac))
+                if (get_wifi().get_local_mac_address(mac))
                 {
                     mac_str = fmt::format(mac_format, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
                     Log::info(tag, mac_str);
@@ -70,7 +70,7 @@ namespace access_point
                     Log::error(tag, "Could not get local MAC");
                 }
 
-                auto ip = Wifi::get_local_ip();
+                auto ip = get_wifi().get_local_ip();
 
                 if (ip)
                 {

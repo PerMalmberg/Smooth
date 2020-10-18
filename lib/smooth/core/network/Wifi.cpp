@@ -247,4 +247,11 @@ namespace smooth::core::network {
                                       ip_changed);
         core::ipc::Publisher<network::NetworkStatus>::publish(status);
     }
+
+    Wifi& get_wifi()
+    {
+        static Wifi* wifi = new Wifi();
+
+        return *wifi;
+    }
 }
