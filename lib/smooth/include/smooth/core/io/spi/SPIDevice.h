@@ -20,6 +20,7 @@ limitations under the License.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <driver/gpio.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>

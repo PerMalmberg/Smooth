@@ -97,6 +97,34 @@ namespace smooth::application::network::http::utils
         {
             return "text/html";
         }
+        else if (ext == ".css")
+        {
+            return "text/css";
+        }
+        else if (ext == ".js")
+        {
+            return "text/javascript";
+        }
+        else if (ext == ".svg")
+        {
+            return "image/svg+xml";
+        }
+        else if (ext == ".gif")
+        {
+            return "image/gif";
+        }
+        else if (ext == ".json")
+        {
+            return "application/json";
+        }
+        else if (ext == ".mp3")
+        {
+            return "audio/mpeg";
+        }
+        else if (ext == ".ttf")
+        {
+            return "font/ttf";
+        }
 
         return "application/octet-stream";
     }

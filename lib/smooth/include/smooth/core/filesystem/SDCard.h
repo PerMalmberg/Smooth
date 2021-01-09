@@ -22,6 +22,7 @@ limitations under the License.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
 #include <esp_vfs.h>
