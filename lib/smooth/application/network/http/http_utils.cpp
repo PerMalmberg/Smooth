@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 #include "smooth/application/network/http/http_utils.h"
+#include "smooth/core/util/string_util.h"
 
 #include <array>
 #include <sstream>
@@ -87,7 +88,7 @@ namespace smooth::application::network::http::utils
     std::string get_content_type(const smooth::core::filesystem::Path& path)
     {
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-        const auto& ext = path.extension();
+        const auto& ext = smooth::core::string_util::to_lower_copy(path.extension());
 
         if (ext == ".jpeg")
         {
@@ -96,6 +97,34 @@ namespace smooth::application::network::http::utils
         else if (ext == ".html")
         {
             return "text/html";
+        }
+        else if (ext == ".css")
+        {
+            return "text/css";
+        }
+        else if (ext == ".js")
+        {
+            return "text/javascript";
+        }
+        else if (ext == ".svg")
+        {
+            return "image/svg+xml";
+        }
+        else if (ext == ".gif")
+        {
+            return "image/gif";
+        }
+        else if (ext == ".json")
+        {
+            return "application/json";
+        }
+        else if (ext == ".mp3")
+        {
+            return "audio/mpeg";
+        }
+        else if (ext == ".ttf")
+        {
+            return "font/ttf";
         }
 
         return "application/octet-stream";

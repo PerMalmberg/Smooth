@@ -20,6 +20,7 @@ limitations under the License.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <esp_vfs.h>
 #include <esp_vfs_fat.h>
 #include <esp_system.h>
