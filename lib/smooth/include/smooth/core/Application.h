@@ -61,10 +61,7 @@ namespace smooth::core
 
             network::Wifi& get_wifi()
             {
-                return wifi;
+                return network::get_wifi();
             }
-
-        private:
-            network::Wifi wifi{};
     };
 }

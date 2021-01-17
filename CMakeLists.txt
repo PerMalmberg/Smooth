@@ -38,6 +38,7 @@ list(APPEND available_tests
         timer
         secure_socket_test
         server_socket_test
+        server_socket_ethernet_test
         secure_server_socket_test
         http_server_test
         http_files_upload_test
