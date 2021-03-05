@@ -38,6 +38,7 @@ using namespace smooth::core;
 namespace smooth::core::network
 {
     struct esp_ip4_addr Wifi::ip = { 0 };
+    esp_netif_ip_info_t Wifi::ip_info; ///////////////////////////////////
 
     Wifi::Wifi()
     {
@@ -200,6 +201,7 @@ namespace smooth::core::network
                                   reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_changed : true;
                 publish_status(true, ip_changed);
                 wifi->ip.addr = reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_info.ip.addr;
+                wifi->ip_info = reinterpret_cast<ip_event_got_ip_t*>(event_data)->ip_info;
             }
             else if (event_id == IP_EVENT_STA_LOST_IP)
             {
@@ -277,6 +279,27 @@ namespace smooth::core::network
         return ip.addr;
     }
 
+    std::string Wifi::get_local_ip_address()
+    {
+        std::array<char, 16> str_ip;
+
+        return esp_ip4addr_ntoa(&ip_info.ip, str_ip.data(), 16);
+    }
+
+    std::string Wifi::get_netmask()
+    {
+        std::array<char, 16> str_mask;
+
+        return esp_ip4addr_ntoa(&ip_info.netmask, str_mask.data(), 16);
+    }
+
+    std::string Wifi::get_gateway()
+    {
+        std::array<char, 16> str_gw;
+
+        return esp_ip4addr_ntoa(&ip_info.gw, str_gw.data(), 16);
+    }
+
     void Wifi::start_softap(uint8_t max_conn)
     {
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -294,7 +317,7 @@ namespace smooth::core::network
         interface = esp_netif_create_default_wifi_ap();
 
         esp_wifi_set_mode(WIFI_MODE_AP);
-        esp_wifi_set_config(ESP_IF_WIFI_AP, &config);
+        esp_wifi_set_config(WIFI_IF_AP, &config);
         esp_wifi_start();
 
         Log::info("SoftAP", "SSID: {}; Auth {}", ssid, (password.empty() ? "Open" : "WPA2/PSK"));

@@ -82,6 +82,12 @@ namespace smooth::core::network
 
             [[nodiscard]] static uint32_t get_local_ip();
 
+            [[nodiscard]] static std::string get_local_ip_address();
+
+            [[nodiscard]] static std::string get_netmask();
+
+            [[nodiscard]] static std::string get_gateway();
+
             /// Start providing an access point
             /// \param max_conn maximum number of clients to connect to this AP
             void start_softap(uint8_t max_conn = 1);
@@ -104,5 +110,7 @@ namespace smooth::core::network
             esp_netif_t* interface{ nullptr };
             esp_event_handler_instance_t instance_wifi_event{};
             esp_event_handler_instance_t instance_ip_event{};
+
+            static esp_netif_ip_info_t ip_info;
     };
 }
