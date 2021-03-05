@@ -38,7 +38,7 @@ using namespace smooth::core;
 namespace smooth::core::network
 {
     struct esp_ip4_addr Wifi::ip = { 0 };
-    esp_netif_ip_info_t Wifi::ip_info; ///////////////////////////////////
+    esp_netif_ip_info_t Wifi::ip_info;
 
     Wifi::Wifi()
     {

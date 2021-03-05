@@ -25,6 +25,7 @@ limitations under the License.
 #include <esp_wifi.h>
 #pragma GCC diagnostic pop
 #include "smooth/core/ipc/IEventListener.h"
+#include <esp_netif_types.h>
 
 namespace smooth::core::network
 {
