@@ -23,9 +23,11 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <esp_wifi.h>
+#include <esp_netif.h>
+#include <esp_event.h>
 #pragma GCC diagnostic pop
 #include "smooth/core/ipc/IEventListener.h"
-#include <esp_netif_types.h>
+
 
 namespace smooth::core::network
 {
@@ -106,7 +108,6 @@ namespace smooth::core::network
             std::string ssid{};
 
             std::string password{};
-            static struct esp_ip4_addr ip;
 
             esp_netif_t* interface{ nullptr };
             esp_event_handler_instance_t instance_wifi_event{};

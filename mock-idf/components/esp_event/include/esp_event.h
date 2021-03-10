@@ -22,7 +22,6 @@
 
 #include "esp_event_base.h"
 #include "esp_event_legacy.h"
-#include "default_event_loop.h"
 
 /// Configuration for creating event loops
 typedef struct {
@@ -311,3 +310,55 @@ esp_err_t esp_event_post_to(esp_event_loop_handle_t event_loop,
  *  - Others: Fail
  */
 esp_err_t esp_event_dump(FILE* file);
+
+/**
+ * @brief Register an instance of event handler to the default loop.
+ *
+ * This function does the same as esp_event_handler_instance_register_with, except that it registers the
+ * handler to the default event loop.
+ *
+ * @param[in] event_base the base id of the event to register the handler for
+ * @param[in] event_id the id of the event to register the handler for
+ * @param[in] event_handler the handler function which gets called when the event is dispatched
+ * @param[in] event_handler_arg data, aside from event data, that is passed to the handler when it is called
+ * @param[out] instance An event handler instance object related to the registered event handler and data, can be NULL.
+ *             This needs to be kept if the specific callback instance should be unregistered before deleting the whole
+ *             event loop. Registering the same event handler multiple times is possible and yields distinct instance
+ *             objects. The data can be the same for all registrations.
+ *             If no unregistration is needed but the handler should be deleted when the event loop is deleted,
+ *             instance can be NULL.
+ *
+ * @note the event loop library does not maintain a copy of event_handler_arg, therefore the user should
+ * ensure that event_handler_arg still points to a valid location by the time the handler gets called
+ *
+ * @return
+ *  - ESP_OK: Success
+ *  - ESP_ERR_NO_MEM: Cannot allocate memory for the handler
+ *  - ESP_ERR_INVALID_ARG: Invalid combination of event base and event id or instance is NULL
+ *  - Others: Fail
+ */
+esp_err_t esp_event_handler_instance_register(esp_event_base_t event_base,
+                                             int32_t event_id,
+                                             esp_event_handler_t event_handler,
+                                             void *event_handler_arg,
+                                             esp_event_handler_instance_t *instance);
+
+
+/**
+ * @brief Unregister a handler from the system event loop.
+ *
+ * This function does the same as esp_event_handler_instance_unregister_with, except that it unregisters the
+ * handler instance from the default event loop.
+ *
+ * @param[in] event_base the base of the event with which to unregister the handler
+ * @param[in] event_id the id of the event with which to unregister the handler
+ * @param[in] instance the instance object of the registration to be unregistered
+ *
+ * @return
+ *  - ESP_OK: Success
+ *  - ESP_ERR_INVALID_ARG: Invalid combination of event base and event id
+ *  - Others: Fail
+ */
+esp_err_t esp_event_handler_instance_unregister(esp_event_base_t event_base,
+                                                int32_t event_id,
+                                                esp_event_handler_instance_t instance);
