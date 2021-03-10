@@ -28,7 +28,6 @@ limitations under the License.
 #pragma GCC diagnostic pop
 #include "smooth/core/ipc/IEventListener.h"
 
-
 namespace smooth::core::network
 {
     /// Wifi management class

@@ -36,7 +36,6 @@ namespace smooth::core::network
 {
     esp_netif_ip_info_t Wifi::ip_info;
 
-
     Wifi::Wifi()
     {
         esp_netif_init();
