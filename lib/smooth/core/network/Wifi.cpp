@@ -140,8 +140,6 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
             {
-                //wifi->ip.addr = 0;
-                // set ip, netmask and gateway address to 0.0.0.0
                 wifi->ip_info.ip.addr = 0;
                 wifi->ip_info.netmask = wifi->ip_info.ip;
                 wifi->ip_info.gw = wifi->ip_info.ip;
@@ -157,14 +155,11 @@ namespace smooth::core::network
             }
             else if (event_id == WIFI_EVENT_AP_START)
             {
-                //wifi->ip.addr = 0xC0A80401; // 192.168.4.1
                 wifi->ip_info.ip.addr = 0xC0A80401; // 192.168.4.1
                 publish_status(true, true);
             }
             else if (event_id == WIFI_EVENT_AP_STOP)
             {
-                //wifi->ip.addr = 0;
-                // set ip, netmask and gateway address to 0.0.0.0
                 wifi->ip_info.ip.addr = 0;
                 wifi->ip_info.netmask = wifi->ip_info.ip;
                 wifi->ip_info.gw = wifi->ip_info.ip;
@@ -210,8 +205,6 @@ namespace smooth::core::network
             }
             else if (event_id == IP_EVENT_STA_LOST_IP)
             {
-                //wifi->ip.addr = 0;
-                // set ip, netmask and gateway address to 0.0.0.0
                 wifi->ip_info.ip.addr = 0;
                 wifi->ip_info.netmask = wifi->ip_info.ip;
                 wifi->ip_info.gw = wifi->ip_info.ip;
