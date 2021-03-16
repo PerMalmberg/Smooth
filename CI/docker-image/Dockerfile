@@ -1,4 +1,4 @@
-FROM ubuntu:19.10
+FROM ubuntu:20.10
 
 ARG IDF_BRANCH=master
 ENV IDF_BRANCH=${IDF_BRANCH}
@@ -20,7 +20,7 @@ RUN apt update \
 		ca-certificates \
 		ninja-build \
 		ccache \ 
-		libusb-1.0 \
+		libusb-1.0-0 \
 		libsodium-dev \
 		libmbedtls-dev \
 		gcc-8 \
