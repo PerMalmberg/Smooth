@@ -16,16 +16,19 @@ run_in_docker() {
 }
 
 build_host() {
+  echo "Building Host -------------------------------------------------------"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/prepare_build_dir.sh"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/build_smooth_host.sh"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/set_build_dir_perms.sh"
 }
 
 run_host_tests() {
+  echo "Running host tests ---------------------------------------------------"
   run_in_docker --workdir "$source_root/build/test/linux_unit_tests" "$docker_image" "./linux_unit_tests"
 }
 
 build_esp32_test_projects() {
+  echo "Building esp32 test projects -----------------------------------------"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/prepare_build_dir.sh"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/build_smooth_esp32.sh"
   run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/set_build_dir_perms.sh"

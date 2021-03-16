@@ -18,7 +18,7 @@ done
 
 cd /src/build
 
-cp /src/CMakeLists.txt ./template_CMakeLists.txt
+cp /src/CMakeLists.txt ./original_CMakeLists.txt
 
 for current in "${tests[@]}"; do
 
@@ -26,15 +26,17 @@ for current in "${tests[@]}"; do
     echo "Compiling project $current"
     echo "#######################################"
     echo
-    cp ./template_CMakeLists.txt /src/CMakeLists.txt
+    cp ./original_CMakeLists.txt /src/CMakeLists.txt
     pattern="s/(selected_test_project)\s+\w+/\1 ${current}/g"
 
     sed -i -r -e "$pattern" /src/CMakeLists.txt
 
-    cmake .. -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/src/CI/gnu-toolchain.cmake
-    ninja
+    # For whatever reason when running Ninja instead of make the binary from
+    # the previous project is deleted when building the current one.
+    cmake .. -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=/src/CI/gnu-toolchain.cmake
+    make
 
 done
 
 # Clean up
-cp ./template_CMakeLists.txt /src/CMakeLists.txt
+cp ./original_CMakeLists.txt /src/CMakeLists.txt
