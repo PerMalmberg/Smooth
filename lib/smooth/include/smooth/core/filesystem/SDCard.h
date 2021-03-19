@@ -25,7 +25,7 @@ limitations under the License.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
-#include <esp_vfs.h>
+#include <driver/sdspi_host.h>
 #pragma GCC diagnostic pop
 
 namespace smooth::core::filesystem
@@ -48,12 +48,9 @@ namespace smooth::core::filesystem
             virtual bool deinit();
 
         protected:
-            bool do_common_initialization(const MountPoint& mount_point,
-                                          int max_file_count,
-                                          bool format_on_mount_failure,
-                                          void* slot_config);
+            bool do_common_error_checking(esp_err_t result);
 
-            sdmmc_host_t host{};
+            sdmmc_host_t sdmmc_host{};
             sdmmc_card_t* card{};
             bool initialized{};
         private:

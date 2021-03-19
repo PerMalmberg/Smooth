@@ -71,21 +71,20 @@ namespace spi_4_line_devices_test
     static const uint8_t FOUR_PARAMS = 0x04;
 
     App::App() : Application(APPLICATION_BASE_PRIO, seconds(3)),
-            spi_host(VSPI_HOST),            // Use VSPI as host
-
-            spi_master(
-                spi_host,                   // host VSPI
-                DMA_1,                      // use DMA
-                GPIO_NUM_23,                // mosi gpio pin
-                GPIO_NUM_19,                // miso gpio pin  (full duplex)
-                GPIO_NUM_18,                // clock gpio pin
-                0)                          // max transfer size default of 4096
+            spi_host(VSPI_HOST)            // Use VSPI as host
     {
     }
 
     void App::init()
     {
         Application::init();
+
+        Master::initialize(spi_host,                   // host VSPI
+                           DMA_1,                      // use DMA
+                           GPIO_NUM_23,                // mosi gpio pin
+                           GPIO_NUM_19,                // miso gpio pin  (full duplex)
+                           GPIO_NUM_18,                // clock gpio pin
+                           0);                         // max transfer size default of 4096
 
         ili9341_initialized = init_ILI9341();
         Log::info(TAG, "ILI9341 intialization --- {}", ili9341_initialized ? "Succeeded" : "Failed");
@@ -119,7 +118,7 @@ namespace spi_4_line_devices_test
 
     bool App::init_ILI9341()
     {
-        auto device = spi_master.create_device<LCDSpi>(
+        auto device = Master::create_device<LCDSpi>(
                         GPIO_NUM_14,            // chip select gpio pin
                         GPIO_NUM_27,            // data command gpio pin
                         0,                      // spi command_bits
@@ -155,7 +154,7 @@ namespace spi_4_line_devices_test
     bool App::init_BME280SPI()
     {
         bool res = false;
-        auto device = spi_master.create_device<BME280SPI>(
+        auto device = Master::create_device<BME280SPI>(
                         GPIO_NUM_13,            // chip select gpio pin
                         0,                      // spi command_bits
                         0,                      // spi address_bits,

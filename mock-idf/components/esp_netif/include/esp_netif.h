@@ -15,7 +15,7 @@
 #undef _ESP_NETIF_SUPPRESS_LEGACY_WARNING_
 #endif // CONFIG_ESP_NETIF_TCPIP_ADAPTER_COMPAT
 
-inline esp_err_t esp_netif_set_hostname(esp_netif_t */*esp_netif*/, const char */*hostname*/) { return ESP_OK; }
+inline esp_err_t esp_netif_set_hostname(esp_netif_t*/*esp_netif*/, const char*/*hostname*/) { return ESP_OK; }
 
 inline void esp_netif_destroy(esp_netif_t* /*esp_netif*/) {}
 
@@ -23,7 +23,7 @@ inline esp_err_t esp_netif_init(void) { return ESP_OK; }
 
 inline esp_err_t esp_netif_deinit(void) { return ESP_OK; }
 
-inline char *esp_ip4addr_ntoa(const esp_ip4_addr_t * /*addr*/, char *buf, int /*buflen*/)
+inline char* esp_ip4addr_ntoa(const esp_ip4_addr_t* /*addr*/, char* buf, int /*buflen*/)
 {
     return buf;
 }

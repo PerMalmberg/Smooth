@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # Select the test project to build
-set(selected_test_project starter_example)
+set(selected_test_project access_point)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
