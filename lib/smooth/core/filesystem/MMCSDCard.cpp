@@ -73,10 +73,10 @@ namespace smooth::core::filesystem
         gpio_set_pull_mode(data3, GPIO_PULLUP_ONLY);   // D3, needed in 4- and 1-line modes
 
         auto mount_result = esp_vfs_fat_sdmmc_mount((*mount_point).c_str(),
-        &sdmmc_host,
-        &slot_config,
-        &mount_config,
-        &card);
+                                                     &sdmmc_host,
+                                                     &slot_config,
+                                                     &mount_config,
+                                                     &card);
 
         FSLock::set_limit(max_file_count);
 

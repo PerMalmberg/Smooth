@@ -40,6 +40,8 @@ namespace smooth::core::filesystem
 
             bool init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count) override;
 
+            bool deinit() override;
+
         private:
             spi_host_device_t spi_host;
             smooth::core::io::spi::SPI_DMA_Channel dma_chl;

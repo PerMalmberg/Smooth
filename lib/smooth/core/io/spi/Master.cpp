@@ -22,15 +22,18 @@ using namespace smooth::core::logging;
 namespace smooth::core::io::spi
 {
     static constexpr const char* log_tag = "SPIMaster";
+    static constexpr const char* vspi_host_str = "VSPI_HOST";
+    static constexpr const char* hspi_host_str = "HSPI_HOST";
 
     // Declare static variables
-    bool Master::spi_bus_initialized = false;
     bool Master::hspi_initialized = false;
     bool Master::vspi_initialized = false;
     std::mutex Master::guard{};
     spi_bus_config_t Master::bus_config{};
     spi_host_device_t Master::spi_host;
     SPI_DMA_Channel Master::dma_channel;
+    uint8_t Master::hspi_initialized_count = 0;
+    uint8_t Master::vspi_initialized_count = 0;
 
     bool Master::initialize(spi_host_device_t host,
                             SPI_DMA_Channel dma_chl,
@@ -53,71 +56,92 @@ namespace smooth::core::io::spi
         bus_config.quadhd_io_num = quadhd_io_num;
         bus_config.max_transfer_sz = transfer_size;
 
-        spi_bus_initialized = false;
+        bool initialized = false;
 
         if (spi_host == VSPI_HOST)
         {
-            spi_bus_initialized = do_vspi_initialization();
+            initialized = do_intitialization(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
         }
 
         if (spi_host == HSPI_HOST)
         {
-            spi_bus_initialized = do_hspi_initialization();
+            initialized = do_intitialization(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
         }
 
-        return spi_bus_initialized;
+        return initialized;
     }
 
-    bool Master::do_vspi_initialization()
+    bool Master::do_intitialization(spi_host_device_t host,
+                                    bool& initialized,
+                                    uint8_t& initialized_count,
+                                    const char* spi_host_str)
     {
-        if (!vspi_initialized)
+        if (!initialized)
         {
-            vspi_initialized = spi_bus_initialize(spi_host, &bus_config, dma_channel) == ESP_OK;
+            initialized = spi_bus_initialize(host, &bus_config, dma_channel) == ESP_OK;
 
-            if (!vspi_initialized)
+            if (!initialized)
             {
-                Log::error(log_tag, "VSPI_HOST Initialization failed");
+                Log::error(log_tag, "{} Initialization has failed", spi_host_str);
             }
             else
             {
-                Log::info(log_tag, "VSPI initialized, Host {}, DMA {}", spi_host, dma_channel);
+                Log::info(log_tag, "{} has been initialized using DMA channel {}", spi_host_str, dma_channel);
             }
         }
 
-        return vspi_initialized;
-    }
-
-    bool Master::do_hspi_initialization()
-    {
-        if (!hspi_initialized)
+        // if initialized then increment initialized_count so we know how many spi-devices are on this spi-bus
+        if (initialized)
         {
-            hspi_initialized = spi_bus_initialize(spi_host, &bus_config, dma_channel) == ESP_OK;
-
-            if (!hspi_initialized)
-            {
-                Log::error(log_tag, "HSPI_HOST Initialization failed");
-            }
-            else
-            {
-                Log::info(log_tag, "HSPI initialized, Host {}, DMA {}", spi_host, dma_channel);
-            }
+            initialized_count++;
         }
 
-        return hspi_initialized;
+        Log::verbose(log_tag, "{} has an initialized_count = {}", spi_host_str, initialized_count);
+
+        return initialized;
     }
 
     void Master::deinitialize(spi_host_device_t spi_host)
     {
-        if ((spi_host == VSPI_HOST) & (vspi_initialized))
+        std::lock_guard<std::mutex> lock(guard);
+
+        if (spi_host == VSPI_HOST)
         {
-            vspi_initialized = false;
-            spi_bus_free(VSPI_HOST);
+            do_deinitialize(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
         }
 
-        if ((spi_host == HSPI_HOST) & (hspi_initialized))
+        if (spi_host == HSPI_HOST)
         {
-            hspi_initialized = false;
-            spi_bus_free(HSPI_HOST);
+            do_deinitialize(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
+        }
+    }
+
+    void Master::do_deinitialize(spi_host_device_t host,
+                                 bool& initialized,
+                                 uint8_t& initialized_count,
+                                 const char* spi_host_str)
+    {
+        if (initialized)
+        {
+            initialized_count--;
+
+            Log::verbose(log_tag, "{} has an initialized_count = {}", spi_host_str, initialized_count);
+
+            // check to see if this is the last spi device on this spi-bus, if true free this spi-bus
+            if (initialized_count == 0)
+            {
+                initialized = false;
+                auto res = spi_bus_free(host);
+
+                if (res == ESP_OK)
+                {
+                    Log::info(log_tag, "{} has successfully been freed", spi_host_str);
+                }
+                else
+                {
+                    Log::error(log_tag, "spi_bus_free for {} has failed", spi_host_str);
+                }
+            }
         }
     }
 }

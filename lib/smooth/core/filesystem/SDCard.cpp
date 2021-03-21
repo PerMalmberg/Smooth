@@ -48,9 +48,6 @@ namespace smooth::core::filesystem
         return initialized;
     }
 
-    // Note: If the SDCard is the only spi-device using spi-host-bus-master then the class calling this
-    // function should also call Master::deinitialize(spi_host_device_t spi_host) to deinitialize the
-    // spi-bus
     bool SDCard::deinit()
     {
         auto res = ESP_OK;
@@ -59,6 +56,11 @@ namespace smooth::core::filesystem
         {
             res = esp_vfs_fat_sdcard_unmount(SDCardMount::instance().mount_point().str().data(), card);
             initialized = false;
+
+            if (res != ESP_OK)
+            {
+                Log::error(log_tag, "SDCard unmount failed");
+            }
         }
 
         return res == ESP_OK;

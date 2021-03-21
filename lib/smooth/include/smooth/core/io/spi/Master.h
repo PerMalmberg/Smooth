@@ -59,6 +59,11 @@ namespace smooth::core::io::spi
                                    gpio_num_t quadwp_io_num = GPIO_NUM_NC,
                                    gpio_num_t quadhd_io_num = GPIO_NUM_NC);
 
+            /// Deinitialize
+            /// Perfoms steps to de-initialize a particular SPI Master
+            /// \param spi_host The spi-host that we want to de-initialize.
+            static void deinitialize(spi_host_device_t spi_host);
+
             /// Create a device of the given type.
             /// \tparam DeviceType The type of device to create must inherit from SPIDevice
             /// \tparam Args Parameter argument types
@@ -71,22 +76,33 @@ namespace smooth::core::io::spi
             /// Set constructor private so Master object cannot be created
             Master();
 
-            /// Do vspi initailization
-            /// Performs steps to initialize the VSPI Master
-            static bool do_vspi_initialization();
-
-            /// Do vspi initailization
-            /// Performs steps to initialize the HSPI Master
-            static bool do_hspi_initialization();
+            /// Do spi initialization
+            /// Performs steps to initialize the SPI Master
+            /// \param host The SPI Host to be initialized either VSPI or HSPI
+            /// \param initialized Contains the initialized state of a SPI bus
+            /// \param initialized_count Contains the number of times a SPI bus has been initialized
+            /// \param spi_host_str The name of the SPI bus being initialized
+            /// \return Return true if the SPI bus has been successfully initialized, false on failure
+            static bool do_intitialization(spi_host_device_t host,
+                                           bool& initialized,
+                                           uint8_t& initialized_count,
+                                           const char* spi_host_str);
 
             /// Deinitialize
             /// Perfoms steps to de-initialize a particular SPI Master
-            /// \param spi_host The SPI host to de-initialize
-            static void deinitialize(spi_host_device_t spi_host);
+            /// \param host The SPI Host to be initialized either VSPI or HSPI
+            /// \param initialized Contains the initialized state of a SPI bus
+            /// \param initialized_count Contains the number of times a SPI bus has been initialized
+            /// \param spi_host_str The name of the SPI bus being initialized
+            static void do_deinitialize(spi_host_device_t host,
+                                        bool& initialized,
+                                        uint8_t& initialized_count,
+                                        const char* spi_host_str);
 
-            static bool spi_bus_initialized;
             static bool hspi_initialized;
             static bool vspi_initialized;
+            static uint8_t hspi_initialized_count;
+            static uint8_t vspi_initialized_count;
             static std::mutex guard;
             static spi_bus_config_t bus_config;
             static spi_host_device_t spi_host;

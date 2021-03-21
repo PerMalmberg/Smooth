@@ -45,6 +45,7 @@ namespace smooth::core::filesystem
 
     bool SPISDCard::init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count)
     {
+        //card_is_spi_sd = true;
         Master::initialize(spi_host,
                            dma_chl,
                            mosi,
@@ -81,5 +82,13 @@ namespace smooth::core::filesystem
         FSLock::set_limit(max_file_count);
 
         return do_common_error_checking(mount_result);
+    }
+
+    bool SPISDCard::deinit()
+    {
+        auto res = SDCard::deinit();
+        Master::deinitialize(spi_host);
+
+        return res;
     }
 }
