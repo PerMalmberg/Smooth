@@ -17,9 +17,10 @@ limitations under the License.
 
 #pragma once
 
-#include "SDCard.h"
 #include <driver/gpio.h>
+#include "SDCard.h"
 #include "MountPoint.h"
+#include "smooth/core/io/spi/Master.h"
 
 namespace smooth::core::filesystem
 {
@@ -27,22 +28,29 @@ namespace smooth::core::filesystem
         : public SDCard
     {
         public:
-            SPISDCard(gpio_num_t miso,
+            SPISDCard(spi_host_device_t spi_host,
+                      smooth::core::io::spi::SPI_DMA_Channel dma_channel,
+                      gpio_num_t miso,
                       gpio_num_t mosi,
                       gpio_num_t serial_clock,
                       gpio_num_t chip_select,
                       gpio_num_t card_detect = GPIO_NUM_NC,
-                      gpio_num_t write_protect = GPIO_NUM_NC);
+                      gpio_num_t write_protect = GPIO_NUM_NC,
+                      int transfer_size = 0);
 
             bool init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count) override;
 
+            bool deinit() override;
+
         private:
+            spi_host_device_t spi_host;
+            smooth::core::io::spi::SPI_DMA_Channel dma_chl;
             gpio_num_t miso;
             gpio_num_t mosi;
             gpio_num_t serial_clock;
             gpio_num_t chip_select;
             gpio_num_t card_detect;
             gpio_num_t write_protect;
-            sdmmc_card_t* card;
+            int transfer_size;
     };
 }

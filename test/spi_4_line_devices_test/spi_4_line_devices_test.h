@@ -43,7 +43,6 @@ namespace spi_4_line_devices_test
             bool init_BME280SPI();
 
             spi_host_device_t spi_host;
-            smooth::core::io::spi::Master spi_master;
             std::unique_ptr<smooth::application::display::LCDSpi> display{};
             std::unique_ptr<smooth::application::sensor::BME280SPI> thp_sensor{};
             bool ili9341_initialized{ false };

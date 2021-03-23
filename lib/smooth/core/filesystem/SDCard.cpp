@@ -17,45 +17,33 @@ limitations under the License.
 
 #include "smooth/core/logging/log.h"
 #include "smooth/core/filesystem/SDCard.h"
-#include "smooth/core/filesystem/FSLock.h"
 
 using namespace smooth::core::logging;
 
 namespace smooth::core::filesystem
 {
-    bool SDCard::do_common_initialization(const MountPoint& mount_point,
-                                          int max_file_count,
-                                          bool format_on_mount_failure,
-                                          void* slot_config)
+    static constexpr const char* log_tag = "SDCard";
+
+    bool SDCard::do_common_error_checking(esp_err_t result)
     {
-        esp_vfs_fat_sdmmc_mount_config_t mount_config{};
-        mount_config.format_if_mount_failed = format_on_mount_failure;
-        mount_config.max_files = max_file_count;
-
-        //mount_config.allocation_unit_size = 16 * 1024;
-
-        auto mount_result = esp_vfs_fat_sdmmc_mount((*mount_point).c_str(), &host, slot_config, &mount_config, &card);
-
-        initialized = mount_result == ESP_OK;
+        initialized = result == ESP_OK;
 
         if (initialized)
         {
-            Log::info("SPISDCard", "SD Card initialized");
+            Log::info(log_tag, "Storage Card initialized");
             sdmmc_card_print_info(stdout, card);
         }
         else
         {
-            if (mount_result == ESP_FAIL)
+            if (result == ESP_FAIL)
             {
-                Log::error("SPISDCard", "Failed to mount the file system.");
+                Log::error(log_tag, "Failed to mount the file system.");
             }
             else
             {
-                Log::error("SPISDCard", "Failed to initialize SD Card.");
+                Log::error(log_tag, "Failed to initialize storage card.");
             }
         }
-
-        FSLock::set_limit(max_file_count);
 
         return initialized;
     }
@@ -66,8 +54,13 @@ namespace smooth::core::filesystem
 
         if (is_initialized())
         {
-            res = esp_vfs_fat_sdmmc_unmount();
+            res = esp_vfs_fat_sdcard_unmount(SDCardMount::instance().mount_point().str().data(), card);
             initialized = false;
+
+            if (res != ESP_OK)
+            {
+                Log::error(log_tag, "SDCard unmount failed");
+            }
         }
 
         return res == ESP_OK;

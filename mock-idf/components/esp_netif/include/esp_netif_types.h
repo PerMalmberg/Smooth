@@ -8,7 +8,8 @@ struct esp_netif_obj {};
 typedef struct esp_netif_obj esp_netif_t;
 
 /** IP event declarations */
-typedef enum {
+typedef enum
+{
     IP_EVENT_STA_GOT_IP,               /*!< station got IP from connected AP */
     IP_EVENT_STA_LOST_IP,              /*!< station lost IP and the IP is reset to 0 */
     IP_EVENT_AP_STAIPASSIGNED,         /*!< soft-AP assign an IP to a connected station */
@@ -20,7 +21,6 @@ typedef enum {
 
 /** @brief IP event base declaration */
 ESP_EVENT_DECLARE_BASE(IP_EVENT);
-
 
 /** Event structure for IP_EVENT_STA_GOT_IP, IP_EVENT_ETH_GOT_IP events  */
 typedef struct {
@@ -36,16 +36,18 @@ typedef struct {
 } esp_netif_ip6_info_t;
 
 typedef struct {
-    int if_index;                    /*!< Interface index for which the event is received (left for legacy compilation) */
-    esp_netif_t *esp_netif;          /*!< Pointer to corresponding esp-netif object */
+    int if_index;                    /*!< Interface index for which the event is received (left for legacy compilation)
+                                        */
+    esp_netif_t* esp_netif;          /*!< Pointer to corresponding esp-netif object */
     esp_netif_ip_info_t ip_info;     /*!< IP address, netmask, gatway IP address */
     bool ip_changed;                 /*!< Whether the assigned IP has changed or not */
 } ip_event_got_ip_t;
 
 /** Event structure for IP_EVENT_GOT_IP6 event */
 typedef struct {
-    int if_index;                    /*!< Interface index for which the event is received (left for legacy compilation) */
-    esp_netif_t *esp_netif;          /*!< Pointer to corresponding esp-netif object */
+    int if_index;                    /*!< Interface index for which the event is received (left for legacy compilation)
+                                        */
+    esp_netif_t* esp_netif;          /*!< Pointer to corresponding esp-netif object */
     esp_netif_ip6_info_t ip6_info;   /*!< IPv6 address of the interface */
     int ip_index;                    /*!< IPv6 address index */
 } ip_event_got_ip6_t;
@@ -54,4 +56,3 @@ typedef struct {
 typedef struct {
     esp_ip4_addr_t ip; /*!< IP address which was assigned to the station */
 } ip_event_ap_staipassigned_t;
-

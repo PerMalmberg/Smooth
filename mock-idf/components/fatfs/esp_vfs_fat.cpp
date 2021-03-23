@@ -22,7 +22,16 @@ esp_err_t esp_vfs_fat_sdmmc_mount(const char* /*base_path*/,
     return ESP_OK;
 }
 
-esp_err_t esp_vfs_fat_sdmmc_unmount()
+esp_err_t esp_vfs_fat_sdspi_mount(const char* base_path,
+                                  const sdmmc_host_t* host_config_input,
+                                  const sdspi_device_config_t* slot_config,
+                                  const esp_vfs_fat_mount_config_t* mount_config,
+                                  sdmmc_card_t** out_card)
+{
+    return ESP_OK;
+}
+
+esp_err_t esp_vfs_fat_sdcard_unmount(const char* base_path, sdmmc_card_t* card)
 {
     return ESP_OK;
 }

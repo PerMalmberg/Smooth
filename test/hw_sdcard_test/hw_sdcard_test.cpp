@@ -36,9 +36,10 @@ using namespace smooth::core::timer;
 using namespace smooth::core::filesystem;
 using namespace std::chrono;
 using namespace fmt::literals;
+using namespace smooth::core::io::spi;
 
 // Select appropriate interface - SPI or MMC
-//#define USE_SPI
+#define USE_SPI
 
 // Set to true to use 1-line MMC mode.
 const bool MMC_1_LINE_MODE = false;
@@ -60,7 +61,9 @@ namespace hw_sdcard_test
 #ifdef USE_SPI
 
         // Change the pin configuration to match your hardware.
-        card = std::make_unique<smooth::core::filesystem::SPISDCard>(GPIO_NUM_19,
+        card = std::make_unique<smooth::core::filesystem::SPISDCard>(HSPI_HOST,
+                                                                     SPI_DMA_Channel::DMA_1,
+                                                                     GPIO_NUM_19,
                                                                      GPIO_NUM_23,
                                                                      GPIO_NUM_18,
                                                                      GPIO_NUM_5,

@@ -1,15 +1,11 @@
 #pragma once
-//#include <esp_netif/esp_netif_ip_addr.h>
-//#include <esp_netif.h>
-//#include <esp_netif/lwip/ip_addr.h>
-//#include <lwip/lwip/ip_addr.h>
 
 #include <ip4_addr.h>
 
-
 typedef ip4_addr_t ip_addr_t;
 
-typedef enum {
+typedef enum
+{
     TCPIP_ADAPTER_IF_STA = 0,     /**< Wi-Fi STA (station) interface */
     TCPIP_ADAPTER_IF_AP,          /**< Wi-Fi soft-AP interface */
     TCPIP_ADAPTER_IF_ETH,         /**< Ethernet interface */

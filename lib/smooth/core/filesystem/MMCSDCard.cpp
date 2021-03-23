@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 #include "smooth/core/filesystem/MMCSDCard.h"
+#include "smooth/core/filesystem/FSLock.h"
 
 namespace smooth::core::filesystem
 {
@@ -40,9 +41,13 @@ namespace smooth::core::filesystem
 
     bool MMCSDCard::init(const SDCardMount& mount_point, bool format_on_mount_failure, int max_file_count)
     {
-        host = (sdmmc_host_t)SDMMC_HOST_DEFAULT();
+        sdmmc_host = (sdmmc_host_t)SDMMC_HOST_DEFAULT();
 
         // host.max_freq_khz = SDMMC_FREQ_HIGHSPEED()
+
+        esp_vfs_fat_sdmmc_mount_config_t mount_config{};
+        mount_config.format_if_mount_failed = format_on_mount_failure;
+        mount_config.max_files = max_file_count;
 
         sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
 
@@ -67,6 +72,14 @@ namespace smooth::core::filesystem
         gpio_set_pull_mode(data2, GPIO_PULLUP_ONLY);   // D2, needed in 4-line mode only
         gpio_set_pull_mode(data3, GPIO_PULLUP_ONLY);   // D3, needed in 4- and 1-line modes
 
-        return do_common_initialization(mount_point, max_file_count, format_on_mount_failure, &slot_config);
+        auto mount_result = esp_vfs_fat_sdmmc_mount((*mount_point).c_str(),
+                                                     &sdmmc_host,
+                                                     &slot_config,
+                                                     &mount_config,
+                                                     &card);
+
+        FSLock::set_limit(max_file_count);
+
+        return do_common_error_checking(mount_result);
     }
 }

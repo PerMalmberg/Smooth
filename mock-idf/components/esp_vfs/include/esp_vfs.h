@@ -1,3 +1,3 @@
 #pragma once
 
-#include <wear_leveling.h>
+#include <wear_levelling.h>

@@ -39,30 +39,30 @@ namespace smooth::core::io::spi
     class Master
     {
         public:
-            /// Create a driver for the specified host using the specified I/O pins.
-            /// @note Set unused pins to -1.
+            /// Initialize the SPI host.
+            /// @note Set unused pins to GPIO_NUM_NC
             /// \param host The host, either HSPI_HOST or HSPI_HOST.
+            /// \param dms_chl The DMA channel to use with this host
             /// \param mosi Master Output, Slave Input, i.e. data pin for sending data to slave.
             /// \param miso Master Input, Slave Output, i.e. data pin for receiving data from slave.
             /// \param clock Clock pin.
             /// \param transfer_size Maximum transfer size, in bytes. Defaults to 4094 if 0.
             /// \param quadwp_io_num GPIO pin for WP (Write Protect) signal used in D2 4-bit communication modes
             /// \param quadhd_io_num GPIO pin for HD (HolD) used in D3 4-bit communication modes
-            Master(spi_host_device_t host,
-                   SPI_DMA_Channel dma_channel,
-                   gpio_num_t mosi,
-                   gpio_num_t miso,
-                   gpio_num_t clock,
-                   int transfer_size = 0,
-                   gpio_num_t quadwp_io_num = GPIO_NUM_NC,
-                   gpio_num_t quadhd_io_num = GPIO_NUM_NC
-                   );
-
-            ~Master();
-
-            /// Initialize the SPI host.
             /// \return true on success, false on failure
-            bool initialize();
+            static bool initialize(spi_host_device_t host,
+                                   SPI_DMA_Channel dma_chl,
+                                   gpio_num_t mosi,
+                                   gpio_num_t miso,
+                                   gpio_num_t clock,
+                                   int transfer_size = 0,
+                                   gpio_num_t quadwp_io_num = GPIO_NUM_NC,
+                                   gpio_num_t quadhd_io_num = GPIO_NUM_NC);
+
+            /// Deinitialize
+            /// Perfoms steps to de-initialize a particular SPI Master
+            /// \param spi_host The spi-host that we want to de-initialize.
+            static void deinitialize(spi_host_device_t spi_host);
 
             /// Create a device of the given type.
             /// \tparam DeviceType The type of device to create must inherit from SPIDevice
@@ -70,22 +70,43 @@ namespace smooth::core::io::spi
             /// \param args Additional arguments that should be passed to the device.
             /// \return A unique pointer to a device, or an empty on failure.
             template<typename DeviceType, typename... Args>
-            std::unique_ptr<DeviceType> create_device(Args&& ... args);
+            static std::unique_ptr<DeviceType> create_device(Args&& ... args);
 
         private:
-            /// Do initailization
+            /// Set constructor private so Master object cannot be created
+            Master();
+
+            /// Do spi initialization
             /// Performs steps to initialize the SPI Master
-            void do_initialization();
+            /// \param host The SPI Host to be initialized either VSPI or HSPI
+            /// \param initialized Contains the initialized state of a SPI bus
+            /// \param initialized_count Contains the number of times a SPI bus has been initialized
+            /// \param spi_host_str The name of the SPI bus being initialized
+            /// \return Return true if the SPI bus has been successfully initialized, false on failure
+            static bool do_intitialization(spi_host_device_t host,
+                                           bool& initialized,
+                                           uint8_t& initialized_count,
+                                           const char* spi_host_str);
 
             /// Deinitialize
-            /// Perfoms steps to de-initialize the SPI Master
-            void deinitialize();
+            /// Perfoms steps to de-initialize a particular SPI Master
+            /// \param host The SPI Host to be initialized either VSPI or HSPI
+            /// \param initialized Contains the initialized state of a SPI bus
+            /// \param initialized_count Contains the number of times a SPI bus has been initialized
+            /// \param spi_host_str The name of the SPI bus being initialized
+            static void do_deinitialize(spi_host_device_t host,
+                                        bool& initialized,
+                                        uint8_t& initialized_count,
+                                        const char* spi_host_str);
 
-            bool initialized = false;
-            std::mutex guard{};
-            spi_bus_config_t bus_config{};
-            spi_host_device_t host;
-            SPI_DMA_Channel dma_channel;
+            static bool hspi_initialized;
+            static bool vspi_initialized;
+            static uint8_t hspi_initialized_count;
+            static uint8_t vspi_initialized_count;
+            static std::mutex guard;
+            static spi_bus_config_t bus_config;
+            static spi_host_device_t spi_host;
+            static SPI_DMA_Channel dma_channel;
     };
 
     template<typename DeviceType, typename... Args>
@@ -93,11 +114,8 @@ namespace smooth::core::io::spi
     {
         std::unique_ptr<DeviceType> dev;
 
-        if (initialize())
-        {
-            std::lock_guard<std::mutex> lock(guard);
-            dev = std::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
-        }
+        std::lock_guard<std::mutex> lock(guard);
+        dev = std::make_unique<DeviceType>(guard, std::forward<Args>(args)...);
 
         return dev;
     }
