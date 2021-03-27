@@ -140,6 +140,46 @@ namespace smooth::core::io::i2c
         return res == ESP_OK;
     }
 
+    bool I2CMasterDevice::read_block(uint8_t address,
+                                     core::util::FixedBufferBase<uint8_t>& data,
+                                     bool end_with_nack)
+    {
+        I2CCommandLink link(*this);
+
+        // Set R/W bit to 1 for read.
+        auto read_address = static_cast<uint8_t>((address << 1) | 0x1);
+
+        // Generate start condition
+        auto res = i2c_master_start(link);
+
+        // Write the read address, then read the desired amount,
+        // ending the read with a NACK to signal the slave to stop sending data.
+        res |= i2c_master_write_byte(link, read_address, true);
+
+        if (data.size() > 1)
+        {
+            res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
+        }
+
+        res |= i2c_master_read_byte(link, data.data() + data.size() - 1,
+                                    end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
+
+        // Complete the read with a stop condition.
+        res |= i2c_master_stop(link);
+        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+
+        if (res != ESP_OK)
+        {
+            std::stringstream ss;
+            ss << "Error during read of address 0x" << std::hex << static_cast<int32_t>(address);
+            log_error(res, ss.str().c_str());
+            i2c_reset_tx_fifo(port);
+            i2c_reset_rx_fifo(port);
+        }
+
+        return res == ESP_OK;
+    }
+
     bool I2CMasterDevice::is_present() const
     {
         std::vector<uint8_t> found;

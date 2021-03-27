@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # Select the test project to build
-set(selected_test_project starter_example)
+set(selected_test_project i2c_sht30_test)
 
 # For Linux builds, you may enable address sanitizer
 set(SMOOTH_ENABLE_ASAN 0)
@@ -56,6 +56,7 @@ list(APPEND available_tests
         spi_4_line_devices_test
         i2c_dht12_test
         i2c_rtc8563_test
+        i2c_sht30_test
         )
 
 list(FIND available_tests ${selected_test_project} test_found)

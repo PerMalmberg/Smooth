@@ -88,6 +88,15 @@ namespace smooth::core::io::i2c
                       bool use_restart_signal = true,
                       bool end_with_nack = true);
 
+            /// Reads a block of data from the slave with the provided address.
+            /// \param address The slave address
+            /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
+            /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
+            /// \return true on success, false on failure.
+            bool read_block(uint8_t address,
+                            core::util::FixedBufferBase<uint8_t>& dest,
+                            bool end_with_nack = true);
+
             uint8_t address;
         protected:
             i2c_port_t port;
