@@ -11,7 +11,7 @@ run_in_docker() {
     echo "Missing command for docker"
     exit 1
   else
-    docker run --rm --mount type=bind,source="$start_dir",target=$source_root "$@"
+    docker run --rm -v $start_dir:$source_root "$@"
   fi
 }
 
