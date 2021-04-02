@@ -106,7 +106,6 @@ namespace smooth::application::sensor
             std::string get_repeatability_mode();
 
         private:
-
             /// Calculate CRC
             /// \param raw_data The address of the FixedBuffer that contains data for caculting the CRC
             /// \param length The number of bytes in raw data to calculate the CRC on
