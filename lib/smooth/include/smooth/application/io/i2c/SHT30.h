@@ -14,6 +14,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+/************************************************************************************
+    SPECIAL NOTES                SPECIAL NOTES                          SPECIAL NOTES
+
+    The SHT30 can be configured to operate in slave clock-stretching mode where the
+    SHT30 holds the SCL line low while it is busy taking temperature and humdity
+    measurements. The amount of time the SHT30 holds the SCL line low depends upon
+    which repeatabilty mode is selected.
+
+    For fastest response time but lowest repeatability the user should select the
+    repeatability mode of EnableMeasureLowRepeatabilityWithClockStretching.
+
+    For medium response time and with medium repeatability the user should select the
+    repeatability mode of EnableMeasureMediumRepeatabilityWithClockStretching.  This
+    is the default setting on the SHT30.
+
+    For the longest response time but highest repeatability the user should select the
+    repeatability mode of DisableMeasureHighRepeatabilityWithClockStretching.
+
+    From the test I ran on the SHT30 at room temperature there was very little
+    difference between the various modes (24.4099 Celsius to 24.5060 Celsius).
+
+ ************************************************************************************/
 #pragma once
 
 #include "smooth/core/io/i2c/I2CMasterDevice.h"
@@ -33,7 +56,7 @@ namespace smooth::application::sensor
                 DisableHeater = 0x3066
             };
 
-            enum Repeatabilty
+            enum RepeatabilityMode
             {
                 EnableMeasureHighRepeatabilityWithClockStretching,
                 EnableMeasureMediumRepeatabilityWithClockStretching,
@@ -75,14 +98,15 @@ namespace smooth::application::sensor
 
             /// Set repeatability mode
             /// \param mode The repeatability mode you want the SHT30 to use for measurements.
-            ///             The default mode is MeasureHighRepeatabilityWithClockStretchingEnabled.
-            void set_repeatability_mode(Repeatabilty mode);
+            ///             The default mode is MeasureHighRepeatabilityWithClockStretchingDisabled.
+            void set_repeatability_mode(RepeatabilityMode mode);
 
             /// Get repeatability mode
             /// \param return Return the repeatability mode being used.
             std::string get_repeatability_mode();
 
         private:
+
             /// Calculate CRC
             /// \param raw_data The address of the FixedBuffer that contains data for caculting the CRC
             /// \param length The number of bytes in raw data to calculate the CRC on
@@ -103,10 +127,25 @@ namespace smooth::application::sensor
             /// \param return Return true on success, false on failure
             bool execute_repeatability_command();
 
-            /// Execute the read block
-            /// \param raw_data The address to store the result from reading the block
+            /// Execute the read block which does not use clock stretching
+            /// \param raw_data The address to store the result from reading
             /// \param return Return true on success, false on failure
             bool execute_read_block(smooth::core::util::FixedBufferBase<uint8_t>& raw_data);
+
+            /// Execute the read16 which uses clock stretching
+            /// \param raw_data The address to store the result from reading
+            /// \param return Return true on success, false on failure
+            bool execute_read16(smooth::core::util::FixedBufferBase<uint8_t>& raw_data);
+
+            /// Execute measuremnt read
+            /// \param raw_data The address to store the result from reading the measuremnt
+            /// \param return Return true on success, false on failure
+            bool execute_measurement_read(smooth::core::util::FixedBufferBase<uint8_t>& raw_data);
+
+            /// Execute status read
+            /// \param raw_data The address to store the result from reading the status
+            /// \param return Return true on success, false on failure
+            bool execute_status_read(smooth::core::util::FixedBufferBase<uint8_t>& raw_data);
 
             /// Execute crc checking on raw data
             /// \param raw_data The address of the data that will be used to check for CRC error
@@ -115,6 +154,10 @@ namespace smooth::application::sensor
             /// \param return Return true on success, false on failure
             bool execute_crc_checking(smooth::core::util::FixedBuffer<uint8_t, 3>& raw_data, uint8_t length);
 
-            Repeatabilty repeatability_command{ Repeatabilty::EnableMeasureHighRepeatabilityWithClockStretching };
+            /// The default repeatability mode
+            RepeatabilityMode repeatability_mode{ RepeatabilityMode::
+                                                  DisableMeasureMediumRepeatabilityWithClockStretching };
+
+            bool use_clock_stretching{ false };
     };
 }
