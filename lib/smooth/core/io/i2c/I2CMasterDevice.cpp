@@ -157,7 +157,6 @@ namespace smooth::core::io::i2c
         // before changing so we can restore before returning from this function.
         if (scl_timeout > 0)
         {
-            //Log::info("I2C", "timeout = {}", scl_timeout);
             res |= i2c_get_timeout(port, &orig_scl_timeout);
             res |= i2c_set_timeout(port, scl_timeout);
         }
