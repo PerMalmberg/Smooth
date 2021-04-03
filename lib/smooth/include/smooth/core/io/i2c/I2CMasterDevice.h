@@ -75,12 +75,12 @@ namespace smooth::core::io::i2c
             bool write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack = true);
 
             /// Reads data from the 8 bit register of the slave with the provided address.  This function DOES NOT
-            // support slave clock-stretching
+            /// support slave clock-stretching
             /// \param address The slave address
             /// \param slave_register The register to read from.
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
-            // address.
+            /// address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \return true on success, false on failure.
             bool read(uint8_t address,
@@ -90,16 +90,17 @@ namespace smooth::core::io::i2c
                       bool end_with_nack = true);
 
             /// Reads data from the 8 bit register of the slave with the provided address. This function supports slave
-            // clock-stretching
+            /// clock-stretching
             /// \param address The slave address
             /// \param slave_register The 16 bit register to read from.
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
-            // address.
+            /// address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
-            // time.  Set to 0 to disable using slave clock-stretching. The maximum timeout value is 0xFFFFF (1,048,575)
-            // or 13ms.  Negative numbers will be ignored.
+            /// time.  Set to 0 to disable using slave clock-stretching. The maximum timeout value is 0xFFFFF
+            /// (1,048,575)
+            /// or 13ms.  Negative numbers will be ignored.
             /// \return true on success, false on failure.
             bool read8(uint8_t address,
                        uint8_t slave_register,
@@ -109,16 +110,16 @@ namespace smooth::core::io::i2c
                        int scl_timeout = 0);
 
             /// Reads data from the 16 bit register of the slave with the provided address. This function supports slave
-            // clock-stretching
+            /// clock-stretching
             /// \param address The slave address
             /// \param slave_register The 16 bit register to read from.
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
-            // address.
+            /// address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
-            // time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
-            // (1,048,575) or 13ms.  Negative numbers will be ignored.
+            /// time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
+            /// (1,048,575) or 13ms.  Negative numbers will be ignored.
             /// \return true on success, false on failure.
             bool read16(uint8_t address,
                         uint16_t slave_register,
@@ -128,7 +129,7 @@ namespace smooth::core::io::i2c
                         int scl_timeout = 0);
 
             /// Reads a block of data from the slave with the provided address.  This function DOES NOT support slave
-            // clock-stretching
+            /// clock-stretching
             /// \param address The slave address
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
@@ -147,11 +148,11 @@ namespace smooth::core::io::i2c
             /// \param slave_reg A FixedBuffer that hold the slave register address
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
-            // address.
+            /// address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
-            // time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
-            // (1,048,575) or 13ms.  Negative numbers will be ignored.
+            /// time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
+            /// (1,048,575) or 13ms.  Negative numbers will be ignored.
             /// \return true on success, false on failure.
             bool write_followed_by_read(I2CCommandLink& link,
                                         uint8_t address,
@@ -164,7 +165,6 @@ namespace smooth::core::io::i2c
             /// Log error
             /// \param err The error type
             /// \param msg The error message
-            //void log_error(esp_err_t err, const char* msg);
             void log_error(esp_err_t err, uint8_t address);
 
             /// Sets the name of the procees that is being executed

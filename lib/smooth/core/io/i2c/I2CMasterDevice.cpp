@@ -43,18 +43,21 @@ namespace smooth::core::io::i2c
     // Write address and data
     bool I2CMasterDevice::write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack)
     {
+        // Create a threadsafe command link
         I2CCommandLink link(*this);
 
+        // Set the process name that will be used by log_error
         set_process_name(write_tag);
 
         // Set R/W bit to 0 for write.
         auto write_address = static_cast<uint8_t>(address << 1);
 
-        auto res = i2c_master_start(link);
-        res |= i2c_master_write_byte(link, write_address, expect_ack);
-        res |= i2c_master_write(link, data.data(), data.size(), expect_ack);
-        res |= i2c_master_stop(link);
-        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+        // Build the command link and execute the command link
+        auto res = i2c_master_start(link)
+                   | i2c_master_write_byte(link, write_address, expect_ack)
+                   | i2c_master_write(link, data.data(), data.size(), expect_ack)
+                   | i2c_master_stop(link)
+                   | i2c_master_cmd_begin(port, link, to_tick(timeout));
 
         if (res != ESP_OK)
         {
@@ -154,17 +157,14 @@ namespace smooth::core::io::i2c
         // before changing so we can restore before returning from this function.
         if (scl_timeout > 0)
         {
+            //Log::info("I2C", "timeout = {}", scl_timeout);
             res |= i2c_get_timeout(port, &orig_scl_timeout);
             res |= i2c_set_timeout(port, scl_timeout);
         }
 
-        // Generate start condition
+        // Generate start condition, Write the slave address to slave, Write slave register address to slave
         res |= i2c_master_start(link);
-
-        // Write the slave address to slave
         res |= i2c_master_write_byte(link, write_address, true);
-
-        // Write slave register address to slave
         res |= i2c_master_write(link, slave_reg.data(), slave_reg.size(), true);
 
         // Generate another start condition or stop condition
@@ -276,13 +276,17 @@ namespace smooth::core::io::i2c
         // Write the address of each possible device and see if an ACK is received or not.
         for (uint8_t address = 2; address <= 127; ++address)
         {
+            // Create a threadsafe command link
             I2CCommandLink link(*this);
+
+            // Set R/W bit to 1 for read.
             auto read_address = static_cast<uint8_t>(address << 1);
 
-            auto res = i2c_master_start(link);
-            res |= i2c_master_write_byte(link, read_address, true);
-            res |= i2c_master_stop(link);
-            res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+            // Build the command link and execute the command link
+            auto res = i2c_master_start(link)
+                       | i2c_master_write_byte(link, read_address, true)
+                       | i2c_master_stop(link)
+                       | i2c_master_cmd_begin(port, link, to_tick(timeout));
 
             if (res != ESP_OK)
             {
@@ -300,7 +304,6 @@ namespace smooth::core::io::i2c
     }
 
     // Log the error
-    //void I2CMasterDevice::log_error(esp_err_t err, const char* msg)
     void I2CMasterDevice::log_error(esp_err_t err, uint8_t address)
     {
         std::stringstream ss;
@@ -308,23 +311,23 @@ namespace smooth::core::io::i2c
 
         if (err == ESP_ERR_INVALID_ARG)
         {
-            Log::error(log_tag, "{} - Parameter error", ss.str().c_str());
+            Log::error(log_tag, "{} - Parameter error", ss.str());
         }
         else if (err == ESP_FAIL)
         {
-            Log::error(log_tag, "{} - Send command error, no ACK from slave", ss.str().c_str());
+            Log::error(log_tag, "{} - Send command error, no ACK from slave", ss.str());
         }
         else if (err == ESP_ERR_INVALID_STATE)
         {
-            Log::error(log_tag, "{} - I2C driver not installed or not in master mode", ss.str().c_str());
+            Log::error(log_tag, "{} - I2C driver not installed or not in master mode", ss.str());
         }
         else if (err == ESP_ERR_TIMEOUT)
         {
-            Log::error(log_tag, "{} - Operation timeout, bus busy", ss.str().c_str());
+            Log::error(log_tag, "{} - Operation timeout, bus busy", ss.str());
         }
         else if (err != ESP_OK)
         {
-            Log::error(log_tag, "{} - unknown error: {}", ss.str().c_str(), err);
+            Log::error(log_tag, "{} - unknown error: {}", ss.str(), err);
         }
     }
 

@@ -32,7 +32,7 @@ namespace smooth::application::sensor
 
     constexpr const milliseconds command_delay_2ms(2);
     constexpr const milliseconds non_clock_stretching_measurement_delay_16ms(16);
-    constexpr const int scl_timeout_7ms = 560000;
+    constexpr const int scl_timeout_7ms = 560000;  // (560000 / 80MHz) = 0.007 = 7ms
     constexpr const uint16_t repeatability_command[] = { 0x2C06, 0x2C0D, 0x2C10, 0x2400, 0x240B, 0x2416 };
 
     constexpr const char* repeatability_name[] = { "MeasureHighRepeatabilityWithClockStretchingEnabled",
@@ -61,7 +61,7 @@ namespace smooth::application::sensor
             std::copy(raw_data.begin(), raw_data.begin() + 3, temp_raw_data.begin());
             std::copy(raw_data.begin() + 3, raw_data.end(), humd_raw_data.begin());
 
-            if (execute_crc_checking(temp_raw_data, 2) & execute_crc_checking(humd_raw_data, 2))
+            if (execute_crc_checking(temp_raw_data, 2) && execute_crc_checking(humd_raw_data, 2))
             {
                 uint16_t raw_temp = static_cast<uint16_t>((raw_data[0] << 8) + raw_data[1]);
                 uint16_t raw_humd = static_cast<uint16_t>((raw_data[3] << 8) + raw_data[4]);
@@ -83,7 +83,7 @@ namespace smooth::application::sensor
         bool res = false;
         util::FixedBuffer<uint8_t, 3> raw_data{};
 
-        if (execute_status_read(raw_data) & execute_crc_checking(raw_data, 2))
+        if (execute_status_read(raw_data) && execute_crc_checking(raw_data, 2))
         {
             status = static_cast<uint16_t>((raw_data[0] << 8) + raw_data[1]);
             res = true;
@@ -124,7 +124,7 @@ namespace smooth::application::sensor
         // EnableMeasureHighRepeatabilityWithClockStretching it will be implemented using
         // MeasureHighRepeatabilityWithClockStretchingDisabled
         if ((mode == RepeatabilityMode::EnableMeasureMediumRepeatabilityWithClockStretching)
-            | (mode == RepeatabilityMode::EnableMeasureLowRepeatabilityWithClockStretching))
+            || (mode == RepeatabilityMode::EnableMeasureLowRepeatabilityWithClockStretching))
         {
             use_clock_stretching = true;
         }
@@ -266,8 +266,7 @@ namespace smooth::application::sensor
         }
         else
         {
-            res = execute_repeatability_command();
-            res &= execute_read_block(raw_data);
+            res = execute_repeatability_command() && execute_read_block(raw_data);
         }
 
         if (!res)
@@ -281,8 +280,7 @@ namespace smooth::application::sensor
     // Execute status read
     bool SHT30::execute_status_read(FixedBufferBase<uint8_t>& raw_data)
     {
-        auto res = execute_write_command(Command::ReadStatus);
-        res &= execute_read_block(raw_data);
+        auto res = execute_write_command(Command::ReadStatus) && execute_read_block(raw_data);
 
         if (!res)
         {
