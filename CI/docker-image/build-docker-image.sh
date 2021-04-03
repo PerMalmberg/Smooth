@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t permalmberg/smooth .
+docker build -t ghcr.io/peterus/smooth:latest .
