@@ -144,7 +144,6 @@ namespace smooth::core::io::i2c
                                                  bool end_with_nack,
                                                  int scl_timeout)
     {
-        esp_err_t res = ESP_OK;
         int orig_scl_timeout = 0;
 
         // Set R/W bit to 0 for write.
@@ -157,13 +156,17 @@ namespace smooth::core::io::i2c
         // before changing so we can restore before returning from this function.
         if (scl_timeout > 0)
         {
-            //Log::info("I2C", "timeout = {}", scl_timeout);
-            res |= i2c_get_timeout(port, &orig_scl_timeout);
-            res |= i2c_set_timeout(port, scl_timeout);
+            auto timeout_res = i2c_get_timeout(port, &orig_scl_timeout);
+            timeout_res |= i2c_set_timeout(port, scl_timeout);
+
+            if (timeout_res != ESP_OK)
+            {
+                log_error(timeout_res, address);
+            }
         }
 
         // Generate start condition, Write the slave address to slave, Write slave register address to slave
-        res |= i2c_master_start(link);
+        auto res = i2c_master_start(link);
         res |= i2c_master_write_byte(link, write_address, true);
         res |= i2c_master_write(link, slave_reg.data(), slave_reg.size(), true);
 
@@ -204,7 +207,12 @@ namespace smooth::core::io::i2c
         // If we implemented slave clock-stretching then restore master timeout to its original value
         if (scl_timeout > 0)
         {
-            res |= i2c_set_timeout(port, orig_scl_timeout);
+            auto timeout_res = i2c_set_timeout(port, orig_scl_timeout);
+
+            if (timeout_res != ESP_OK)
+            {
+                log_error(timeout_res, address);
+            }
         }
 
         if (res != ESP_OK)
