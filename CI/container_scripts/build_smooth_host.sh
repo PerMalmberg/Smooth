@@ -34,7 +34,7 @@ for current in "${tests[@]}"; do
     # For whatever reason when running Ninja instead of make the binary from
     # the previous project is deleted when building the current one.
     cmake .. -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=/src/CI/gnu-toolchain.cmake
-    make
+    make -j$(nproc)
 
 done
 
