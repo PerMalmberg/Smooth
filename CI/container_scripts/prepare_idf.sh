@@ -1,9 +1,8 @@
 #!/bin/bash
 
-export IDF_TOOLS_PATH=/esp/tools
-. /esp/esp-idf/export.sh
+. $IDF_TOOLS_EXPORT_CMD
 
-pushd /esp/esp-idf
+pushd $IDF_PATH
 echo "Git describe tags -----------------------------------------------------"
 git describe --tags
 popd

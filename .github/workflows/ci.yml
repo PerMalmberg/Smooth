@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   CI:
-    # This job can be run locally through ./CI/main.sh
+    # This job can be run locally through ./CI/build_test.sh
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
