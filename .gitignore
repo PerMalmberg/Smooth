@@ -32,6 +32,8 @@
 *.app
 
 build
+build_host
+build_esp
 cmake-build-*
 sdkconfig.old
 generated_test_smooth_*

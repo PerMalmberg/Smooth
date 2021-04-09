@@ -1,7 +1,11 @@
 #!/bin/bash
 
-. /src/CI/container_scripts/prepare_idf.sh
-. /src/CI/container_scripts/prepare_build_dir.sh
+. ./CI/prepare_idf.sh
+
+if [ -d build_esp ]; then
+	rm -rf build_esp
+fi
+mkdir -p build_esp
 
 set -e
 
@@ -9,16 +13,16 @@ declare -a tests
 count=0
 
 # Get list of tests
-cd /src/test
+cd test
 for i in $(ls -d */); do
   tests[count]=${i%%/}
   # echo ${test[$count]}
   count=$((count+1))
 done
 
-cd /src/build
+cd ../build_esp
 
-cp /src/CMakeLists.txt ./template_CMakeLists.txt
+cp ../CMakeLists.txt ./template_CMakeLists.txt
 
 for current in "${tests[@]}"; do
   if [[ ! "$current" == linux_* ]]; then
@@ -26,10 +30,10 @@ for current in "${tests[@]}"; do
     echo "Compiling project $current"
     echo "#######################################"
     echo
-    cp ./template_CMakeLists.txt /src/CMakeLists.txt
+    cp ./template_CMakeLists.txt ../CMakeLists.txt
     pattern="s/(selected_test_project)\s+\w+/\1 ${current}/g"
 
-    sed -i -r -e "$pattern" /src/CMakeLists.txt
+    sed -i -r -e "$pattern" ../CMakeLists.txt
 
     cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=/esp/esp-idf/tools/cmake/toolchain-esp32.cmake
     ninja
@@ -37,4 +41,4 @@ for current in "${tests[@]}"; do
 done
 
 # Clean up
-cp ./template_CMakeLists.txt /src/CMakeLists.txt
+cp ./template_CMakeLists.txt ../CMakeLists.txt

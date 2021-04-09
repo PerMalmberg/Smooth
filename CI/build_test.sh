@@ -2,39 +2,9 @@
 
 set -e
 
-. ./CI/docker_info.sh
-. ./CI/startup_check.sh
-
-run_in_docker() {
-  # $1 = script to run
-  if [ -z "$1" ]; then
-    echo "Missing command for docker"
-    exit 1
-  else
-    docker run --rm -v $start_dir:$source_root "$@"
-  fi
-}
-
-build_host() {
-  echo "Building Host -------------------------------------------------------"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/prepare_build_dir.sh"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/build_smooth_host.sh"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/set_build_dir_perms.sh"
-}
-
-run_host_tests() {
-  echo "Running host tests ---------------------------------------------------"
-  run_in_docker --workdir "$source_root/build/test/linux_unit_tests" "$docker_image" "./linux_unit_tests"
-}
-
-build_esp32_test_projects() {
-  echo "Building esp32 test projects -----------------------------------------"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/prepare_build_dir.sh"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/build_smooth_esp32.sh"
-  run_in_docker --workdir "$source_root" "$docker_image" "$source_root/CI/container_scripts/set_build_dir_perms.sh"
-}
-
-build_host
-run_host_tests
-build_esp32_test_projects
-
+echo "Building Host -------------------------------------------------------"
+docker-compose run smooth ./CI//build_smooth_host.sh
+echo "Running host tests ---------------------------------------------------"
+docker-compose run -w /src/build_host/test/linux_unit_tests smooth ./linux_unit_tests
+echo "Building esp32 test projects -----------------------------------------"
+docker-compose run smooth ./CI/build_smooth_esp32.sh

@@ -1,23 +1,32 @@
 name: C/C++ CI
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
-  CI:
-    # This job can be run locally through ./CI/build_test.sh
+  CI_host:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Get submodules
-      run: git submodule update --init --checkout --recursive
-    - name: Build and test
-      run: |
-        ./CI/build_test.sh
+    - uses: actions/checkout@v2
+      with: 
+        submodules: true
+    - name: Build
+      run: docker-compose run smooth ./CI//build_smooth_host.sh
+    - name: Test
+      run: docker-compose run -w /src/build_host/test/linux_unit_tests smooth ./linux_unit_tests
+  
+  CI_esp:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with: 
+        submodules: true
+    - name: Build
+      run: docker-compose run smooth ./CI/build_smooth_esp32.sh
+
   Formatting-check:
-    # This job can be run locally through ./CI/check_formatting.sh
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Check formatting
       run: |
         ./CI/check_formatting.sh
