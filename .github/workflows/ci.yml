@@ -10,9 +10,9 @@ jobs:
       with: 
         submodules: true
     - name: Build
-      run: docker-compose run smooth ./CI//build_smooth_host.sh
+      run: docker-compose run --rm smooth ./CI//build_smooth_host.sh
     - name: Test
-      run: docker-compose run -w /src/build_host/test/linux_unit_tests smooth ./linux_unit_tests
+      run: docker-compose run --rm -w /src/build_host/test/linux_unit_tests smooth ./linux_unit_tests
   
   CI_esp:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
       with: 
         submodules: true
     - name: Build
-      run: docker-compose run smooth ./CI/build_smooth_esp32.sh
+      run: docker-compose run --rm smooth ./CI/build_smooth_esp32.sh
 
   Formatting-check:
     runs-on: ubuntu-latest
