@@ -145,6 +145,7 @@ namespace smooth::core::io::i2c
                                                  int scl_timeout)
     {
         int orig_scl_timeout = 0;
+        esp_err_t res = ESP_OK;
 
         // Set R/W bit to 0 for write.
         auto write_address = static_cast<uint8_t>(address << 1);
@@ -156,69 +157,67 @@ namespace smooth::core::io::i2c
         // before changing so we can restore before returning from this function.
         if (scl_timeout > 0)
         {
-            auto timeout_res = i2c_get_timeout(port, &orig_scl_timeout);
-            timeout_res |= i2c_set_timeout(port, scl_timeout);
+            res = i2c_get_timeout(port, &orig_scl_timeout);
+            res |= i2c_set_timeout(port, scl_timeout);
 
-            if (timeout_res != ESP_OK)
+            if (res != ESP_OK)
             {
-                log_error(timeout_res, address);
+                log_error(res, address);
             }
         }
 
-        // Generate start condition, Write the slave address to slave, Write slave register address to slave
-        auto res = i2c_master_start(link);
-        res |= i2c_master_write_byte(link, write_address, true);
-        res |= i2c_master_write(link, slave_reg.data(), slave_reg.size(), true);
+        if (res == ESP_OK)
+        {
+            // Generate start condition, Write the slave address to slave, Write slave register address to slave
+            res = i2c_master_start(link);
+            res |= i2c_master_write_byte(link, write_address, true);
+            res |= i2c_master_write(link, slave_reg.data(), slave_reg.size(), true);
 
-        // Generate another start condition or stop condition
-        if (use_restart_signal)
-        {
-            res |= i2c_master_start(link);
-        }
-        else
-        {
-            // Finish the transmission without releasing the lock we have on the i2c master.
+            // Generate another start condition or stop condition
+            if (use_restart_signal)
+            {
+                res |= i2c_master_start(link);
+            }
+            else
+            {
+                // Finish the transmission without releasing the lock we have on the i2c master.
+                res |= i2c_master_stop(link);
+                res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
+
+                // Start a new transmission
+                link.reset();
+                res |= i2c_master_start(link);
+            }
+
+            // Write the read address, then read the desired amount,
+            // ending the read with a NACK to signal the slave to stop sending data.
+            res |= i2c_master_write_byte(link, read_address, true);
+
+            if (data.size() > 1)
+            {
+                res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
+            }
+
+            res |= i2c_master_read_byte(link, data.data() + data.size() - 1,
+                                        end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
+
+            // Complete the read with a stop condition.
             res |= i2c_master_stop(link);
+
+            // Send the queued commands
             res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
 
-            // Start a new transmission
-            link.reset();
-            res |= i2c_master_start(link);
-        }
-
-        // Write the read address, then read the desired amount,
-        // ending the read with a NACK to signal the slave to stop sending data.
-        res |= i2c_master_write_byte(link, read_address, true);
-
-        if (data.size() > 1)
-        {
-            res |= i2c_master_read(link, data.data(), data.size() - 1, I2C_MASTER_ACK);
-        }
-
-        res |= i2c_master_read_byte(link, data.data() + data.size() - 1,
-                                    end_with_nack ? I2C_MASTER_NACK : I2C_MASTER_ACK);
-
-        // Complete the read with a stop condition.
-        res |= i2c_master_stop(link);
-
-        // Send the queued commands
-        res |= i2c_master_cmd_begin(port, link, to_tick(timeout));
-
-        // If we implemented slave clock-stretching then restore master timeout to its original value
-        if (scl_timeout > 0)
-        {
-            auto timeout_res = i2c_set_timeout(port, orig_scl_timeout);
-
-            if (timeout_res != ESP_OK)
+            // If we implemented slave clock-stretching then restore master timeout to its original value
+            if (scl_timeout > 0)
             {
-                log_error(timeout_res, address);
+                res |= i2c_set_timeout(port, orig_scl_timeout);
             }
-        }
 
-        if (res != ESP_OK)
-        {
-            log_error(res, address);
-            do_cleanup();
+            if (res != ESP_OK)
+            {
+                log_error(res, address);
+                do_cleanup();
+            }
         }
 
         return res == ESP_OK;
