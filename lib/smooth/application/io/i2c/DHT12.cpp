@@ -18,6 +18,7 @@ limitations under the License.
 #include "smooth/application/io/i2c/DHT12.h"
 
 using namespace smooth::core;
+using namespace smooth::core::util;
 
 namespace smooth::application::sensor
 {
@@ -28,13 +29,13 @@ namespace smooth::application::sensor
     }
 
     // Read the raw data register from the DHT12, the last reagister is the checksum byte
-    bool DHT12::read_raw_registers(core::util::FixedBuffer<uint8_t, 5>& raw_data)
+    bool DHT12::read_raw_registers(FixedBuffer<uint8_t, 5>& raw_data)
     {
         return read(address, HumidityWholePart, raw_data);
     }
 
     // Is the checksum valid
-    bool DHT12::is_checksum_valid(core::util::FixedBuffer<uint8_t, 5>& raw_data)
+    bool DHT12::is_checksum_valid(FixedBuffer<uint8_t, 5>& raw_data)
     {
         uint8_t sum = static_cast<uint8_t>(raw_data[HumidityWholePart] + raw_data[HumidityFractionalPart]
                                            + raw_data[TemperatureWholePart] + raw_data[TemperatureFractionalPart]);
