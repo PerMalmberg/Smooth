@@ -1,4 +1,6 @@
-FROM espressif/idf
+
+ARG  ESP_IDF_VERSION=latest
+FROM espressif/idf:${ESP_IDF_VERSION}
 
 # Install prerequisites
 RUN apt-get update \
