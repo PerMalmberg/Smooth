@@ -73,3 +73,13 @@ i2c_cmd_handle_t i2c_cmd_link_create()
 void i2c_cmd_link_delete(i2c_cmd_handle_t /*cmd_handle*/)
 {
 }
+
+esp_err_t i2c_set_timeout(i2c_port_t i2c_num, int timeout)
+{
+    return ESP_OK;
+}
+
+esp_err_t i2c_get_timeout(i2c_port_t i2c_num, int *timeout)
+{
+    return ESP_OK;
+}
