@@ -17,7 +17,6 @@ limitations under the License.
 
 #pragma once
 
-#include <memory>
 #include <vector>
 #include <mutex>
 #pragma GCC diagnostic push
@@ -26,7 +25,8 @@ limitations under the License.
 #include <driver/i2c.h>
 #pragma GCC diagnostic pop
 #include <driver/gpio.h>
-#include "smooth/core/util/FixedBufferBase.h"
+#include "smooth/core/util/FixedBuffer.h"
+#include "smooth/core/io/i2c/I2CCommandLink.h"
 
 namespace smooth::core::io::i2c
 {
@@ -74,12 +74,13 @@ namespace smooth::core::io::i2c
             /// \return true on success, false on failure
             bool write(uint8_t address, std::vector<uint8_t>& data, bool expect_ack = true);
 
-            /// Reads data from the register of the slave with the provided address.
+            /// Reads data from the 8 bit register of the slave with the provided address.  This function DOES NOT
+            /// support slave clock-stretching
             /// \param address The slave address
             /// \param slave_register The register to read from.
             /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
             /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
-            // address.
+            /// address.
             /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
             /// \return true on success, false on failure.
             bool read(uint8_t address,
@@ -88,11 +89,90 @@ namespace smooth::core::io::i2c
                       bool use_restart_signal = true,
                       bool end_with_nack = true);
 
+            /// Reads data from the 8 bit register of the slave with the provided address. This function supports slave
+            /// clock-stretching
+            /// \param address The slave address
+            /// \param slave_register The 16 bit register to read from.
+            /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
+            /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
+            /// address.
+            /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
+            /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
+            /// time.  Set to 0 to disable using slave clock-stretching. The maximum timeout value is 0xFFFFF
+            /// (1,048,575)
+            /// or 13ms.  Negative numbers will be ignored.
+            /// \return true on success, false on failure.
+            bool read8(uint8_t address,
+                       uint8_t slave_register,
+                       core::util::FixedBufferBase<uint8_t>& dest,
+                       bool use_restart_signal = true,
+                       bool end_with_nack = true,
+                       int scl_timeout = 0);
+
+            /// Reads data from the 16 bit register of the slave with the provided address. This function supports slave
+            /// clock-stretching
+            /// \param address The slave address
+            /// \param slave_register The 16 bit register to read from.
+            /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
+            /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
+            /// address.
+            /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
+            /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
+            /// time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
+            /// (1,048,575) or 13ms.  Negative numbers will be ignored.
+            /// \return true on success, false on failure.
+            bool read16(uint8_t address,
+                        uint16_t slave_register,
+                        core::util::FixedBufferBase<uint8_t>& dest,
+                        bool use_restart_signal = true,
+                        bool end_with_nack = true,
+                        int scl_timeout = 0);
+
+            /// Reads a block of data from the slave with the provided address.  This function DOES NOT support slave
+            /// clock-stretching
+            /// \param address The slave address
+            /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
+            /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
+            /// \return true on success, false on failure.
+            bool read_block(uint8_t address,
+                            core::util::FixedBufferBase<uint8_t>& dest,
+                            bool end_with_nack = true);
+
             uint8_t address;
         protected:
             i2c_port_t port;
         private:
-            void log_error(esp_err_t err, const char* msg);
+            /// Write followed by read
+            /// \param link The I2C link command
+            /// \param address The slave address
+            /// \param slave_reg A FixedBuffer that hold the slave register address
+            /// \param dest Where the data will be written to. The size of the buffer determines how many bytes to read.
+            /// \param use_restart_signal If true, uses a start-condition instead of a stop-condition after the slave
+            /// address.
+            /// \param end_with_nack If true, ends the transmission with a NACK instead of an ACK.
+            /// \param scl_timeout Used to suppport slave clock-stretching.  Slave must release SCL line within this
+            /// time.  Set to 0 to disable using slave clock-stretching.  The maximum timeout value is 0xFFFFF
+            /// (1,048,575) or 13ms.  Negative numbers will be ignored.
+            /// \return true on success, false on failure.
+            bool write_followed_by_read(I2CCommandLink& link,
+                                        uint8_t address,
+                                        core::util::FixedBufferBase<uint8_t>& slave_reg,
+                                        core::util::FixedBufferBase<uint8_t>& dest,
+                                        bool use_restart_signal = true,
+                                        bool end_with_nack = true,
+                                        int scl_timeout = 0);
+
+            /// Log error
+            /// \param err The error type
+            /// \param msg The error message
+            void log_error(esp_err_t err, uint8_t address);
+
+            /// Sets the name of the procees that is being executed
+            /// \param name The name of the process
+            void set_process_name(const char* name);
+
+            /// Do cleanup - performs cleanup tasks upon completion of a command-link
+            void do_cleanup();
 
             /// Convert time to ticks
             /// \param ms Time
@@ -107,5 +187,6 @@ namespace smooth::core::io::i2c
             }
 
             std::mutex& guard;
+            const char* process_name{};
     };
 }
