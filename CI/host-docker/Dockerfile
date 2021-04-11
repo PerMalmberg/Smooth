@@ -1,6 +1,6 @@
 
 #ARG  ESP_IDF_VERSION=latest
-FROM ubuntu:20.04
+FROM ubuntu:21.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
