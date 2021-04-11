@@ -22,8 +22,6 @@ jobs:
           - 'latest'
           - 'release-v4.3'
           - 'release-v4.2'
-          - 'release-v4.1'
-          - 'release-v4.0'
     steps:
     - uses: actions/checkout@v2
       with: 
