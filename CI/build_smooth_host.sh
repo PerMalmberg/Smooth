@@ -1,7 +1,5 @@
 #!/bin/bash
 
-. ./CI/prepare_idf.sh
-
 if [ -d build_host ]; then
 	rm -rf build_host
 fi

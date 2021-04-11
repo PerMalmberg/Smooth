@@ -10,18 +10,28 @@ jobs:
       with: 
         submodules: true
     - name: Build
-      run: docker-compose run --rm smooth ./CI/build_smooth_host.sh
+      run: docker-compose run --rm host ./CI/build_smooth_host.sh
     - name: Test
-      run: docker-compose run --rm -w /src/build_host/test/linux_unit_tests smooth ./linux_unit_tests
+      run: docker-compose run --rm -w /src/build_host/test/linux_unit_tests host ./linux_unit_tests
   
   CI_esp:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        esp_idf_version:
+          - 'latest'
+          - 'release-v4.3'
+          - 'release-v4.2'
+          - 'release-v4.1'
+          - 'release-v4.0'
     steps:
     - uses: actions/checkout@v2
       with: 
         submodules: true
     - name: Build
-      run: docker-compose run --rm smooth ./CI/build_smooth_esp32.sh
+      run: docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh
+      env:
+          ESP_IDF_VERSION: ${{ matrix.esp_idf_version }}
 
   Formatting-check:
     runs-on: ubuntu-latest

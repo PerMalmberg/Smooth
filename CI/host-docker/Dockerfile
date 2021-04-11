@@ -1,10 +1,14 @@
 
-ARG  ESP_IDF_VERSION=latest
-FROM espressif/idf:${ESP_IDF_VERSION}
+#ARG  ESP_IDF_VERSION=latest
+FROM ubuntu:18.04
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install prerequisites
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
+		cmake \
+		ninja-build \
 		libsodium-dev \
 		libmbedtls-dev \
 		gcc-8 \

@@ -1,8 +1,15 @@
 version: "3.9"
 
 services:
-  smooth:
-    image: ${SMOOTH_IMAGE_NAME}:${ESP_IDF_VERSION}
+  host:
+    build: CI/host-docker/
     volumes:
         - .:/src
     working_dir: /src
+  
+  esp32:
+    image: espressif/idf:${ESP_IDF_VERSION}
+    volumes:
+        - .:/src
+    working_dir: /src
+
