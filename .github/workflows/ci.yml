@@ -12,7 +12,7 @@ jobs:
     - name: Build
       run: docker-compose run --rm host ./CI/build_smooth_host.sh
     - name: Test
-      run: docker-compose run --rm -w /src/build_host/test/linux_unit_tests host ./linux_unit_tests
+      run: docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests
   
   CI_esp:
     runs-on: ubuntu-latest

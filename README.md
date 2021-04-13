@@ -142,7 +142,7 @@ or, if you're using old-fashioned `make`
 ```shell script
 cd your_project_root
 mkdir build && cd build
-cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && make
 ```
 
 Next, flash your project to the target device.
@@ -274,7 +274,7 @@ int main(int /*argc*/, char** /*argv*/)
 If you want to test your changes in Smooth, you need to pass the CI on Github. To test your changes on your lokal system you can use docker:
 
 - to compile the host binaries: `docker-compose run --rm host ./CI/build_smooth_host.sh`
-- to test the host binaries: `docker-compose run --rm -w /src/build_host/test/linux_unit_tests host ./linux_unit_tests`
+- to test the host binaries: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests`
 - to compile the esp32 binaries: `docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
 
 To run all this commands one by one you can run this script: `./CI/build_test.sh`
