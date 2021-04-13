@@ -1,8 +1,5 @@
 #!/bin/bash
 
-if [ -d build_host ]; then
-	rm -rf build_host
-fi
 mkdir -p build_host
 
 set -e

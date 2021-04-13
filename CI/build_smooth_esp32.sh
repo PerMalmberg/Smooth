@@ -2,9 +2,6 @@
 
 . ./CI/prepare_idf.sh
 
-if [ -d build_esp ]; then
-	rm -rf build_esp
-fi
 mkdir -p build_esp
 
 set -e
