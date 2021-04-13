@@ -32,7 +32,7 @@ for current in "${tests[@]}"; do
 
     sed -i -r -e "$pattern" ../../CMakeLists.txt
 
-    cmake .. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake
+    cmake ../.. -G "Ninja" -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake
     ninja
   fi
 done
