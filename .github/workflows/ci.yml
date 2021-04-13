@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        esp_idf_version:
+        test_against_idf_versions:
           - 'latest'
           - 'release-v4.3'
           - 'release-v4.2'
@@ -29,7 +29,7 @@ jobs:
     - name: Build
       run: docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh
       env:
-          ESP_IDF_VERSION: ${{ matrix.esp_idf_version }}
+          ESP_IDF_VERSION: ${{ matrix.test_against_idf_versions }}
 
   Formatting-check:
     runs-on: ubuntu-latest
