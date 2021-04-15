@@ -1,39 +1,5 @@
-# Prerequisites
-*.d
+# build folder
+build/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-build
-cmake-build-*
-sdkconfig.old
+# generated files
 generated_test_smooth_*
-/test/http_server_test/uploads
-.idea/.name
