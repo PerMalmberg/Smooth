@@ -269,15 +269,21 @@ int main(int /*argc*/, char** /*argv*/)
 }
 ```
 
-## Running the CI scripts lokaly
+## Running CI scripts lokaly
 
 If you want to test your changes in Smooth, you need to pass the CI on Github. To test your changes on your lokal system you can use docker:
 
 - to compile the host binaries: `docker-compose run --rm host ./CI/build_smooth_host.sh`
-- to test the host binaries: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests`
+- to run the host unit test: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests`
 - to compile the esp32 binaries: `docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
 
 To run all this commands one by one you can run this script: `./CI/build_test.sh`
+
+### Run a host build with TCP ports
+
+On default `docker-compose` is not opening the ports in in the `run` mode. To open the TCP ports for server testing you need to enter the docker image in this way:
+
+`docker-compose run --service-ports --rm host`
 
 ### choos different release branches for the ESP32 build
 

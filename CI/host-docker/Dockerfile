@@ -12,3 +12,6 @@ RUN apt-get update \
 		gcc-8 \
 		g++-8 \
 	&& rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8080
+EXPOSE 8443
