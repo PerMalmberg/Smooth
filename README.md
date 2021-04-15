@@ -26,7 +26,8 @@ with the only consideration that the mocks do not actually simulate the hardware
 * ESP-IDF v4.x
 * GCC 8
 
-Smooth is developed on a Linux machine so how well it compiles using the Windows toolset povided by Espressif is unknown. 
+Smooth is developed on a Linux machine so how well it compiles using the Windows toolset povided by Espressif is unknown.
+If you are working on Windows or you don't want to install the dependencies on your local machine you can use the docker images which are provided.
 
 ### Provided functionality
 
@@ -141,7 +142,7 @@ or, if you're using old-fashioned `make`
 ```shell script
 cd your_project_root
 mkdir build && cd build
-cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && ninja
+cmake .. -DESP_PLATFORM=1 -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32.cmake && make
 ```
 
 Next, flash your project to the target device.
@@ -267,3 +268,27 @@ int main(int /*argc*/, char** /*argv*/)
 
 }
 ```
+
+## Running CI scripts locally
+
+If you want to test your changes in Smooth, you need to pass the CI on Github. To test your changes on your local system you can use docker:
+
+- to compile the host binaries: `docker-compose run --rm host ./CI/build_smooth_host.sh`
+- to run the host unit test: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests`
+- to compile the esp32 binaries: `docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
+
+To run these commands at once you can run this script: `./CI/build_test.sh`
+
+### Run a host build with TCP ports
+
+On default `docker-compose` is not opening the ports in in the `run` mode. To open the TCP ports for server testing you need to enter the docker image in this way:
+
+`docker-compose run --service-ports --rm host`
+
+### Choose different release branches for the ESP32 build
+
+For the esp32 binaries the mainline branch is used on default. If you want to use a release branch you have to set the environment variable `ESP_IDF_VERSION`.
+Here is an example with the v4.2 release branch:
+`ESP_IDF_VERSION=release-v4.2 docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
+
+In CI, all compatible branches of IDF are checked on each push and pull request.
