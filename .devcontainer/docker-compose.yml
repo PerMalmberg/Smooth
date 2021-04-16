@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  host:
+    extends:
+      file: ../docker-compose.yml
+      service: host
+    command: /bin/sh -c "rm -rf /home/dev/.vscode-server && while sleep 1000; do :; done"
