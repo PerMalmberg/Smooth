@@ -1,4 +1,5 @@
-FROM ubuntu:20.10
+ARG BASE_IMG=ubuntu:20.10
+FROM ${BASE_IMG}
 
 ARG DEBIAN_FRONTEND=noninteractive
 

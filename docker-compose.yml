@@ -16,3 +16,15 @@ services:
         - .:/src
     working_dir: /src
 
+  dev:
+    build:
+      context: CI/host-docker/
+      args:
+        BASE_IMG: espressif/idf:${ESP_IDF_VERSION}
+    volumes:
+        - .:/src
+    working_dir: /src
+    ports:
+        - "8080:8080"
+        - "8443:8443"
+

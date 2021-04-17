@@ -3,7 +3,7 @@
     "dockerComposeFile": [
         "docker-compose.yml"
     ],
-    "service": "host",
+    "service": "dev",
     "workspaceFolder": "/src",
     "settings": {
         "terminal.integrated.shell.linux": null,
