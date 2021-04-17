@@ -6,10 +6,10 @@
                 "lib/smooth/include/**",
                 "externals/**",
                 "$IDF_PATH/components/**",
-                "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
+                "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/*/xtensa-esp32-elf/xtensa-esp32-elf/include/**"
             ],
             "intelliSenseMode": "gcc-x64",
-            "compilerPath": "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
+            "compilerPath": "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/*/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "defines": [
@@ -27,7 +27,7 @@
                 "lib/smooth/include/**",
                 "externals/**",
                 "mock-idf/components/**",
-                "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/include/**"
+                "$IDF_TOOLS_PATH/tools/xtensa-esp32-elf/*/xtensa-esp32-elf/include/**"
             ],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "/usr/bin/gcc",
