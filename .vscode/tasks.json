@@ -1,0 +1,22 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build Host",
+            "command": "./CI/build_smooth_host.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+        {
+            "type": "shell",
+            "label": "Build ESP32",
+            "command": "source $IDF_TOOLS_PATH/entrypoint.sh && ./CI/build_smooth_esp32.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+    ],
+}
