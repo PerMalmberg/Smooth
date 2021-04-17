@@ -20,7 +20,7 @@ services:
     build:
       context: CI/host-docker/
       args:
-        BASE_IMG: espressif/idf:${ESP_IDF_VERSION}
+        BASE_IMG: espressif/idf:latest
     volumes:
         - .:/src
     working_dir: /src
