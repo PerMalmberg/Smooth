@@ -273,9 +273,9 @@ int main(int /*argc*/, char** /*argv*/)
 
 If you want to test your changes in Smooth, you need to pass the CI on Github. To test your changes on your local system you can use docker:
 
-- to compile the host binaries: `docker-compose run --rm host ./CI/build_smooth_host.sh`
-- to run the host unit test: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests host ./linux_unit_tests`
-- to compile the esp32 binaries: `docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
+- to compile the host binaries: `docker-compose run --rm smooth ./CI/build_smooth_host.sh`
+- to run the host unit test: `docker-compose run --rm -w /src/build/host/test/linux_unit_tests smooth ./linux_unit_tests`
+- to compile the esp32 binaries: `docker-compose run --rm smooth ./CI/build_smooth_esp32.sh`
 
 To run these commands at once you can run this script: `./CI/build_test.sh`
 
@@ -283,12 +283,12 @@ To run these commands at once you can run this script: `./CI/build_test.sh`
 
 On default `docker-compose` is not opening the ports in in the `run` mode. To open the TCP ports for server testing you need to enter the docker image in this way:
 
-`docker-compose run --service-ports --rm host`
+`docker-compose run --service-ports --rm smooth`
 
 ### Choose different release branches for the ESP32 build
 
 For the esp32 binaries the mainline branch is used on default. If you want to use a release branch you have to set the environment variable `ESP_IDF_VERSION`.
 Here is an example with the v4.2 release branch:
-`ESP_IDF_VERSION=release-v4.2 docker-compose run --rm esp32 ./CI/build_smooth_esp32.sh`
+`ESP_IDF_VERSION=release-v4.2 docker-compose run --rm smooth ./CI/build_smooth_esp32.sh`
 
 In CI, all compatible branches of IDF are checked on each push and pull request.

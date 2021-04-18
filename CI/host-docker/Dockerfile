@@ -1,5 +1,5 @@
-ARG BASE_IMG=ubuntu:20.10
-FROM ${BASE_IMG}
+ARG ESP_IDF_VERSION
+FROM espressif/idf:${ESP_IDF_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
 

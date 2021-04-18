@@ -1,26 +1,11 @@
 version: "3.9"
 
 services:
-  host:
-    build: CI/host-docker/
-    volumes:
-        - .:/src
-    working_dir: /src
-    ports:
-        - "8080:8080"
-        - "8443:8443"
-  
-  esp32:
-    image: espressif/idf:${ESP_IDF_VERSION}
-    volumes:
-        - .:/src
-    working_dir: /src
-
-  dev:
+  smooth:
     build:
       context: CI/host-docker/
       args:
-        BASE_IMG: espressif/idf:latest
+        ESP_IDF_VERSION: ${ESP_IDF_VERSION}
     volumes:
         - .:/src
     working_dir: /src
