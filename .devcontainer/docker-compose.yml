@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  smooth:
+    extends:
+      file: ../docker-compose.yml
+      service: smooth
+    command: /bin/sh -c "while sleep 1000; do :; done"

@@ -1,4 +1,5 @@
-FROM ubuntu:20.10
+ARG ESP_IDF_VERSION
+FROM espressif/idf:${ESP_IDF_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
