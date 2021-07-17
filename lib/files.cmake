@@ -5,6 +5,7 @@ set(smooth_inc_dir ${CMAKE_CURRENT_LIST_DIR}/smooth/include/smooth)
 
 set(SMOOTH_SOURCES
         ${smooth_dir}/application/display/LCDSpi.cpp
+        ${smooth_dir}/application/display/SSD1306I2C.cpp
         ${smooth_dir}/application/hash/base64.cpp
         ${smooth_dir}/application/hash/sha.cpp
         ${smooth_dir}/application/io/i2c/ADS1115.cpp
@@ -105,6 +106,7 @@ set(SMOOTH_SOURCES
         ${smooth_inc_dir}/application/display/ILI9341.h
         ${smooth_inc_dir}/application/display/SH1107.h
         ${smooth_inc_dir}/application/display/ST7735.h
+        ${smooth_inc_dir}/application/display/SSD1306I2C.h
         ${smooth_inc_dir}/application/io/spi/BME280SPI.h
         ${smooth_inc_dir}/application/io/spi/BME280Core.h
         ${smooth_inc_dir}/application/io/i2c/ADS1115.h

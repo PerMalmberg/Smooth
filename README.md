@@ -64,12 +64,14 @@ If you are working on Windows or you don't want to install the dependencies on y
       - ILI9341
       - ST7735
       - SH1107
+      - SSD1306(I2C)
   - I2C
     - BME280
     - MCP23017
     - DHT12
     - AxpPMU
     - PCF8563
+    - SHT30
   - RGB LED, i.e. WS2812(B), SK6812, WS2813, (a.k.a NeoPixel). 
 - Filesystem helpers
 
