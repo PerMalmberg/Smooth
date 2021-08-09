@@ -58,7 +58,7 @@ namespace smooth::core::filesystem
         }
         else
         {
-            Log::error(tag, "Result: FAILE");
+            Log::error(tag, "Result: FAIL");
         }
 
         return res == ESP_OK;
