@@ -73,7 +73,7 @@ namespace smooth::core::io::spi
         }
 #else
 	// HSPI_HOST and VSPI_HOST deprecated for ESP32S2 and removed entirely for S3.
-        initialized = do_initialization(host, spi_initialized, spi_initialized_count, spi_host_str);
+        initialized = do_intitialization(host, spi_initialized, spi_initialized_count, spi_host_str);
 #endif // CONFIG_IDF_TARGET_ESP32
 
 
