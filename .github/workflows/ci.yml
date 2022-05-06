@@ -19,7 +19,8 @@ jobs:
     strategy:
       matrix:
         test_against_idf_versions:
-          - 'latest'
+          - 'release-v5.0-dev'
+          - 'release-v4.4'
           - 'release-v4.3'
           - 'release-v4.2'
     steps:
