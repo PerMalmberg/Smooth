@@ -24,16 +24,19 @@ namespace smooth::core::io::spi
     static constexpr const char* log_tag = "SPIMaster";
     static constexpr const char* vspi_host_str = "VSPI_HOST";
     static constexpr const char* hspi_host_str = "HSPI_HOST";
+    static constexpr const char* spi_host_str = "SPI_HOST";
 
     // Declare static variables
     bool Master::hspi_initialized = false;
     bool Master::vspi_initialized = false;
+    bool Master::spi_initialized = false;
     std::mutex Master::guard{};
     spi_bus_config_t Master::bus_config{};
     spi_host_device_t Master::spi_host;
     SPI_DMA_Channel Master::dma_channel;
     uint8_t Master::hspi_initialized_count = 0;
     uint8_t Master::vspi_initialized_count = 0;
+    uint8_t Master::spi_initialized_count = 0;
 
     bool Master::initialize(spi_host_device_t host,
                             SPI_DMA_Channel dma_chl,
@@ -58,6 +61,7 @@ namespace smooth::core::io::spi
 
         bool initialized = false;
 
+#ifdef CONFIG_IDF_TARGET_ESP32
         if (spi_host == VSPI_HOST)
         {
             initialized = do_intitialization(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
@@ -67,6 +71,11 @@ namespace smooth::core::io::spi
         {
             initialized = do_intitialization(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
         }
+#else
+	// HSPI_HOST and VSPI_HOST deprecated for ESP32S2 and removed entirely for S3.
+        initialized = do_initialization(host, spi_initialized, spi_initialized_count, spi_host_str);
+#endif // CONFIG_IDF_TARGET_ESP32
+
 
         return initialized;
     }
@@ -105,6 +114,7 @@ namespace smooth::core::io::spi
     {
         std::lock_guard<std::mutex> lock(guard);
 
+#ifdef CONFIG_IDF_TARGET_ESP32
         if (spi_host == VSPI_HOST)
         {
             do_deinitialize(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
@@ -114,6 +124,10 @@ namespace smooth::core::io::spi
         {
             do_deinitialize(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
         }
+#else
+	// HSPI_HOST and VSPI_HOST deprecated for ESP32S2 and removed entirely for S3.
+        do_deinitialize(spi_host, spi_initialized, spi_initialized_count, spi_host_str);
+#endif // CONFIG_IDF_TARGET_ESP32
     }
 
     void Master::do_deinitialize(spi_host_device_t host,
