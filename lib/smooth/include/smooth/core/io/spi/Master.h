@@ -99,12 +99,10 @@ namespace smooth::core::io::spi
                                         uint8_t& initialized_count,
                                         const char* spi_host_str);
 
-            static bool hspi_initialized;
-            static bool vspi_initialized;
-            static bool spi_initialized;
-            static uint8_t hspi_initialized_count;
-            static uint8_t vspi_initialized_count;
-            static uint8_t spi_initialized_count;
+            static bool spi2_initialized;
+            static bool spi3_initialized;
+            static uint8_t spi2_initialized_count;
+            static uint8_t spi3_initialized_count;
             static std::mutex guard;
             static spi_bus_config_t bus_config;
             static spi_host_device_t spi_host;
