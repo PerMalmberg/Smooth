@@ -71,7 +71,11 @@ namespace spi_4_line_devices_test
     static const uint8_t FOUR_PARAMS = 0x04;
 
     App::App() : Application(APPLICATION_BASE_PRIO, seconds(3)),
+#ifdef CONFIG_IDF_TARGET_ESP32
             spi_host(VSPI_HOST)            // Use VSPI as host
+#else
+            spi_host(SPI3_HOST)            // Use SPI3 as host
+#endif // CONFIG_IDF_TARGET_ESP32
     {
     }
 
