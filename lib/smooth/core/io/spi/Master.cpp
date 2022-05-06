@@ -26,9 +26,8 @@ namespace smooth::core::io::spi
     static constexpr const char* spi3_host_str = "SPI3_HOST";
 
     // Declare static variables
-    bool Master::hspi_initialized = false;
-    bool Master::vspi_initialized = false;
-    bool Master::spi_initialized = false;
+    bool Master::spi2_initialized = false;
+    bool Master::spi3_initialized = false;
     std::mutex Master::guard{};
     spi_bus_config_t Master::bus_config{};
     spi_host_device_t Master::spi_host;
