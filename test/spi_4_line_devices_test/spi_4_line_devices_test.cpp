@@ -71,7 +71,7 @@ namespace spi_4_line_devices_test
     static const uint8_t FOUR_PARAMS = 0x04;
 
     App::App() : Application(APPLICATION_BASE_PRIO, seconds(3)),
-            spi_host(VSPI_HOST)            // Use VSPI as host
+            spi_host(SPI3_HOST)            // Use SPI3 as host
     {
     }
 
@@ -79,7 +79,7 @@ namespace spi_4_line_devices_test
     {
         Application::init();
 
-        Master::initialize(spi_host,                   // host VSPI
+        Master::initialize(spi_host,                   // host SPI3
                            DMA_1,                      // use DMA
                            GPIO_NUM_23,                // mosi gpio pin
                            GPIO_NUM_19,                // miso gpio pin  (full duplex)

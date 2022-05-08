@@ -22,18 +22,18 @@ using namespace smooth::core::logging;
 namespace smooth::core::io::spi
 {
     static constexpr const char* log_tag = "SPIMaster";
-    static constexpr const char* vspi_host_str = "VSPI_HOST";
-    static constexpr const char* hspi_host_str = "HSPI_HOST";
+    static constexpr const char* spi2_host_str = "SPI2_HOST";
+    static constexpr const char* spi3_host_str = "SPI3_HOST";
 
     // Declare static variables
-    bool Master::hspi_initialized = false;
-    bool Master::vspi_initialized = false;
+    bool Master::spi2_initialized = false;
+    bool Master::spi3_initialized = false;
     std::mutex Master::guard{};
     spi_bus_config_t Master::bus_config{};
     spi_host_device_t Master::spi_host;
     SPI_DMA_Channel Master::dma_channel;
-    uint8_t Master::hspi_initialized_count = 0;
-    uint8_t Master::vspi_initialized_count = 0;
+    uint8_t Master::spi2_initialized_count = 0;
+    uint8_t Master::spi3_initialized_count = 0;
 
     bool Master::initialize(spi_host_device_t host,
                             SPI_DMA_Channel dma_chl,
@@ -58,14 +58,14 @@ namespace smooth::core::io::spi
 
         bool initialized = false;
 
-        if (spi_host == VSPI_HOST)
+        if (spi_host == SPI2_HOST)
         {
-            initialized = do_intitialization(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
+            initialized = do_intitialization(SPI2_HOST, spi2_initialized, spi2_initialized_count, spi2_host_str);
         }
 
-        if (spi_host == HSPI_HOST)
+        if (spi_host == SPI3_HOST)
         {
-            initialized = do_intitialization(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
+            initialized = do_intitialization(SPI3_HOST, spi3_initialized, spi3_initialized_count, spi3_host_str);
         }
 
         return initialized;
@@ -105,14 +105,14 @@ namespace smooth::core::io::spi
     {
         std::lock_guard<std::mutex> lock(guard);
 
-        if (spi_host == VSPI_HOST)
+        if (spi_host == SPI2_HOST)
         {
-            do_deinitialize(VSPI_HOST, vspi_initialized, vspi_initialized_count, vspi_host_str);
+            do_deinitialize(SPI2_HOST, spi2_initialized, spi2_initialized_count, spi2_host_str);
         }
 
-        if (spi_host == HSPI_HOST)
+        if (spi_host == SPI3_HOST)
         {
-            do_deinitialize(HSPI_HOST, hspi_initialized, hspi_initialized_count, hspi_host_str);
+            do_deinitialize(SPI3_HOST, spi3_initialized, spi3_initialized_count, spi3_host_str);
         }
     }
 
