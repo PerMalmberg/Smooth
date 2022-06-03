@@ -49,6 +49,8 @@ namespace smooth::core::sntp
 
             sntp_set_time_sync_notification_cb(&Sntp::timeSyncNotificationCallback);
             sntp_init();
+            
+            started = true;
         }
 
 #ifndef ESP_PLATFORM
