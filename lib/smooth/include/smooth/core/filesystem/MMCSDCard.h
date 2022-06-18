@@ -18,6 +18,11 @@ limitations under the License.
 #pragma once
 
 #include "SDCard.h"
+
+#ifndef SOC_SDMMC_HOST_SUPPORTED
+#error "Your chip does not support SDMCC_HOST. See https://github.com/PerMalmberg/Smooth/issues/171"
+#endif
+
 #include "driver/sdmmc_host.h"
 
 namespace smooth::core::filesystem
