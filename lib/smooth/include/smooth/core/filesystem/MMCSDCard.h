@@ -19,9 +19,12 @@ limitations under the License.
 
 #include "SDCard.h"
 
-#ifndef SOC_SDMMC_HOST_SUPPORTED
-#error "Your chip does not support SDMCC_HOST. See https://github.com/PerMalmberg/Smooth/issues/171"
-#endif
+#pragma GCC error "Your chip does not support SDMMC_HOST. See https://github.com/PerMalmberg/Smooth/issues/171"
+
+#pragma message("Target system is:" CONFIG_IDF_TARGET)
+#pragma message(                                                                                       \
+    "SoC caps documentation: https://docs.espressif.com/projects/esp-idf/en/latest/" CONFIG_IDF_TARGET \
+    "/api-reference/system/soc_caps.html")
 
 #include "driver/sdmmc_host.h"
 
