@@ -88,7 +88,7 @@ namespace smooth::core::io
     return ESP_OK == res;
   }
 
-  bool UART::set_parity(const uart_parity_t &parity)
+  bool UART::set_parity(const uart_parity_t parity)
   {
     const auto res = uart_set_parity(this->port_, parity);
     if(res != ESP_OK)
@@ -308,39 +308,51 @@ namespace smooth::core::io
     return ESP_OK == res;
   }
 
-  bool UART::tx_chars(const char *buffer, uint32_t len)
+  bool UART::tx_chars(const char *buffer, uint32_t len, std::size_t &written)
   {
     const auto res = uart_tx_chars(this->port_, buffer, len);
     if(res != ESP_OK)
     {
       this->log_error("Failed to tx chars", res);
     }
+    else if(res > 0)
+    {
+      written = static_cast<std::size_t>(res);
+    }
     return ESP_OK == res;
   }
 
-  bool UART::write_bytes(const void* buffer, size_t size)
+  bool UART::write_bytes(const void* buffer, size_t length, std::size_t &written)
   {
-    const auto res = uart_write_bytes(this->port_, buffer, size);
+    const auto res = uart_write_bytes(this->port_, buffer, length);
     if(res != ESP_OK)
     {
       this->log_error("Failed to write bytes", res);
     }
-    return ESP_OK == res;
-  }
-
-  bool UART::write_bytes_with_break(const void* buffer, size_t size, int brk_len)
-  {
-    const auto res = uart_write_bytes_with_break(this->port_, buffer, size, brk_len);
-    if(res != ESP_OK)
+    else if(res > 0)
     {
-      this->log_error("Failed to write bytes with break", res);
+      written = static_cast<std::size_t>(res);
     }
     return ESP_OK == res;
   }
 
-  bool UART::read_bytes(void *buffer, size_t size, TickType_t ticks_to_wait)
+  bool UART::write_bytes_with_break(const void* buffer, size_t length, int brk_len, std::size_t &written)
   {
-    const auto res = uart_read_bytes(this->port_, buffer, size, ticks_to_wait);
+    const auto res = uart_write_bytes_with_break(this->port_, buffer, length, brk_len);
+    if(res != ESP_OK)
+    {
+      this->log_error("Failed to write bytes with break", res);
+    }
+    else if(res > 0)
+    {
+      written = static_cast<std::size_t>(res);
+    }
+    return ESP_OK == res;
+  }
+
+  bool UART::read_bytes(void *buffer, size_t length, TickType_t ticks_to_wait)
+  {
+    const auto res = uart_read_bytes(this->port_, buffer, length, ticks_to_wait);
     if(res != ESP_OK)
     {
       this->log_error("Failed to read bytes", res);
@@ -511,6 +523,31 @@ namespace smooth::core::io
   void UART::set_always_rx_timeout(bool enable)
   {
     uart_set_always_rx_timeout(this->port_, enable);
+  }
+
+  bool UART::driver_install(int rx_buffer_size, int tx_buffer_size, int queue_size, QueueHandle_t* uart_queue, int intr_alloc_flags)
+  {
+    const auto res = uart_driver_install(this->port_, rx_buffer_size, tx_buffer_size, queue_size, uart_queue, intr_alloc_flags);
+    if(res != ESP_OK)
+    {
+      this->log_error("Failed to install driver", res);
+    }
+    return ESP_OK == res;
+  }
+    
+  bool UART::driver_delete()
+  {
+    const auto res = uart_driver_delete(this->port_);
+    if(res != ESP_OK)
+    {
+      this->log_error("Failed to delete driver", res);
+    }
+    return ESP_OK == res;
+  }
+    
+  bool UART::is_driver_installed() const
+  {
+    return uart_is_driver_installed(this->port_);
   }
 
   void UART::log_error(const std::string msg, esp_err_t err)
