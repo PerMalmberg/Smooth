@@ -82,6 +82,7 @@ set(SMOOTH_SOURCES
         ${smooth_dir}/core/io/InterruptInput.cpp
         ${smooth_dir}/core/io/InterruptInputCB.cpp
         ${smooth_dir}/core/io/Output.cpp
+        ${smooth_dir}/core/io/UART.cpp
         ${smooth_dir}/core/ipc/QueueNotification.cpp
         ${smooth_dir}/core/json/JsonFile.cpp
         ${smooth_dir}/core/logging/log.cpp
